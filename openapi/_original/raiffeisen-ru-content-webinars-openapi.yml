@@ -1,0 +1,443 @@
+---
+openapi: "3.0.3"
+info:
+  title: "Контент. Вебинары"
+  version: "1.0.0"
+paths:
+  /v2/contents/webinars:
+    get:
+      tags:
+      - "Вебинары"
+      summary: "Получить список вебинаров"
+      operationId: "v2GetWebinars"
+      parameters:
+      - name: "offset"
+        in: "query"
+        required: true
+        style: "form"
+        explode: true
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "limit"
+        in: "query"
+        required: true
+        style: "form"
+        explode: true
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "Raiff-App-Version"
+        in: "header"
+        description: "Версия приложения"
+        required: true
+        schema:
+          default: "4.0.0"
+        example: "4.0.0"
+      - name: "Accept-Language"
+        in: "header"
+        description: "Язык приложения, ru или en"
+        required: false
+        schema:
+          default: "ru"
+        example: "ru"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebinarsV2Resources"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/contents/webinars/{id}:
+    get:
+      tags:
+      - "Вебинары"
+      summary: "Получить вебинар по id"
+      operationId: "v2GetWebinar"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+      - name: "Raiff-App-Version"
+        in: "header"
+        description: "Версия приложения"
+        required: true
+        schema:
+          default: "4.0.0"
+        example: "4.0.0"
+      - name: "Accept-Language"
+        in: "header"
+        description: "Язык приложения, ru или en"
+        required: false
+        schema:
+          default: "ru"
+        example: "ru"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "400":
+          description: "CNT-106 - Вебинар не найден"
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: "integer"
+                    format: "int32"
+                  error:
+                    type: "string"
+                  message:
+                    type: "string"
+              example:
+                code: 400
+                error: "CNT-106"
+                message: "Вебинар не найден"
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebinarV2Resource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  schemas:
+    WebinarV2Resource:
+      type: "object"
+      description: ""
+      example:
+        id: "id"
+        new: true
+        status: "PUBLISHED"
+        eventStatus: "STARTED"
+        eventStatusLabel: "В эфире"
+        title: "Ключевую ставку, вероятно, не снизят до конца года"
+        body: "**Центробанк не изменил ключевую ставку, но ужесточил риторику**\n\n\
+          7 июня прошло заседание Центробанка по ключевой ставке. Регулятор, как м\
+          ы и ожидали, решил оставить ее на уровне 16%. На пресс-конференции Эльви\
+          ра Набиуллина отметила, что также были рассмотрены варианты повышения на\
+          \ 100 и 200 базисных пунктов.\_\n\nПо нашим оценкам, Центробанк ужесточи\
+          л риторику. Во-первых, он «допускает возможность повышения ключевой став\
+          ки на ближайшем заседании» — для прошлых заседаний такое указание не пуб\
+          ликовалось. Во-вторых, регулятор выделил, что жесткие денежно-кредитные\
+          \ условия необходимо поддерживать существенно дольше, чем планировалось\
+          \ раньше.\n\nТакая риторика связана с ценовой динамикой, которая, видимо\
+          , не позволяет в этом году приблизить инфляцию к целевому уровню. Так, в\
+          \ апреле регулятор планировал замедление до диапазона 4,3–4,8% в 2024 го\
+          ду и до 4% в 2025 году. Но в этот раз цель на 2024 год была убрана из пр\
+          есс-релиза.\n\n**Регулятор отложил вопрос о необходимости повысить ключе\
+          вую ставку до конца июля**\n\nДо заседания в конце июля Центробанк плани\
+          рует анализировать соответствие основных показателей базовому сценарию.\_\
+          \n\nМы полагаем, что отклонение от него будет означать необходимость доп\
+          олнительно повысить ключевую ставку. Эльвира Набиуллина заявила, что шаг\
+          \ в таком случае будет существенным — от 1 процентного пункта. Сейчас Це\
+          нтробанк считает этот сценарий альтернативным. Риски его реализации высо\
+          ки.\_\n\nВместе с тем вопрос о возможном снижении ключевой ставки времен\
+          но снят с обсуждения. Вряд ли регулятор вернется к его рассмотрению до к\
+          онца года.\n\n**Больше о трендах экономики расскажем на вебинаре**\n\n25\
+          \ июня, 11:00–12:30 по Москве\n\n[Заявление об ограничении ответственнос\
+          ти](https://www.raiffeisen.ru/about/analytics/?active_tab=tab-5) "
+        publishDate: "2024-09-18T09:53:03+03:00"
+        startEventDate: "2025-01-11T13:00:00+03:00"
+        finishEventDate: "2025-01-11T15:00:00+03:00"
+        image:
+          url: "https://cdn.rbo.raiffeisen.ru/offerpics/cdm/webinar2.png"
+          type: "IMAGE"
+        button:
+          label: "Зарегистрироваться"
+          url: "https://ya.ru"
+        style:
+          accentColor: "PastelAccent.sochi1"
+          backgroundColor: "PastelSurface.sochi1"
+          contentBackgroundColor: "PastelSurface.sochi2"
+        attachments:
+        - id: "id-1"
+          name: "Иллюстрация к вебинару"
+          url: "https://cdn.rbo.raiffeisen.ru/offerpics/cdm/testPDF.pdf"
+          type: "PDF"
+      properties:
+        id:
+          type: "string"
+          description: "Id контента"
+        new:
+          type: "boolean"
+          description: "Статус прочитанности"
+        status:
+          type: "string"
+          description: "Статус публикации"
+          enum:
+          - "SCHEDULED"
+          - "PUBLISHED"
+        eventStatus:
+          type: "string"
+          description: "Статус вебинара"
+          enum:
+          - "PLANNED"
+          - "STARTED"
+          - "ENDED"
+          - "ATTACHMENTS_PROVIDED"
+        eventStatusLabel:
+          type: "string"
+          description: "Название статуса вебинара"
+        title:
+          type: "string"
+          description: "Заголовок"
+        body:
+          type: "string"
+          description: "Описание"
+        publishDate:
+          type: "string"
+          format: "date-time"
+          description: "Дата публикации"
+        startEventDate:
+          type: "string"
+          format: "date-time"
+          description: "Дата старта вебинара"
+        finishEventDate:
+          type: "string"
+          format: "date-time"
+          description: "Дата завершения вебинара"
+        image:
+          $ref: "#/components/schemas/WebinarMediaResource"
+          description: "Информация о картинке"
+        button:
+          $ref: "#/components/schemas/ButtonResource"
+          description: "Информация о кнопке"
+        style:
+          $ref: "#/components/schemas/ColorStyleOpenApi"
+          description: "Цвет"
+        attachments:
+          type: "array"
+          description: "Вложения"
+          items:
+            $ref: "#/components/schemas/WebinarAttachmentResource"
+      required:
+      - "body"
+      - "eventStatus"
+      - "eventStatusLabel"
+      - "finishEventDate"
+      - "image"
+      - "new"
+      - "publishDate"
+      - "startEventDate"
+      - "status"
+      - "style"
+      - "title"
+    WebinarsV2Resources:
+      type: "object"
+      description: ""
+      example:
+        content:
+        - id: "id"
+          new: true
+          status: "PUBLISHED"
+          eventStatus: "STARTED"
+          eventStatusLabel: "В эфире"
+          title: "Ключевую ставку, вероятно, не снизят до конца года"
+          body: "**Центробанк не изменил ключевую ставку, но ужесточил риторику**\n\
+            \n7 июня прошло заседание Центробанка по ключевой ставке. Регулятор, к\
+            ак мы и ожидали, решил оставить ее на уровне 16%. На пресс-конференции\
+            \ Эльвира Набиуллина отметила, что также были рассмотрены варианты пов\
+            ышения на 100 и 200 базисных пунктов.\_\n\nПо нашим оценкам, Центробан\
+            к ужесточил риторику. Во-первых, он «допускает возможность повышения к\
+            лючевой ставки на ближайшем заседании» — для прошлых заседаний такое у\
+            казание не публиковалось. Во-вторых, регулятор выделил, что жесткие де\
+            нежно-кредитные условия необходимо поддерживать существенно дольше, че\
+            м планировалось раньше.\n\nТакая риторика связана с ценовой динамикой\
+            , которая, видимо, не позволяет в этом году приблизить инфляцию к целе\
+            вому уровню. Так, в апреле регулятор планировал замедление до диапазон\
+            а 4,3–4,8% в 2024 году и до 4% в 2025 году. Но в этот раз цель на 2024\
+            \ год была убрана из пресс-релиза.\n\n**Регулятор отложил вопрос о нео\
+            бходимости повысить ключевую ставку до конца июля**\n\nДо заседания в\
+            \ конце июля Центробанк планирует анализировать соответствие основных\
+            \ показателей базовому сценарию.\_\n\nМы полагаем, что отклонение от н\
+            его будет означать необходимость дополнительно повысить ключевую ставк\
+            у. Эльвира Набиуллина заявила, что шаг в таком случае будет существенн\
+            ым — от 1 процентного пункта. Сейчас Центробанк считает этот сценарий\
+            \ альтернативным. Риски его реализации высоки.\_\n\nВместе с тем вопро\
+            с о возможном снижении ключевой ставки временно снят с обсуждения. Вря\
+            д ли регулятор вернется к его рассмотрению до конца года.\n\n**Больше\
+            \ о трендах экономики расскажем на вебинаре**\n\n25 июня, 11:00–12:30\
+            \ по Москве\n\n[Заявление об ограничении ответственности](https://www.raiffeisen.ru/about/analytics/?active_tab=tab-5) "
+          publishDate: "2024-09-18T09:53:03+03:00"
+          startEventDate: "2025-01-11T13:00:00+03:00"
+          finishEventDate: "2025-01-11T15:00:00+03:00"
+          image:
+            url: "https://cdn.rbo.raiffeisen.ru/offerpics/cdm/01.png"
+            type: "IMAGE"
+          button:
+            label: "Зарегистрироваться"
+            url: "https://ya.ru"
+          style:
+            accentColor: "PastelAccent.sochi1"
+            backgroundColor: "PastelSurface.sochi1"
+            contentBackgroundColor: "PastelSurface.sochi2"
+          attachments:
+          - id: "id-1"
+            name: "Иллюстрация к вебинару"
+            url: "https://cdn.rbo.raiffeisen.ru/offerpics/cdm/testPDF.pdf"
+            type: "PDF"
+        offset: 0
+        limit: 100
+        totalCount: 1
+      properties:
+        content:
+          type: "array"
+          description: "Список вебинаров"
+          items:
+            $ref: "#/components/schemas/WebinarV2Resource"
+        offset:
+          type: "integer"
+          format: "int32"
+          description: "Смещение относительно начала списка"
+        limit:
+          type: "integer"
+          format: "int32"
+          description: "Максимальное количество записей"
+        totalCount:
+          type: "integer"
+          format: "int64"
+          description: "Общее количество записей"
+      required:
+      - "content"
+      - "limit"
+      - "offset"
+      - "totalCount"
+    ButtonResource:
+      type: "object"
+      description: ""
+      properties:
+        label:
+          type: "string"
+          description: "Название кнопки"
+        url:
+          type: "string"
+          description: "URL адрес, на который ссылается кнопка"
+      required:
+      - "label"
+      - "url"
+    MediaResource:
+      type: "object"
+      description: ""
+      properties:
+        host:
+          type: "string"
+          description: "Адрес сервера, где хранится медиа"
+        path:
+          type: "string"
+          description: "Путь до медиа"
+        type:
+          type: "string"
+          description: "Тип медиа"
+          enum:
+          - "VIDEO"
+          - "IMAGE"
+          - "MP4"
+          - "MP3"
+          - "PDF"
+          - "PPT"
+          - "PPTX"
+          - "XLS"
+          - "XLSX"
+          - "PNG"
+          - "JPEG"
+      required:
+      - "host"
+      - "path"
+      - "type"
+    WebinarAttachmentResource:
+      type: "object"
+      description: ""
+      properties:
+        id:
+          type: "string"
+          description: "Id вложения"
+        name:
+          type: "string"
+          description: "Название"
+        url:
+          type: "string"
+          description: "Ссылка для скачивания"
+        type:
+          type: "string"
+          description: "Тип вложения"
+          enum:
+          - "VIDEO"
+          - "PDF"
+          - "PPT"
+          - "PPTX"
+          - "XLS"
+          - "XLSX"
+      required:
+      - "name"
+      - "type"
+    ColorStyleOpenApi:
+      type: "object"
+      description: ""
+      properties:
+        backgroundColor:
+          type: "string"
+          description: "Цвет слайдов"
+        contentBackgroundColor:
+          type: "string"
+          description: "Цвет фона для текста"
+        accentColor:
+          type: "string"
+          description: "Цвет текста"
+      required:
+      - "accentColor"
+      - "backgroundColor"
+      - "contentBackgroundColor"
+    WebinarMediaResource:
+      type: "object"
+      description: ""
+      properties:
+        url:
+          type: "string"
+          description: "Ссылка для скачивания"
+        type:
+          type: "string"
+          description: "Тип медиа"
+          enum:
+          - "IMAGE"
+      required:
+      - "type"
+      - "url"
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+servers:
+- url: "https://api.raiffeisen.ru/media-content"

@@ -1,0 +1,143 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Конвертация MX и MT сообщений API
+  version: 1.0.0
+  description: 'Operations tagged Конвертация MX и MT сообщений across 2 of this provider''s published API definitions: raiffeisen-ru-loro-openapi.yml, raiffeisen-ru-loro-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/loro
+tags:
+- name: Конвертация MX и MT сообщений
+  description: Конвертация MX и MT сообщений
+paths:
+  /v1/payment/convert/mx:
+    post:
+      tags:
+      - Конвертация MX и MT сообщений
+      summary: Конвертация MT сообщения в MX формат
+      operationId: convertMtMessageToMxFormat
+      parameters:
+      - name: X-CNUM
+        in: header
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+        required: true
+      responses:
+        '200':
+          description: Конвертация успешна
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: Критические ошибки валидации (отсутствуют обязательные поля, счет, валюта, сумма и т.д.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorDto'
+        '403':
+          description: Доступ запрещен (недостаточно прав)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/loro
+  /v1/payment/convert/mt:
+    post:
+      tags:
+      - Конвертация MX и MT сообщений
+      summary: Конвертация MX сообщения в MT формат
+      operationId: convertMxMessageToMtFormat
+      parameters:
+      - name: X-CNUM
+        in: header
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+        required: true
+      responses:
+        '200':
+          description: Конвертация успешна
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: Критические ошибки валидации (отсутствуют обязательные поля, счет, валюта, сумма и т.д.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorDto'
+        '403':
+          description: Доступ запрещен (недостаточно прав)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/loro
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  schemas:
+    ApiErrorDto:
+      type: object
+      properties:
+        status:
+          type: string
+        code:
+          type: integer
+          format: int32
+        messages:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+x-refined-from:
+- raiffeisen-ru-loro-openapi.yml
+- raiffeisen-ru-loro-openapi.yml

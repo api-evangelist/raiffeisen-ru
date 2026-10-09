@@ -1,0 +1,3707 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Аутентификация API
+  version: '1.0'
+  description: 'Operations tagged Аутентификация across 14 of this provider''s published API definitions: raiffeisen-ru-authorization-openapi.yml, raiffeisen-ru-content-interactions-openapi.yml, raiffeisen-ru-content-macroeconomic-reviews-openapi.yml, raiffeisen-ru-content-product-news-openapi.yml, raiffeisen-ru-content-webinars-openapi.yml, raiffeisen-ru-loro-openapi.yml, raiffeisen-ru-user-permissions-openapi.yml, raiffeisen-ru-authorization-openapi.yml, raiffeisen-ru-content-interactions-openapi.yml…'
+servers:
+- url: https://id.business.raiffeisen.ru
+- url: https://api.raiffeisen.ru/media-content
+- url: https://api.raiffeisen.ru/loro
+- url: https://api.raiffeisen.ru/permissions
+tags:
+- name: Аутентификация
+  description: Аутентификация пользователя и управление токенами OAuth2.
+paths:
+  /oauth2/authorize:
+    get:
+      operationId: authorize
+      summary: Запрос на авторизацию (Code Flow)
+      description: 'Запрос инициирует процесс аутентификации пользователя
+
+        (формируется системой клиента).'
+      tags:
+      - Аутентификация
+      parameters:
+      - name: response_type
+        in: query
+        required: true
+        description: Тип ответа, для Code Flow необходимо указать `code`.
+        schema:
+          type: string
+          enum:
+          - code
+          example: code
+      - name: code_challenge
+        in: query
+        required: true
+        description: "Хэш значения `code_verifier` (криптографически стойкой случайно сгенерированной строки):\n`code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))`\n\nПодробнее о том, как создать code_challenge — \n[Proof Key for Code Exchange (PKCE)](https://datatracker.ietf.org/doc/html/rfc7636#section-4.2)"
+        schema:
+          type: string
+          example: ewliMz7SBtJdHLlNuuJLdzu-gRs2olJQ24AQ8GTS6Qo
+      - name: code_challenge_method
+        in: query
+        required: true
+        description: Метод хэширования значения `code_verifier`, поддерживается только `S256`.
+        schema:
+          type: string
+          enum:
+          - S256
+          example: S256
+      - name: client_id
+        in: query
+        required: true
+        description: Идентификатор клиента (выдается Райффайзен Банком после подачи заявления на подключение).
+        schema:
+          type: string
+          example: 01e3decf-f997-4b5d-b52c-6bc646b3a528
+      - name: redirect_uri
+        in: query
+        required: true
+        description: "URI, на который сервис аутентификации перенаправит пользователя после прохождения аутентификации \n(указывается при подключении клиента к Райффайзен Банку)."
+        schema:
+          type: string
+          format: uri
+          example: https://www.rbo.raiffeisen.ru/
+      - name: scope
+        in: query
+        required: true
+        description: "Запрашиваемые привилегии доступа. \nЗначения указываются через пробел."
+        schema:
+          type: string
+          example: accounts:statement:read company:profile:read
+      - name: state
+        in: query
+        required: true
+        description: "Криптографически стойкая случайная строка для защиты от CSRF-атак (генерируется системой клиента).\nВозвращается в неизменном виде после успешной аутентификации пользователя. \nСистема клиента должна проверять, соответствует ли полученное в ответе значение `state` исходному значению."
+        schema:
+          type: string
+          example: VvTS5lCd5949t3ysuUbzgxfhwid0JCWyNm8Ey2BX39Q
+      responses:
+        '302':
+          description: 'Редирект на указанный в параметре `redirect_uri` URI клиента
+
+            в случае успешной аутентификации пользователя или ошибки в параметрах запроса.'
+          headers:
+            Location:
+              description: "URI клиента для завершения авторизации.\n\nЕсли пользователь аутентифицирован, в параметрах URI будут переданы `code` и `state` \nдля получения токенов доступа. Система клиента должна проверять, \nсоответствует ли полученное в ответе значение `state` исходному значению.\n\nВ случае ошибки в параметрах URI будет переданы `error` и `error_description` с описанием ошибки."
+              schema:
+                type: string
+                format: uri-reference
+              examples:
+                SuccessWithCode:
+                  summary: URI клиента c authorization code для получения токенов доступа
+                  value: https://www.rbo.raiffeisen.ru/?code=tb424Ly7439iihvpJWUdh19sVdpEiPdCQCWnHqFu6DsCDtsmdye2rth8iJNS0oQWRgPeeHB4y2YH9zLZErCmN9cR81R1mMfeZpCrVQoVWZAKmnbbfPvQS--2qC-rUrbl&state=VvTS5lCd5949t3ysuUbzgxfhwid0JCWyNm8Ey2BX39Q
+                InvalidRequestNoScope:
+                  summary: Ошибка в параметрах запроса (не указан scope)
+                  value: https://www.rbo.raiffeisen.ru/?error=invalid_request&error_description=OAuth%202.0%20Parameter%3A%20scope&state=VvTS5lCd5949t3ysuUbzgxfhwid0JCWyNm8Ey2BX39Q
+                InvalidRequestScope:
+                  summary: Ошибка в параметрах запроса (некорректное значение scope)
+                  value: https://www.rbo.raiffeisen.ru/?error=invalid_scope&error_description=OAuth%202.0%20Parameter%3A%20scope&state=VvTS5lCd5949t3ysuUbzgxfhwid0JCWyNm8Ey2BX39Q
+                InvalidRequestNoResponseType:
+                  summary: Ошибка в параметрах запроса (не указан response_type)
+                  value: https://www.rbo.raiffeisen.ru/?error=invalid_request&error_description=OAuth%202.0%20Parameter%3A%20response_type&state=VvTS5lCd5949t3ysuUbzgxfhwid0JCWyNm8Ey2BX39Q
+                InvalidRequestResponseType:
+                  summary: Ошибка в параметрах запроса (некорректное значение response_type)
+                  value: https://www.rbo.raiffeisen.ru/?error=unsupported_response_type&error_description=OAuth%202.0%20Parameter%3A%20response_type&state=VvTS5lCd5949t3ysuUbzgxfhwid0JCWyNm8Ey2BX39Q
+                InvalidRequestCodeChallenge:
+                  summary: Ошибка в параметрах запроса (некорректное значение code_challenge)
+                  value: https://www.rbo.raiffeisen.ru/?error=invalid_request&error_description=OAuth%202.0%20Parameter%3A%20code_challenge&state=VvTS5lCd5949t3ysuUbzgxfhwid0JCWyNm8Ey2BX39Q
+                InvalidRequestCodeChallengeMethod:
+                  summary: Ошибка в параметрах запроса (некорректное значение code_challenge_method)
+                  value: https://www.rbo.raiffeisen.ru/?error=invalid_request&error_description=OAuth%202.0%20Parameter%3A%20code_challenge_method&state=VvTS5lCd5949t3ysuUbzgxfhwid0JCWyNm8Ey2BX39Q
+                InvalidRequestState:
+                  summary: Ошибка в параметрах запроса (не указан state)
+                  value: https://www.rbo.raiffeisen.ru/?error=invalid_request&error_description=OAuth%202.0%20Parameter%3A%20state
+            Set-Cookie:
+              description: Служебные куки сервиса аутентификации (например, authentication_flow, raifid.device.deviceId).
+              schema:
+                type: string
+        '303':
+          description: Редирект для продолжения процесса аутентификации пользователя.
+          headers:
+            Location:
+              description: URI для продолжения процесса аутентификации пользователя.
+              schema:
+                type: string
+                format: uri-reference
+              examples:
+                RedirectToLogin:
+                  summary: URI страницы для ввода аутентификационных данных пользователя
+                  value: /login
+            Set-Cookie:
+              description: Служебные куки сервиса аутентификации (например, authentication_flow, raifid.device.deviceId).
+              schema:
+                type: string
+        '400':
+          description: Запрос некорректен. Не указаны или переданы некорректные значения `client_id` или `redirect_uri`.
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                InvalidClientId:
+                  summary: Ошибка в параметрах запроса (не указано или передано некорректное значение client_id)
+                  value: 'OAuth 2.0 Parameter: client_id'
+                InvalidRedirectUri:
+                  summary: Ошибка в параметрах запроса (не указано или передано некорректное значение redirect_uri)
+                  value: 'OAuth 2.0 Parameter: redirect_uri'
+    servers:
+    - url: https://id.business.raiffeisen.ru
+  /oauth2/token:
+    post:
+      operationId: token
+      summary: Получение и обновление токенов
+      description: 'Получение токенов по Authorization Code (`grant_type=authorization_code`)
+
+        или обновление токенов по Refresh Token (`grant_type=refresh_token`).'
+      tags:
+      - Аутентификация
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRequestDTO'
+            examples:
+              AuthorizationCodeGrant:
+                summary: Получение токенов по Authorization Code
+                value:
+                  grant_type: authorization_code
+                  code: mG9oKcfhuYthtkeH9Ovmv3T66cvH4PLVe3d6ulUiu_f8VbBxqsUkpmZzwHgjvTwzOvQi9idYfUBq5nSCNaxsJavxUAFx63u3MIHi20_va3ZkSPBT9GGi9ZvGDUO57kvT
+                  code_verifier: ACbrszxo9MTPRDHBej_Hyjftt9jc2r2aQZurfomS_ctYglRFj-ckHphyoc39_-9OD-G9itHoyvIMJTT8V3TSbksMm6KC1S4Ji7FXogJPtTx-vy3yp2CgPVxBBJkegSTA
+                  client_id: 01e3decf-f997-4b5d-b52c-6bc646b3a528
+                  client_secret: ClientSecretPassword
+                  redirect_uri: https://www.rbo.raiffeisen.ru/
+              RefreshTokenGrant:
+                summary: Обновление токенов по Refresh токену
+                value:
+                  grant_type: refresh_token
+                  refresh_token: <opaque-refresh-token>
+                  client_id: 01e3decf-f997-4b5d-b52c-6bc646b3a528
+                  client_secret: ClientSecretPassword
+      responses:
+        '200':
+          description: Успешно выданы токены.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponseDTO'
+              examples:
+                TokenResponse:
+                  description: Успешный ответ с access_token и refresh_token.
+                  value:
+                    access_token: <jwt-access-token>
+                    expires_in: 1800
+                    token_type: Bearer
+                    scope: openid profile
+                    refresh_token: <opaque-refresh-token>
+                    refresh_expires_at: 1777618800
+        '400':
+          description: Ошибка параметров запроса.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuth2ErrorDTO'
+              examples:
+                InvalidGrantError:
+                  summary: Ошибка invalid_grant (неверный код или истекший токен)
+                  value:
+                    error: invalid_grant
+        '401':
+          description: Ошибка авторизации.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuth2ErrorDTO'
+              examples:
+                Error:
+                  summary: Ошибка invalid_client (неверно указан client_id или client_secret)
+                  value:
+                    error: invalid_client
+    servers:
+    - url: https://id.business.raiffeisen.ru
+  /oauth2/revoke:
+    post:
+      operationId: revokeToken
+      summary: Отзыв токена
+      description: 'Отзывает Access Token или Refresh Token, выданный клиенту.
+
+        Неизвестный сервису или уже отозванный токен также приводит к ответу 200 согласно RFC 7009.'
+      tags:
+      - Аутентификация
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRevocationRequestDTO'
+      responses:
+        '200':
+          description: Запрос обработан. Тело ответа отсутствует, в том числе для неизвестного или уже отозванного токена.
+        '400':
+          description: Ошибка параметров запроса.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuth2ErrorDTO'
+        '401':
+          description: Ошибка аутентификации клиента.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuth2ErrorDTO'
+    servers:
+    - url: https://id.business.raiffeisen.ru
+  /oauth2/jwks:
+    get:
+      operationId: getJwks
+      summary: Публичные ключи для проверки JWT
+      description: Возвращает набор публичных ключей сервиса в формате JWK Set для проверки подписи JWT.
+      tags:
+      - Аутентификация
+      responses:
+        '200':
+          description: Набор публичных ключей.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicJwksResponseDTO'
+    servers:
+    - url: https://id.business.raiffeisen.ru
+  /oauth2/token/liveness:
+    get:
+      operationId: tokenLiveness
+      summary: Проверка активности Access Token
+      description: 'Проверяет, что Access Token в заголовке `Authorization` выпущен сервисом,
+
+        не истек и не был отозван.
+
+
+        Ответы не содержат тела.'
+      tags:
+      - Аутентификация
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Токен активен
+        '401':
+          description: Заголовок Authorization отсутствует, имеет неверный формат или токен недействителен
+        '503':
+          description: Проверка токена временно недоступна
+    servers:
+    - url: https://id.business.raiffeisen.ru
+  /login:
+    get:
+      operationId: getLoginPage
+      summary: Получение формы текущего шага входа
+      description: 'Возвращает HTML страницу входа без предварительной авторизации пользователя.
+
+        Процесс входа начинается через `GET /oauth2/authorize`; браузер должен сохранять служебные cookies.
+
+        Тип формы определяется `viewData.pageData.stepViewData.stepType`: `username-password`, `password`,
+
+        `phone`, `sms-otp`, `email-otp` или `consent`.
+
+
+        JSON внутри `script#viewData` с типом `application/json` описан схемой `LoginViewDataDTO`.
+
+        CSRF токен находится в `pageData.authenticationFlowContext.csrf`.
+
+        Если процесс входа завершён, выполняется редирект на исходный `/oauth2/authorize`.
+
+        Если процесс не найден, пользователь возвращается на зарегистрированный адрес клиентской системы
+
+        из `login_client_entry` либо на страницу выхода по умолчанию.'
+      tags:
+      - Аутентификация
+      parameters:
+      - $ref: '#/components/parameters/AuthenticationFlowCookie'
+      - $ref: '#/components/parameters/LoginClientEntryCookie'
+      - $ref: '#/components/parameters/CsrfCookie'
+      - name: step_error_details
+        in: cookie
+        description: Служебные данные ошибки предыдущей попытки ввода пароля или OTP.
+        schema:
+          type: string
+      - name: raifid.captcha.required
+        in: cookie
+        description: Признак отображения CAPTCHA; не отменяет проверку необходимости CAPTCHA сервером.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: HTML страница текущего шага с JSON в script#viewData.
+          headers:
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+          content:
+            text/html:
+              schema:
+                type: string
+                description: HTML с данными LoginViewDataDTO внутри script#viewData.
+              x-view-data-schema:
+                $ref: '#/components/schemas/LoginViewDataDTO'
+        '302':
+          description: Возврат к OAuth авторизации или на адрес клиентской системы при отсутствии процесса входа.
+          headers:
+            Location:
+              $ref: '#/components/headers/RedirectLocation'
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+        '303':
+          $ref: '#/components/responses/UiErrorRedirect'
+    post:
+      operationId: submitLoginStep
+      summary: Отправка формы текущего шага входа
+      description: 'Обрабатывает один шаг входа: логин и пароль, номер телефона, пароль, SMS/Email OTP или согласие на scopes.
+
+        Нужны активный процесс входа, служебные cookies и CSRF токен из
+
+        `viewData.pageData.authenticationFlowContext.csrf`. Токен передаётся полем `_csrf`
+
+        вместе с cookie `XSRF-TOKEN`.
+
+
+        После обработки возвращается `303` на `/login`, исходный `/oauth2/authorize` или `/error`.
+
+        Ошибки ввода отображаются при следующем GET формы. Если процесс истёк, а cookie
+
+        `login_client_entry` действительна, возвращается `302` на адрес клиентской системы для повторного входа.'
+      tags:
+      - Аутентификация
+      parameters:
+      - $ref: '#/components/parameters/AuthenticationFlowCookie'
+      - $ref: '#/components/parameters/LoginClientEntryCookie'
+      - $ref: '#/components/parameters/CsrfCookie'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginStepRequestDTO'
+      responses:
+        '303':
+          description: 'Продолжение входа или повтор формы после ошибки ввода — `/login`;
+
+            завершение всех шагов — исходный `/oauth2/authorize`;
+
+            ошибка CSRF или невозможность продолжить процесс — `/error`.'
+          headers:
+            Location:
+              $ref: '#/components/headers/RedirectLocation'
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+        '302':
+          description: Процесс входа не найден; возврат на зарегистрированный адрес клиентской системы.
+          headers:
+            Location:
+              $ref: '#/components/headers/RedirectLocation'
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+    servers:
+    - url: https://id.business.raiffeisen.ru
+  /login/restart:
+    get:
+      operationId: restartLogin
+      summary: Повторный запуск входа со страницы ошибки
+      description: 'Восстанавливает исходный OAuth запрос по cookie `failed_authentication_flow_id`.
+
+        Если восстановить запрос нельзя, использует проверенный адрес клиентской системы из `login_client_entry`
+
+        либо страницу выхода по умолчанию. Cookie `failed_authentication_flow_id` очищается.'
+      tags:
+      - Аутентификация
+      parameters:
+      - $ref: '#/components/parameters/FailedAuthenticationFlowCookie'
+      - $ref: '#/components/parameters/LoginClientEntryCookie'
+      responses:
+        '302':
+          description: Редирект на исходный OAuth запрос, адрес клиентской системы или страницу выхода по умолчанию.
+          headers:
+            Location:
+              $ref: '#/components/headers/RedirectLocation'
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+        '303':
+          $ref: '#/components/responses/UiErrorRedirect'
+    servers:
+    - url: https://id.business.raiffeisen.ru
+  /login/user-settings/auth-method:
+    post:
+      operationId: updateLoginAuthMethod
+      summary: Изменение способа входа
+      description: 'Выбирает вход по паролю (`PASSWORD`) или телефону (`PHONE`) и начинает текущий процесс входа заново.
+
+        Требуются активный процесс входа и CSRF токен из `viewData.pageData.authenticationFlowContext.csrf`.
+
+        Передайте токен полем `_csrf` либо заголовком `X-XSRF-TOKEN` вместе с cookie `XSRF-TOKEN`.
+
+        При ошибке параметров, CSRF или отсутствии процесса входа выполняется редирект на `/error`.'
+      tags:
+      - Аутентификация
+      parameters:
+      - $ref: '#/components/parameters/AuthenticationFlowCookie'
+      - $ref: '#/components/parameters/CsrfCookie'
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - authMethod
+              properties:
+                authMethod:
+                  type: string
+                  enum:
+                  - PASSWORD
+                  - PHONE
+                _csrf:
+                  type: string
+                  description: CSRF токен; обязателен, если не передан заголовок X-XSRF-TOKEN.
+      responses:
+        '303':
+          description: Редирект на /login после смены способа входа либо на /error при ошибке.
+          headers:
+            Location:
+              $ref: '#/components/headers/RedirectLocation'
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+    servers:
+    - url: https://id.business.raiffeisen.ru
+  /login/user-settings/locale:
+    patch:
+      operationId: updateLoginLocale
+      summary: Изменение языка формы входа
+      description: 'Меняет язык без перезапуска текущего шага. Требуется cookie `authentication_flow`
+
+        либо `failed_authentication_flow_id` для смены языка на странице ошибки.
+
+        CSRF токен берётся из `viewData.pageData.authenticationFlowContext.csrf`
+
+        или `viewData.pageData.errorPageContext.csrf` и передаётся в `X-XSRF-TOKEN`.
+
+        Ответы не содержат тела. При ошибках возвращается HTTP status без редиректа на `/error`.'
+      tags:
+      - Аутентификация
+      parameters:
+      - name: locale
+        in: query
+        required: true
+        description: Язык формы входа.
+        schema:
+          $ref: '#/components/schemas/SupportedLocale'
+      - $ref: '#/components/parameters/AuthenticationFlowCookie'
+      - $ref: '#/components/parameters/FailedAuthenticationFlowCookie'
+      - $ref: '#/components/parameters/CsrfCookie'
+      - name: X-XSRF-TOKEN
+        in: header
+        required: true
+        description: CSRF токен из viewData страницы входа или ошибки.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Язык сохранён; текущий шаг не изменён.
+          headers:
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+        '400':
+          description: Не указан locale, язык не поддерживается или процесс входа не найден.
+        '403':
+          description: Ошибка проверки CSRF или доступа.
+        '500':
+          description: Временная ошибка при обновлении языка.
+    servers:
+    - url: https://id.business.raiffeisen.ru
+  /login/user-settings/otp-method:
+    post:
+      operationId: updateLoginOtpMethod
+      summary: Выбор доставки OTP по email
+      description: 'Выбирает резервную доставку OTP по email для текущего SMS второго фактора.
+
+        Требуются активный процесс входа и CSRF токен из `viewData.pageData.authenticationFlowContext.csrf`.
+
+        Передайте токен полем `_csrf` либо заголовком `X-XSRF-TOKEN` вместе с cookie `XSRF-TOKEN`.
+
+
+        Адрес email и доступность перехода проверяет сервер. Если переключение недоступно,
+
+        процесс не меняется и пользователь возвращается на `/login`.
+
+        OTP создаётся при следующем GET `/login`; при утрате доступности email сохраняется доставка по SMS.
+
+        Некорректный `otpMethod`, отсутствие процесса входа или ошибка CSRF приводят к редиректу на `/error`.'
+      tags:
+      - Аутентификация
+      parameters:
+      - $ref: '#/components/parameters/AuthenticationFlowCookie'
+      - $ref: '#/components/parameters/CsrfCookie'
+      - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - otpMethod
+              properties:
+                otpMethod:
+                  type: string
+                  enum:
+                  - email
+                _csrf:
+                  type: string
+                  description: CSRF токен; обязателен, если не передан заголовок X-XSRF-TOKEN.
+      responses:
+        '303':
+          description: Редирект на /login после обработки выбора либо на /error при ошибке.
+          headers:
+            Location:
+              $ref: '#/components/headers/RedirectLocation'
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+    servers:
+    - url: https://id.business.raiffeisen.ru
+  /error:
+    get:
+      operationId: getErrorPage
+      summary: Получение страницы ошибки входа
+      description: 'Возвращает HTML страницу с JSON внутри `script#viewData` с типом `application/json`.
+
+        Структура JSON описана схемой `ErrorPageDataDTO`: код ошибки, доступные действия
+
+        `RELOAD`, `RETRY_LOGIN`, `REDIRECT` и CSRF токен для смены языка.
+
+
+        Читает и очищает служебную cookie `error_page_details`. Для повторного входа может установить
+
+        `failed_authentication_flow_id`. Если данных ошибки нет, они повреждены или ошибка требует выхода,
+
+        выполняется редирект на страницу выхода по умолчанию.'
+      tags:
+      - Аутентификация
+      parameters:
+      - name: error_page_details
+        in: cookie
+        description: Служебные данные ошибки, установленные сервером перед редиректом на /error.
+        schema:
+          type: string
+      - $ref: '#/components/parameters/FailedAuthenticationFlowCookie'
+      responses:
+        '200':
+          description: HTML страница ошибки с JSON в script#viewData.
+          headers:
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+          content:
+            text/html:
+              schema:
+                type: string
+                description: HTML с данными ErrorPageDataDTO внутри script#viewData.
+              x-view-data-schema:
+                $ref: '#/components/schemas/ErrorPageDataDTO'
+        '302':
+          description: Редирект на страницу выхода по умолчанию.
+          headers:
+            Location:
+              $ref: '#/components/headers/RedirectLocation'
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+    servers:
+    - url: https://id.business.raiffeisen.ru
+  /v1/contents/{newsType}/{id}/stat:
+    post:
+      tags:
+      - Аутентификация
+      summary: Отметить новость прочитанной и оценить ее
+      operationId: v1RegisterStat_(3)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: newsType
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          enum:
+          - PRODUCT
+          - DIGEST
+          - WEBINAR
+          - INSIGHT
+          - STORY
+          - SURVEY
+      - name: Raiff-App-Version
+        in: header
+        description: Версия приложения
+        required: true
+        schema:
+          default: 4.0.0
+        example: 4.0.0
+      - name: Accept-Language
+        in: header
+        description: Язык приложения, ru или en
+        required: false
+        schema:
+          default: ru
+        example: ru
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatResource'
+        required: true
+      responses:
+        '400':
+          description: CNT-115 - Контент с типом [${contentType}] не найден<br/>CNT-122 - Контент с типом [${type}] не поддерживается
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                  error:
+                    type: string
+                  message:
+                    type: string
+              example:
+                code: 400
+                error: CNT-115
+                message: Контент с типом [${contentType}] не найден
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/media-content
+  /v1/contents/{newsType}/{id}/read:
+    post:
+      tags:
+      - Аутентификация
+      summary: Отметить контент прочитанным
+      operationId: v1SetReadStatusNews_(1)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: newsType
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          enum:
+          - PRODUCT
+          - DIGEST
+          - WEBINAR
+          - INSIGHT
+          - STORY
+          - SURVEY
+      - name: cnum
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: Raiff-App-Version
+        in: header
+        description: Версия приложения
+        required: true
+        schema:
+          default: 4.0.0
+        example: 4.0.0
+      - name: Accept-Language
+        in: header
+        description: Язык приложения, ru или en
+        required: false
+        schema:
+          default: ru
+        example: ru
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '400':
+          description: CNT-122 - Контент с типом [${type}] не поддерживается<br/>CNT-115 - Контент с типом [${contentType}] не найден
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                  error:
+                    type: string
+                  message:
+                    type: string
+              example:
+                code: 400
+                error: CNT-122
+                message: Контент с типом [${type}] не поддерживается
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadStatusResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/media-content
+  /v1/contents/count/new:
+    get:
+      tags:
+      - Аутентификация
+      summary: Получить счетчик нового контента
+      operationId: v1GetNewsContentCount
+      parameters:
+      - name: Raiff-App-Version
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          $ref: '#/components/schemas/Version'
+      - name: Accept-Language
+        in: header
+        description: Язык приложения, ru или en
+        required: false
+        schema:
+          default: ru
+        example: ru
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewsContentCounterResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/media-content
+  /v2/contents/digests/{id}/stat:
+    post:
+      tags:
+      - Аутентификация
+      summary: Отметить прочитанным или оценить обзор макроэкономики
+      operationId: v2RegisterStat
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: Raiff-App-Version
+        in: header
+        description: Версия приложения
+        required: true
+        schema:
+          default: 4.0.0
+        example: 4.0.0
+      - name: Accept-Language
+        in: header
+        description: Язык приложения, ru или en
+        required: false
+        schema:
+          default: ru
+        example: ru
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DigestStatResource'
+        required: true
+      responses:
+        '400':
+          description: CNT-115 - Контент с типом [${contentType}] не найден
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                  error:
+                    type: string
+                  message:
+                    type: string
+              example:
+                code: 400
+                error: CNT-115
+                message: Контент с типом [${contentType}] не найден
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DigestStatResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/media-content
+  /v2/contents/digests:
+    get:
+      tags:
+      - Аутентификация
+      summary: Получить список обзоров макроэкономики
+      operationId: v2GetDigests
+      parameters:
+      - name: offset
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+      - name: limit
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+      - name: Raiff-App-Version
+        in: header
+        description: Версия приложения
+        required: true
+        schema:
+          default: 4.0.0
+        example: 4.0.0
+      - name: Accept-Language
+        in: header
+        description: Язык приложения, ru или en
+        required: false
+        schema:
+          default: ru
+        example: ru
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DigestV2Resources'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/media-content
+  /v2/contents/digests/{id}:
+    get:
+      tags:
+      - Аутентификация
+      summary: Получить обзор макроэкономики по id
+      operationId: v2GetDigest
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: Raiff-App-Version
+        in: header
+        description: Версия приложения
+        required: true
+        schema:
+          default: 4.0.0
+        example: 4.0.0
+      - name: Accept-Language
+        in: header
+        description: Язык приложения, ru или en
+        required: false
+        schema:
+          default: ru
+        example: ru
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '400':
+          description: CNT-115 - Контент с типом [${contentType}] не найден
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                  error:
+                    type: string
+                  message:
+                    type: string
+              example:
+                code: 400
+                error: CNT-115
+                message: Контент с типом [${contentType}] не найден
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DigestResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/media-content
+  /v2/contents/digests/{id}/previous:
+    get:
+      tags:
+      - Аутентификация
+      summary: Получить предыдущий обзор макроэкономики
+      operationId: v2GetPreviousDigest
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: Raiff-App-Version
+        in: header
+        description: Версия приложения
+        required: true
+        schema:
+          default: 4.0.0
+        example: 4.0.0
+      - name: Accept-Language
+        in: header
+        description: Язык приложения, ru или en
+        required: false
+        schema:
+          default: ru
+        example: ru
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '400':
+          description: CNT-115 - Контент с типом [${contentType}] не найден
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                  error:
+                    type: string
+                  message:
+                    type: string
+              example:
+                code: 400
+                error: CNT-115
+                message: Контент с типом [${contentType}] не найден
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DigestResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/media-content
+  /v2/contents/digests/last:
+    get:
+      tags:
+      - Аутентификация
+      summary: Получить последний обзор макроэкономики
+      operationId: v2GetLastDigest
+      parameters:
+      - name: Raiff-App-Version
+        in: header
+        description: Версия приложения
+        required: true
+        schema:
+          default: 4.0.0
+        example: 4.0.0
+      - name: Accept-Language
+        in: header
+        description: Язык приложения, ru или en
+        required: false
+        schema:
+          default: ru
+        example: ru
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '400':
+          description: CNT-115 - Контент с типом [${contentType}] не найден
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                  error:
+                    type: string
+                  message:
+                    type: string
+              example:
+                code: 400
+                error: CNT-115
+                message: Контент с типом [${contentType}] не найден
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DigestResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/media-content
+  /v2/contents/product-news:
+    get:
+      tags:
+      - Аутентификация
+      summary: Получить список новостей о продуктах
+      operationId: v2GetProductNews
+      parameters:
+      - name: limit
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+      - name: offset
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+      - name: Raiff-App-Version
+        in: header
+        description: Версия приложения
+        required: true
+        schema:
+          default: 4.0.0
+        example: 4.0.0
+      - name: Accept-Language
+        in: header
+        description: Язык приложения, ru или en
+        required: false
+        schema:
+          default: ru
+        example: ru
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductNewsV2Resources'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/media-content
+  /v2/contents/product-news/{id}:
+    get:
+      tags:
+      - Аутентификация
+      summary: Получить новость о продукте по id
+      operationId: v2GetProductNews_(1)
+      parameters:
+      - name: id
+        in: path
+        description: id новости
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          description: Ссылка для скачивания
+      - name: Raiff-App-Version
+        in: header
+        description: Версия приложения
+        required: true
+        schema:
+          default: 4.0.0
+        example: 4.0.0
+      - name: Accept-Language
+        in: header
+        description: Язык приложения, ru или en
+        required: false
+        schema:
+          default: ru
+        example: ru
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '400':
+          description: CNT-115 - Контент с типом [${contentType}] не найден
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                  error:
+                    type: string
+                  message:
+                    type: string
+              example:
+                code: 400
+                error: CNT-115
+                message: Контент с типом [${contentType}] не найден
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductNewsV2Resource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/media-content
+  /v2/contents/webinars:
+    get:
+      tags:
+      - Аутентификация
+      summary: Получить список вебинаров
+      operationId: v2GetWebinars
+      parameters:
+      - name: offset
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+      - name: limit
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+      - name: Raiff-App-Version
+        in: header
+        description: Версия приложения
+        required: true
+        schema:
+          default: 4.0.0
+        example: 4.0.0
+      - name: Accept-Language
+        in: header
+        description: Язык приложения, ru или en
+        required: false
+        schema:
+          default: ru
+        example: ru
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarsV2Resources'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/media-content
+  /v2/contents/webinars/{id}:
+    get:
+      tags:
+      - Аутентификация
+      summary: Получить вебинар по id
+      operationId: v2GetWebinar
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: Raiff-App-Version
+        in: header
+        description: Версия приложения
+        required: true
+        schema:
+          default: 4.0.0
+        example: 4.0.0
+      - name: Accept-Language
+        in: header
+        description: Язык приложения, ru или en
+        required: false
+        schema:
+          default: ru
+        example: ru
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '400':
+          description: CNT-106 - Вебинар не найден
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                  error:
+                    type: string
+                  message:
+                    type: string
+              example:
+                code: 400
+                error: CNT-106
+                message: Вебинар не найден
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarV2Resource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/media-content
+  /v1/payment/tracks/{uetr}/trck:
+    get:
+      tags:
+      - Аутентификация
+      summary: Получение списка TRCK 002 сообщений по UETR платежа
+      description: Возвращает список TRCK сообщений в формате XML по UETR платежа
+      operationId: getTrckList
+      parameters:
+      - name: uetr
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-CNUM
+        in: header
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '403':
+          description: Доступ запрещен (недостаточно прав)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/loro
+  /v1/reports:
+    get:
+      tags:
+      - Аутентификация
+      summary: Получение отчетов с учетом примененных фильтров и пагинации
+      operationId: getReportModels
+      parameters:
+      - name: reportType
+        in: query
+        description: Тип отчёта
+        required: true
+        schema:
+          type: string
+          enum:
+          - AVIZO_MT900_MT910
+          - CURRENCY_PAYMENT
+          - NON_STP
+          - RUB_BALANCES
+          - FCY_BALANCES
+          - INTEREST_LORO_MONTHLY
+          - OVERDRAFT_LORO_MONTHLY
+          - DEBT_LORO_MONTHLY
+          - DEBT_NFI_MONTHLY
+          - RUB_FEE_LORO_MONTHLY
+          - ARREST_LORO_DAILY
+        example: RUB_BALANCES
+      - name: dateFrom
+        in: query
+        description: Дата отчётов с
+        required: true
+        schema:
+          type: string
+          format: date
+        example: '2025-07-24'
+      - name: dateTo
+        in: query
+        description: Дата отчётов по
+        required: true
+        schema:
+          type: string
+          format: date
+        example: '2025-07-25'
+      - name: limit
+        in: query
+        description: Максимальное количество отчётов в ответе, по умолчаниию 10
+        required: false
+        schema:
+          type: integer
+        example: 10
+      - name: offset
+        in: query
+        description: Значение смещения строк с отчётами, по умолчанию 0
+        required: false
+        schema:
+          minimum: 0
+          type: integer
+        example: 0
+      - name: sortDirection
+        in: query
+        description: Направление сортировки, с возможными значениями "ASC" или "DESC"
+        required: false
+        schema:
+          type: string
+          default: DESC
+          enum:
+          - ASC
+          - DESC
+        example: DESC
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OffsetPageDebtLoroReportModelRs'
+              examples:
+                debtReports:
+                  summary: Дебетовый отчет
+                  description: debtReports
+                  value:
+                    data:
+                    - cnum: Z12345
+                      period:
+                        from: '2025-07-24'
+                        to: '2025-07-25'
+                      clientName: test
+                      accounts:
+                      - K550987654321
+                      totalDueAmount: 100
+                      reportDetails:
+                      - feeName: test
+                        feeAmount: 0
+                        debt: 555.01
+                        taxAmount: 666.01
+                        currency: RUB
+                        creationDate: '2025-07-01'
+                      reportType: RUB_BALANCES
+                    offset: 0
+                    limit: 1
+                    totalCount: 1
+                arrestLoroDailyReports:
+                  summary: Отчёт по арестам
+                  description: arrestLoroDailyReports
+                  value:
+                    data:
+                    - reportType: ARREST_LORO_DAILY
+                      cnum: Z12345
+                      period:
+                        from: '2025-07-24'
+                        to: '2025-07-25'
+                      clientName: test
+                      accountDetails:
+                      - account: K551234567890
+                        totalAccountArrests: 111.01
+                        arrestAccountStatus: BLOCKED
+                        arrestDetails:
+                        - arrestStartDate: '2025-07-25'
+                          currentArrestSum: 116.9
+                          arrestStatus: ACTIVE
+                          arrestType: FULL
+                          arrestEvents:
+                          - arrestNumber: AN123456789
+                            arrestOrigin: AO123456789
+                            arrestEventStatus: CREATED
+                            date: '2025-07-25'
+                            arrestType: FULL
+                            arrestSum: 116.9
+                            timestamp: '2025-07-31T07:48:16.049Z'
+                    offset: 0
+                    limit: 1
+                    totalCount: 1
+        '400':
+          description: Неверный запрос
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/loro
+  /v1/dictionary/bics:
+    get:
+      tags:
+      - Аутентификация
+      summary: Получение справочника БИК
+      description: 'Возвращает список банков по фильтрам: БИК, коррсчет, наименование'
+      operationId: getBicDictionary
+      parameters:
+      - name: bic
+        in: query
+        description: БИКи
+        required: false
+        schema:
+          maxItems: 100
+          minItems: 0
+          type: array
+          items:
+            type: string
+      - name: corrAccount
+        in: query
+        description: Корр. счета
+        required: false
+        schema:
+          maxItems: 100
+          minItems: 0
+          type: array
+          items:
+            type: string
+      - name: name
+        in: query
+        description: Наименование, подстрока
+        required: false
+        schema:
+          type: string
+      - name: onlyActive
+        in: query
+        description: Фильтр по активным записям
+        required: false
+        schema:
+          type: boolean
+          default: false
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BicDto'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/loro
+  /api/v1/acc-permissions/{cnum}:
+    get:
+      tags:
+      - Аутентификация
+      operationId: getAccPermissionsByCnum
+      summary: Получить пермиссии в рамках ЦУД (центр управления доступом), если инициатор…
+      parameters:
+      - name: cnum
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: x-system-id
+        in: header
+        required: true
+        description: Идентификатор сервиса-потребителя
+        schema:
+          type: string
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              examples:
+                Successful response:
+                  value:
+                    accounts:
+                      view: true
+                      edit: true
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorResponseDTO'
+                - $ref: '#/components/schemas/GenericError'
+              examples:
+                MissingHeaderXSystemId:
+                  summary: Отсутствует обязательный заголовок x-system-id
+                  value:
+                    code: header_is_missing
+                    message: '''x-system-id'': header-parameter is missing'
+                BadRequest:
+                  summary: В path не передан параметр запроса
+                  value:
+                    code: bad_request
+                    message: bad request
+                NoActiveEmployees:
+                  summary: Активные сотрудники не найдены в rbp-employee-service
+                  value:
+                    message: No active employee found in rbp-employee-service with userId dcba1f96-91e9-4a89-a149-70c60b4da06a and cnum QWERTY
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/permissions
+  /api/v2/acc-permissions/{userId}/{cnum}:
+    get:
+      tags:
+      - Аутентификация
+      operationId: getAccPermissionsByUserIdAndCnum
+      summary: Получить пермиссии в рамках ЦУД (центр управления доступом) для переданного…
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: cnum
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: x-system-id
+        in: header
+        required: true
+        description: Идентификатор сервиса-потребителя
+        schema:
+          type: string
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccEmployeePermissionDTO'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+              examples:
+                MissingHeaderXSystemId:
+                  summary: Отсутствует обязательный заголовок x-system-id
+                  value:
+                    code: header_is_missing
+                    message: '''x-system-id'': header-parameter is missing'
+                BadRequest:
+                  summary: В path не передан параметр запроса
+                  value:
+                    code: bad_request
+                    message: bad request
+                InvalidUUID:
+                  summary: Передан невалидный UUID
+                  value:
+                    code: invalid_parameter_format
+                    message: 'parameter ''userId'' has invalid type. Required type: UUID'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Access Denied
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ErrorResponseDTO'
+              examples:
+                NotEmployee:
+                  summary: Инициатор запроса и переданный сотрудник не имеют общих компаний
+                  value:
+                    code: not_employee
+                    message: The requester and the user being checked are not from the same company or cnum is invalid
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/permissions
+  /api/v1/employee/role:
+    post:
+      tags:
+      - Аутентификация
+      summary: Получить роль сотрудника по userId и cnum (инициатор запроса должен быть ЕИО в…
+      operationId: employeeRole
+      parameters:
+      - name: x-system-id
+        in: header
+        required: true
+        description: Идентификатор сервиса-потребителя
+        schema:
+          type: string
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeRoleRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeRoleResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+              examples:
+                MissingHeaderXSystemId:
+                  summary: Отсутствует обязательный заголовок x-system-id
+                  value:
+                    code: header_is_missing
+                    message: '''x-system-id'': header-parameter is missing'
+                BadRequest:
+                  summary: Не передано тело запроса
+                  value:
+                    code: bad_request
+                    message: bad request
+                MissingUserId:
+                  summary: Обязательный параметр userId не передан
+                  value:
+                    code: bad_request
+                    message: 'userId: parameter is missing'
+                MissingCnum:
+                  summary: Обязательный параметр cnum не передан
+                  value:
+                    code: bad_request
+                    message: 'cnum: parameter is missing'
+                NotValidUserId:
+                  summary: Передан невалидный userId
+                  value:
+                    code: bad_request
+                    message: 'userId: invalid value'
+                EmployeeNotFound:
+                  summary: Сотрудник не найден
+                  value:
+                    code: employee_not_found
+                    message: Employee with userId df9924ce-3212-4354-b3dd-e3dc80d4c3e7 and cnum QWERTY is not found
+                UserNotFound:
+                  summary: Пользователь не найден
+                  value:
+                    code: user_not_found
+                    message: User with id df9924ce-3212-4354-b3dd-e3dc80d4c3e7 is not found
+                RoleNotFound:
+                  summary: Роль не найдена
+                  value:
+                    code: role_not_found
+                    message: Role with id df9924ce-3212-4354-b3dd-e3dc80d4c3e7 is not found
+                UserHasNoRoleAssigned:
+                  summary: У пользователя не установлена роль
+                  value:
+                    code: role_not_found
+                    message: User with id df9924ce-3212-4354-b3dd-e3dc80d4c3e7 has no role assigned
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Access Denied
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ErrorResponseDTO'
+              examples:
+                ExecutiveIsNotEIO:
+                  summary: Инициатор запроса не является ЕИО в переданном cnum
+                  value:
+                    code: executive_not_eio
+                    message: Executive with userId df9924ce-3212-4354-b3dd-e3dc80d4c3e7 and cnum QWERTY is invalid or is not EIO
+                UnavailableRole:
+                  summary: Роль недоступна
+                  value:
+                    code: unavailable_role
+                    message: Role with code df9924ce-3212-4354-b3dd-e3dc80d4c3e7 is unavailable
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/permissions
+components:
+  schemas:
+    PublicJwksResponseDTO:
+      type: object
+      required:
+      - keys
+      properties:
+        keys:
+          type: array
+          description: Публичные RSA-ключи для проверки подписи JWT.
+          items:
+            type: object
+            required:
+            - kty
+            - kid
+            - use
+            - alg
+            - n
+            - e
+            properties:
+              kty:
+                type: string
+                description: Тип ключа.
+                example: RSA
+              kid:
+                type: string
+                description: Идентификатор ключа, соответствующий заголовку kid проверяемого JWT.
+              use:
+                type: string
+                description: Назначение ключа.
+                example: sig
+              alg:
+                type: string
+                description: Алгоритм подписи.
+                example: RS256
+              n:
+                type: string
+                description: Модуль RSA в формате Base64url.
+              e:
+                type: string
+                description: Публичная экспонента RSA в формате Base64url.
+                example: AQAB
+    OAuth2ErrorDTO:
+      type: object
+      required:
+      - error
+      properties:
+        error:
+          type: string
+          description: Код ошибки.
+        error_description:
+          type: string
+          description: Описание ошибки.
+    TokenResponseDTO:
+      type: object
+      required:
+      - access_token
+      - token_type
+      - expires_in
+      properties:
+        access_token:
+          type: string
+          description: Access Token в формате JWT.
+        expires_in:
+          type: integer
+          description: Время действия токена в секундах.
+        token_type:
+          type: string
+          enum:
+          - Bearer
+          description: Тип токена.
+        scope:
+          type: string
+          description: Выданные привилегии доступа (значения указываются через пробел).
+        refresh_token:
+          type: string
+          description: Refresh Token.
+        id_token:
+          type: string
+          description: ID Token в формате JWT при использовании OpenID Connect (scope openid).
+        refresh_expires_at:
+          type: integer
+          description: Время завершения действия Refresh токена (Epoch Unix Timestamp).
+    TokenRequestDTO:
+      type: object
+      required:
+      - grant_type
+      properties:
+        grant_type:
+          type: string
+          enum:
+          - authorization_code
+          - refresh_token
+          description: 'Тип взаимодействия, в рамках которого происходит получение токенов:
+
+            - `authorization_code` для получения токенов по Authorization Code (Code Flow);
+
+            - `refresh_token` для получения новых токенов по Refresh токену.'
+        code:
+          type: string
+          description: "Authorization Code (обязательный параметр для grant_type=authorization_code), \nзначение переданное в параметре code после успешной аутентификации пользователя и \nперенаправлении на redirect_uri клиентского приложения."
+        code_verifier:
+          type: string
+          description: 'Криптографически стойкая случайно сгенерированная строка,
+
+            которая согласно стандарту PKCE (RFC 7636) использовалась для генерации значения `code_challenge`
+
+            в запросе GET /oauth2/authorize (обязательный параметр для grant_type=authorization_code).'
+        client_id:
+          type: string
+          description: Идентификатор клиента (выдается Райффайзен Банком после подачи заявления на подключение).
+        client_secret:
+          type: string
+          description: Пароль клиента (указывается при подключении системы клиента к Райффайзен Банку).
+        redirect_uri:
+          type: string
+          description: "URI, на который сервис аутентификации перенаправляет пользователя после прохождения аутентификации \n(указывается при подключении системы клиента к Райффайзен Банку)."
+        refresh_token:
+          type: string
+          description: Refresh токен (обязательный параметр для grant_type=refresh_token).
+    TokenRevocationRequestDTO:
+      type: object
+      required:
+      - token
+      properties:
+        token:
+          type: string
+          description: Access Token или Refresh Token, который нужно отозвать.
+        token_type_hint:
+          type: string
+          enum:
+          - access_token
+          - refresh_token
+          description: Подсказка о типе переданного токена.
+        client_id:
+          type: string
+          description: Идентификатор клиента (выдается Райффайзен Банком после подачи заявления на подключение).
+        client_secret:
+          type: string
+          description: Пароль клиента (указывается при подключении системы клиента к Райффайзен Банку).
+    SupportDrawerSectionDTO:
+      type: object
+      properties:
+        title:
+          type:
+          - string
+          - 'null'
+          example: Малый бизнес
+        subtitle:
+          type:
+          - string
+          - 'null'
+          example: Подзаголовок
+        items:
+          type:
+          - array
+          - 'null'
+          example:
+          - icon: phone
+            title: Для бесплатных звонков по России
+            value: 8 800 700-99-95
+          items:
+            $ref: '#/components/schemas/SupportDrawerItemDTO'
+    UsernamePasswordStepViewDataDTO:
+      type: object
+      additionalProperties: false
+      required:
+      - stepType
+      properties:
+        stepType:
+          type: string
+          const: username-password
+        viewType:
+          type: string
+          enum:
+          - default
+          - phoneDuplicated
+        phoneNumberView:
+          type:
+          - string
+          - 'null'
+          description: Номер телефона для отображения на форме логина и пароля.
+        principal:
+          type:
+          - string
+          - 'null'
+          description: Ранее введённый идентификатор пользователя.
+        captchaRequired:
+          type: boolean
+          description: Требуется ли CAPTCHA для текущей формы.
+    LoginFormErrorDetails:
+      type:
+      - object
+      - 'null'
+      description: Коды ошибок формы входа, распределённые по месту отображения.
+      properties:
+        principalError:
+          type:
+          - string
+          - 'null'
+          description: Код ошибки, связанный с principal (идентификатором пользователя)
+          example: challenge.username-password.wrong-credentials
+        credentialsError:
+          type:
+          - string
+          - 'null'
+          description: Код ошибки, связанный с credentials (паролем или OTP кодом)
+          example: challenge.sms-otp.wrong-credentials
+        otherError:
+          type:
+          - string
+          - 'null'
+          description: Код прочих ошибок (например, серверные ошибки или лимиты)
+          example: authentication.sms-otp.process-limit-exceeded
+    SupportDrawerByLocaleDTO:
+      type:
+      - object
+      - 'null'
+      description: 'Мапа локалей на конфигурацию дровера поддержки.
+
+        Ключи соответствуют локалям (`ru`, `en`).'
+      properties:
+        ru:
+          $ref: '#/components/schemas/SupportDrawerDTO'
+        en:
+          $ref: '#/components/schemas/SupportDrawerDTO'
+    EmailOtpStepViewDataDTO:
+      type: object
+      additionalProperties: false
+      required:
+      - stepType
+      properties:
+        stepType:
+          type: string
+          const: email-otp
+        viewType:
+          type: string
+          enum:
+          - secondFactor
+        emailOtpProcessId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Идентификатор email OTP процесса.
+    SupportDrawerDTO:
+      type: object
+      description: Конфигурация дровера поддержки для одной локали.
+      allOf:
+      - $ref: '#/components/schemas/SupportDrawerHeaderDTO'
+      - $ref: '#/components/schemas/SupportDrawerContentDTO'
+    SupportedLocale:
+      type: string
+      description: Допустимая локаль аутентификационного сценария. Остальные значения не поддерживаются.
+      enum:
+      - ru
+      - en
+      example: ru
+    SupportDrawerHeaderDTO:
+      type: object
+      properties:
+        title:
+          type:
+          - string
+          - 'null'
+          example: Служба поддержки
+        description:
+          type:
+          - string
+          - 'null'
+          example: Чтобы мы вас узнали, понадобится сказать ИНН и сумму последней операции по счету
+        chatButtonText:
+          type:
+          - string
+          - 'null'
+          example: Написать в чат
+    LoginStepRequestDTO:
+      type: object
+      required:
+      - _csrf
+      description: Поля формы зависят от текущего stepType. CSRF токен передаётся в обязательном поле _csrf.
+      properties:
+        principal:
+          type: string
+          description: Логин для шага username-password или номер телефона для шага phone.
+        credentials:
+          type: string
+          format: password
+          description: Пароль для шагов username-password/password или код для sms-otp/email-otp.
+        selected_scope_groups:
+          type: string
+          description: Выбранные группы scopes для consent, через запятую.
+        smart-token:
+          type: string
+          description: Токен CAPTCHA, когда stepViewData.captchaRequired равен true.
+        _csrf:
+          type: string
+          description: CSRF токен из viewData.pageData.authenticationFlowContext.csrf.
+    LoginViewDataDTO:
+      type: object
+      required:
+      - pageType
+      - pageData
+      description: 'JSON данные, встроенные в HTML страницу /login внутри script#viewData с типом application/json.
+
+        Эти данные используются React SPA для отображения формы входа и отправки credentials.'
+      properties:
+        pageType:
+          type: string
+          enum:
+          - LOGIN_FORM_STEP
+          example: LOGIN_FORM_STEP
+        pageData:
+          type: object
+          required:
+          - authenticationFlowContext
+          - stepViewData
+          - themeViewData
+          - errors
+          properties:
+            authenticationFlowContext:
+              type: object
+              required:
+              - authenticationFlowId
+              - authPageRefreshTtlMs
+              - deviceId
+              - csrf
+              properties:
+                authenticationFlowId:
+                  type: string
+                  description: Уникальный идентификатор текущего authentication flow
+                  example: 8379e3cb-50b2-47b4-8f4f-ea8d250a1d66
+                authPageRefreshTtlMs:
+                  type:
+                  - integer
+                  - 'null'
+                  format: int64
+                  description: TTL до обновления auth page в миллисекундах.
+                deviceId:
+                  type:
+                  - string
+                  - 'null'
+                  description: Идентификатор устройства, если он известен.
+                csrf:
+                  type: string
+                  description: CSRF токен для POST `/login`.
+            stepViewData:
+              description: 'Тип и дополнительные данные текущего шага. Дополнительные поля зависят от `stepType` и передаются
+
+                на том же уровне, без вложенного объекта `attributes`. Поле `attributesType`, используемое при
+
+                хранении authentication flow, в page data не передаётся.'
+              discriminator:
+                propertyName: stepType
+                mapping:
+                  username-password: '#/components/schemas/UsernamePasswordStepViewDataDTO'
+                  password: '#/components/schemas/PasswordStepViewDataDTO'
+                  phone: '#/components/schemas/PhoneStepViewDataDTO'
+                  sms-otp: '#/components/schemas/SmsOtpStepViewDataDTO'
+                  email-otp: '#/components/schemas/EmailOtpStepViewDataDTO'
+                  consent: '#/components/schemas/ConsentStepViewDataDTO'
+              oneOf:
+              - $ref: '#/components/schemas/UsernamePasswordStepViewDataDTO'
+              - $ref: '#/components/schemas/PasswordStepViewDataDTO'
+              - $ref: '#/components/schemas/PhoneStepViewDataDTO'
+              - $ref: '#/components/schemas/SmsOtpStepViewDataDTO'
+              - $ref: '#/components/schemas/EmailOtpStepViewDataDTO'
+              - $ref: '#/components/schemas/ConsentStepViewDataDTO'
+              - type: 'null'
+            themeViewData:
+              type:
+              - object
+              - 'null'
+              description: Данные login-страницы, предоставленные выбранной frontend-темой.
+              properties:
+                passwordResetEnabled:
+                  type: boolean
+                  description: Включён ли переход на форму запроса сброса пароля.
+                supportDrawer:
+                  $ref: '#/components/schemas/SupportDrawerByLocaleDTO'
+                systemMessages:
+                  $ref: '#/components/schemas/SystemMessagesByLocaleDTO'
+            errors:
+              $ref: '#/components/schemas/LoginFormErrorDetails'
+        locale:
+          description: Выбранная локаль формы входа.
+          oneOf:
+          - $ref: '#/components/schemas/SupportedLocale'
+          - type: 'null'
+          example: en
+    PasswordStepViewDataDTO:
+      type: object
+      additionalProperties: false
+      required:
+      - stepType
+      properties:
+        stepType:
+          type: string
+          const: password
+        viewType:
+          type: string
+          enum:
+          - default
+          - phoneAuthNotAllowed
+          - unknownDevice
+        captchaRequired:
+          type: boolean
+          description: Требуется ли CAPTCHA для текущей формы.
+    SmsOtpStepViewDataDTO:
+      type: object
+      additionalProperties: false
+      required:
+      - stepType
+      properties:
+        stepType:
+          type: string
+          const: sms-otp
+        viewType:
+          type: string
+          enum:
+          - default
+          - secondFactor
+        smsOtpAddressView:
+          type:
+          - string
+          - 'null'
+          description: Маскированный или полный номер телефона для SMS OTP.
+        smsOtpProcessId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Идентификатор SMS OTP процесса.
+        emailDeliveryAvailable:
+          type: boolean
+          description: Доступна ли переключение резервной доставки кода на верифицированный email.
+    SystemMessagesByLocaleDTO:
+      type:
+      - object
+      - 'null'
+      description: 'Активные системные сообщения, сгруппированные по локалям.
+
+        Значение `null` передаётся, когда активных сообщений нет или сервис системных сообщений недоступен.'
+      properties:
+        ru:
+          type: array
+          items:
+            $ref: '#/components/schemas/SystemMessageDTO'
+        en:
+          type: array
+          items:
+            $ref: '#/components/schemas/SystemMessageDTO'
+    SupportDrawerContentDTO:
+      type: object
+      properties:
+        sections:
+          type:
+          - array
+          - 'null'
+          example:
+          - title: Малый бизнес
+            subtitle: Подзаголовок
+            items:
+            - icon: phone
+              title: Для бесплатных звонков по России
+              value: 8 800 700-99-95
+          items:
+            $ref: '#/components/schemas/SupportDrawerSectionDTO'
+        infoBannerText:
+          type:
+          - string
+          - 'null'
+          example: Поддержка работает в будни с 5:00 до 20:00 (Время московское)
+    ConsentStepViewDataDTO:
+      type: object
+      additionalProperties: false
+      required:
+      - stepType
+      properties:
+        stepType:
+          type: string
+          const: consent
+        viewType:
+          type: string
+          enum:
+          - default
+        clientName:
+          type:
+          - string
+          - 'null'
+          description: Имя клиентского приложения для consent-формы.
+        availableScopeGroups:
+          type:
+          - string
+          - 'null'
+          description: Доступные группы scope для consent-формы в comma-separated формате.
+    SystemMessageDTO:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440000
+        title:
+          type:
+          - string
+          - 'null'
+          example: Важное уведомление
+        message:
+          type:
+          - string
+          - 'null'
+          example: Система будет недоступна с 22:00 до 23:00
+    SupportDrawerItemDTO:
+      type: object
+      properties:
+        icon:
+          type:
+          - string
+          - 'null'
+          example: phone
+        title:
+          type:
+          - string
+          - 'null'
+          example: Для бесплатных звонков по России
+        value:
+          type:
+          - string
+          - 'null'
+          example: 8 800 700-99-95
+    PhoneStepViewDataDTO:
+      type: object
+      additionalProperties: false
+      required:
+      - stepType
+      properties:
+        stepType:
+          type: string
+          const: phone
+        viewType:
+          type: string
+          enum:
+          - default
+        principal:
+          type:
+          - string
+          - 'null'
+          description: Ранее введённый идентификатор пользователя.
+        captchaRequired:
+          type: boolean
+          description: Требуется ли CAPTCHA для текущей формы.
+    ErrorPageDataDTO:
+      type: object
+      required:
+      - pageType
+      - pageData
+      description: 'JSON данные, встроенные в HTML страницу /error внутри script#viewData с типом application/json.
+
+        Эти данные используются React SPA для отображения error page.'
+      properties:
+        pageType:
+          type: string
+          enum:
+          - ERROR
+          example: ERROR
+        pageData:
+          type: object
+          required:
+          - errorPageContext
+          - errorDetails
+          properties:
+            errorPageContext:
+              type: object
+              required:
+              - csrf
+              properties:
+                csrf:
+                  type: string
+                  description: CSRF токен для background-запросов со страницы ошибки.
+                  example: 2m08G2v6RpNUyxbz85Jq6uJ0xSXXsxA_gRZ4Nky5BBdOzltU6gwKIg_IJaR5-HfEwr9e2NtC6ETji3UStyIeVX6KMi5592ls
+            errorDetails:
+              type: object
+              required:
+              - errorCode
+              - actions
+              properties:
+                errorCode:
+                  type: string
+                  description: 'Код ошибки для frontend error page.
+
+                    Возможные значения:
+
+                    - `unknown-error` — неизвестная ошибка
+
+                    - `fatal-error` — фатальная ошибка
+
+                    - `user-is-blocked` — пользователь заблокирован
+
+                    - `consent.*` — ошибки шага consent
+
+                    - `authenticate.sms-otp.*` — ошибки аутентификации SMS-OTP
+
+                    - `challenge.sms-otp.*` — ошибки ввода SMS-OTP кода'
+                  example: unknown-error
+                actions:
+                  type: array
+                  description: Список действий, доступных пользователю на странице ошибки.
+                  items:
+                    $ref: '#/components/schemas/ErrorActionItemDTO'
+    ErrorActionItemDTO:
+      type: object
+      required:
+      - action
+      description: 'Действие, доступное пользователю на странице ошибки.
+
+        Каждое действие отображается как кнопка или ссылка на error page.'
+      properties:
+        action:
+          type: string
+          description: 'Тип действия:
+
+            - `RELOAD` — обновление страницы (редирект на /login)
+
+            - `RETRY_LOGIN` — повторная попытка входа (редирект на /login/restart для перезапуска flow)
+
+            - `REDIRECT` — редирект на внешний URL'
+          enum:
+          - RELOAD
+          - RETRY_LOGIN
+          - REDIRECT
+          example: RETRY_LOGIN
+        url:
+          type:
+          - string
+          - 'null'
+          description: URL для действия. Обязателен для RELOAD, RETRY_LOGIN и REDIRECT.
+          example: /login/restart
+    Version:
+      type: object
+      properties:
+        version:
+          type: string
+      required:
+      - version
+    NewsContentCounterResource:
+      type: object
+      description: ''
+      example:
+        count: 1
+        digestCount: 1
+        productCount: 1
+        webinarCount: 1
+        insightCount: 1
+      properties:
+        count:
+          type: integer
+          format: int64
+          description: Общее число нового контента
+        digestCount:
+          type: integer
+          format: int64
+          description: Число новых обзоров макроэкономики
+        productCount:
+          type: integer
+          format: int64
+          description: Число новых продуктовых новостей
+        webinarCount:
+          type: integer
+          format: int64
+          description: Число новых вебинароа
+        insightCount:
+          type: integer
+          format: int64
+          description: Число новых инсайтов (API инсайтов пока недоступно)
+      required:
+      - count
+      - digestCount
+      - insightCount
+      - productCount
+      - webinarCount
+    StatResource:
+      type: object
+      description: ''
+      example:
+        rating: 1
+      properties:
+        rating:
+          type: integer
+          format: int32
+          description: Оценка контента
+      required:
+      - rating
+    ReadStatusResource:
+      type: object
+      description: ''
+      example:
+        read: true
+      properties:
+        read:
+          type: boolean
+          description: Статус прочитанности
+      required:
+      - read
+    DigestStatResource:
+      type: object
+      description: ''
+      example:
+        read: true
+        rating: 1
+      properties:
+        read:
+          type: boolean
+          description: Статус прочитанности
+        rating:
+          type: integer
+          format: int32
+          description: Оценка контента
+    DigestTopicResource:
+      type: object
+      description: ''
+      properties:
+        id:
+          type: string
+          description: Id темы обзора
+        title:
+          type: string
+          description: Заголовок
+        body:
+          type: string
+          description: Описание
+        link:
+          $ref: '#/components/schemas/LinkResource'
+          description: Ссылка на исходный текст
+        order:
+          type: integer
+          format: int64
+          description: Порядковый номер темы
+      required:
+      - body
+      - link
+      - order
+      - title
+    DigestV2Resources:
+      type: object
+      description: ''
+      example:
+        content:
+        - id: id
+          new: false
+          publishDate: '2025-01-26T04:24:02.592Z'
+          rating: null
+          status: PUBLISHED
+          subtitle: С 11 по 15 августа
+          title: Обзор недели по макроэкономике
+          topics:
+          - body: Министерство финансов размещает только 13-летний флоатер ОФЗ-ПК 29025.
+            id: id-0
+            link:
+              label: Прочитать полный текст новости
+              url: https://www.raiffeisen.ru/about/press/news
+            order: 0
+            title: Результаты июльского заседания Центробанка вызвали очередной всплеск доходностей вдоль кривой ОФЗ
+          - body: Центробанк поднял ключевую ставку до 18%.
+            id: id-1
+            link:
+              label: Прочитать полный текст новости
+              url: https://www.raiffeisen.ru/about/press/news
+            order: 1
+            title: Центробанк корректирует ожидания по ставкам вверх на всем горизонте
+          promo:
+            webinarId: '1'
+        offset: 0
+        limit: 100
+        totalCount: 1
+      properties:
+        content:
+          type: array
+          description: Список обзоров макроэкономики
+          items:
+            $ref: '#/components/schemas/DigestResource'
+        offset:
+          type: integer
+          format: int32
+          description: Смещение, с которого начинается выборка данных
+        limit:
+          type: integer
+          format: int32
+          description: Максимальное количество записей
+        totalCount:
+          type: integer
+          format: int64
+          description: Общее количество записей по запросу
+      required:
+      - content
+      - limit
+      - offset
+      - totalCount
+    DigestResource:
+      type: object
+      description: ''
+      example:
+        id: id
+        new: false
+        publishDate: '2025-01-26T04:24:02.592Z'
+        rating: null
+        status: PUBLISHED
+        subtitle: С 11 по 15 августа
+        title: Обзор недели по макроэкономике
+        topics:
+        - body: Министерство финансов размещает только 13-летний флоатер ОФЗ-ПК 29025.
+          id: id-0
+          link:
+            label: Прочитать полный текст новости
+            url: https://www.raiffeisen.ru/about/press/news
+          order: 0
+          title: Результаты июльского заседания Центробанка вызвали очередной всплеск доходностей вдоль кривой ОФЗ
+        - body: Центробанк поднял ключевую ставку до 18%.
+          id: id-1
+          link:
+            label: Прочитать полный текст новости
+            url: https://www.raiffeisen.ru/about/press/news
+          order: 1
+          title: Центробанк корректирует ожидания по ставкам вверх на всем горизонте
+        promo:
+          webinarId: webinar-id-1
+      properties:
+        id:
+          type: string
+          description: Id контента
+        new:
+          type: boolean
+          description: Статус прочитанности
+        status:
+          type: string
+          description: Статус публикации
+          enum:
+          - SCHEDULED
+          - PUBLISHED
+        rating:
+          type: integer
+          format: int32
+          description: Оценка
+        title:
+          type: string
+          description: Заголовок
+        subtitle:
+          type: string
+          description: Подзаголовок
+        publishDate:
+          type: string
+          format: date-time
+          description: Дата публикации
+        topics:
+          type: array
+          description: Темы обзора
+          items:
+            $ref: '#/components/schemas/DigestTopicResource'
+        promo:
+          $ref: '#/components/schemas/DigestPromoResource'
+          description: Промо вебинара
+      required:
+      - new
+      - publishDate
+      - status
+      - subtitle
+      - title
+      - topics
+    LinkResource:
+      type: object
+      description: ''
+      properties:
+        url:
+          type: string
+          description: Ссылка на статью
+        label:
+          type: string
+          description: Текст для гиперссылки
+      required:
+      - label
+      - url
+    DigestPromoResource:
+      type: object
+      description: ''
+      properties:
+        id:
+          type: string
+          description: Id рекламы вебинара
+        webinarId:
+          type: string
+          description: Id вебинара
+      required:
+      - webinarId
+    ProductNewsV2Resources:
+      type: object
+      description: ''
+      example:
+        content:
+        - id: id
+          colorStyle: oslo1
+          style:
+            accentColor: PastelAccent.oslo1
+            backgroundColor: PastelSurface.oslo1
+            contentBackgroundColor: PastelSurface.oslo2
+          cnums:
+          - '427929'
+          media:
+            url: https://cdn.rbo.raiffeisen.ru/offerpics/cdm/01.png
+            type: IMAGE
+          publishDate: '2024-09-17T09:53:03+03:00'
+          slides:
+          - body: Мы разработали новый формат общения с клиентом. Хотите узнать ?
+            order: 1
+            button:
+              label: Да
+              url: raiffeisen-business-plus://contacts-form/2?type=PRODUCT_NEWS
+            contactForm:
+              label: Связаться с менеджером
+        offset: 0
+        limit: 100
+        totalCount: 1
+      properties:
+        content:
+          type: array
+          description: Список новостей
+          items:
+            $ref: '#/components/schemas/ProductNewsV2Resource'
+        offset:
+          type: integer
+          format: int32
+          description: Смещение, с которого начинается выборка данных
+        limit:
+          type: integer
+          format: int32
+          description: Максимальное количество записей
+        totalCount:
+          type: integer
+          format: int64
+          description: Общее количество записей по запросу
+      required:
+      - content
+      - limit
+      - offset
+      - totalCount
+    ProductNewsSlideResource:
+      type: object
+      description: ''
+      properties:
+        id:
+          type: string
+          description: Id контента
+        body:
+          type: string
+          description: Текст слайда
+        button:
+          $ref: '#/components/schemas/ButtonResource'
+          description: Информация о кнопке
+        order:
+          type: integer
+          format: int64
+          description: Номер порядка слайда
+        contactForm:
+          $ref: '#/components/schemas/ContactFormResource'
+          description: Информация для контактной формы
+      required:
+      - body
+      - order
+    ProductNewsV2Resource:
+      type: object
+      description: ''
+      example:
+        id: id
+        colorStyle: oslo1
+        style:
+          accentColor: PastelAccent.oslo1
+          backgroundColor: PastelSurface.oslo1
+          contentBackgroundColor: PastelSurface.oslo2
+        cnums:
+        - '427929'
+        media:
+          url: https://cdn.rbo.raiffeisen.ru/offerpics/cdm/01.png
+          type: IMAGE
+        publishDate: '2024-09-17T09:53:03+03:00'
+        slides:
+        - body: Мы разработали новый формат общения с клиентом. Хотите узнать ?
+          order: 1
+          button:
+            label: Да
+            url: raiffeisen-business-plus://contacts-form/2?type=PRODUCT_NEWS
+          contactForm:
+            label: Связаться с менеджером
+      properties:
+        id:
+          type: string
+          description: Id контента
+        cnums:
+          type: array
+          description: Список CNUM (уникальный идентификатор клиента в банке), для которой предназначена новость
+          items:
+            type: string
+          uniqueItems: true
+        new:
+          type: boolean
+          description: Статус прочитанности
+        status:
+          type: string
+          description: Статус публикации
+          enum:
+          - SCHEDULED
+          - PUBLISHED
+        title:
+          type: string
+          description: Заголовок новости
+        subtitle:
+          type: string
+          description: Подзаголовок новости
+        publishDate:
+          type: string
+          format: date-time
+          description: Дата публикации
+        media:
+          $ref: '#/components/schemas/ProductNewsMediaResource'
+          description: Информация о медиа
+        style:
+          $ref: '#/components/schemas/ColorStyleOpenApi'
+          description: Информация о цвете для новости
+        slides:
+          type: array
+          description: Слайды новости
+          items:
+            $ref: '#/components/schemas/ProductNewsSlideResource'
+      required:
+      - cnums
+      - media
+      - new
+      - publishDate
+      - slides
+      - status
+      - style
+      - subtitle
+      - title
+    ProductNewsMediaResource:
+      type: object
+      description: ''
+      properties:
+        url:
+          type: string
+          description: Ссылка для скачивания
+        type:
+          type: string
+          description: Тип медиа
+          enum:
+          - IMAGE
+      required:
+      - type
+      - url
+    ContactFormResource:
+      type: object
+      description: ''
+      properties:
+        label:
+          type: string
+          description: Заголовок для контактной формы
+      required:
+      - label
+    ButtonResource:
+      type: object
+      description: ''
+      properties:
+        label:
+          type: string
+          description: Название кнопки
+        url:
+          type: string
+          description: URL адрес, на который ссылается кнопка
+      required:
+      - label
+      - url
+    ColorStyleOpenApi:
+      type: object
+      description: ''
+      properties:
+        backgroundColor:
+          type: string
+          description: Цвет слайдов
+        contentBackgroundColor:
+          type: string
+          description: Цвет фона для текста
+        accentColor:
+          type: string
+          description: Цвет текста
+      required:
+      - accentColor
+      - backgroundColor
+      - contentBackgroundColor
+    WebinarAttachmentResource:
+      type: object
+      description: ''
+      properties:
+        id:
+          type: string
+          description: Id вложения
+        name:
+          type: string
+          description: Название
+        url:
+          type: string
+          description: Ссылка для скачивания
+        type:
+          type: string
+          description: Тип вложения
+          enum:
+          - VIDEO
+          - PDF
+          - PPT
+          - PPTX
+          - XLS
+          - XLSX
+      required:
+      - name
+      - type
+    WebinarsV2Resources:
+      type: object
+      description: ''
+      example:
+        content:
+        - id: id
+          new: true
+          status: PUBLISHED
+          eventStatus: STARTED
+          eventStatusLabel: В эфире
+          title: Ключевую ставку, вероятно, не снизят до конца года
+          body: '**Центробанк не изменил ключевую ставку, но ужесточил риторику**
+
+
+            7 июня прошло заседание Центробанка по ключевой ставке. Регулятор, как мы и ожидали, решил оставить ее на уровне 16%. На пресс-конференции Эльвира Набиуллина отметила, что также были рассмотрены варианты повышения на 100 и 200 базисных пунктов. 
+
+
+            По нашим оценкам, Центробанк ужесточил риторику. Во-первых, он «допускает возможность повышения ключевой ставки на ближайшем заседании» — для прошлых заседаний такое указание не публиковалось. Во-вторых, регулятор выделил, что жесткие денежно-кредитные условия необходимо поддерживать существенно дольше, чем планировалось раньше.
+
+
+            Такая риторика связана с ценовой динамикой, которая, видимо, не позволяет в этом году приблизить инфляцию к целевому уровню. Так, в апреле регулятор планировал замедление до диапазона 4,3–4,8% в 2024 году и до 4% в 2025 году. Но в этот раз цель на 2024 год была убрана из пресс-релиза.
+
+
+            **Регулятор отложил вопрос о необходимости повысить ключевую ставку до конца июля**
+
+
+            До заседания в конце июля Центробанк планирует анализировать соответствие основных показателей базовому сценарию. 
+
+
+            Мы полагаем, что отклонение от него будет означать необходимость дополнительно повысить ключевую ставку. Эльвира Набиуллина заявила, что шаг в таком случае будет существенным — от 1 процентного пункта. Сейчас Центробанк считает этот сценарий альтернативным. Риски его реализации высоки. 
+
+
+            Вместе с тем вопрос о возможном снижении ключевой ставки временно снят с обсуждения. Вряд ли регулятор вернется к его рассмотрению до конца года.
+
+
+            **Больше о трендах экономики расскажем на вебинаре**
+
+
+            25 июня, 11:00–12:30 по Москве
+
+
+            [Заявление об ограничении ответственности](https://www.raiffeisen.ru/about/analytics/?active_tab=tab-5) '
+          publishDate: '2024-09-18T09:53:03+03:00'
+          startEventDate: '2025-01-11T13:00:00+03:00'
+          finishEventDate: '2025-01-11T15:00:00+03:00'
+          image:
+            url: https://cdn.rbo.raiffeisen.ru/offerpics/cdm/01.png
+            type: IMAGE
+          button:
+            label: Зарегистрироваться
+            url: https://ya.ru
+          style:
+            accentColor: PastelAccent.sochi1
+            backgroundColor: PastelSurface.sochi1
+            contentBackgroundColor: PastelSurface.sochi2
+          attachments:
+          - id: id-1
+            name: Иллюстрация к вебинару
+            url: https://cdn.rbo.raiffeisen.ru/offerpics/cdm/testPDF.pdf
+            type: PDF
+        offset: 0
+        limit: 100
+        totalCount: 1
+      properties:
+        content:
+          type: array
+          description: Список вебинаров
+          items:
+            $ref: '#/components/schemas/WebinarV2Resource'
+        offset:
+          type: integer
+          format: int32
+          description: Смещение относительно начала списка
+        limit:
+          type: integer
+          format: int32
+          description: Максимальное количество записей
+        totalCount:
+          type: integer
+          format: int64
+          description: Общее количество записей
+      required:
+      - content
+      - limit
+      - offset
+      - totalCount
+    WebinarV2Resource:
+      type: object
+      description: ''
+      example:
+        id: id
+        new: true
+        status: PUBLISHED
+        eventStatus: STARTED
+        eventStatusLabel: В эфире
+        title: Ключевую ставку, вероятно, не снизят до конца года
+        body: '**Центробанк не изменил ключевую ставку, но ужесточил риторику**
+
+
+          7 июня прошло заседание Центробанка по ключевой ставке. Регулятор, как мы и ожидали, решил оставить ее на уровне 16%. На пресс-конференции Эльвира Набиуллина отметила, что также были рассмотрены варианты повышения на 100 и 200 базисных пунктов. 
+
+
+          По нашим оценкам, Центробанк ужесточил риторику. Во-первых, он «допускает возможность повышения ключевой ставки на ближайшем заседании» — для прошлых заседаний такое указание не публиковалось. Во-вторых, регулятор выделил, что жесткие денежно-кредитные условия необходимо поддерживать существенно дольше, чем планировалось раньше.
+
+
+          Такая риторика связана с ценовой динамикой, которая, видимо, не позволяет в этом году приблизить инфляцию к целевому уровню. Так, в апреле регулятор планировал замедление до диапазона 4,3–4,8% в 2024 году и до 4% в 2025 году. Но в этот раз цель на 2024 год была убрана из пресс-релиза.
+
+
+          **Регулятор отложил вопрос о необходимости повысить ключевую ставку до конца июля**
+
+
+          До заседания в конце июля Центробанк планирует анализировать соответствие основных показателей базовому сценарию. 
+
+
+          Мы полагаем, что отклонение от него будет означать необходимость дополнительно повысить ключевую ставку. Эльвира Набиуллина заявила, что шаг в таком случае будет существенным — от 1 процентного пункта. Сейчас Центробанк считает этот сценарий альтернативным. Риски его реализации высоки. 
+
+
+          Вместе с тем вопрос о возможном снижении ключевой ставки временно снят с обсуждения. Вряд ли регулятор вернется к его рассмотрению до конца года.
+
+
+          **Больше о трендах экономики расскажем на вебинаре**
+
+
+          25 июня, 11:00–12:30 по Москве
+
+
+          [Заявление об ограничении ответственности](https://www.raiffeisen.ru/about/analytics/?active_tab=tab-5) '
+        publishDate: '2024-09-18T09:53:03+03:00'
+        startEventDate: '2025-01-11T13:00:00+03:00'
+        finishEventDate: '2025-01-11T15:00:00+03:00'
+        image:
+          url: https://cdn.rbo.raiffeisen.ru/offerpics/cdm/webinar2.png
+          type: IMAGE
+        button:
+          label: Зарегистрироваться
+          url: https://ya.ru
+        style:
+          accentColor: PastelAccent.sochi1
+          backgroundColor: PastelSurface.sochi1
+          contentBackgroundColor: PastelSurface.sochi2
+        attachments:
+        - id: id-1
+          name: Иллюстрация к вебинару
+          url: https://cdn.rbo.raiffeisen.ru/offerpics/cdm/testPDF.pdf
+          type: PDF
+      properties:
+        id:
+          type: string
+          description: Id контента
+        new:
+          type: boolean
+          description: Статус прочитанности
+        status:
+          type: string
+          description: Статус публикации
+          enum:
+          - SCHEDULED
+          - PUBLISHED
+        eventStatus:
+          type: string
+          description: Статус вебинара
+          enum:
+          - PLANNED
+          - STARTED
+          - ENDED
+          - ATTACHMENTS_PROVIDED
+        eventStatusLabel:
+          type: string
+          description: Название статуса вебинара
+        title:
+          type: string
+          description: Заголовок
+        body:
+          type: string
+          description: Описание
+        publishDate:
+          type: string
+          format: date-time
+          description: Дата публикации
+        startEventDate:
+          type: string
+          format: date-time
+          description: Дата старта вебинара
+        finishEventDate:
+          type: string
+          format: date-time
+          description: Дата завершения вебинара
+        image:
+          $ref: '#/components/schemas/WebinarMediaResource'
+          description: Информация о картинке
+        button:
+          $ref: '#/components/schemas/ButtonResource'
+          description: Информация о кнопке
+        style:
+          $ref: '#/components/schemas/ColorStyleOpenApi'
+          description: Цвет
+        attachments:
+          type: array
+          description: Вложения
+          items:
+            $ref: '#/components/schemas/WebinarAttachmentResource'
+      required:
+      - body
+      - eventStatus
+      - eventStatusLabel
+      - finishEventDate
+      - image
+      - new
+      - publishDate
+      - startEventDate
+      - status
+      - style
+      - title
+    WebinarMediaResource:
+      type: object
+      description: ''
+      properties:
+        url:
+          type: string
+          description: Ссылка для скачивания
+        type:
+          type: string
+          description: Тип медиа
+          enum:
+          - IMAGE
+      required:
+      - type
+      - url
+    ApiErrorDto:
+      type: object
+      properties:
+        status:
+          type: string
+        code:
+          type: integer
+          format: int32
+        messages:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+    DebtLoroReportModelRs:
+      required:
+      - accounts
+      - clientName
+      - cnum
+      - period
+      - reportDetails
+      - reportType
+      - totalDueAmount
+      type: object
+      properties:
+        cnum:
+          type: string
+          description: Уникальный идентификатор клиента (CNUM)
+          example: Z12345
+        period:
+          $ref: '#/components/schemas/PeriodRs'
+        clientName:
+          type: string
+          description: Имя клиента
+          example: RAIFFEISEN BANK INTERNATIONAL
+        accounts:
+          type: array
+          description: Расчётные счета
+          example:
+          - '30111810500000100004'
+          - '30111810500000100001'
+          items:
+            type: string
+            description: Расчётные счета
+            example: '["30111810500000100004","30111810500000100001"]'
+        totalDueAmount:
+          type: number
+          description: Общая сумма задолженности
+          example: 100.0
+        reportDetails:
+          type: array
+          description: Детальные отчёты по дебиторской задолженности
+          items:
+            $ref: '#/components/schemas/DebtLoroReportRowRs'
+        reportType:
+          type: string
+          description: Тип отчёта
+          example: RUB_BALANCES
+          enum:
+          - AVIZO_MT900_MT910
+          - CURRENCY_PAYMENT
+          - NON_STP
+          - RUB_BALANCES
+          - FCY_BALANCES
+          - INTEREST_LORO_MONTHLY
+          - OVERDRAFT_LORO_MONTHLY
+          - DEBT_LORO_MONTHLY
+          - DEBT_NFI_MONTHLY
+          - RUB_FEE_LORO_MONTHLY
+          - ARREST_LORO_DAILY
+      description: Отчёт о дебиторской задолженности
+    DebtLoroReportRowRs:
+      required:
+      - creationDate
+      - currency
+      - debt
+      - feeAmount
+      - feeName
+      - taxAmount
+      type: object
+      properties:
+        feeName:
+          type: string
+          description: Наименование услуги
+          example: Execution of urgent RUB payment
+        feeAmount:
+          type: number
+          description: Сумма комиссии
+          example: 444.04
+        debt:
+          type: number
+          description: Сумма задолженности
+          example: 555.05
+        taxAmount:
+          type: number
+          description: Сумма НДС
+          example: 666.06
+        currency:
+          type: string
+          description: Валюта комиссии
+          example: RUB
+          enum:
+          - AL_
+          - AED
+          - AFN
+          - ALL
+          - AMD
+          - ANG
+          - AOA
+          - ARS
+          - AUD
+          - AWG
+          - AZN
+          - BAM
+          - BBD
+          - BDT
+          - BGN
+          - BHD
+          - BIF
+          - BMD
+          - BND
+          - BOB
+          - BOV
+          - BRL
+          - BSD
+          - BTN
+          - BWP
+          - BYN
+          - BZD
+          - CAD
+          - CDF
+          - CHF
+          - CLF
+          - CLP
+          - CNY
+          - COP
+          - COU
+          - CRC
+          - CUC
+          - CUP
+          - CVE
+          - CZK
+          - DJF
+          - DKK
+          - DOP
+          - DZD
+          - EGP
+          - ERN
+          - ETB
+          - EUR
+          - FJD
+          - FKP
+          - GBP
+          - GEL
+          - GHS
+          - GIP
+          - GMD
+          - GNF
+          - GTQ
+          - GYD
+          - HKD
+          - HNL
+          - HRK
+          - HTG
+          - HUF
+          - IDR
+          - ILS
+          - INR
+          - IQD
+          - IRR
+          - ISK
+          - JMD
+          - JOD
+          - JPY
+          - KES
+          - KGS
+          - KHR
+          - KMF
+          - KPW
+          - KRW
+          - KWD
+          - KYD
+          - KZT
+          - LAK
+          - LBP
+          - LKR
+          - LRD
+          - LSL
+          - LYD
+          - MAD
+          - MDL
+          - MGA
+          - MKD
+          - MMK
+          - MNT
+          - MOP
+          - MRU
+          - MUR
+          - MVR
+          - MWK
+          - MXN
+          - MXV
+          - MYR
+          - MZN
+          - NAD
+          - NGN
+          - NIO
+          - NOK
+          - NPR
+          - NZD
+          - OMR
+          - PAB
+          - PEN
+          - PGK
+          - PHP
+          - PKR
+          - PLN
+          - PYG
+          - QAR
+          - RON
+          - RSD
+          - RUB
+          - RWF
+          - SAR
+          - SBD
+          - SCR
+          - SDG
+          - SEK
+          - SGD
+          - SHP
+          - SLL
+          - SOS
+          - SRD
+          - SSP
+          - STN
+          - SVC
+          - SYP
+          - SZL
+          - THB
+          - TJS
+          - TMT
+          - TND
+          - TOP
+          - TRY
+          - TTD
+          - RUR
+          - TWD
+          - TZS
+          - UAH
+          - UGX
+          - USD
+          - UYU
+          - UZS
+          - VEF
+          - VND
+          - VUV
+          - WST
+          - XSU
+          - YER
+          - ZAR
+          - ZMW
+          - ZWL
+        creationDate:
+          type: string
+          description: Дата возникновения задолженности
+          format: date
+          example: '2025-07-01'
+      description: Детали отчёта о дебиторской задолженности
+    OffsetPageDebtLoroReportModelRs:
+      required:
+      - data
+      - limit
+      - offset
+      - totalCount
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DebtLoroReportModelRs'
+        offset:
+          type: integer
+          description: Смещение, с которого взяты элементы
+          format: int32
+          example: 0
+        limit:
+          type: integer
+          description: Количество переданных элементов
+          format: int32
+          example: 10
+        totalCount:
+          type: integer
+          description: Общее количество элементов
+          format: int64
+          example: 10
+    PeriodRs:
+      required:
+      - from
+      - to
+      type: object
+      properties:
+        from:
+          type: string
+          description: Дата, с которой идёт выборка отчётов
+          format: date
+          example: '2025-07-24'
+        to:
+          type: string
+          description: Дата, по которую идёт выборка отчётов
+          format: date
+          example: '2025-07-25'
+    BicDto:
+      type: object
+      properties:
+        bic:
+          type: string
+        externalId:
+          type: string
+        modifiedDate:
+          type: string
+        updateDate:
+          type: string
+        deleteDate:
+          type: string
+        deletePrevBicDate:
+          type: string
+        name:
+          type: string
+        corrAccounts:
+          type: array
+          items:
+            type: string
+        locationType:
+          type: string
+        locationName:
+          type: string
+        address:
+          type: string
+        zipcode:
+          type: string
+        dateExceptionCorrAccount:
+          type: string
+        licenceRevocationDate:
+          type: string
+        dateBicOut:
+          type: string
+        xchType:
+          type: boolean
+        participantBicStatus:
+          type: string
+        accountStatus:
+          type: string
+        accountCloseDate:
+          type: string
+        activeFrom:
+          type: string
+        active:
+          type: boolean
+        forActivePayments:
+          type: boolean
+        settlementCashCenterCbBic:
+          type: string
+        bankType:
+          type: string
+        nameForPayment:
+          type: string
+    Name:
+      type: object
+      properties:
+        ru:
+          type:
+          - string
+          - 'null'
+    ErrorResponseDTO:
+      type: object
+      description: Стандартизированный ответ с ошибкой
+      required:
+      - code
+      properties:
+        code:
+          type: string
+          description: Код ошибки
+        message:
+          type: string
+          description: Сообщение об ошибке
+        messageData:
+          type:
+          - object
+          - 'null'
+          description: Дополнительная информация об ошибке
+          additionalProperties: true
+    AccEmployeePermissionDTO:
+      type: object
+      required:
+      - code
+      - name
+      - view
+      properties:
+        code:
+          type: string
+        name:
+          $ref: '#/components/schemas/Name'
+        view:
+          type: boolean
+    GenericError:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type:
+          - string
+          - 'null'
+    EmployeeRoleResponse:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type:
+          - string
+          - 'null'
+        name:
+          type:
+          - string
+          - 'null'
+    EmployeeRoleRequest:
+      type: object
+      required:
+      - userId
+      - cnum
+      properties:
+        userId:
+          type: string
+          format: uuid
+        cnum:
+          type: string
+  parameters:
+    FailedAuthenticationFlowCookie:
+      name: failed_authentication_flow_id
+      in: cookie
+      description: Идентификатор процесса входа, завершившегося ошибкой; используется для повтора входа и смены языка.
+      schema:
+        type: string
+    AuthenticationFlowCookie:
+      name: authentication_flow
+      in: cookie
+      description: 'Идентификатор процесса входа, установленный сервером при переходе с /oauth2/authorize.
+
+        Состояние процесса хранится на сервере. Для отправки форм нужен действующий процесс входа.'
+      schema:
+        type: string
+    CsrfCookie:
+      name: XSRF-TOKEN
+      in: cookie
+      description: Служебная CSRF cookie. Браузер сохраняет её и отправляет вместе с запросами формы.
+      schema:
+        type: string
+    LoginClientEntryCookie:
+      name: login_client_entry
+      in: cookie
+      description: Подписанная HttpOnly cookie для возврата на зарегистрированный адрес клиентской системы.
+      schema:
+        type: string
+    CsrfHeader:
+      name: X-XSRF-TOKEN
+      in: header
+      description: CSRF токен из viewData; можно передать вместо поля _csrf в теле формы.
+      schema:
+        type: string
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  headers:
+    RedirectLocation:
+      description: Адрес следующего GET запроса браузера.
+      schema:
+        type: string
+        format: uri-reference
+    UiCookies:
+      description: 'Служебные cookies процесса входа, CSRF и пользовательских настроек.
+
+        Ответ может содержать несколько Set-Cookie, включая установку или очистку authentication_flow,
+
+        XSRF-TOKEN, step_error_details, error_page_details и failed_authentication_flow_id.'
+      schema:
+        type: string
+  responses:
+    UiErrorRedirect:
+      description: Редирект на /error; данные ошибки передаются в служебной cookie error_page_details.
+      headers:
+        Location:
+          description: Адрес страницы ошибки.
+          schema:
+            type: string
+            const: /error
+        Set-Cookie:
+          $ref: '#/components/headers/UiCookies'
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Access Token, полученный в ответе /oauth2/token.
+x-refined-from:
+- raiffeisen-ru-authorization-openapi.yml
+- raiffeisen-ru-content-interactions-openapi.yml
+- raiffeisen-ru-content-macroeconomic-reviews-openapi.yml
+- raiffeisen-ru-content-product-news-openapi.yml
+- raiffeisen-ru-content-webinars-openapi.yml
+- raiffeisen-ru-loro-openapi.yml
+- raiffeisen-ru-user-permissions-openapi.yml
+- raiffeisen-ru-authorization-openapi.yml
+- raiffeisen-ru-content-interactions-openapi.yml
+- raiffeisen-ru-content-macroeconomic-reviews-openapi.yml
+- raiffeisen-ru-content-product-news-openapi.yml
+- raiffeisen-ru-content-webinars-openapi.yml
+- raiffeisen-ru-loro-openapi.yml
+- raiffeisen-ru-user-permissions-openapi.yml

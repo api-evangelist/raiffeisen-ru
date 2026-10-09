@@ -1,0 +1,523 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-login-view-data-dto-schema.json",
+  "title": "LoginViewDataDTO",
+  "description": "JSON данные, встроенные в HTML страницу /login внутри script#viewData с типом application/json.\nЭти данные используются React SPA для отображения формы входа и отправки credentials.",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-authorization-openapi.yml#/components/schemas/LoginViewDataDTO",
+  "type": "object",
+  "required": [
+    "pageType",
+    "pageData"
+  ],
+  "properties": {
+    "pageType": {
+      "type": "string",
+      "enum": [
+        "LOGIN_FORM_STEP"
+      ]
+    },
+    "pageData": {
+      "type": "object",
+      "required": [
+        "authenticationFlowContext",
+        "stepViewData",
+        "themeViewData",
+        "errors"
+      ],
+      "properties": {
+        "authenticationFlowContext": {
+          "type": "object",
+          "required": [
+            "authenticationFlowId",
+            "authPageRefreshTtlMs",
+            "deviceId",
+            "csrf"
+          ],
+          "properties": {
+            "authenticationFlowId": {
+              "type": "string",
+              "description": "Уникальный идентификатор текущего authentication flow"
+            },
+            "authPageRefreshTtlMs": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "int64",
+              "description": "TTL до обновления auth page в миллисекундах."
+            },
+            "deviceId": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Идентификатор устройства, если он известен."
+            },
+            "csrf": {
+              "type": "string",
+              "description": "CSRF токен для POST `/login`."
+            }
+          }
+        },
+        "stepViewData": {
+          "description": "Тип и дополнительные данные текущего шага. Дополнительные поля зависят от `stepType` и передаются\nна том же уровне, без вложенного объекта `attributes`. Поле `attributesType`, используемое при\nхранении authentication flow, в page data не передаётся.",
+          "oneOf": [
+            {
+              "$ref": "#/$defs/UsernamePasswordStepViewDataDTO"
+            },
+            {
+              "$ref": "#/$defs/PasswordStepViewDataDTO"
+            },
+            {
+              "$ref": "#/$defs/PhoneStepViewDataDTO"
+            },
+            {
+              "$ref": "#/$defs/SmsOtpStepViewDataDTO"
+            },
+            {
+              "$ref": "#/$defs/EmailOtpStepViewDataDTO"
+            },
+            {
+              "$ref": "#/$defs/ConsentStepViewDataDTO"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "themeViewData": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "description": "Данные login-страницы, предоставленные выбранной frontend-темой.",
+          "properties": {
+            "passwordResetEnabled": {
+              "type": "boolean",
+              "description": "Включён ли переход на форму запроса сброса пароля."
+            },
+            "supportDrawer": {
+              "$ref": "#/$defs/SupportDrawerByLocaleDTO"
+            },
+            "systemMessages": {
+              "$ref": "#/$defs/SystemMessagesByLocaleDTO"
+            }
+          }
+        },
+        "errors": {
+          "$ref": "#/$defs/LoginFormErrorDetails"
+        }
+      }
+    },
+    "locale": {
+      "description": "Выбранная локаль формы входа.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/SupportedLocale"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "ConsentStepViewDataDTO": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stepType"
+      ],
+      "properties": {
+        "stepType": {
+          "type": "string",
+          "const": "consent"
+        },
+        "viewType": {
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        },
+        "clientName": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Имя клиентского приложения для consent-формы."
+        },
+        "availableScopeGroups": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Доступные группы scope для consent-формы в comma-separated формате."
+        }
+      }
+    },
+    "EmailOtpStepViewDataDTO": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stepType"
+      ],
+      "properties": {
+        "stepType": {
+          "type": "string",
+          "const": "email-otp"
+        },
+        "viewType": {
+          "type": "string",
+          "enum": [
+            "secondFactor"
+          ]
+        },
+        "emailOtpProcessId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid",
+          "description": "Идентификатор email OTP процесса."
+        }
+      }
+    },
+    "LoginFormErrorDetails": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Коды ошибок формы входа, распределённые по месту отображения.",
+      "properties": {
+        "principalError": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Код ошибки, связанный с principal (идентификатором пользователя)"
+        },
+        "credentialsError": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Код ошибки, связанный с credentials (паролем или OTP кодом)"
+        },
+        "otherError": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Код прочих ошибок (например, серверные ошибки или лимиты)"
+        }
+      }
+    },
+    "PasswordStepViewDataDTO": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stepType"
+      ],
+      "properties": {
+        "stepType": {
+          "type": "string",
+          "const": "password"
+        },
+        "viewType": {
+          "type": "string",
+          "enum": [
+            "default",
+            "phoneAuthNotAllowed",
+            "unknownDevice"
+          ]
+        },
+        "captchaRequired": {
+          "type": "boolean",
+          "description": "Требуется ли CAPTCHA для текущей формы."
+        }
+      }
+    },
+    "PhoneStepViewDataDTO": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stepType"
+      ],
+      "properties": {
+        "stepType": {
+          "type": "string",
+          "const": "phone"
+        },
+        "viewType": {
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        },
+        "principal": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Ранее введённый идентификатор пользователя."
+        },
+        "captchaRequired": {
+          "type": "boolean",
+          "description": "Требуется ли CAPTCHA для текущей формы."
+        }
+      }
+    },
+    "SmsOtpStepViewDataDTO": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stepType"
+      ],
+      "properties": {
+        "stepType": {
+          "type": "string",
+          "const": "sms-otp"
+        },
+        "viewType": {
+          "type": "string",
+          "enum": [
+            "default",
+            "secondFactor"
+          ]
+        },
+        "smsOtpAddressView": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Маскированный или полный номер телефона для SMS OTP."
+        },
+        "smsOtpProcessId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid",
+          "description": "Идентификатор SMS OTP процесса."
+        },
+        "emailDeliveryAvailable": {
+          "type": "boolean",
+          "description": "Доступна ли переключение резервной доставки кода на верифицированный email."
+        }
+      }
+    },
+    "SupportDrawerByLocaleDTO": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Мапа локалей на конфигурацию дровера поддержки.\nКлючи соответствуют локалям (`ru`, `en`).",
+      "properties": {
+        "ru": {
+          "$ref": "#/$defs/SupportDrawerDTO"
+        },
+        "en": {
+          "$ref": "#/$defs/SupportDrawerDTO"
+        }
+      }
+    },
+    "SupportDrawerContentDTO": {
+      "type": "object",
+      "properties": {
+        "sections": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/SupportDrawerSectionDTO"
+          }
+        },
+        "infoBannerText": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "SupportDrawerDTO": {
+      "type": "object",
+      "description": "Конфигурация дровера поддержки для одной локали.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/SupportDrawerHeaderDTO"
+        },
+        {
+          "$ref": "#/$defs/SupportDrawerContentDTO"
+        }
+      ]
+    },
+    "SupportDrawerHeaderDTO": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "chatButtonText": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "SupportDrawerItemDTO": {
+      "type": "object",
+      "properties": {
+        "icon": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "SupportDrawerSectionDTO": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "subtitle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "items": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/SupportDrawerItemDTO"
+          }
+        }
+      }
+    },
+    "SupportedLocale": {
+      "type": "string",
+      "description": "Допустимая локаль аутентификационного сценария. Остальные значения не поддерживаются.",
+      "enum": [
+        "ru",
+        "en"
+      ]
+    },
+    "SystemMessageDTO": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "message": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "SystemMessagesByLocaleDTO": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Активные системные сообщения, сгруппированные по локалям.\nЗначение `null` передаётся, когда активных сообщений нет или сервис системных сообщений недоступен.",
+      "properties": {
+        "ru": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SystemMessageDTO"
+          }
+        },
+        "en": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SystemMessageDTO"
+          }
+        }
+      }
+    },
+    "UsernamePasswordStepViewDataDTO": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stepType"
+      ],
+      "properties": {
+        "stepType": {
+          "type": "string",
+          "const": "username-password"
+        },
+        "viewType": {
+          "type": "string",
+          "enum": [
+            "default",
+            "phoneDuplicated"
+          ]
+        },
+        "phoneNumberView": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Номер телефона для отображения на форме логина и пароля."
+        },
+        "principal": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Ранее введённый идентификатор пользователя."
+        },
+        "captchaRequired": {
+          "type": "boolean",
+          "description": "Требуется ли CAPTCHA для текущей формы."
+        }
+      }
+    }
+  }
+}

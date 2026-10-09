@@ -1,0 +1,144 @@
+generated: '2026-10-09'
+method: searched
+source: https://pay.raif.ru/doc/ecom.html; https://pay.raif.ru/doc/sbp.html; https://developer.raiffeisen.ru/docs/support
+format: 'Raif Pay: JSON {code, message}; OAuth (sso.rbo.raiffeisen.ru): RFC 6749 error/error_description'
+envelope:
+  fields:
+  - code
+  - message
+description: Error references from the Raif Pay docs ("Справочник ошибок" sections; HTTP status not stated per code) and the developer.raiffeisen.ru support troubleshooting page for OAuth/token errors.
+problems:
+- status: null
+  code: ERROR.NOT_FOUND
+  title: Счет не найден у данного партнера
+  type: ERROR.NOT_FOUND
+  description: Счет не найден у данного партнера
+  api: Raif Pay ecom
+  source: https://pay.raif.ru/doc/ecom.html
+- status: null
+  code: ERROR.REFUND_INSUFFICIENT_FUNDS
+  title: Сумма возврата больше суммы остатка по платежу
+  type: ERROR.REFUND_INSUFFICIENT_FUNDS
+  description: Сумма возврата больше суммы остатка по платежу
+  api: Raif Pay ecom
+  source: https://pay.raif.ru/doc/ecom.html
+- status: null
+  code: ERROR.INVALID_REQUEST
+  title: Некорректные параметры запроса
+  type: ERROR.INVALID_REQUEST
+  description: Некорректные параметры запроса
+  api: Raif Pay ecom
+  source: https://pay.raif.ru/doc/ecom.html
+- status: null
+  code: RECEIPT_VALIDATION_FAILED
+  title: 'Чек не прошел валидацию. Причина: *'
+  type: RECEIPT_VALIDATION_FAILED
+  description: 'Чек не прошел валидацию. Причина: *'
+  api: Raif Pay ecom
+  source: https://pay.raif.ru/doc/ecom.html
+- status: null
+  code: ERROR.ACCOUNT_IS_NOT_REGISTERED
+  title: Указан неверный счет. Проверьте его или удалите. Параметр является необязательным
+  type: ERROR.ACCOUNT_IS_NOT_REGISTERED
+  description: Указан неверный счет. Проверьте его или удалите. Параметр является необязательным
+  api: Raif Pay sbp
+  source: https://pay.raif.ru/doc/sbp.html
+- status: null
+  code: ERROR.INVALID_REQUEST
+  title: Не передан обязательный параметр
+  type: ERROR.INVALID_REQUEST
+  description: Не передан обязательный параметр
+  api: Raif Pay sbp
+  source: https://pay.raif.ru/doc/sbp.html
+- status: null
+  code: ERROR.QR_EXPIRATION_DATE_NOT_VALID
+  title: Неверная дата истечения QR-кода
+  type: ERROR.QR_EXPIRATION_DATE_NOT_VALID
+  description: Неверная дата истечения QR-кода
+  api: Raif Pay sbp
+  source: https://pay.raif.ru/doc/sbp.html
+- status: null
+  code: ERROR.MERCHANT_NOT_REGISTERED
+  title: Партнер с ID * не зарегистрирован
+  type: ERROR.MERCHANT_NOT_REGISTERED
+  description: Партнер с ID * не зарегистрирован
+  api: Raif Pay sbp
+  source: https://pay.raif.ru/doc/sbp.html
+- status: null
+  code: ERROR.ORDER_NUMBER_ALREADY_REGISTERED
+  title: QR-код с номером заказа *, партнера * и успешными платежами уже зарегистрирован
+  type: ERROR.ORDER_NUMBER_ALREADY_REGISTERED
+  description: QR-код с номером заказа *, партнера * и успешными платежами уже зарегистрирован
+  api: Raif Pay sbp
+  source: https://pay.raif.ru/doc/sbp.html
+- status: null
+  code: ERROR.SBP_MERCHANT_ID_IS_MISSING
+  title: SbpMerchantId партнера не указан
+  type: ERROR.SBP_MERCHANT_ID_IS_MISSING
+  description: SbpMerchantId партнера не указан
+  api: Raif Pay sbp
+  source: https://pay.raif.ru/doc/sbp.html
+- status: null
+  code: ERROR.DYNAMIC_QR_WITHOUT_AMOUNT
+  title: Не передана сумма для динамического QR-кода
+  type: ERROR.DYNAMIC_QR_WITHOUT_AMOUNT
+  description: Не передана сумма для динамического QR-кода
+  api: Raif Pay sbp
+  source: https://pay.raif.ru/doc/sbp.html
+- status: null
+  code: ERROR.INVALID_ORDER
+  title: В номере заказа поддерживаются A-z09_-.
+  type: ERROR.INVALID_ORDER
+  description: В номере заказа поддерживаются A-z09_-.
+  api: Raif Pay sbp
+  source: https://pay.raif.ru/doc/sbp.html
+- status: null
+  code: ERROR.NOT_FOUND
+  title: QR-код не найден у данного партнера
+  type: ERROR.NOT_FOUND
+  description: QR-код не найден у данного партнера
+  api: Raif Pay sbp
+  source: https://pay.raif.ru/doc/sbp.html
+- status: null
+  code: ERROR.REFUND_INSUFFICIENT_FUNDS
+  title: Сумма возврата больше суммы остатка по платежу
+  type: ERROR.REFUND_INSUFFICIENT_FUNDS
+  description: Сумма возврата больше суммы остатка по платежу
+  api: Raif Pay sbp
+  source: https://pay.raif.ru/doc/sbp.html
+- status: null
+  code: ERROR.REFUND_NOT_FOUND
+  title: Возврат с refundId * не найден
+  type: ERROR.REFUND_NOT_FOUND
+  description: Возврат с refundId * не найден
+  api: Raif Pay sbp
+  source: https://pay.raif.ru/doc/sbp.html
+- status: null
+  code: ERROR.ERROR_WRONG_QR_STATUS
+  title: Нельзя сменить статус QR-кода с * на *
+  type: ERROR.ERROR_WRONG_QR_STATUS
+  description: Нельзя сменить статус QR-кода с * на *
+  api: Raif Pay sbp
+  source: https://pay.raif.ru/doc/sbp.html
+- status: 400
+  code: invalid_request
+  title: /token invalid_request
+  description: Authorization Code использован повторно; code_challenge и code_verifier не соответствуют; redirect_uri не зарегистрирован или не совпадает; тело запроса не содержит обязательных параметров.
+  remediation: Сформировать новый Authorization Code (или использовать refresh_token), проверить PKCE и redirect_uri.
+  source: https://developer.raiffeisen.ru/docs/support
+- status: 401
+  code: null
+  title: /token 401
+  description: Неверный формат заголовка Authorization (должен начинаться с Basic и содержать client_id:client_secret в Base64URL) или client_id/client_secret не зарегистрированы в банке.
+  source: https://developer.raiffeisen.ru/docs/support
+- status: 401
+  code: null
+  title: API 401 (например, список счетов)
+  description: Нет заголовка Authorization или ID-Token; Authorization не начинается с Bearer; выпущен новый набор токенов или выполнен /logout; истек срок действия токенов.
+  remediation: Обновить токен доступа с помощью refresh_token.
+  source: https://developer.raiffeisen.ru/docs/support
+- status: 400
+  code: invalid_grant
+  title: Повторный обмен кода авторизации
+  description: Код авторизации одноразовый (sandbox test values).
+  source: https://developer.raiffeisen.ru/docs/sandbox/test-values

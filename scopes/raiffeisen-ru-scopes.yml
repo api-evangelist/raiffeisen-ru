@@ -1,0 +1,14 @@
+generated: '2026-10-09'
+method: searched
+source: https://developer.raiffeisen.ru/docs/howToStart/tokens/howToGetTokensByCodeFlow
+docs: https://developer.raiffeisen.ru/docs/howToStart/tokens/howToGetTokensByCodeFlow
+description: The Code Flow docs specify scope as a static value "openid profile email phone"; access to APIs/accounts is granted by the bank-side integration application, not by OAuth scopes.
+scopes:
+- name: openid
+  description: Part of the required static scope value "openid profile email phone"
+- name: profile
+  description: Part of the required static scope value "openid profile email phone"
+- name: email
+  description: Part of the required static scope value "openid profile email phone"
+- name: phone
+  description: Part of the required static scope value "openid profile email phone"

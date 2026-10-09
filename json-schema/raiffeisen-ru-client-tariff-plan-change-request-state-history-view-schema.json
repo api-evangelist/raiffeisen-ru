@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-client-tariff-plan-change-request-state-history-view-schema.json",
+  "title": "ClientTariffPlanChangeRequestStateHistoryView",
+  "description": "История изменений статуса заявки на смену тарифного плана",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-tariff-change-requests-openapi.yml#/components/schemas/ClientTariffPlanChangeRequestStateHistoryView",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "Уникальный идентификатор заявки",
+      "format": "int64"
+    },
+    "states": {
+      "type": "array",
+      "description": "Список изменений статуса заявки",
+      "items": {
+        "$ref": "#/$defs/ClientTariffPlanChangeRequestStateView"
+      }
+    }
+  },
+  "$defs": {
+    "ClientTariffPlanChangeRequestStateView": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "type": "string",
+          "description": "Статус заявления",
+          "enum": [
+            "UNSIGNED",
+            "PARTIALLY_SIGNED",
+            "SIGNED",
+            "PROCESSING",
+            "DECLINED",
+            "DONE",
+            "CANCELLED"
+          ]
+        },
+        "date": {
+          "type": "string",
+          "description": "Дата изменения статуса",
+          "format": "date-time"
+        },
+        "author": {
+          "type": "string",
+          "description": "Автор изменения статуса"
+        }
+      },
+      "description": "Изменение статуса заявки на смену тарифного плана"
+    }
+  }
+}

@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-create-mt942-report-request-schema.json",
+  "title": "CreateMt942ReportRequest",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-bank-statements-openapi.yml#/components/schemas/CreateMt942ReportRequest",
+  "type": "object",
+  "properties": {
+    "accountKeys": {
+      "$ref": "#/$defs/AccountKeys"
+    },
+    "from": {
+      "$ref": "#/$defs/RequestIntervalFrom"
+    },
+    "to": {
+      "$ref": "#/$defs/RequestIntervalTo"
+    },
+    "fileName": {
+      "$ref": "#/$defs/FileName"
+    },
+    "sort": {
+      "$ref": "#/$defs/ReportSort"
+    },
+    "splitBy": {
+      "$ref": "#/$defs/SplitByAccountDateMT"
+    },
+    "encoding": {
+      "$ref": "#/$defs/EncodingMt"
+    },
+    "showHeader": {
+      "$ref": "#/$defs/ShowHeader"
+    },
+    "field25": {
+      "$ref": "#/$defs/Field25"
+    },
+    "field86": {
+      "$ref": "#/$defs/Field86"
+    },
+    "transliteration": {
+      "$ref": "#/$defs/Transliteration"
+    },
+    "replacements": {
+      "$ref": "#/$defs/Replacements"
+    }
+  },
+  "required": [
+    "accountKeys",
+    "from",
+    "to"
+  ],
+  "$defs": {
+    "AccountKeys": {
+      "type": "array",
+      "description": "Бизнес-ключ счета. Формат: `<20-значный номер счета>` или `<20-значный номер счета>:<CNUM>`",
+      "items": {
+        "type": "string"
+      }
+    },
+    "EncodingMt": {
+      "type": "string",
+      "enum": [
+        "WINDOWS",
+        "DOS",
+        "UTF8"
+      ],
+      "description": "Кодировка файла: WINDOWS - cp1251, DOS - cp866, UTF8 - utf-8",
+      "default": "WINDOWS"
+    },
+    "Field25": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "$ref": "#/$defs/Field25Format"
+        },
+        "customValue": {
+          "$ref": "#/$defs/Field25CustomValue"
+        }
+      },
+      "required": [
+        "format"
+      ],
+      "description": "Настройка поля 25",
+      "default": {
+        "format": "SWIFT_ACCOUNT_CURRENCY"
+      }
+    },
+    "Field25CustomValue": {
+      "type": "string",
+      "description": "Значение 25 поля для формата CUSTOM"
+    },
+    "Field25Format": {
+      "type": "string",
+      "enum": [
+        "SWIFT_ACCOUNT_CURRENCY",
+        "SWIFT_ACCOUNT",
+        "RCBIC_ACCOUNT",
+        "CUSTOM"
+      ],
+      "description": "Формат поля 25. SWIFT_ACCOUNT_CURRENCY - строка формата [SWIFT][Счет][Валюта счета], SWIFT_ACCOUNT - строка формата [SWIFT][Счет], RCBIC_ACCOUNT - строка формата [RCBIC][Счет], CUSTOM - кастомизируемый формат. \nДля формата CUSTOM доступны переменные: [Account Number] - счет, [RCBIC] - БИК Банка, [SWIFT] - SWIFT код банка, [Cur] - валюта счета.",
+      "default": "SWIFT_ACCOUNT_CURRENCY"
+    },
+    "Field86": {
+      "type": "string",
+      "enum": [
+        "SEPA",
+        "OLD",
+        "DISABLED"
+      ],
+      "description": "Формат 86 поля. SEPA - формта SEPA, OLD - Старый формат (NZP/[Details of payment]), DISABLED - не добавлять поле 86",
+      "default": "SEPA"
+    },
+    "FileName": {
+      "type": "string",
+      "description": "Имя сгенерированного файла"
+    },
+    "OrderBy": {
+      "type": "string",
+      "enum": [
+        "ASC",
+        "DESC"
+      ],
+      "description": "Направление сортировки"
+    },
+    "Replacements": {
+      "type": "string",
+      "description": "Правила корректировки символов SWIFT в поле 86 и 61. В формате \"sourceChar1:targetChar1;sourceChar2:targetChar2\". В targetChar могут быть символы пустой строки и пробела ('empty', 'space')."
+    },
+    "ReportSort": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ServiceSortReportSortFields"
+      }
+    },
+    "RequestIntervalFrom": {
+      "type": "string",
+      "format": "date",
+      "description": "Дата выписки с"
+    },
+    "RequestIntervalTo": {
+      "type": "string",
+      "format": "date",
+      "description": "Дата выписки по"
+    },
+    "ServiceSortReportSortFields": {
+      "type": "object",
+      "properties": {
+        "sortBy": {
+          "$ref": "#/$defs/SortBy"
+        },
+        "orderBy": {
+          "$ref": "#/$defs/OrderBy"
+        }
+      },
+      "required": [
+        "sortBy",
+        "orderBy"
+      ]
+    },
+    "ShowHeader": {
+      "type": "boolean",
+      "description": "Отображать заголовок выписок",
+      "default": false
+    },
+    "SortBy": {
+      "type": "string",
+      "enum": [
+        "DEBIT",
+        "CREDIT"
+      ],
+      "description": "Поле сортировки"
+    },
+    "SplitByAccountDateMT": {
+      "type": "string",
+      "enum": [
+        "ACCOUNT_DATE",
+        "ACCOUNT_DATE_CHUNKS"
+      ],
+      "description": "Разделить выписки на отдельные файлы и генерировать zip архив. \nACCOUNT_DATE - разделить по счетам за день (в архиве каждый файл будет содержать выписки за один день по одному счету), \nACCOUNT_DATE_CHUNKS - разделить по счетам за день, разбивая файл на части по 1000 символов (в архиве каждый файл будет содержать часть выписки за один день по одному счету),\nnull - генерируется один файл. По умолчанию генерируется один файл."
+    },
+    "Transliteration": {
+      "type": "boolean",
+      "description": "Транслитерация в поле 86",
+      "default": false
+    }
+  }
+}

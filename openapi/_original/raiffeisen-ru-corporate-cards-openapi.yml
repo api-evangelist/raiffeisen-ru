@@ -1,0 +1,556 @@
+---
+openapi: "3.0.3"
+info:
+  title: "Корпоративные карты"
+  version: "1.0.0"
+  description: ""
+tags:
+- name: "corpcards-operation-api"
+  description: "API для просмотра операций по корпоративным картам:\n* Получение с\
+    писка операций по карте\n"
+paths:
+  /api/cards/v2/transactions/cards/{cardId}:
+    get:
+      tags:
+      - "corpcards-operation-api"
+      summary: "Список операций по карте"
+      description: "Метод получения списка операций по карте"
+      operationId: "getCardOperationsV2"
+      parameters:
+      - $ref: "#/components/parameters/CardId"
+      - $ref: "#/components/parameters/ToDate"
+      - $ref: "#/components/parameters/FromDate"
+      - $ref: "#/components/parameters/Limit"
+      - $ref: "#/components/parameters/Offset"
+      - $ref: "#/components/parameters/AmountMin"
+      - $ref: "#/components/parameters/AmountMax"
+      - $ref: "#/components/parameters/Sort"
+      - $ref: "#/components/parameters/SortBy"
+      - $ref: "#/components/parameters/MerchantName"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Метод завершил работу"
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: "#/components/schemas/OperationDtoV2"
+              examples:
+                Операции успешно получены:
+                  $ref: "#/components/examples/OperationDtoV2Example"
+        "400":
+          $ref: "#/components/responses/400_invalid_data"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  parameters:
+    CardId:
+      name: "cardId"
+      in: "path"
+      required: true
+      description: "Уникальный банковский идентификатор карты"
+      schema:
+        type: "string"
+    ToDate:
+      name: "toDate"
+      in: "query"
+      description: "Конечное время (YYYY-MM-DD) По умолчанию текущая дата\n"
+      example: "2025-11-25"
+      schema:
+        type: "string"
+        format: "date"
+    FromDate:
+      name: "fromDate"
+      in: "query"
+      example: "2025-11-18"
+      description: "Начальное время (YYYY-MM-DD). По умолчанию текущая дата - 7 дн\
+        ей\n"
+      schema:
+        type: "string"
+        format: "date"
+    Limit:
+      name: "limit"
+      in: "query"
+      example: 30
+      description: "Количество записей для запроса"
+      required: false
+      schema:
+        type: "integer"
+        default: 30
+    Offset:
+      name: "offset"
+      in: "query"
+      example: 60
+      description: "Количество записей для смещения"
+      required: false
+      schema:
+        type: "integer"
+        default: 0
+    AmountMin:
+      name: "amountMin"
+      in: "query"
+      description: "Сумма минимальная в рублях"
+      example: 0
+      schema:
+        type: "integer"
+    AmountMax:
+      name: "amountMax"
+      in: "query"
+      description: "Сумма максимальная в рублях"
+      example: 0
+      schema:
+        type: "integer"
+    Sort:
+      name: "sort"
+      in: "query"
+      description: "Направление сортировки для всех полей, указанных в sortBy. По\
+        \ умолчанию DESC.\n"
+      example: "DESC"
+      schema:
+        type: "string"
+        enum:
+        - "DESC"
+        - "ASC"
+        default: "DESC"
+    SortBy:
+      name: "sortBy"
+      in: "query"
+      description: "Поля для сортировки. Передаётся повторяющимися параметрами query."
+      style: "form"
+      explode: true
+      schema:
+        type: "array"
+        items:
+          type: "string"
+      example:
+      - "createTime"
+    MerchantName:
+      name: "merchantName"
+      in: "query"
+      description: "Имя мерчанта"
+      schema:
+        type: "string"
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+  schemas:
+    AccountMovementType:
+      type: "string"
+      enum:
+      - "DEBIT"
+      - "CREDIT"
+    Amount:
+      type: "string"
+      description: "Сумма операции в рублях"
+      example: "1000.00"
+    Currency:
+      type: "string"
+      description: "Валюта карты"
+      example: "RUB"
+    AuthorizationDto:
+      type: "object"
+      description: "Данные о предварительной авторизации операции"
+      required:
+      - "amount"
+      - "currency"
+      properties:
+        amount:
+          allOf:
+          - $ref: "#/components/schemas/Amount"
+        currency:
+          allOf:
+          - $ref: "#/components/schemas/Currency"
+    OperationStatus:
+      type: "string"
+      description: "Статус операции"
+      enum:
+      - "HOLD"
+      - "CANCEL"
+      - "CAPTURE"
+    DateTime:
+      type: "string"
+      description: "Дата и время обновления"
+      format: "date-time"
+      example: "2025-08-29T07:29:26.795033"
+    CaptureDateTime:
+      type: "string"
+      description: "Дата и время фиксации транзакции"
+      format: "date-time"
+      example: "2025-08-29T07:29:26.795033"
+    StatusDto:
+      type: "object"
+      description: "Данные о совершенной операции"
+      required:
+      - "value"
+      - "dateTime"
+      properties:
+        value:
+          allOf:
+          - $ref: "#/components/schemas/OperationStatus"
+        dateTime:
+          allOf:
+          - $ref: "#/components/schemas/DateTime"
+        captureDateTime:
+          allOf:
+          - $ref: "#/components/schemas/CaptureDateTime"
+    TransactionDto:
+      type: "object"
+      description: "Данные о финальной транзакции (проведённой сумме)"
+      required:
+      - "amount"
+      - "currency"
+      properties:
+        amount:
+          allOf:
+          - $ref: "#/components/schemas/Amount"
+        currency:
+          allOf:
+          - $ref: "#/components/schemas/Currency"
+          description: "Валюта"
+    TransactionsCardDtoId:
+      type: "string"
+      description: "Уникальный банковский идентификатор карты"
+      example: "1"
+    TransactionsCardDtoMaskedNumber:
+      type: "string"
+      description: "Маскированный номер карты. Формат: первые 6 и последние 4 цифр\
+        ы, середина скрыта символами \"*\".\n"
+      example: "553496******0091"
+    TransactionsCardDto:
+      type: "object"
+      description: "Данные карты, по который была совершена транзакция"
+      required:
+      - "id"
+      - "maskedNumber"
+      properties:
+        id:
+          allOf:
+          - $ref: "#/components/schemas/TransactionsCardDtoId"
+        maskedNumber:
+          allOf:
+          - $ref: "#/components/schemas/TransactionsCardDtoMaskedNumber"
+    MCC:
+      type: "string"
+      description: "Код категории товара или услуги (MCC)"
+      example: "1000"
+    Label:
+      type: "string"
+      description: "Расшифровка MCC."
+      example: "Различные продовольственные магазины"
+    MerchantName:
+      type: "string"
+      description: "Название торговой точки"
+      example: "YANDEX.TAXI"
+    MerchantCity:
+      type: "string"
+      description: "Город, в котором находится торговая точка"
+      example: "Gorod Moskva"
+    MerchantCountry:
+      type: "string"
+      description: "Страна торговой точки."
+      example: "RU"
+    MerchantDto:
+      type: "object"
+      description: "Данные торговой точки"
+      required:
+      - "mcc"
+      - "label"
+      - "name"
+      - "city"
+      - "country"
+      properties:
+        mcc:
+          allOf:
+          - $ref: "#/components/schemas/MCC"
+        label:
+          allOf:
+          - $ref: "#/components/schemas/Label"
+        name:
+          allOf:
+          - $ref: "#/components/schemas/MerchantName"
+        city:
+          allOf:
+          - $ref: "#/components/schemas/MerchantCity"
+        country:
+          allOf:
+          - $ref: "#/components/schemas/MerchantCountry"
+    OperationDtoV2:
+      type: "object"
+      required:
+      - "offset"
+      - "limit"
+      - "totalCount"
+      - "data"
+      properties:
+        offset:
+          type: "integer"
+          description: "Смещение для пагинации"
+        limit:
+          type: "integer"
+          description: "Кол-во возвращаемых элементов"
+          example: 25
+        totalCount:
+          type: "integer"
+          description: "Общее количество доступных операций, без учёта offset и limit"
+          example: 3
+        data:
+          type: "array"
+          items:
+            type: "object"
+            required:
+            - "id"
+            - "accountMovementType"
+            - "extendedNarrative"
+            - "authorization"
+            - "status"
+            - "transaction"
+            - "card"
+            - "merchant"
+            properties:
+              id:
+                type: "string"
+                description: "Порядковый номер"
+              accountMovementType:
+                allOf:
+                - $ref: "#/components/schemas/AccountMovementType"
+              extendedNarrative:
+                type: "string"
+                description: "Описание операции (назначение платежа)"
+              authorization:
+                allOf:
+                - $ref: "#/components/schemas/AuthorizationDto"
+              status:
+                allOf:
+                - $ref: "#/components/schemas/StatusDto"
+              transaction:
+                allOf:
+                - $ref: "#/components/schemas/TransactionDto"
+              card:
+                allOf:
+                - $ref: "#/components/schemas/TransactionsCardDto"
+              merchant:
+                allOf:
+                - $ref: "#/components/schemas/MerchantDto"
+  examples:
+    OperationDtoV2Example:
+      summary: "Страница операций"
+      value:
+        data:
+        - id: "ZR00000001AAA0A4"
+          accountMovementType: "DEBIT"
+          extendedNarrative: "Cash Advance Fee. CARD **0000 01NOV RUR 100 ATM 00000000\
+            \ MOSCOW"
+          authorization:
+            amount: "1.50"
+            currency: "RUB"
+          status:
+            value: "CAPTURE"
+            dateTime: "2025-11-01T12:06:35.525227"
+            captureDateTime: "2025-11-01T10:18:12.085968"
+          transaction:
+            amount: "1.50"
+            currency: "RUB"
+          card:
+            id: "00000000"
+            maskedNumber: "220030******0111"
+          merchant:
+            mcc: null
+            label: null
+            name: "Thresholds commission"
+            city: "Pilo"
+            country: null
+        - id: "ZR00000001AAA0A3"
+          accountMovementType: "DEBIT"
+          extendedNarrative: "CARD **0000 01NOV RUR 100 ATM 00000000 MOSCOW"
+          authorization:
+            amount: "100.00"
+            currency: "RUB"
+          status:
+            value: "CAPTURE"
+            dateTime: "2025-11-01T12:06:35.515954"
+            captureDateTime: "2025-11-03T10:18:12.041783"
+          transaction:
+            amount: "100.00"
+            currency: "RUB"
+          card:
+            id: "00000000"
+            maskedNumber: "220030******0111"
+          merchant:
+            mcc: "6011"
+            label: "Финансовые учреждения – снятие/внесение наличных автоматически"
+            name: "ATM 00000000"
+            city: "MOSCOW"
+            country: "RUS"
+        - id: "ZR00000001AAA0A2"
+          accountMovementType: "CREDIT"
+          extendedNarrative: "CARD **0000 01NOV RUR 100 ATM 00000000 MOSCOW"
+          authorization:
+            amount: "100.00"
+            currency: "RUB"
+          status:
+            value: "CAPTURE"
+            dateTime: "2025-11-01T12:05:11.262242"
+            captureDateTime: "2025-11-01T12:05:11.262242"
+          transaction:
+            amount: "100.00"
+            currency: "RUB"
+          card:
+            id: "00000000"
+            maskedNumber: "220030******0111"
+          merchant:
+            mcc: "6012"
+            label: "Финансовые учреждения – торговля и услуги"
+            name: "ATM 00000000"
+            city: "MOSCOW"
+            country: "RUS"
+        - id: "ZR00000001AAA0A1"
+          accountMovementType: "DEBIT"
+          extendedNarrative: "CARD **0000 01NOV RUR 59.99 SHOP 0000 MOSCOW"
+          authorization:
+            amount: "59.99"
+            currency: "RUB"
+          status:
+            value: "CAPTURE"
+            dateTime: "2025-11-01T12:03:39.88291"
+            captureDateTime: "2025-11-04T06:01:46.93287"
+          transaction:
+            amount: "59.99"
+            currency: "RUB"
+          card:
+            id: "00000000"
+            maskedNumber: "220030******0111"
+          merchant:
+            mcc: "5411"
+            label: "Бакалейные магазины, супермаркеты"
+            name: "SHOP 0000"
+            city: "MOSCOW"
+            country: "RUS"
+        - id: "ZR00000001AAA0A0"
+          accountMovementType: "CREDIT"
+          extendedNarrative: "CARD **0000 01NOV RUR 100 ATM 00000000 MOSCOW"
+          authorization:
+            amount: "100.00"
+            currency: "RUB"
+          status:
+            value: "CAPTURE"
+            dateTime: "2025-11-01T12:01:36.099693"
+            captureDateTime: "2025-11-01T12:01:36.099693"
+          transaction:
+            amount: "100.00"
+            currency: "RUB"
+          card:
+            id: "00000000"
+            maskedNumber: "220030******0111"
+          merchant:
+            mcc: "6012"
+            label: "Финансовые учреждения – торговля и услуги"
+            name: "ATM 00000000"
+            city: "MOSCOW"
+            country: "RUS"
+        offset: 0
+        limit: 30
+        totalCount: 5
+    CardNotFoundExample:
+      summary: "Карта не найдена"
+      value:
+        code: "ERROR.CARD_NOT_FOUND"
+        message: "Карта не найдена"
+  responses:
+    "400_invalid_data":
+      description: "Бизнес-ошибка"
+      content:
+        application/json:
+          schema:
+            type: "object"
+            properties:
+              code:
+                type: "string"
+                description: "Код ошибки"
+                example: "ERROR.INVALID_DATA"
+              message:
+                type: "string"
+                description: "Текст ошибки"
+                example: "Некорректные данные"
+          examples:
+            Карта не найдена:
+              $ref: "#/components/examples/CardNotFoundExample"
+    "401_without_traceId":
+      description: "Неверный токен аутентификации"
+      content:
+        application/json:
+          schema:
+            type: "object"
+            description: "Объект ошибки"
+            properties:
+              timestamp:
+                type: "string"
+                description: "Дата и время операции"
+                example: "2021-01-01T12:00:27.87+00:20"
+                format: "date-time"
+              status:
+                type: "integer"
+                description: "HTTP-код"
+                example: 401
+              error:
+                type: "string"
+                description: "Ошибка"
+                example: "Unauthorized"
+              message:
+                type: "string"
+                description: "Описание ошибки"
+                example: "some exception"
+              path:
+                type: "string"
+                description: "URL, по которому была вызвана ошибка."
+    "500_without_traceId":
+      description: "Внутренняя ошибка"
+      content:
+        application/json:
+          schema:
+            type: "object"
+            properties:
+              timestamp:
+                type: "string"
+                description: "Дата и время операции"
+                example: "2021-01-01T12:00:27.87+00:20"
+                format: "date-time"
+              status:
+                type: "integer"
+                description: "HTTP-код"
+                example: 500
+              error:
+                type: "string"
+                description: "Ошибка"
+                example: "Internal Server Error"
+              message:
+                type: "string"
+                description: "Описание ошибки"
+                example: "Internal Server Error"
+              path:
+                type: "string"
+                description: "URL, по которому была вызвана ошибка"
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+servers:
+- url: "https://api.raiffeisen.ru/corporate-cards"

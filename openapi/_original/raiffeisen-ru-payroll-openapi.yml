@@ -1,0 +1,759 @@
+---
+openapi: "3.0.3"
+info:
+  title: "Зарплатные ведомости"
+  version: "1.0.0"
+  description: "### Справочник кодов ошибок API\n\nПолный список кодов ошибок с по\
+    дробными описаниями: [payroll-statement-api-errors-detailed.pdf](https://cdn.rbo.raiffeisen.ru/fs/cashmanagement/payroll-statement-api-errors-detailed.pdf)\n"
+tags:
+- name: "payroll-statements-methods"
+paths:
+  /v1/statements:
+    post:
+      tags:
+      - "payroll-statements-methods"
+      summary: "Создание ведомости"
+      description: "Метод используется для создания как подписанных, так и неподпи\
+        санных ведомостей.\n\nДля неподписанной ведомости:\n- Поля signatures и digest\
+        \ передавать не нужно\n- Ведомость потребует подписания в онлайн-банке\n\n\
+        Для подписанной ведомости:\n- Необходимо передать поля signatures и digest\n\
+        - При наличии подписи (всех подписей) согласно настроенной схеме подписи,\
+        \ ведомость будет автоматически отправлена на исполнение\n\nОдин и тот же\
+        \ сертификат подписи НЕ МОЖЕТ использоваться:\n- разными людьми в одной ко\
+        мпании\n- одним человеком в рамках одной компании, но с разными типами под\
+        писей (например, \"ПЕРВАЯ\", \"ВТОРАЯ\")\n\nЭто связано с ограничениями по\
+        лномочий, закреплённых за сертификатом.\n\nПример формирования короткой по\
+        дписи: [тут](https://github.com/Raiffeisen-DGTL/data-signing/blob/main/src/main/java/ru/raiffeisen/signing/ShortSignatureGenerationExample.java)\
+        \ (также подробности в Readme проекта)\n\nЗащита от дублирования. Поле externalId\
+        \ используется как уникальный идентификатор ведомости в разрезе одной комп\
+        ании. При повторной отправке запроса с тем же externalId вторая ведомость\
+        \ не будет создана — метод вернёт ошибку 400 с сообщением \"Ведомость с да\
+        нным externalId уже существует.\"\n\n### Ограничения\n\nМаксимальное колич\
+        ество переводов в ведомости: 10 000\n\nПри превышении лимита вернется ошиб\
+        ка `400 Bad Request` с кодом `transfers` и сообщением `transfers must contain\
+        \ no more than 10000 elements`.\n"
+      operationId: "create-statement"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStatementRequest"
+      responses:
+        "202":
+          description: "Accepted"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateStatementResponse"
+              example:
+                externalId: "45d16dd7-feda-4022-821c-7f4271a49294"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              example:
+                traceId: "84b19a21e19410b62c30b4cd40c228a1"
+                errors:
+                - code: "enrollmentCode"
+                  message: "Исправьте вид зачисления, выбрав нужный из справочника"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              example:
+                traceId: "84b19a21e19410b62c30b4cd40c228a1"
+                errors:
+                - code: "account"
+                  message: "Указанный счет не найден у компании."
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/statements/{externalId}:
+    get:
+      tags:
+      - "payroll-statements-methods"
+      summary: "Получение статуса обработки ведомости"
+      description: "Необходимо вызывать после метода создания ведомости, чтобы узн\
+        ать статус обработки с деталями.\n\nПодписанные ведомости могут находиться\
+        \ в статусах:\n`CHECKING`,\n`ERROR`,\n`ERROR_SIGN`,\n`PROCESSING`,\n`DECLINED`,\n\
+        `EXECUTED`,\n`PARTLY_EXECUTED`,\n`SCHEDULED`,\n`DELETED`\n\nНеподписанные\
+        \ ведомости могут находиться в статусах:\n1) До подписания в онлайн-банке\
+        :\n`DRAFT`,\n`CHECKING`,\n`AWAITING_SIGN`,\n`AWAITING_SIGN_WITH_WARNINGS`,\n\
+        `ERROR`,\n`DELETED`\n\n2) После подписания в онлайн-банке:\n`SIGNING`,\n`PARTLY_SIGNED`,\n\
+        `AWAITING_SEND`,\n`SCHEDULED`,\n`ERROR_SIGN`,\n`PROCESSING`,\n`DECLINED`,\n\
+        `EXECUTED`,\n`PARTLY_EXECUTED`\n\nНеподписанную ведомость необходимо подпи\
+        сать в онлайн-банке, если она перешла в статус `AWAITING_SIGN` или `AWAITING_SIGN_WITH_WARNINGS`.\n\
+        \nЕсли ведомость находится в статусе `ERROR` или `DECLINED`, для получения\
+        \ детализации ошибок по переводам, необходимо вызвать метод `Получение спи\
+        ска переводов по ведомости`.\n\nРекомендации по опросу (polling).\n- Начин\
+        ать опрос можно сразу после получения ответа 202 на запрос создания ведомо\
+        сти, без задержки.\n- Опрашивать статус ведомости следует не чаще 1 раза в\
+        \ секунду.\n - Прекратить опрос при достижении одного из финальных статусо\
+        в.\n   Финальные статусы для подписанной ведомости: `EXECUTED`, `PARTLY_EXECUTED`,\
+        \ `DECLINED`, `DELETED`, `ERROR`, `ERROR_SIGN`.\n   Финальные статусы для\
+        \ неподписанной ведомости: `EXECUTED`, `PARTLY_EXECUTED`, `DECLINED`, `DELETED`,\
+        \ `ERROR_SIGN` (статус `ERROR` не является финальным — при наличии прав на\
+        \ редактирование можно исправить ошибку и подписать ведомость).\n\nПример\
+        \ polling-цикла.\n1. Вызвать GET /v1/statements/{externalId} и получить ст\
+        атус ведомости.\n2. Если статус изменился — вызвать GET /v1/statements/{externalId}/transfers\
+        \ для получения деталей переводов.\n3. Если статус не финальный — подождат\
+        ь 1 секунду и вернуться к шагу 1.\n4. Если статус финальный — завершить оп\
+        рос.\n"
+      operationId: "get-statement-status"
+      parameters:
+      - $ref: "#/components/parameters/ExternalId"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              example:
+                externalId: "8c0bcca2-6571-4880-a1c2-10690200be9f"
+                status: "ERROR"
+                message: null
+                errors:
+                - code: "P20"
+                  message: "Проверьте БИК и укажите правильный. Длина должна быть\
+                    \ 9 цифр."
+                warnings:
+                - code: "P11"
+                  message: "Заполните поле «Вид дохода», выбрав нужное значение."
+              schema:
+                $ref: "#/components/schemas/StatementStatusResponse"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              example:
+                traceId: "84b19a21e19410b62c30b4cd40c228a1"
+                errors:
+                - code: "externalId"
+                  message: "must match \\\"^[a-z0-9\\\\-]+$\\\""
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              example:
+                traceId: "84b19a21e19410b62c30b4cd40c228a1"
+                errors:
+                - code: "externalId"
+                  message: "Ведомости с таким идентификатором не существует."
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/statements/{externalId}/transfers:
+    get:
+      tags:
+      - "payroll-statements-methods"
+      summary: "Получение списка переводов по ведомости"
+      description: "Получение пагинированного списка переводов по ведомости с их с\
+        татусами.\n\nРекомендация — запрашивайте статусы переводов только после из\
+        менения статуса ведомости.\nПолучить текущий статус ведомости можно через\
+        \ метод \"Получение статуса обработки ведомости\".\n"
+      operationId: "get-statement-transfers"
+      parameters:
+      - $ref: "#/components/parameters/ExternalId"
+      - $ref: "#/components/parameters/Offset"
+      - $ref: "#/components/parameters/Limit"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatementTransfersResponse"
+              example:
+                externalId: "45d16dd7-feda-4022-821c-7f4271a49294"
+                transfers:
+                - orderNumber: 1
+                  status: "DECLINED"
+                  message: "Счет сотрудника не найден в банке"
+                - orderNumber: 2
+                  status: "DECLINED"
+                  message: "Некорректно указан БИК"
+                - orderNumber: 3
+                  status: "EXECUTED"
+                offset: 0
+                limit: 10
+                totalCount: 3
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              example:
+                traceId: "84b19a21e19410b62c30b4cd40c228a1"
+                errors:
+                - code: "externalId"
+                  message: "must match \\\"^[a-z0-9\\\\-]+$\\\""
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              example:
+                traceId: "84b19a21e19410b62c30b4cd40c228a1"
+                errors:
+                - code: "externalId"
+                  message: "Ведомости с таким идентификатором не существует."
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  parameters:
+    ExternalId:
+      name: "externalId"
+      description: "Уникальный идентификатор ведомости во внешней системе"
+      in: "path"
+      required: true
+      schema:
+        type: "string"
+        minLength: 1
+        maxLength: 40
+        pattern: "^[a-z0-9\\-]+$"
+      example: "8c0bcca2-6571-4880-a1c2-10690200be9f"
+    Offset:
+      name: "offset"
+      in: "query"
+      description: "Смещение для пагинации"
+      required: false
+      schema:
+        type: "integer"
+        default: 0
+      example: 0
+    Limit:
+      name: "limit"
+      in: "query"
+      description: "Ограничение количества элементов на странице"
+      required: false
+      schema:
+        type: "integer"
+        default: 10
+      example: 30
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+  schemas:
+    CreateStatementRequest:
+      required:
+      - "payload"
+      type: "object"
+      properties:
+        payload:
+          $ref: "#/components/schemas/StatementPayload"
+        signatures:
+          type: "array"
+          items:
+            type: "string"
+          description: "Массив всех подписей, необходимых для подписания ведомости\
+            .\n\nКогда заполнять:\n- Если создаёте подписанную ведомость — укажите\
+            \ все подписи согласно схеме подписи\n- Если создаёте неподписанную ве\
+            домость — поле не нужно передавать в запросе\n"
+        digest:
+          example: "U7yPt0F4lS8xaN0ZXdLpREtXm+p0697FRRHrJbVSvlY="
+          type: "string"
+          description: "Дайджест (хеш-сумма) содержимого payload.\n\nКогда заполня\
+            ть:\n- Если создаёте подписанную ведомость — укажите дайджест\n- Если\
+            \ создаёте неподписанную ведомость — поле не нужно передавать в запрос\
+            е\n"
+    StatementPayload:
+      required:
+      - "externalId"
+      - "account"
+      - "transfersCount"
+      - "totalAmount"
+      - "enrollmentCode"
+      - "transfers"
+      type: "object"
+      description: "Запрос на создание ведомости"
+      properties:
+        externalId:
+          $ref: "#/components/schemas/ExternalId"
+        account:
+          type: "string"
+          minLength: 20
+          maxLength: 20
+          pattern: "^[0-9]+$"
+          description: "Банковский счёт ЮЛ для списания средств"
+          example: "40817810601002630020"
+        transfersCount:
+          type: "integer"
+          minimum: 1
+          description: "Количество переводов в ведомости"
+          example: 1
+        totalAmount:
+          type: "number"
+          format: "double"
+          description: "Общая сумма выплат по ведомости"
+          minimum: 0
+          exclusiveMinimum: true
+          example: 500000.22
+        date:
+          type: "string"
+          format: "date"
+          description: "Дата формирования ведомости в формате YYYY-MM-DD. Можно не\
+            \ передавать — по умолчанию подставится текущая дата."
+          example: "2025-01-19"
+        number:
+          type: "integer"
+          description: "Номер ведомости. Можно не передавать — система автоматичес\
+            ки сгенерирует следующий порядковый номер для компании в текущем году\
+            .\n"
+          minimum: 1
+          maximum: 999999
+          example: 1
+        conversionRates:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ConversionRate"
+          description: "Массив курсов конвертации для переводов с конвертацией вал\
+            юты.\n\nКогда заполнять:\n- Если в ведомости есть переводы с конвертац\
+            ией валюты — укажите курсы для всех валют, участвующих в конвертации\n\
+            - Если все переводы в рублях (RUR) без конвертации — поле не нужно пер\
+            едавать в запросе\n\nОграничения:\n- Максимум 2 валюты конвертации в в\
+            едомости (например, EUR и USD при основной валюте RUR)\n"
+        enrollmentCode:
+          type: "string"
+          description: "Код вида зачисления по ведомости (справочник).\nДопустимые\
+            \ значения:\n- \"01\" - Заработная плата\n- \"02\" - Аванс\n- \"03\" -\
+            \ Больничные\n- \"04\" - Премия\n- \"05\" - Отпускные\n- ...\n\nСправо\
+            чник видов зачислений доступен [по ссылке](https://www.raiffeisen.ru/retail/payroll/payment_purpose)\n"
+          example: "01"
+        incomeCode:
+          $ref: "#/components/schemas/IncomeCode"
+        purpose:
+          type: "string"
+          maxLength: 118
+          description: "Назначение платежной ведомости. Можно не передавать — сист\
+            ема автоматически сгенерирует по правилу: \"Оплата {название вида зачи\
+            сления в соответствии с enrollmentCode}\".\n\nПример: enrollmentCode \"\
+            01\" (Заработная плата) → purpose: \"Оплата Заработная плата\"\n"
+          example: "Выплата зарплаты за январь 2025 г"
+        responsiblePerson:
+          $ref: "#/components/schemas/ResponsiblePerson"
+        reportingPeriod:
+          $ref: "#/components/schemas/ReportingPeriod"
+        transfers:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Transfer"
+          minItems: 1
+          maxItems: 10000
+          description: "Массив переводов"
+    Transfer:
+      type: "object"
+      required:
+      - "firstName"
+      - "lastName"
+      - "orderNumber"
+      - "account"
+      - "amount"
+      - "currency"
+      properties:
+        lastName:
+          type: "string"
+          maxLength: 50
+          description: "Фамилия сотрудника"
+          example: "Петров"
+        firstName:
+          type: "string"
+          maxLength: 50
+          description: "Имя сотрудника"
+          example: "Петр"
+        middleName:
+          type: "string"
+          maxLength: 50
+          description: "Отчество сотрудника"
+          example: "Петрович"
+        amount:
+          type: "number"
+          format: "double"
+          description: "Сумма перевода"
+          minimum: 0
+          exclusiveMinimum: true
+          example: 500000.22
+        orderNumber:
+          $ref: "#/components/schemas/OrderNumber"
+        personnelNumber:
+          type: "string"
+          maxLength: 60
+          description: "Табельный номер сотрудника"
+          example: "AA011"
+        birthDate:
+          type: "string"
+          format: "date"
+          description: "Дата рождения сотрудника в формате YYYY-MM-DD"
+          example: "1990-01-30"
+        account:
+          type: "string"
+          minLength: 20
+          maxLength: 20
+          pattern: "^\\d{5}810\\d{12}$"
+          description: "Банковский счет сотрудника"
+          example: "40817810601002630020"
+        bic:
+          type: "string"
+          minLength: 9
+          maxLength: 9
+          pattern: "^[0-9]+$"
+          description: "БИК банка-получателя счета сотрудника, указывается обязате\
+            льно для внешних переводов (не в АО Райффайзенбанк)"
+          example: "044525700"
+        cardNumber:
+          type: "string"
+          minLength: 14
+          maxLength: 20
+          pattern: "^[0-9]{14,20}$"
+          description: "Номер карты сотрудника"
+          example: "4000000000000000"
+        currency:
+          $ref: "#/components/schemas/Currency"
+        conversion:
+          type: "array"
+          description: "Массив процентов конвертации валюты для данного перевода.\n\
+            \nКогда заполнять:\n- Если перевод требует конвертации валюты — укажит\
+            е проценты распределения по валютам\n- Если перевод в рублях (RUR) без\
+            \ конвертации — поле не нужно передавать в запросе\n\nОграничения:\n-\
+            \ Максимум 2 валюты конвертации в одном переводе\n"
+          items:
+            $ref: "#/components/schemas/ConversionPercent"
+        deductionAmount:
+          type: "number"
+          format: "double"
+          description: "Сумма удержания"
+          minimum: 0
+          exclusiveMinimum: true
+          example: 500.09
+    ConversionPercent:
+      required:
+      - "percent"
+      - "currency"
+      type: "object"
+      description: "Массив процентов конвертации в валюту (в ведомости может быть\
+        \ максимум 2 валюты)"
+      properties:
+        percent:
+          type: "integer"
+          minimum: 1
+          maximum: 100
+          description: "Процент конвертации в валюте"
+          example: 20
+        currency:
+          $ref: "#/components/schemas/ConversionCurrency"
+    ConversionRate:
+      required:
+      - "rate"
+      - "currency"
+      type: "object"
+      properties:
+        rate:
+          type: "number"
+          format: "double"
+          description: "Курс конвертации в валюте"
+          minimum: 0
+          exclusiveMinimum: true
+          example: 12.03
+        currency:
+          $ref: "#/components/schemas/ConversionCurrency"
+    ResponsiblePerson:
+      type: "object"
+      description: "Ответственное лицо. Можно не передавать в запросе — ведомость\
+        \ будет обработана корректно."
+      required:
+      - "fullName"
+      - "phone"
+      properties:
+        fullName:
+          type: "string"
+          maxLength: 250
+          description: "ФИО ответственного лица"
+          example: "Иванов Иван Иванович"
+        phone:
+          type: "string"
+          maxLength: 16
+          description: "Номер телефона ответственного лица"
+          example: "+79120000000"
+    ReportingPeriod:
+      description: "Дата отчётного периода. Можно не передавать в запросе — ведомо\
+        сть будет обработана корректно."
+      type: "object"
+      required:
+      - "year"
+      - "month"
+      properties:
+        year:
+          type: "integer"
+          description: "Год отчетного периода"
+          example: 2025
+        month:
+          type: "integer"
+          description: "Месяц отчетного периода"
+          example: 1
+    CreateStatementResponse:
+      type: "object"
+      required:
+      - "externalId"
+      properties:
+        externalId:
+          $ref: "#/components/schemas/ExternalId"
+    StatementStatusResponse:
+      type: "object"
+      required:
+      - "externalId"
+      - "status"
+      properties:
+        externalId:
+          $ref: "#/components/schemas/ExternalId"
+        status:
+          $ref: "#/components/schemas/StatementExternalStatus"
+        message:
+          type: "string"
+          minLength: 1
+          description: "Причина отказа в случае статуса ведомости DECLINED"
+          example: "Обработка отложена, есть ограничения по счету компании"
+        errors:
+          type: "array"
+          description: "Список ошибок в ведомости в случае статуса ведомости ERROR"
+          items:
+            $ref: "#/components/schemas/Error"
+        warnings:
+          type: "array"
+          description: "Список предупреждений в ведомости"
+          items:
+            $ref: "#/components/schemas/Warning"
+    StatementTransfersResponse:
+      type: "object"
+      required:
+      - "externalId"
+      - "transfers"
+      - "offset"
+      - "limit"
+      - "totalCount"
+      properties:
+        externalId:
+          $ref: "#/components/schemas/ExternalId"
+        transfers:
+          type: "array"
+          description: "Список переводов в ведомости cо статусами"
+          items:
+            $ref: "#/components/schemas/TransferStatusDetails"
+        offset:
+          $ref: "#/components/schemas/Offset"
+        limit:
+          $ref: "#/components/schemas/Limit"
+        totalCount:
+          $ref: "#/components/schemas/TotalCount"
+    TransferStatusDetails:
+      type: "object"
+      required:
+      - "orderNumber"
+      - "status"
+      properties:
+        orderNumber:
+          $ref: "#/components/schemas/OrderNumber"
+        status:
+          $ref: "#/components/schemas/TransferExternalStatus"
+        message:
+          type: "string"
+          minLength: 1
+          description: "Причина отказа в случае статуса перевода DECLINED"
+          example: null
+        errors:
+          type: "array"
+          description: "Список ошибок в переводе, заполняется в случае статуса пер\
+            евода ERROR"
+          example:
+          - code: "T06"
+            message: "Заполните лицевой счет сотрудника."
+          items:
+            $ref: "#/components/schemas/Error"
+        warnings:
+          type: "array"
+          description: "Список предупреждений в переводе"
+          example:
+          - code: "T16"
+            message: "Проверьте, что счет указан корректно и сотрудник прикреплен\
+              \ к зарплатному проекту."
+          items:
+            $ref: "#/components/schemas/Warning"
+    OrderNumber:
+      type: "integer"
+      minimum: 1
+      description: "Порядковый номер перевода в ведомости"
+      example: 1
+    TransferExternalStatus:
+      type: "string"
+      description: "Статус перевода"
+      example: "PROCESSING"
+      enum:
+      - "CHECKING"
+      - "DRAFT"
+      - "CREATED"
+      - "CREATED_WITH_WARNINGS"
+      - "PROCESSING"
+      - "EXECUTED"
+      - "ERROR"
+      - "DECLINED"
+    ExternalId:
+      type: "string"
+      minLength: 1
+      maxLength: 40
+      pattern: "^[a-z0-9\\-]+$"
+      description: "Уникальный идентификатор ведомости во внешней системе"
+      example: "8c0bcca2-6571-4880-a1c2-10690200be9f"
+    StatementExternalStatus:
+      type: "string"
+      description: "Статус ведомости"
+      example: "CHECKING"
+      enum:
+      - "DRAFT"
+      - "CHECKING"
+      - "AWAITING_SIGN"
+      - "AWAITING_SIGN_WITH_WARNINGS"
+      - "ERROR"
+      - "PARTLY_SIGNED"
+      - "SIGNING"
+      - "AWAITING_SEND"
+      - "PROCESSING"
+      - "DECLINED"
+      - "EXECUTED"
+      - "PARTLY_EXECUTED"
+      - "DELETED"
+      - "SCHEDULED"
+      - "ERROR_SIGN"
+    IncomeCode:
+      type: "integer"
+      description: "Код вида дохода по ведомости (справочник).\nДопустимые значени\
+        я:\n- 1 - При переводе денежных средств, являющихся заработной платой и/ил\
+        и иными доходами, в отношении которых установлены ограничения размеров уде\
+        ржания\n- ...\n\nМожно не передавать — ведомость будет обработана. Система\
+        \ вернёт предупреждение об отсутствии кода вида дохода для неподписанной в\
+        едомости.\n"
+      example: 1
+      enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+    ConversionCurrency:
+      type: "string"
+      minLength: 3
+      maxLength: 3
+      description: "Буквенный код валюты"
+      example: "CNY"
+      enum:
+      - "USD"
+      - "EUR"
+      - "CNY"
+    Currency:
+      type: "string"
+      minLength: 3
+      maxLength: 3
+      description: "Буквенный код валюты счета-получателя сотрудника"
+      example: "RUR"
+      enum:
+      - "RUR"
+    Error:
+      type: "object"
+      required:
+      - "code"
+      - "message"
+      properties:
+        code:
+          type: "string"
+          description: "Код ошибки"
+          example: "P20"
+        message:
+          type: "string"
+          description: "Текст ошибки"
+          example: "Проверьте БИК и укажите правильный. Длина должна быть 9 цифр."
+    Warning:
+      type: "object"
+      required:
+      - "code"
+      - "message"
+      properties:
+        code:
+          type: "string"
+          description: "Код предупреждения"
+          example: "P12"
+        message:
+          type: "string"
+          description: "Текст предупреждения"
+          example: "Измените код вида дохода на код, соответствующий виду зачислен\
+            ия, выбрав нужный из списка."
+    ErrorResponse:
+      type: "object"
+      required:
+      - "traceId"
+      - "errors"
+      properties:
+        traceId:
+          type: "string"
+          description: "Идентификатор операции"
+          example: "84b19a21e19410b62c30b4cd40c228a1"
+        errors:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Error"
+    Offset:
+      type: "integer"
+      description: "Смещение от начала списка"
+      example: 0
+      minimum: 0
+    Limit:
+      type: "integer"
+      description: "Максимальное количество элементов на странице"
+      example: 10
+      minimum: 1
+      maximum: 100
+    TotalCount:
+      type: "integer"
+      description: "Общее количество элементов"
+      example: 1
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+servers:
+- url: "https://api.raiffeisen.ru/payroll"

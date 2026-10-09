@@ -1,0 +1,555 @@
+---
+openapi: "3.0.3"
+info:
+  title: "Управление кодами внесения АДМ"
+  version: "1.0.0"
+  description: "# Общая информация\n\nДанный раздел описывает методы для просмотра\
+    \ и управления выпущенными кодами внесения АДМ, включая:\n- Получение списка к\
+    одов\n- Фильтрация по ключевым атрибутам\n- Получение детальной информации о к\
+    оде\n- Блокировка кода\n- Изменение электронной почты для получения чеков\n"
+tags:
+- name: "code-blocking"
+  description: ""
+- name: "payer-email-change"
+  description: ""
+paths:
+  /v1/codes:
+    get:
+      summary: "Получение списка выпущенных кодов"
+      description: "Возвращает список выпущенных кодов внесения АДМ с возможностью\
+        \ фильтрации по:\n- идентификаторам компаний (cnum)\n- доступности кода (а\
+        ктивные/заблокированные)\nПоддерживает пагинацию через параметры `offset`\
+        \ и `limit`.\n"
+      operationId: "getCodeList"
+      parameters:
+      - $ref: "#/components/parameters/Offset"
+      - $ref: "#/components/parameters/Limit"
+      - $ref: "#/components/parameters/CnumsQuery"
+      - $ref: "#/components/parameters/FullNameQuery"
+      - $ref: "#/components/parameters/AvailableFilter"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetCodeListResponse"
+              examples:
+                Список кодов:
+                  $ref: "#/components/examples/CodeListResponseExample"
+        "400":
+          description: "Неверный запрос"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponse"
+              examples:
+                Ошибка валидации:
+                  $ref: "#/components/examples/BadRequestErrorExample"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/code-deactivations:
+    post:
+      summary: "(Черновик) Заявка на блокировку кода внесения"
+      description: "Позволяет создать заявку на деактивацию кода внесения.\nИсполь\
+        зование данного API предполагает подписание в личном кабинете RBO.\n"
+      tags:
+      - "code-blocking"
+      operationId: "deactivateCode"
+      requestBody:
+        description: "Заявка для создания"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeactivateCodeRequest"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeactivateCodeResponse"
+        "400":
+          description: "Неверный запрос"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponse"
+              examples:
+                Ошибка валидации:
+                  $ref: "#/components/examples/BadRequestErrorExample"
+        "403":
+          description: "Доступ запрещён. Операция по блокировке кода недоступна."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenErrorResponse"
+              examples:
+                Доступ запрещён:
+                  $ref: "#/components/examples/ForbiddenErrorExample"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/codes/{id}:
+    get:
+      summary: "Получение детальной информации о коде"
+      description: "Возвращает полную информацию о конкретном коде внесения АДМ по\
+        \ его идентификатору\n"
+      operationId: "getCodeDetails"
+      parameters:
+      - $ref: "#/components/parameters/CodeId"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Code"
+              examples:
+                Детальная информация о коде:
+                  $ref: "#/components/examples/CodeDetailsResponseExample"
+        "400":
+          description: "Неверный запрос"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponse"
+              examples:
+                Ошибка валидации:
+                  $ref: "#/components/examples/BadRequestErrorExample"
+        "404":
+          description: "Ресурс не найден"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundErrorResponse"
+              examples:
+                Ресурс не найден:
+                  $ref: "#/components/examples/NotFoundErrorExample"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    patch:
+      tags:
+      - "payer-email-change"
+      summary: "Изменение параметров кода"
+      description: "Выполняет операции изменения email плательщика.\n\nПоддерживае\
+        мые поля для обновления:\n  - `email` — email плательщика (необходима для\
+        \ отправки электронных чеков)\n\nМетод выполняет частичное обновление ресу\
+        рса в стиле JSON Merge Patch.\n"
+      operationId: "updateCode"
+      parameters:
+      - $ref: "#/components/parameters/CodeId"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCodeRequest"
+            examples:
+              Обновление email:
+                $ref: "#/components/examples/UpdateCodeRequestExample"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Code"
+              examples:
+                Код обновлён:
+                  $ref: "#/components/examples/CodeDetailsResponseExample"
+        "400":
+          description: "Неверный запрос"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponse"
+              examples:
+                Ошибка валидации:
+                  $ref: "#/components/examples/BadRequestErrorExample"
+        "404":
+          description: "Ресурс не найден"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundErrorResponse"
+              examples:
+                Ресурс не найден:
+                  $ref: "#/components/examples/NotFoundErrorExample"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  parameters:
+    Offset:
+      name: "offset"
+      in: "query"
+      required: false
+      description: "Смещение от начала списка"
+      schema:
+        type: "integer"
+        minimum: 0
+        default: 0
+        example: 0
+    Limit:
+      name: "limit"
+      in: "query"
+      required: false
+      description: "Максимальное количество возвращаемых записей"
+      schema:
+        type: "integer"
+        minimum: 1
+        maximum: 100
+        default: 20
+        example: 35
+    CnumsQuery:
+      name: "cnums"
+      in: "query"
+      required: false
+      description: "Фильтр по идентификаторам компаний в банке (cnum)"
+      explode: false
+      style: "form"
+      schema:
+        type: "string"
+        example: "123456,111WWW"
+    FullNameQuery:
+      name: "fullname"
+      in: "query"
+      required: false
+      description: "Фильтр по полному имени плательщика. Может содержать фамилию,\
+        \ имя и отчество (частично или полностью).\n"
+      schema:
+        type: "string"
+        example: "Иванов Иван Иванович"
+    AvailableFilter:
+      name: "available"
+      in: "query"
+      required: false
+      description: "Фильтр доступности кода (`true` — активные, `false` — заблокир\
+        ованные)"
+      schema:
+        type: "boolean"
+        example: true
+    CodeId:
+      name: "id"
+      in: "path"
+      required: true
+      description: "Идентификатор кода"
+      schema:
+        type: "string"
+        example: "78901211"
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+  schemas:
+    Customer:
+      type: "object"
+      required:
+      - "cnum"
+      - "name"
+      - "inn"
+      properties:
+        cnum:
+          type: "string"
+          description: "Клиентский номер компании"
+          example: "123456"
+        name:
+          type: "string"
+          description: "Наименование компании"
+          example: "Тестовая компания"
+        inn:
+          type: "string"
+          description: "ИНН компании"
+          pattern: "^[0-9]{10}$|^$"
+          example: "7701000001"
+    Person:
+      type: "object"
+      required:
+      - "surname"
+      - "name"
+      - "birthDate"
+      - "cnum"
+      properties:
+        surname:
+          type: "string"
+          description: "Фамилия"
+          example: "Иванов"
+        name:
+          type: "string"
+          description: "Имя"
+          example: "Иван"
+        patronymic:
+          type: "string"
+          description: "Отчество"
+          example: "Иванович"
+        birthDate:
+          type: "string"
+          format: "date"
+          description: "Дата рождения"
+          example: "2007-07-04"
+        email:
+          type: "string"
+          format: "email"
+          nullable: true
+          description: "Email плательщика"
+          example: "test@test.ru"
+        cnum:
+          type: "string"
+          description: "Клиентский номер плательщика"
+          example: "ADWCF1"
+    Code:
+      type: "object"
+      required:
+      - "id"
+      - "available"
+      - "createDate"
+      - "updateDate"
+      - "customer"
+      - "person"
+      properties:
+        id:
+          type: "string"
+          description: "Идентификатор кода"
+          example: "12345678"
+        available:
+          type: "boolean"
+          description: "Доступен ли код"
+          example: true
+        createDate:
+          type: "string"
+          format: "date-time"
+          description: "Дата создания записи"
+          example: "2025-07-16T08:29:31.93956Z"
+        updateDate:
+          type: "string"
+          format: "date-time"
+          description: "Дата последнего обновления"
+          example: "2025-07-31T19:13:15.331124Z"
+        customer:
+          $ref: "#/components/schemas/Customer"
+        person:
+          $ref: "#/components/schemas/Person"
+    DeactivateCodeRequest:
+      type: "object"
+      required:
+      - "code"
+      properties:
+        code:
+          type: "string"
+          example: "2873654434"
+          description: "Код внесения"
+    DeactivateCodeResponse:
+      type: "object"
+      required:
+      - "id"
+      properties:
+        id:
+          type: "string"
+          example: "6f6cd181-13dc-4736-b944-6d9da53f45a3"
+          description: "Идентификатор заявки"
+    GetCodeListResponse:
+      type: "object"
+      required:
+      - "data"
+      - "offset"
+      - "limit"
+      - "totalCount"
+      properties:
+        data:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Code"
+        offset:
+          type: "integer"
+          description: "Смещение от начала списка"
+          example: 0
+        limit:
+          type: "integer"
+          description: "Максимальное количество возвращаемых записей"
+          example: 35
+        totalCount:
+          type: "integer"
+          description: "Общее количество записей"
+          example: 35
+    UpdateCodeRequest:
+      type: "object"
+      properties:
+        email:
+          type: "string"
+          format: "email"
+          nullable: true
+          description: "Новый email плательщика"
+          example: "newemail@client.com"
+      example:
+        email: "newemail@client.com"
+    BadRequestErrorResponse:
+      required:
+      - "code"
+      - "message"
+      - "traceId"
+      type: "object"
+      properties:
+        code:
+          type: "string"
+          example: "INVALID_DATA"
+        message:
+          type: "string"
+          example: "The request contains invalid fields or values"
+        traceId:
+          type: "string"
+          example: "84b19a21e19410b62c30b4cd40c228a1"
+    NotFoundErrorResponse:
+      required:
+      - "code"
+      - "message"
+      - "traceId"
+      type: "object"
+      properties:
+        code:
+          type: "string"
+          example: "RESOURCE_NOT_FOUND"
+        message:
+          type: "string"
+          example: "The resource not found"
+        traceId:
+          type: "string"
+          example: "84b19a21e19410b62c30b4cd40c228a1"
+    ForbiddenErrorResponse:
+      required:
+      - "code"
+      - "message"
+      - "traceId"
+      type: "object"
+      properties:
+        code:
+          type: "string"
+          example: "FORBIDDEN"
+        message:
+          type: "string"
+          example: "Setting available=true is not allowed. Code unblocking is disabled."
+        traceId:
+          type: "string"
+          example: "84b19a21e19410b62c30b4cd40c228a1"
+    InternalServerError:
+      required:
+      - "code"
+      - "message"
+      - "traceId"
+      type: "object"
+      properties:
+        code:
+          type: "string"
+          example: "INTERNAL_ERROR"
+        message:
+          type: "string"
+          example: "An internal error occurred"
+        traceId:
+          type: "string"
+          example: "84b19a21e19410b62c30b4cd40c228a1"
+  examples:
+    CodeListResponseExample:
+      summary: "Пример списка выпущенных кодов"
+      value:
+        data:
+        - id: "12345678"
+          available: true
+          createDate: "2025-07-16T08:29:31.93956Z"
+          updateDate: "2025-07-31T19:13:15.331124Z"
+          customer:
+            cnum: "123456"
+            name: "Тестовая компания"
+            inn: "7701000001"
+          person:
+            surname: "Иванов"
+            name: "Иван"
+            patronymic: "Иванович"
+            birthDate: "2007-07-04"
+            email: "test@test.ru"
+            cnum: "ADWCF1"
+        offset: 0
+        limit: 20
+        totalCount: 1
+    CodeDetailsResponseExample:
+      summary: "Пример детальной информации о коде"
+      value:
+        id: "12345678"
+        available: true
+        createDate: "2025-07-16T08:29:31.93956Z"
+        updateDate: "2025-07-31T19:13:15.331124Z"
+        customer:
+          cnum: "123456"
+          name: "Тестовая компания"
+          inn: "7701000001"
+        person:
+          surname: "Иванов"
+          name: "Иван"
+          patronymic: "Иванович"
+          birthDate: "2007-07-04"
+          email: "test@test.ru"
+          cnum: "ADWCF1"
+    UpdateCodeRequestExample:
+      summary: "Пример обновления email"
+      value:
+        email: "newemail@client.com"
+    BadRequestErrorExample:
+      summary: "Пример ошибки валидации"
+      value:
+        code: "INVALID_DATA"
+        message: "The request contains invalid fields or values"
+        traceId: "84b19a21e19410b62c30b4cd40c228a1"
+    ForbiddenErrorExample:
+      summary: "Пример ошибки доступа"
+      value:
+        code: "FORBIDDEN"
+        message: "Permission denied for code blocking"
+        traceId: "84b19a21e19410b62c30b4cd40c228a1"
+    NotFoundErrorExample:
+      summary: "Пример ошибки \"ресурс не найден\""
+      value:
+        code: "RESOURCE_NOT_FOUND"
+        message: "The resource not found"
+        traceId: "84b19a21e19410b62c30b4cd40c228a1"
+    InternalServerErrorExample:
+      summary: "Пример внутренней ошибки"
+      value:
+        code: "INTERNAL_ERROR"
+        message: "An internal error occurred"
+        traceId: "84b19a21e19410b62c30b4cd40c228a1"
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+servers:
+- url: "https://api.raiffeisen.ru/adm"

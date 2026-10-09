@@ -1,0 +1,3016 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "API интеграции B2B оплат через СБП",
+    "contact": {
+      "email": "ecom@raiffeisen.ru",
+      "name": "Support e-mail",
+      "x-team-id": 932,
+      "x-short-team-name": "FPS B2B"
+    },
+    "description": "# Подключение к СБП\nДля отправки СБП-платежей оставьте заявку в [RBO](https://sso.rbo.raiffeisen.ru/signin) → Продукты → В2В-платежи по СБП.\n\nРайффайзенбанк выполнит регистрацию и создаст мерчанта СБП В2В. После завершения процесса вы будете оповещены по электронной почте.\n\n**Мерчант СБП B2B** - это учетная запись компании в системе быстрых платежей (СБП), которая позволяет принимать и отправлять платежи между юридическими лицами.\n\nКогда компания подает заявку на подключение к СБП B2B, для неё создаётся **уникальный мерчант**. Он нужен для того, чтобы система НСПК могла однозначно определить эту компанию и проводить для нее платежи.\n\n# Тестирование СБП\nДля получения тестовых данных для интеграции напишите на ecom@raiffeisen.ru.\nВ ответном письме мы отправим вам токен для авторизации в тестовой среде и два счёта для тестирования сервиса.\n\nРайффайзенбанк выполнит регистрацию. После завершения процесса вы будете оповещены по электронной почте.\n\n\nПример кода наложения подписи на языке Java опубликован на [GitHub](https://github.com/Raiffeisen-DGTL/data-signing)\n",
+    "x-logo": {
+      "url": "images/raifflogo.png",
+      "backgroundColor": "#FFFFFF",
+      "altText": "Raiff logo"
+    },
+    "version": "0.1"
+  },
+  "servers": [
+    {
+      "url": "https://pay-test.raif.ru",
+      "description": "Sandbox"
+    },
+    {
+      "url": "https://pay.raif.ru",
+      "description": "Production"
+    }
+  ],
+  "tags": [
+    {
+      "name": "single-transfer",
+      "x-displayName": "Одиночные платежи",
+      "description": "### Сценарий работы с одиночными платежами:\n\n<div align=center><a href='images/single-transfer.svg' target='_blank'><img src='images/single-transfer.svg'/></a></div>\n"
+    },
+    {
+      "name": "bundle-transfer",
+      "x-displayName": "Пакет платежей",
+      "description": "### Сценарий работы с пакетами платежей:\n\n<div align=center><a href='images/bundle-transfer.svg' target='_blank'><img src='images/bundle-transfer.svg'/></a></div>\n"
+    },
+    {
+      "name": "authorization",
+      "x-displayName": "Авторизация",
+      "description": "Для авторизации запросов необходим secretKey - секретный ключ, который используется для межсервисного взаимодействия.\n\nSandbox: https://pay-test.raif.ru\n\nProduction: https://pay.raif.ru\n\nВАЖНО: Секретный ключ необходимо хранить в защищённом месте, нельзя публиковать на сторонних ресурсах или передавать третьим лицам.\n\nМежсервисные запросы авторизуются посредством секретного ключа API (SECRET_KEY). Параметр авторизации указывается в заголовке Authorization, значение которого формируется как \\\"Bearer SECRET_KEY\\\".\n\nПосмотреть боевой publicId и сгенерировать ключи для мерчанта СБП В2В можно в [RBO](https://sso.rbo.raiffeisen.ru/signin) → Прием платежей → Настройки, выбрав нужно мерчанта.\n\n<div align=center><a href='images/createKey.png' target='_blank'><img src='images/createKey.png'/></a></div>\n\nДля генерации тестового секретного ключа необходимо обратиться по адресу: ecom@raiffeisen.ru\n"
+    },
+    {
+      "name": "qr-sender",
+      "x-displayName": "Методы V1. Платежи по QR"
+    },
+    {
+      "name": "transfers-v2",
+      "x-displayName": "Методы V2. Платежи по QR или реквизитам (в разработке)",
+      "description": "**Методы в разработке**\n\nМетоды позволяют создавать и проводить B2B-платежи двумя способами:\n\n- по QR-коду или платежной ссылке,\n- по банковским реквизитам получателя.\n\nСпособ зависит от значения поля `type` - от него же меняются параметры запроса и данные в ответе:\n\n- `type` = `QR` - платеж по QR-коду или платежной ссылке. Получатель должен заранее сформировать их и передать плательщику.\n- `type` = `REQUISITES` - платеж по реквизитам. Получателю не нужно ничего делать заранее: плательщик сразу указывает реквизиты счета и формирует платеж.\n"
+    },
+    {
+      "name": "incoming-statements",
+      "x-displayName": "Входящие платежи",
+      "description": "Примеры выписок по входящим платежам для расчетного счета\n\n<a download='' target='_blank' href='images/B2B-incoming-statements.pdf'>Пример выписки по входящим платежам в формате PDF</a>\n\n<a download='' target='_blank' href='images/B2B-incoming-statements-xml.xml'>Пример выписки по входящим платежам в формате XML</a>\n\n<a download='' target='_blank' href='images/B2B-incoming-statements-1c.txt'>Пример выписки по входящим платежам для 1С</a>\n"
+    },
+    {
+      "name": "outgoing-statements",
+      "x-displayName": "Исходящие платежи",
+      "description": "Примеры выписок по исходящим платежам для расчетного счета\n\n<a download='' target='_blank' href='images/B2B-outgoing-statements.pdf'>Пример выписки по исходящим платежам в формате PDF</a>\n\n<a download='' target='_blank' href='images/B2B-outgoing-statements-xml.xml'>Пример выписки по исходящим платежам в формате XML</a>\n\n<a download='' target='_blank' href='images/B2B-outgoing-statements-1c.txt'>Пример выписки по исходящим платежам для 1С</a>\n"
+    },
+    {
+      "name": "errors",
+      "x-displayName": "Справочник ошибок",
+      "description": "Стандартный ответ сервиса содержит код сообщения (code).\nЕсли в процессе обработки запроса произойдет логическая ошибка, API вернет описание ошибки (message).\n\nОписание основных ошибок:\n\nHTTP-code | code | message\n----------|------|----------\n400 | INVALID_AMOUNT | The specified amount is invalid. The QR code requires a different value.\n400 | INVALID_DATA | The request contains invalid fields or values.\n400 | INVALID_SIGNATURE | The provided signature is invalid.\n400 | INVALID_DIGEST | The provided digest is invalid.\n400 | PAYMENT_ALREADY_SIGNED | The payment has already been signed.\n400 | QR_ALREADY_PAID | The QR code has already been paid.\n409 | QR_IN_PROGRESS | The QR code is processing.\n400 | QR_EXPIRED | The QR code has expired and cannot be processed.\n400 | MISSING_SIGNATURE_DATA | Required signature components are missing from the request.\n403 | NON_RESIDENT_RECIPIENT | This recipient's account cannot be paid.\n403 | OPERATION_FORBIDDEN | The operation is not allowed.\n403 | DBO_BLOCKED | The client does not have an active DBO.\n403 | SBP_DISABLED | The SBP feature is currently disabled.\n404 | PAYMENT_NOT_FOUND | The specified payment was not found.\n404 | BUNDLE_NOT_FOUND | The specified bundle was not found\n404 | QR_NOT_FOUND | The specified QR code was not found.\n500 | INTERNAL_ERROR | An internal error occurred.\n"
+    }
+  ],
+  "paths": {
+    "/api/transfers/v1/qrs/{id}": {
+      "get": {
+        "tags": [
+          "qr-sender"
+        ],
+        "summary": "Получение данных платёжной ссылки",
+        "operationId": "getQr",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id-2"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetQrResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400ResponseDto"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403ResponseDto"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404ResponseDto"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorDto"
+          }
+        }
+      }
+    },
+    "/api/transfers/v1/transfers": {
+      "post": {
+        "tags": [
+          "qr-sender"
+        ],
+        "summary": "Создание одиночного платежа",
+        "operationId": "createPayment",
+        "description": "Метод позволяет создать платёж. Если платёж содержит криптографическую подпись (через заголовки ContentDigest и Signature),\nон будет выполнен немедленно. В случае отсутствия подписи платёж направляется в раздел [**РБО**](https://sso.rbo.raiffeisen.ru/signin) -> **Договор в работе** и требует\nпоследующего подписания соответствующего документа в этом разделе для его исполнения.\n",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Content-Digest",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/ContentDigest"
+            }
+          },
+          {
+            "name": "Signature",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Signature"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400ResponseDto"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403ResponseDto"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404ResponseDto"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorDto"
+          }
+        }
+      }
+    },
+    "/api/transfers/v1/transfers/{id}": {
+      "get": {
+        "tags": [
+          "qr-sender"
+        ],
+        "summary": "Получение информации об одиночном платеже",
+        "operationId": "getPaymentOld",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400ResponseDto"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403ResponseDto"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404ResponseDto"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorDto"
+          }
+        }
+      }
+    },
+    "/api/transfers/v1/bundles": {
+      "post": {
+        "tags": [
+          "qr-sender"
+        ],
+        "summary": "Создание пакета платежей",
+        "operationId": "createPaymentBundles",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Content-Digest",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ContentDigest"
+            }
+          },
+          {
+            "name": "Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Signature"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentBundleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentBundleInfoResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400ResponseDto"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403ResponseDto"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404ResponseDto"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorDto"
+          }
+        }
+      },
+      "x-exclude-for-generate-front": true
+    },
+    "/api/transfers/v1/bundles/{id}": {
+      "get": {
+        "tags": [
+          "qr-sender"
+        ],
+        "summary": "Получение информации о пакете платежей",
+        "operationId": "getPaymentBundleById",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/BundleId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentBundleInfoResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400ResponseDto"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403ResponseDto"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404ResponseDto"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorDto"
+          }
+        },
+        "x-exclude-for-generate-front": true
+      }
+    },
+    "/api/v2/b2b/transfers": {
+      "post": {
+        "tags": [
+          "transfers-v2"
+        ],
+        "summary": "Создание B2B-платежа по QR-коду, ссылке или реквизитам",
+        "operationId": "createPaymentV2",
+        "description": "Метод позволяет создать B2B-платеж. Способ указывается в поле `type`:\n\n- `QR` - по QR-коду или платежной ссылке получателя,\n- `REQUISITES` - по банковским реквизитам получателя.\n\nЧто происходит с платежом дальше, зависит от криптографической подписи:\n\n- Если запрос подписан заголовками `Content-Digest` и `Signature`, платеж исполняется сразу после создания.\n- Если подписи нет, создается документ, который нужно подписать в Райффайзен Бизнес Онлайн в разделе «Документы в работе». Платеж уйдет в обработку только после подписания.\n",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Content-Digest",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/ContentDigest"
+            }
+          },
+          {
+            "name": "Signature",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Signature"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentV2Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentV2Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400ResponseDto"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403ResponseDto"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404ResponseDto"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorDto"
+          }
+        }
+      }
+    },
+    "/api/v2/b2b/transfers/{id}": {
+      "get": {
+        "tags": [
+          "transfers-v2"
+        ],
+        "summary": "Детальная информация о платеже B2B (V2)",
+        "operationId": "getPaymentV2",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentV2Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400ResponseDto"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403ResponseDto"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404ResponseDto"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorDto"
+          }
+        }
+      }
+    },
+    "/api/v2/b2b/transfers/bundles": {
+      "post": {
+        "tags": [
+          "transfers-v2"
+        ],
+        "summary": "Создание пакета B2B-платежей по QR-коду, ссылке или реквизитам",
+        "operationId": "createPaymentBundleV2",
+        "description": "Метод позволяет создать пакет платежей B2B. Пакет может одновременно содержать платежи разных типов:\n\n- `QR` — платёж по QR-коду\n- `REQUISITES` — платёж по реквизитам\n\nСчёт списания задаётся один раз для всего пакета в поле `account`.\n",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Content-Digest",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ContentDigest"
+            }
+          },
+          {
+            "name": "Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Signature"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentBundleV2Request"
+              },
+              "examples": {
+                "qrPayments": {
+                  "$ref": "#/components/examples/CreatePaymentBundleV2QrExample"
+                },
+                "requisitesPayments": {
+                  "$ref": "#/components/examples/CreatePaymentBundleV2ReqExample"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentBundleV2Response"
+                },
+                "examples": {
+                  "qrPayments": {
+                    "$ref": "#/components/examples/PaymentBundleV2QrExample"
+                  },
+                  "requisitesPayments": {
+                    "$ref": "#/components/examples/PaymentBundleV2ReqExample"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400ResponseDto"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403ResponseDto"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404ResponseDto"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorDto"
+          }
+        }
+      }
+    },
+    "/api/v2/b2b/transfers/bundles/{id}": {
+      "get": {
+        "tags": [
+          "transfers-v2"
+        ],
+        "summary": "Получение информации о пакете платежей B2B (V2)",
+        "operationId": "getPaymentBundleV2",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/BundleId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentBundleV2Response"
+                },
+                "examples": {
+                  "qrPayments": {
+                    "$ref": "#/components/examples/PaymentBundleV2QrExample"
+                  },
+                  "requisitesPayments": {
+                    "$ref": "#/components/examples/PaymentBundleV2ReqExample"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400ResponseDto"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403ResponseDto"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404ResponseDto"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorDto"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "description": "[Bearer secretKey](#tag/authorization)\n\nexample: eyJ0eXA***\n",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "x-internal": false
+      }
+    },
+    "parameters": {
+      "SenderCnum": {
+        "name": "senderCnum",
+        "in": "query",
+        "description": "Cnum компании отправителя",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "SenderLegalName": {
+        "name": "senderLegalName",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "SenderInn": {
+        "name": "senderInn",
+        "in": "query",
+        "description": "ИНН компании отправителя",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "SenderAccount": {
+        "name": "senderAccount",
+        "in": "query",
+        "description": "Счет списания компании отправителя",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ReceiverLegalName": {
+        "name": "receiverLegalName",
+        "in": "query",
+        "description": "Название компании получателя",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ReceiverInn": {
+        "name": "receiverInn",
+        "in": "query",
+        "description": "ИНН компании получателя",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "Status": {
+        "name": "status",
+        "in": "query",
+        "description": "Статус",
+        "schema": {
+          "$ref": "#/components/schemas/NotSignedPaymentStatusesEnum"
+        }
+      },
+      "AmountFrom": {
+        "name": "amountFrom",
+        "in": "query",
+        "description": "Сумма от",
+        "schema": {
+          "type": "number",
+          "format": "float",
+          "minimum": 0.01
+        }
+      },
+      "AmountTo": {
+        "name": "amountTo",
+        "in": "query",
+        "description": "Сумма до",
+        "schema": {
+          "type": "number",
+          "format": "float",
+          "maximum": 1000000
+        }
+      },
+      "CreatedDateFrom": {
+        "name": "createdDateFrom",
+        "in": "query",
+        "description": "Дата создания от",
+        "schema": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-06-12T19:36:55+03:00"
+        }
+      },
+      "CreatedDateTo": {
+        "name": "createdDateTo",
+        "in": "query",
+        "description": "Дата создания до",
+        "schema": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-06-13T19:36:55+03:00"
+        }
+      },
+      "QrId": {
+        "name": "qrId",
+        "in": "query",
+        "required": false,
+        "description": "Идентификатор платежной ссылки (QR)",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "SbpTransactionId": {
+        "name": "sbpTransactionId",
+        "in": "query",
+        "description": "Идентификатор операции в СБП",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "TransactionId": {
+        "name": "transactionId",
+        "in": "query",
+        "description": "Идентификатор операции в банке",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "description": "Количество операций в ответе",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "Offset": {
+        "name": "offset",
+        "in": "query",
+        "description": "Смещение списка операций",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "Id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Уникальный идентификатор операции",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "Id-2": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Уникальный идентификатор платёжной ссылки",
+        "schema": {
+          "type": "string",
+          "maxLength": 32
+        }
+      },
+      "BundleId": {
+        "name": "id",
+        "in": "path",
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^[A-z0-9-_.]$"
+        },
+        "description": "Уникальный идентификатор пакета",
+        "example": "ee64d393836241dcb557",
+        "required": true
+      },
+      "StatusV2": {
+        "name": "status",
+        "in": "query",
+        "description": "Статус",
+        "schema": {
+          "$ref": "#/components/schemas/PaymentV2StatusesEnum"
+        }
+      }
+    },
+    "schemas": {
+      "NotSignedPaymentStatusesEnum": {
+        "type": "string",
+        "description": "Статус",
+        "enum": [
+          "SUCCESS",
+          "FAILED",
+          "IN_PROGRESS",
+          "ON_SIGNING",
+          "REJECTED_BY_COMPLIANCE",
+          "PARTLY_SIGNED",
+          "CANCELLED"
+        ],
+        "example": "SUCCESS"
+      },
+      "TransactionId": {
+        "type": "string",
+        "pattern": "^[A-z0-9-_.]+$",
+        "description": "Уникальный идентификатор операции в вашей системе, используется как номер документа в выписке",
+        "example": "1a5cbc843b2742be9093",
+        "minLength": 1,
+        "maxLength": 40
+      },
+      "SenderLegalName": {
+        "type": "string",
+        "description": "Название компании отправителя"
+      },
+      "ReceiverLegalName": {
+        "type": "string",
+        "description": "Название компании получателя"
+      },
+      "NotSignedPaymentStatuses": {
+        "properties": {
+          "value": {
+            "$ref": "#/components/schemas/NotSignedPaymentStatusesEnum"
+          }
+        }
+      },
+      "SignedPaymentStatusesEnum": {
+        "type": "string",
+        "description": "Статус",
+        "enum": [
+          "SUCCESS",
+          "FAILED",
+          "IN_PROGRESS"
+        ],
+        "example": "SUCCESS"
+      },
+      "PaymentStatus": {
+        "type": "object",
+        "description": "Статус платежа",
+        "allOf": [],
+        "required": [
+          "updateDate",
+          "value"
+        ],
+        "properties": {
+          "value": {
+            "$ref": "#/components/schemas/SignedPaymentStatusesEnum",
+            "x-exclude-for-generate-front": true
+          },
+          "updateDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Дата и время обновления статуса",
+            "example": "2024-06-12T19:36:55+03:00"
+          },
+          "failReason": {
+            "type": "string",
+            "description": "Причина отклонения. Указывается в случае отклонения платежа."
+          }
+        }
+      },
+      "Amount": {
+        "type": "number",
+        "format": "float",
+        "description": "Сумма платежа",
+        "example": 8573.79
+      },
+      "CreatedDate": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Дата создани"
+      },
+      "PaymentResponseForList": {
+        "type": "object",
+        "description": "Информация о платеже в списке",
+        "required": [
+          "transactionId",
+          "senderLegalName",
+          "receiverLegalName",
+          "status",
+          "amount",
+          "createdDate"
+        ],
+        "properties": {
+          "transactionId": {
+            "$ref": "#/components/schemas/TransactionId"
+          },
+          "senderLegalName": {
+            "$ref": "#/components/schemas/SenderLegalName"
+          },
+          "receiverLegalName": {
+            "$ref": "#/components/schemas/ReceiverLegalName"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PaymentStatus"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Amount"
+          },
+          "createdDate": {
+            "$ref": "#/components/schemas/CreatedDate"
+          }
+        }
+      },
+      "PaymentResponseList": {
+        "type": "object",
+        "description": "Список платежей",
+        "required": [
+          "offset",
+          "limit",
+          "totalCount",
+          "data"
+        ],
+        "properties": {
+          "offset": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "totalCount": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentResponseForList"
+            }
+          }
+        }
+      },
+      "ErrorResponseDto": {
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "traceId"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Код ошибки запроса.",
+            "example": "INTERNAL_ERROR"
+          },
+          "message": {
+            "type": "string",
+            "description": "Описание ошибки",
+            "example": "An internal error occurred."
+          },
+          "traceId": {
+            "type": "string",
+            "example": "84b19a21e19410b62c30b4cd40c228a1",
+            "description": "Уникальный идентификатор запроса"
+          }
+        }
+      },
+      "Id": {
+        "type": "string",
+        "pattern": "^[A-z0-9-_.]+$",
+        "description": "Уникальный идентификатор операции в вашей системе, используется как номер документа в выписке",
+        "example": "1a5cbc843b2742be9093",
+        "minLength": 1,
+        "maxLength": 40
+      },
+      "QrId": {
+        "type": "string",
+        "maxLength": 32,
+        "description": "Уникальный идентификатор платёжной ссылки",
+        "example": "AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5"
+      },
+      "Account": {
+        "type": "string",
+        "minLength": 20,
+        "maxLength": 20,
+        "pattern": "^[0-9]+$",
+        "description": "Банковский счёт ЮЛ или ИП для списания средств",
+        "example": "40817810601002630020"
+      },
+      "CreateDate": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Дата и время создания платежа"
+      },
+      "PaymentPurpose": {
+        "type": "string",
+        "maxLength": 210,
+        "description": "Назначение платежа для получателя",
+        "example": "Какое-то назначение платежа"
+      },
+      "StatementPaymentPurpose": {
+        "type": "string",
+        "maxLength": 150,
+        "description": "Назначение платежа, которое увидит отправитель в выписке в поле «Основание операции».\n<br>Может содержать:\n<br>• Символы латиницы (A–Z и a–z)\n<br>• Символы кириллицы (А-Я и а-я)\n<br>• Цифры 0-9\n<br>• Спецсимволы: пробел и `!`, `\"`, `#`, `$`, `%`, `'`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`\n",
+        "example": "Какое-то назначение платежа"
+      },
+      "IsTaxable": {
+        "type": "boolean",
+        "description": "Информация о взимании НДС. Допустимые значения:<br>• true – облагается НДС<br>• false – не облагается НДС<br> Если платеж облагается НДС (isTaxable = \"true\") обязательно должна быть заполнена сумма НДС в поле totalTaxAmount",
+        "example": true
+      },
+      "TotalTaxAmount": {
+        "type": "number",
+        "format": "float",
+        "maximum": 1000000,
+        "description": "Сумма НДС в рублях",
+        "example": 2.41
+      },
+      "Extra": {
+        "type": "object",
+        "description": "Дополнительные поля в json-формате",
+        "example": {
+          "additionalInfo": "Тестовая операция"
+        }
+      },
+      "LegalName": {
+        "type": "string",
+        "maxLength": 512,
+        "description": "Сокращённое наименование ЮЛ или ИП",
+        "example": "ООО Торг"
+      },
+      "Inn": {
+        "type": "string",
+        "minLength": 10,
+        "maxLength": 12,
+        "description": "ИНН ЮЛ или ИП",
+        "example": "4285733785"
+      },
+      "BrandName": {
+        "type": "string",
+        "maxLength": 35,
+        "description": "Торговое наименование ТСП",
+        "example": "ООО Торг на Б.Татарской"
+      },
+      "Address": {
+        "type": "string",
+        "maxLength": 140,
+        "description": "Фактический адрес ТСП",
+        "example": "г. Москва, ул. Б.Татарская, д.133, стр.1"
+      },
+      "MccCode": {
+        "type": "string",
+        "minLength": 4,
+        "maxLength": 4,
+        "description": "MCC-код получателя",
+        "example": "4121"
+      },
+      "MccTitle": {
+        "type": "string",
+        "description": "Описание MCC-кода получателя",
+        "example": "Лимузины и такси"
+      },
+      "MccCodeDto": {
+        "type": "object",
+        "description": "Данные mcc-кода получателя",
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/MccCode"
+          },
+          "title": {
+            "$ref": "#/components/schemas/MccTitle"
+          }
+        }
+      },
+      "BankId": {
+        "type": "string",
+        "description": "Идентификатор банка получателя",
+        "example": "100000000007"
+      },
+      "BankName": {
+        "type": "string",
+        "description": "Наименование банка получателя",
+        "example": "Райффайзенбанк"
+      },
+      "BankBic": {
+        "type": "string",
+        "description": "БИК банка получателя",
+        "example": "044525700"
+      },
+      "BankDto": {
+        "type": "object",
+        "description": "Данные банка получателя",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/BankId"
+          },
+          "name": {
+            "$ref": "#/components/schemas/BankName"
+          },
+          "bic": {
+            "$ref": "#/components/schemas/BankBic"
+          }
+        }
+      },
+      "ReceiverDto": {
+        "type": "object",
+        "description": "Данные получателя",
+        "properties": {
+          "legalName": {
+            "$ref": "#/components/schemas/LegalName"
+          },
+          "inn": {
+            "$ref": "#/components/schemas/Inn"
+          },
+          "brandName": {
+            "$ref": "#/components/schemas/BrandName"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "mcc": {
+            "$ref": "#/components/schemas/MccCodeDto"
+          },
+          "bank": {
+            "$ref": "#/components/schemas/BankDto"
+          }
+        }
+      },
+      "Cnum": {
+        "type": "string",
+        "maxLength": 6,
+        "description": "CNUM клиента",
+        "example": 123456
+      },
+      "SenderDto": {
+        "type": "object",
+        "description": "Данные отправителя",
+        "properties": {
+          "cnum": {
+            "$ref": "#/components/schemas/Cnum"
+          },
+          "legalName": {
+            "$ref": "#/components/schemas/LegalName"
+          },
+          "inn": {
+            "$ref": "#/components/schemas/Inn"
+          }
+        }
+      },
+      "DocumentId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 30,
+        "description": "Идентификатор документа на подпись",
+        "example": "141519241792919"
+      },
+      "SbpTransactionId": {
+        "type": "string",
+        "minLength": 10,
+        "maxLength": 40,
+        "description": "Идентификатор транзакции NSPK, внесен в требование к экранным формам",
+        "example": "40817810601002630020"
+      },
+      "PaymentResponse": {
+        "type": "object",
+        "description": "Ответ по платежу",
+        "required": [
+          "id",
+          "qrId",
+          "account",
+          "createDate",
+          "status",
+          "receiver",
+          "sender"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "qrId": {
+            "$ref": "#/components/schemas/QrId"
+          },
+          "account": {
+            "$ref": "#/components/schemas/Account"
+          },
+          "createdDate": {
+            "$ref": "#/components/schemas/CreateDate"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PaymentStatus"
+          },
+          "paymentPurpose": {
+            "$ref": "#/components/schemas/PaymentPurpose"
+          },
+          "statementPaymentPurpose": {
+            "$ref": "#/components/schemas/StatementPaymentPurpose"
+          },
+          "isTaxable": {
+            "$ref": "#/components/schemas/IsTaxable"
+          },
+          "totalTaxAmount": {
+            "$ref": "#/components/schemas/TotalTaxAmount"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Amount"
+          },
+          "extra": {
+            "$ref": "#/components/schemas/Extra"
+          },
+          "receiver": {
+            "$ref": "#/components/schemas/ReceiverDto"
+          },
+          "sender": {
+            "$ref": "#/components/schemas/SenderDto"
+          },
+          "documentId": {
+            "$ref": "#/components/schemas/DocumentId"
+          },
+          "sbpTransactionId": {
+            "$ref": "#/components/schemas/SbpTransactionId"
+          }
+        }
+      },
+      "Id-2": {
+        "type": "string",
+        "maxLength": 32,
+        "description": "Уникальный идентификатор платёжной ссылки",
+        "example": "AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5"
+      },
+      "QrType": {
+        "type": "string",
+        "description": "Тип платёжной ссылки",
+        "enum": [
+          "DYNAMIC",
+          "STATIC"
+        ]
+      },
+      "LegalName-2": {
+        "type": "string",
+        "maxLength": 512,
+        "description": "Сокращённое наименование ЮЛ или ИП получателя",
+        "example": "ООО Торг"
+      },
+      "Inn-2": {
+        "type": "string",
+        "minLength": 10,
+        "maxLength": 12,
+        "description": "ИНН ЮЛ или ИП получателя",
+        "example": "4285733785"
+      },
+      "BrandName-2": {
+        "type": "string",
+        "maxLength": 35,
+        "description": "Торговое наименование ТСП получателя",
+        "example": "ООО Торг на Б.Татарской"
+      },
+      "Address-2": {
+        "type": "string",
+        "maxLength": 140,
+        "description": "Фактический адрес ТСП получателя",
+        "example": "г. Москва, ул. Б.Татарская, д.133, стр.1"
+      },
+      "QrStatus": {
+        "type": "object",
+        "description": "Статус платежной ссылки",
+        "required": [
+          "value",
+          "updateDate"
+        ],
+        "properties": {
+          "value": {
+            "type": "string",
+            "description": "Статус",
+            "enum": [
+              "CREATED_BY_NON_RESIDENT",
+              "ACTIVE",
+              "EXPIRED",
+              "PAID"
+            ],
+            "example": "ACTIVE"
+          },
+          "updateDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Дата и время обновления статуса",
+            "example": "2024-06-12T19:36:55+03:00"
+          }
+        }
+      },
+      "Amount-2": {
+        "type": "number",
+        "format": "float",
+        "maximum": 1000000,
+        "description": "Сумма операции в рублях",
+        "example": 8573.79
+      },
+      "StatementPaymentPurpose-2": {
+        "type": "string",
+        "maxLength": 150,
+        "description": "Назначение платежа в выписке отправителя",
+        "example": "Какое-то назначение платежа"
+      },
+      "RedirectUrl": {
+        "type": "string",
+        "maxLength": 1024,
+        "description": "Содержит ссылку для автоматического возврата Плательщика из приложения Банка в приложение или на сайт ТСП",
+        "example": "https://exampletsp.io/qwertyui"
+      },
+      "GetQrResponse": {
+        "type": "object",
+        "description": "Ответ по платежной ссылке",
+        "required": [
+          "id",
+          "qrType",
+          "legalName",
+          "inn",
+          "brandName",
+          "address",
+          "bank",
+          "mcc",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id-2"
+          },
+          "qrType": {
+            "$ref": "#/components/schemas/QrType"
+          },
+          "legalName": {
+            "$ref": "#/components/schemas/LegalName-2"
+          },
+          "inn": {
+            "$ref": "#/components/schemas/Inn-2"
+          },
+          "brandName": {
+            "$ref": "#/components/schemas/BrandName-2"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address-2"
+          },
+          "bank": {
+            "$ref": "#/components/schemas/BankDto"
+          },
+          "mcc": {
+            "$ref": "#/components/schemas/MccCodeDto"
+          },
+          "status": {
+            "$ref": "#/components/schemas/QrStatus"
+          },
+          "isTaxable": {
+            "$ref": "#/components/schemas/IsTaxable"
+          },
+          "totalTaxAmount": {
+            "$ref": "#/components/schemas/TotalTaxAmount"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Amount-2"
+          },
+          "paymentPurpose": {
+            "$ref": "#/components/schemas/PaymentPurpose"
+          },
+          "statementPaymentPurpose": {
+            "$ref": "#/components/schemas/StatementPaymentPurpose-2"
+          },
+          "redirectUrl": {
+            "$ref": "#/components/schemas/RedirectUrl"
+          }
+        }
+      },
+      "ContentDigest": {
+        "type": "string",
+        "description": "Дайджест, подписываемый клиентом, является строкой в формате base64, в которой хранится результат хеш-функции sha256, представленный массивом байт. Подробности создания можно найти в <a href='https://help.pay.raif.ru/ru/sbp-b2b/sign' target='_blank'>инструкции</a>.",
+        "example": "yxlZv97...",
+        "x-exclude-for-generate-front": true
+      },
+      "Signature": {
+        "type": "string",
+        "description": "Подпись в формате base64, созданная при использовании RBO-сертификата. Подробности создания можно найти в <a href='https://help.pay.raif.ru/ru/sbp-b2b/sign' target='_blank'>инструкции</a>.",
+        "example": "MIAGCSqGSIb3D...",
+        "x-exclude-for-generate-front": true
+      },
+      "CreatePaymentRequest": {
+        "required": [
+          "id",
+          "account",
+          "qrId"
+        ],
+        "type": "object",
+        "description": "Запрос на создание платежа",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "account": {
+            "$ref": "#/components/schemas/Account"
+          },
+          "qrId": {
+            "$ref": "#/components/schemas/QrId"
+          },
+          "isTaxable": {
+            "$ref": "#/components/schemas/IsTaxable"
+          },
+          "totalTaxAmount": {
+            "$ref": "#/components/schemas/TotalTaxAmount",
+            "description": "Сумма НДС в рублях. Если сумма НДС указана в реквизитах платёжной ссылки, то используется значение из этих реквизитов. В противном случае заполняется плательщиком самостоятельно. Сумма НДС не должна превышать сумму операции (amount)"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Amount",
+            "description": "Сумма операции в рублях. Если сумма операции указана в реквизитах платёжной ссылки, то используется значение из этих реквизитов. В противном случае заполняется плательщиком самостоятельно. Максимальное значение - 1000000 рублей"
+          },
+          "paymentPurpose": {
+            "$ref": "#/components/schemas/PaymentPurpose",
+            "description": "Назначение платежа для получателя. Если назначение указано в реквизитах платёжной ссылки, то используется значение из этих реквизитов. Иначе, заполняется плательщиком самостоятельно.<br/> Может содержать:<br/>• Символы латинского алфавита (A–Z и a–z) с десятичными кодами из диапазонов [065-090] и [097-122] в кодировке UTF-8;<br/>• Символы русского алфавита (А-Я и а-я) с десятичными кодами из диапазона [1040-1103] в кодировке UTF-8;<br/>• Цифры 0-9 с десятичными кодами из диапазона [048-057] в кодировке UTF-8;<br/>• Специальные символы с десятичными кодами из диапазонов [032-047], [058-064], [091-096], [123-126] в кодировке UTF-8; - Символ «№» под номером 8470 в кодировке UTF-8"
+          },
+          "statementPaymentPurpose": {
+            "$ref": "#/components/schemas/StatementPaymentPurpose",
+            "description": "Назначение платежа в выписке отправителя.<br/> Может содержать:<br/>• Символы латинского алфавита (A–Z и a–z) с десятичными кодами из диапазонов [065-090] и [097-122] в кодировке UTF-8;<br/>• Символы русского алфавита (А-Я и а-я) с десятичными кодами из диапазона [1040-1103] в кодировке UTF-8;<br/>• Цифры 0-9 с десятичными кодами из диапазона [048-057] в кодировке UTF-8;<br/>• Специальные символы с десятичными кодами из диапазонов [032-047], [058-064], [091-096], [123-126] в кодировке UTF-8; - Символ «№» под номером 8470 в кодировке UTF-8"
+          },
+          "extra": {
+            "$ref": "#/components/schemas/Extra"
+          }
+        }
+      },
+      "BundleId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 40,
+        "pattern": "^[A-z0-9-_.]+$",
+        "description": "Уникальный идентификатор пакета",
+        "example": "ee64d393836241dcb557"
+      },
+      "CreatePaymentRequestWithQr": {
+        "required": [
+          "id",
+          "qrId"
+        ],
+        "type": "object",
+        "description": "Массив платежей",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "qrId": {
+            "$ref": "#/components/schemas/QrId"
+          },
+          "isTaxable": {
+            "$ref": "#/components/schemas/IsTaxable"
+          },
+          "totalTaxAmount": {
+            "$ref": "#/components/schemas/TotalTaxAmount"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Amount"
+          },
+          "paymentPurpose": {
+            "$ref": "#/components/schemas/PaymentPurpose"
+          },
+          "statementPaymentPurpose": {
+            "$ref": "#/components/schemas/StatementPaymentPurpose"
+          },
+          "extra": {
+            "$ref": "#/components/schemas/Extra"
+          }
+        },
+        "x-exclude-for-generate-front": true
+      },
+      "CreatePaymentBundleRequest": {
+        "required": [
+          "id",
+          "account",
+          "transfers"
+        ],
+        "type": "object",
+        "description": "Запрос на создание пакета платежей",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/BundleId"
+          },
+          "account": {
+            "$ref": "#/components/schemas/Account"
+          },
+          "transfers": {
+            "type": "array",
+            "description": "Массив платежей",
+            "items": {
+              "$ref": "#/components/schemas/CreatePaymentRequestWithQr"
+            }
+          }
+        },
+        "x-exclude-for-generate-front": true
+      },
+      "PaymentBundleStatus": {
+        "type": "object",
+        "description": "Статус пакета",
+        "required": [
+          "value",
+          "updateDate"
+        ],
+        "properties": {
+          "value": {
+            "type": "string",
+            "description": "Статус",
+            "enum": [
+              "SUCCESS",
+              "FAILED",
+              "IN_PROGRESS"
+            ],
+            "example": "SUCCESS"
+          },
+          "updateDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Дата и время обновления статуса",
+            "example": "2024-06-12T19:36:55+03:00"
+          }
+        },
+        "x-exclude-for-generate-front": true
+      },
+      "PaymentResponseWithoutAccount": {
+        "required": [
+          "id",
+          "qrId",
+          "createDate",
+          "status",
+          "receiver"
+        ],
+        "type": "object",
+        "description": "Массив платежей",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "qrId": {
+            "$ref": "#/components/schemas/QrId"
+          },
+          "createDate": {
+            "$ref": "#/components/schemas/CreateDate"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PaymentStatus"
+          },
+          "paymentPurpose": {
+            "$ref": "#/components/schemas/PaymentPurpose"
+          },
+          "statementPaymentPurpose": {
+            "$ref": "#/components/schemas/StatementPaymentPurpose"
+          },
+          "isTaxable": {
+            "$ref": "#/components/schemas/IsTaxable"
+          },
+          "totalTaxAmount": {
+            "$ref": "#/components/schemas/TotalTaxAmount"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Amount"
+          },
+          "extra": {
+            "$ref": "#/components/schemas/Extra"
+          },
+          "receiver": {
+            "$ref": "#/components/schemas/ReceiverDto"
+          }
+        }
+      },
+      "PaymentBundleInfoResponse": {
+        "required": [
+          "id",
+          "account",
+          "transfers",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/BundleId"
+          },
+          "account": {
+            "$ref": "#/components/schemas/Account"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PaymentBundleStatus"
+          },
+          "transfers": {
+            "type": "array",
+            "description": "Массив платежей",
+            "items": {
+              "$ref": "#/components/schemas/PaymentResponseWithoutAccount"
+            }
+          }
+        },
+        "x-exclude-for-generate-front": true
+      },
+      "PaymentV2StatusesEnum": {
+        "type": "string",
+        "description": "Статус",
+        "enum": [
+          "REQUISITES_CHECKING",
+          "REQUISITES_SUCCESS",
+          "REQUISITES_FAILED",
+          "SUCCESS",
+          "FAILED",
+          "IN_PROGRESS",
+          "ON_SIGNING",
+          "REJECTED_BY_COMPLIANCE",
+          "PARTLY_SIGNED",
+          "CANCELLED"
+        ],
+        "example": "SUCCESS"
+      },
+      "QrBankDto": {
+        "type": "object",
+        "description": "Данные банка получателя",
+        "properties": {
+          "id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BankId"
+              }
+            ]
+          },
+          "name": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BankName"
+              }
+            ]
+          },
+          "bic": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BankBic"
+              }
+            ]
+          }
+        }
+      },
+      "QrReceiverDto": {
+        "required": [
+          "inn",
+          "legalName",
+          "bank",
+          "brandName",
+          "address"
+        ],
+        "type": "object",
+        "description": "Данные получателя для платежа по QR-коду",
+        "properties": {
+          "inn": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Inn"
+              }
+            ]
+          },
+          "legalName": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LegalName"
+              }
+            ]
+          },
+          "brandName": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BrandName"
+              }
+            ]
+          },
+          "address": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Address"
+              }
+            ]
+          },
+          "mcc": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MccCodeDto"
+              }
+            ]
+          },
+          "bank": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QrBankDto"
+              }
+            ]
+          }
+        }
+      },
+      "SenderDto-2": {
+        "type": "object",
+        "description": "Данные отправителя",
+        "required": [
+          "cnum",
+          "inn",
+          "legalName"
+        ],
+        "properties": {
+          "legalName": {
+            "$ref": "#/components/schemas/LegalName"
+          },
+          "inn": {
+            "$ref": "#/components/schemas/Inn"
+          }
+        }
+      },
+      "PaymentV2QrResponse": {
+        "required": [
+          "type",
+          "id",
+          "qrId",
+          "account",
+          "createdDate",
+          "status",
+          "amount",
+          "receiver",
+          "sender"
+        ],
+        "type": "object",
+        "description": "Ответ на создание платежа по QR-коду",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Тип платежа"
+          },
+          "id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Id"
+              }
+            ]
+          },
+          "qrId": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QrId"
+              }
+            ]
+          },
+          "account": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Account"
+              }
+            ]
+          },
+          "createdDate": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateDate"
+              }
+            ]
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaymentStatus"
+              }
+            ]
+          },
+          "amount": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Amount"
+              }
+            ]
+          },
+          "totalTaxAmount": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TotalTaxAmount"
+              }
+            ]
+          },
+          "paymentPurpose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaymentPurpose"
+              }
+            ]
+          },
+          "statementPaymentPurpose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatementPaymentPurpose"
+              }
+            ]
+          },
+          "receiver": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QrReceiverDto"
+              }
+            ]
+          },
+          "sender": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SenderDto-2"
+              }
+            ]
+          },
+          "sbpTransactionId": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SbpTransactionId"
+              }
+            ]
+          },
+          "extra": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Extra"
+              }
+            ]
+          }
+        }
+      },
+      "PaymentV2Status": {
+        "type": "object",
+        "description": "Статус платежа",
+        "required": [
+          "updateDate",
+          "value"
+        ],
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SignedPaymentStatusesEnum",
+                "x-exclude-for-generate-front": true
+              }
+            ]
+          },
+          "updateDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Дата и время обновления статуса",
+            "example": "2024-06-12T19:36:55+03:00"
+          },
+          "failReason": {
+            "type": "string",
+            "description": "Причина отклонения. Указывается в случае отклонения платежа."
+          }
+        }
+      },
+      "Kpp": {
+        "type": "string",
+        "minLength": 9,
+        "maxLength": 9,
+        "description": "КПП получателя. Обязательное если получатель ЮЛ (не ИП)",
+        "example": "123456789"
+      },
+      "ReqBankDto": {
+        "required": [
+          "bic"
+        ],
+        "type": "object",
+        "description": "Данные банка получателя",
+        "properties": {
+          "id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BankId"
+              }
+            ]
+          },
+          "name": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BankName"
+              }
+            ]
+          },
+          "bic": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BankBic"
+              }
+            ]
+          }
+        }
+      },
+      "ReqReceiverDto": {
+        "required": [
+          "account",
+          "inn",
+          "bank"
+        ],
+        "type": "object",
+        "description": "Данные получателя для платежа по реквизитам",
+        "properties": {
+          "account": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Account"
+              }
+            ],
+            "description": "Банковский счёт ЮЛ или ИП получателя"
+          },
+          "inn": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Inn"
+              }
+            ]
+          },
+          "kpp": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Kpp"
+              }
+            ]
+          },
+          "legalName": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LegalName"
+              }
+            ]
+          },
+          "bank": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReqBankDto"
+              }
+            ]
+          }
+        }
+      },
+      "PaymentV2ReqResponse": {
+        "required": [
+          "type",
+          "id",
+          "account",
+          "createdDate",
+          "status",
+          "amount",
+          "paymentPurpose",
+          "receiver",
+          "sender"
+        ],
+        "type": "object",
+        "description": "Ответ на создание платежа по реквизитам",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Тип платежа"
+          },
+          "id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Id"
+              }
+            ]
+          },
+          "account": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Account"
+              }
+            ]
+          },
+          "createdDate": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateDate"
+              }
+            ]
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaymentV2Status"
+              }
+            ]
+          },
+          "amount": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Amount"
+              }
+            ]
+          },
+          "totalTaxAmount": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TotalTaxAmount"
+              }
+            ]
+          },
+          "paymentPurpose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaymentPurpose"
+              }
+            ]
+          },
+          "statementPaymentPurpose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatementPaymentPurpose"
+              }
+            ]
+          },
+          "receiver": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReqReceiverDto"
+              }
+            ]
+          },
+          "sender": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SenderDto-2"
+              }
+            ]
+          },
+          "sbpTransactionId": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SbpTransactionId"
+              }
+            ]
+          },
+          "extra": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Extra"
+              }
+            ]
+          }
+        }
+      },
+      "PaymentV2Response": {
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "QR": "#/components/schemas/PaymentV2QrResponse",
+            "REQUISITES": "#/components/schemas/PaymentV2ReqResponse"
+          }
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/PaymentV2QrResponse"
+          },
+          {
+            "$ref": "#/components/schemas/PaymentV2ReqResponse"
+          }
+        ]
+      },
+      "PaymentV2ResponseList": {
+        "type": "object",
+        "description": "Список платежей",
+        "required": [
+          "offset",
+          "limit",
+          "totalCount",
+          "data"
+        ],
+        "properties": {
+          "offset": {
+            "type": "integer",
+            "description": "Смещение списка операций"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Количество операций в ответе"
+          },
+          "totalCount": {
+            "type": "integer",
+            "description": "Общее количество операций"
+          },
+          "data": {
+            "type": "array",
+            "description": "Список платежей",
+            "items": {
+              "$ref": "#/components/schemas/PaymentV2Response"
+            }
+          }
+        }
+      },
+      "CreatePaymentV2QrRequest": {
+        "required": [
+          "type",
+          "id",
+          "account",
+          "qrId"
+        ],
+        "type": "object",
+        "description": "Запрос на создание платежа по QR-коду",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Тип платежа"
+          },
+          "id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Id"
+              }
+            ]
+          },
+          "account": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Account"
+              }
+            ]
+          },
+          "qrId": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QrId"
+              }
+            ]
+          },
+          "amount": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Amount"
+              }
+            ]
+          },
+          "paymentPurpose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaymentPurpose"
+              }
+            ]
+          },
+          "totalTaxAmount": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TotalTaxAmount"
+              }
+            ]
+          },
+          "statementPaymentPurpose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatementPaymentPurpose"
+              }
+            ]
+          },
+          "extra": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Extra"
+              }
+            ]
+          }
+        }
+      },
+      "ReqReceiverRequestDto": {
+        "required": [
+          "account",
+          "inn",
+          "bankBic"
+        ],
+        "type": "object",
+        "description": "Данные получателя",
+        "properties": {
+          "account": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Account"
+              }
+            ],
+            "description": "Банковский счёт ЮЛ или ИП получателя"
+          },
+          "inn": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Inn"
+              }
+            ],
+            "description": "ИНН ЮЛ или ИП получателя"
+          },
+          "kpp": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Kpp"
+              }
+            ]
+          },
+          "bankBic": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BankBic"
+              }
+            ],
+            "description": "БИК банка получателя"
+          }
+        }
+      },
+      "CreatePaymentV2ReqRequest": {
+        "required": [
+          "type",
+          "id",
+          "account",
+          "amount",
+          "paymentPurpose",
+          "receiver"
+        ],
+        "type": "object",
+        "description": "Запрос на создание платежа по реквизитам",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Тип платежа"
+          },
+          "id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Id"
+              }
+            ]
+          },
+          "account": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Account"
+              }
+            ]
+          },
+          "receiver": {
+            "$ref": "#/components/schemas/ReqReceiverRequestDto"
+          },
+          "amount": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Amount"
+              }
+            ]
+          },
+          "paymentPurpose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaymentPurpose"
+              }
+            ]
+          },
+          "totalTaxAmount": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TotalTaxAmount"
+              }
+            ]
+          },
+          "statementPaymentPurpose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatementPaymentPurpose"
+              }
+            ]
+          },
+          "extra": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Extra"
+              }
+            ]
+          }
+        }
+      },
+      "CreatePaymentV2Request": {
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "QR": "#/components/schemas/CreatePaymentV2QrRequest",
+            "REQUISITES": "#/components/schemas/CreatePaymentV2ReqRequest"
+          }
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/CreatePaymentV2QrRequest"
+          },
+          {
+            "$ref": "#/components/schemas/CreatePaymentV2ReqRequest"
+          }
+        ]
+      },
+      "CreatePaymentBundleV2QrRequest": {
+        "required": [
+          "type",
+          "id",
+          "qrId"
+        ],
+        "type": "object",
+        "description": "Запрос на создание платежа по QR-коду в составе пакета",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Тип платежа"
+          },
+          "id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Id"
+              }
+            ]
+          },
+          "qrId": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QrId"
+              }
+            ]
+          },
+          "amount": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Amount"
+              }
+            ]
+          },
+          "paymentPurpose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaymentPurpose"
+              }
+            ]
+          },
+          "totalTaxAmount": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TotalTaxAmount"
+              }
+            ]
+          },
+          "statementPaymentPurpose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatementPaymentPurpose"
+              }
+            ]
+          },
+          "extra": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Extra"
+              }
+            ]
+          }
+        }
+      },
+      "CreatePaymentBundleV2ReqRequest": {
+        "required": [
+          "type",
+          "id",
+          "amount",
+          "paymentPurpose",
+          "receiver"
+        ],
+        "type": "object",
+        "description": "Запрос на создание платежа по реквизитам в составе пакета",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Тип платежа"
+          },
+          "id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Id"
+              }
+            ]
+          },
+          "receiver": {
+            "$ref": "#/components/schemas/ReqReceiverRequestDto"
+          },
+          "amount": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Amount"
+              }
+            ]
+          },
+          "paymentPurpose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaymentPurpose"
+              }
+            ]
+          },
+          "totalTaxAmount": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TotalTaxAmount"
+              }
+            ]
+          },
+          "statementPaymentPurpose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatementPaymentPurpose"
+              }
+            ]
+          },
+          "extra": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Extra"
+              }
+            ]
+          }
+        }
+      },
+      "CreatePaymentBundleV2TransferRequest": {
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "QR": "#/components/schemas/CreatePaymentBundleV2QrRequest",
+            "REQUISITES": "#/components/schemas/CreatePaymentBundleV2ReqRequest"
+          }
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/CreatePaymentBundleV2QrRequest"
+          },
+          {
+            "$ref": "#/components/schemas/CreatePaymentBundleV2ReqRequest"
+          }
+        ]
+      },
+      "CreatePaymentBundleV2Request": {
+        "required": [
+          "id",
+          "account",
+          "transfers"
+        ],
+        "type": "object",
+        "description": "Запрос на создание пакета платежей",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/BundleId"
+          },
+          "account": {
+            "$ref": "#/components/schemas/Account"
+          },
+          "transfers": {
+            "type": "array",
+            "description": "Массив платежей по QR-коду или реквизитам",
+            "items": {
+              "$ref": "#/components/schemas/CreatePaymentBundleV2TransferRequest"
+            }
+          }
+        }
+      },
+      "PaymentBundleV2QrResponse": {
+        "required": [
+          "type",
+          "id",
+          "qrId",
+          "createdDate",
+          "status",
+          "amount",
+          "receiver",
+          "sender"
+        ],
+        "type": "object",
+        "description": "Платёж по QR-коду в составе пакета",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Тип платежа"
+          },
+          "id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Id"
+              }
+            ]
+          },
+          "qrId": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QrId"
+              }
+            ]
+          },
+          "createdDate": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateDate"
+              }
+            ]
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaymentStatus"
+              }
+            ]
+          },
+          "amount": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Amount"
+              }
+            ]
+          },
+          "totalTaxAmount": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TotalTaxAmount"
+              }
+            ]
+          },
+          "paymentPurpose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaymentPurpose"
+              }
+            ]
+          },
+          "statementPaymentPurpose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatementPaymentPurpose"
+              }
+            ]
+          },
+          "receiver": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QrReceiverDto"
+              }
+            ]
+          },
+          "sender": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SenderDto-2"
+              }
+            ]
+          },
+          "sbpTransactionId": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SbpTransactionId"
+              }
+            ]
+          },
+          "extra": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Extra"
+              }
+            ]
+          }
+        }
+      },
+      "PaymentBundleV2ReqResponse": {
+        "required": [
+          "type",
+          "id",
+          "createdDate",
+          "status",
+          "amount",
+          "paymentPurpose",
+          "receiver",
+          "sender"
+        ],
+        "type": "object",
+        "description": "Платёж по реквизитам в составе пакета",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Тип платежа"
+          },
+          "id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Id"
+              }
+            ]
+          },
+          "createdDate": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateDate"
+              }
+            ]
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaymentV2Status"
+              }
+            ]
+          },
+          "amount": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Amount"
+              }
+            ]
+          },
+          "totalTaxAmount": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TotalTaxAmount"
+              }
+            ]
+          },
+          "paymentPurpose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaymentPurpose"
+              }
+            ]
+          },
+          "statementPaymentPurpose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatementPaymentPurpose"
+              }
+            ]
+          },
+          "receiver": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReqReceiverDto"
+              }
+            ]
+          },
+          "sender": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SenderDto-2"
+              }
+            ]
+          },
+          "sbpTransactionId": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SbpTransactionId"
+              }
+            ]
+          },
+          "extra": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Extra"
+              }
+            ]
+          }
+        }
+      },
+      "PaymentBundleV2TransferResponse": {
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "QR": "#/components/schemas/PaymentBundleV2QrResponse",
+            "REQUISITES": "#/components/schemas/PaymentBundleV2ReqResponse"
+          }
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/PaymentBundleV2QrResponse"
+          },
+          {
+            "$ref": "#/components/schemas/PaymentBundleV2ReqResponse"
+          }
+        ]
+      },
+      "PaymentBundleV2Response": {
+        "required": [
+          "id",
+          "account",
+          "status",
+          "transfers"
+        ],
+        "type": "object",
+        "description": "Информация о пакете платежей",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/BundleId"
+          },
+          "account": {
+            "$ref": "#/components/schemas/Account"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PaymentBundleStatus"
+          },
+          "transfers": {
+            "type": "array",
+            "description": "Массив платежей по QR-коду или реквизитам",
+            "items": {
+              "$ref": "#/components/schemas/PaymentBundleV2TransferResponse"
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "Error400ResponseDto": {
+        "description": "Неверный запрос",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponseDto"
+            },
+            "examples": {
+              "default": {
+                "value": {
+                  "code": "INVALID_DATA",
+                  "message": "The request contains invalid fields or values.",
+                  "traceId": "84b19a21e19410b62c30b4cd40c228a"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Error403ResponseDto": {
+        "description": "Операция запрещена",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponseDto"
+            },
+            "examples": {
+              "default": {
+                "value": {
+                  "code": "OPERATION_FORBIDDEN",
+                  "message": "The operation is not allowed.",
+                  "traceId": "84b19a21e19410b62c30b4cd40c228a"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Error404ResponseDto": {
+        "description": "Ресурс не найден",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponseDto"
+            },
+            "examples": {
+              "default": {
+                "value": {
+                  "code": "QR_NOT_FOUND",
+                  "message": "The specified QR code was not found.",
+                  "example": "84b19a21e19410b62c30b4cd40c228a1"
+                }
+              }
+            }
+          }
+        }
+      },
+      "InternalServerErrorDto": {
+        "description": "Внутренняя ошибка сервера",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponseDto"
+            },
+            "examples": {
+              "default": {
+                "value": {
+                  "code": "INTERNAL_ERROR",
+                  "message": "An internal error occurred",
+                  "example": "84b19a21e19410b62c30b4cd40c228a1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "examples": {
+      "CreatePaymentBundleV2QrExample": {
+        "summary": "Пакет платежей по QR-коду",
+        "value": {
+          "id": "bundle-qr-2026-001",
+          "account": "40702810900000001234",
+          "transfers": [
+            {
+              "type": "QR",
+              "id": "payment-qr-001",
+              "qrId": "AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5",
+              "amount": 1500.5,
+              "paymentPurpose": "Оплата по договору №123",
+              "totalTaxAmount": 250.08,
+              "statementPaymentPurpose": "Оплата по QR",
+              "extra": {
+                "orderId": "order-001"
+              }
+            },
+            {
+              "type": "QR",
+              "id": "payment-qr-002",
+              "qrId": "AS1B001K33DNHAKV2KNBJRQK6KHNQKJ6",
+              "amount": 2750,
+              "paymentPurpose": "Оплата по договору №124",
+              "totalTaxAmount": 458.33,
+              "statementPaymentPurpose": "Оплата по QR",
+              "extra": {
+                "orderId": "order-002"
+              }
+            }
+          ]
+        }
+      },
+      "CreatePaymentBundleV2ReqExample": {
+        "summary": "Пакет платежей по реквизитам",
+        "value": {
+          "id": "bundle-requisites-2026-001",
+          "account": "40702810900000001234",
+          "transfers": [
+            {
+              "type": "REQUISITES",
+              "id": "payment-req-001",
+              "receiver": {
+                "account": "40702810400000005678",
+                "inn": "7707083893",
+                "kpp": "773601001",
+                "bankBic": "044525700"
+              },
+              "amount": 25000,
+              "paymentPurpose": "Оплата услуг по договору №456",
+              "totalTaxAmount": 4166.67,
+              "statementPaymentPurpose": "Оплата по реквизитам",
+              "extra": {
+                "invoiceId": "invoice-456"
+              }
+            },
+            {
+              "type": "REQUISITES",
+              "id": "payment-req-002",
+              "receiver": {
+                "account": "40702810900000008765",
+                "inn": "7712345678",
+                "kpp": "771201001",
+                "bankBic": "044525225"
+              },
+              "amount": 18000,
+              "paymentPurpose": "Оплата услуг по договору №457",
+              "totalTaxAmount": 3000,
+              "statementPaymentPurpose": "Оплата по реквизитам",
+              "extra": {
+                "invoiceId": "invoice-457"
+              }
+            }
+          ]
+        }
+      },
+      "PaymentBundleV2QrExample": {
+        "summary": "Пакет платежей по QR-коду",
+        "value": {
+          "id": "bundle-qr-2026-001",
+          "account": "40702810900000001234",
+          "status": {
+            "value": "IN_PROGRESS",
+            "updateDate": "2026-08-20T15:30:00+03:00"
+          },
+          "transfers": [
+            {
+              "type": "QR",
+              "id": "payment-qr-001",
+              "qrId": "AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5",
+              "createdDate": "2026-08-20T15:30:00+03:00",
+              "status": {
+                "value": "IN_PROGRESS",
+                "updateDate": "2026-08-20T15:30:00+03:00"
+              },
+              "amount": 1500.5,
+              "totalTaxAmount": 250.08,
+              "paymentPurpose": "Оплата по договору №123",
+              "statementPaymentPurpose": "Оплата по QR",
+              "receiver": {
+                "inn": "7707083893",
+                "legalName": "ООО Получатель",
+                "brandName": "Магазин Получателя",
+                "address": "г. Москва, ул. Примерная, д. 1",
+                "bank": {
+                  "id": "100000000007",
+                  "name": "Райффайзенбанк",
+                  "bic": "044525700"
+                }
+              },
+              "sender": {
+                "cnum": "123456",
+                "legalName": "ООО Плательщик",
+                "inn": "7712345678"
+              },
+              "extra": {
+                "orderId": "order-001"
+              }
+            },
+            {
+              "type": "QR",
+              "id": "payment-qr-002",
+              "qrId": "AS1B001K33DNHAKV2KNBJRQK6KHNQKJ6",
+              "createdDate": "2026-08-20T15:30:01+03:00",
+              "status": {
+                "value": "IN_PROGRESS",
+                "updateDate": "2026-08-20T15:30:01+03:00"
+              },
+              "amount": 2750,
+              "totalTaxAmount": 458.33,
+              "paymentPurpose": "Оплата по договору №124",
+              "statementPaymentPurpose": "Оплата по QR",
+              "receiver": {
+                "inn": "7801234567",
+                "legalName": "ООО Второй получатель",
+                "brandName": "Второй магазин",
+                "address": "г. Санкт-Петербург, Невский проспект, д. 1",
+                "bank": {
+                  "id": "100000000008",
+                  "name": "Банк получателя",
+                  "bic": "044030653"
+                }
+              },
+              "sender": {
+                "cnum": "123456",
+                "legalName": "ООО Плательщик",
+                "inn": "7712345678"
+              },
+              "extra": {
+                "orderId": "order-002"
+              }
+            }
+          ]
+        }
+      },
+      "PaymentBundleV2ReqExample": {
+        "summary": "Пакет платежей по реквизитам",
+        "value": {
+          "id": "bundle-requisites-2026-001",
+          "account": "40702810900000001234",
+          "status": {
+            "value": "IN_PROGRESS",
+            "updateDate": "2026-08-20T15:30:00+03:00"
+          },
+          "transfers": [
+            {
+              "type": "REQUISITES",
+              "id": "payment-req-001",
+              "createdDate": "2026-08-20T15:30:00+03:00",
+              "status": {
+                "value": "IN_PROGRESS",
+                "updateDate": "2026-08-20T15:30:00+03:00"
+              },
+              "amount": 25000,
+              "totalTaxAmount": 4166.67,
+              "paymentPurpose": "Оплата услуг по договору №456",
+              "statementPaymentPurpose": "Оплата по реквизитам",
+              "receiver": {
+                "account": "40702810400000005678",
+                "inn": "7707083893",
+                "kpp": "773601001",
+                "legalName": "ООО Получатель",
+                "bank": {
+                  "id": "100000000007",
+                  "name": "Райффайзенбанк",
+                  "bic": "044525700"
+                }
+              },
+              "sender": {
+                "cnum": "123456",
+                "legalName": "ООО Плательщик",
+                "inn": "7712345678"
+              },
+              "extra": {
+                "invoiceId": "invoice-456"
+              }
+            },
+            {
+              "type": "REQUISITES",
+              "id": "payment-req-002",
+              "createdDate": "2026-08-20T15:30:01+03:00",
+              "status": {
+                "value": "IN_PROGRESS",
+                "updateDate": "2026-08-20T15:30:01+03:00"
+              },
+              "amount": 18000,
+              "totalTaxAmount": 3000,
+              "paymentPurpose": "Оплата услуг по договору №457",
+              "statementPaymentPurpose": "Оплата по реквизитам",
+              "receiver": {
+                "account": "40702810900000008765",
+                "inn": "7712345678",
+                "kpp": "771201001",
+                "legalName": "ООО Второй получатель",
+                "bank": {
+                  "id": "100000000009",
+                  "name": "Банк получателя",
+                  "bic": "044525225"
+                }
+              },
+              "sender": {
+                "cnum": "123456",
+                "legalName": "ООО Плательщик",
+                "inn": "7712345678"
+              },
+              "extra": {
+                "invoiceId": "invoice-457"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "x-tagGroups": [
+    {
+      "name": "Схема работы",
+      "tags": [
+        "single-transfer",
+        "bundle-transfer"
+      ]
+    },
+    {
+      "name": "API",
+      "tags": [
+        "authorization",
+        "qr-sender",
+        "transfers-v2"
+      ]
+    },
+    {
+      "name": "Выписки",
+      "tags": [
+        "incoming-statements",
+        "outgoing-statements"
+      ]
+    },
+    {
+      "name": "Ошибки",
+      "tags": [
+        "errors"
+      ]
+    }
+  ]
+}

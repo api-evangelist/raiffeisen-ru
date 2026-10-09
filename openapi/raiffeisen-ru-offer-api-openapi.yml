@@ -1,0 +1,463 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Offer API
+  version: 1.0.0
+  description: 'Operations tagged Offer across 2 of this provider''s published API definitions: raiffeisen-ru-factoring-openapi.yml, raiffeisen-ru-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/factoring
+tags:
+- description: Контекст факторингового предложения и доступности
+  name: Offer
+paths:
+  /v1/offers:
+    get:
+      description: Метод получения eligibility, индикативных условий, списка доступных дебиторов и summary последнего lead
+      operationId: getOffer
+      parameters:
+      - description: Клиентский номер выбранной организации
+        in: query
+        name: selectedCnum
+        required: false
+        schema:
+          example: '405760'
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                available:
+                  summary: Доступный offer
+                  value:
+                    availabilityStatus: AVAILABLE
+                    eligible: true
+                    datasetVersion: mock-s1-2026-04-24
+                    offer:
+                      factoringType: WITHOUT_RECOURSE
+                      rateText: Индикативная ставка от 2.5%
+                      defermentText: Отсрочка до 120 дней
+                      supportEmail: factoring_sales@raiffeisen.ru
+                    eligibleDebtors:
+                    - debtorCnum: '123456789'
+                      debtorName: Ромашка
+                      indicativeLimitAmount: 1000.0
+                    latestLead:
+                      leadId: e05f8afe-a72e-4a6f-8292-7edb51a724ec
+                      cnum: '405760'
+                      status: DRAFT
+                      updatedAt: '2026-04-22T12:00:00Z'
+                      selectedDebtors:
+                      - debtorCnum: '123456789'
+                        debtorName: Ромашка
+                unavailable:
+                  summary: Нет доступных дебиторов для selectedCnum=RATP10
+                  value:
+                    availabilityStatus: EMPTY_DEBTOR_LIST
+                    eligible: false
+                    unavailableReason: NO_ELIGIBLE_DEBTORS
+                    datasetVersion: mock-s1-2026-04-24
+                    offer: null
+                    eligibleDebtors: []
+                    latestLead: null
+                clientNotEligible:
+                  summary: Offer недоступен для selectedCnum=AAABBB
+                  value:
+                    availabilityStatus: UNAVAILABLE
+                    eligible: false
+                    unavailableReason: CLIENT_NOT_ELIGIBLE
+                    datasetVersion: mock-s1-2026-04-24
+                    offer: null
+                    eligibleDebtors: []
+                    latestLead: null
+              schema:
+                $ref: '#/components/schemas/OfferResponse'
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                selectedOrganizationRequired:
+                  summary: Не выбрана организация
+                  value:
+                  - code: SELECTED_ORGANIZATION_REQUIRED
+                    message: selectedCnum is required when several organizations are available
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: BAD_REQUEST
+        '403':
+          content:
+            application/json:
+              examples:
+                selectedOrganizationNotAllowed:
+                  summary: Организация недоступна пользователю
+                  value:
+                  - code: SELECTED_ORGANIZATION_NOT_ALLOWED
+                    message: selectedCnum is not included in allowed organizations
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: FORBIDDEN
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Получение контекста факторингового предложения
+      tags:
+      - Offer
+    servers:
+    - url: https://api.raiffeisen.ru/factoring
+components:
+  schemas:
+    RestErrorCodes:
+      description: '| code            | description                                          |
+
+        |-----------------|------------------------------------------------------|
+
+        | REST_ERROR_5001 | General service error                                |
+
+        | REST_ERROR_5004 | Agreement does not exist                             |
+
+        | REST_ERROR_5017 | DealConditions does not exist                        |
+
+        | REST_ERROR_5024 | Action is available at working hour                  |
+
+        | REST_ERROR_5025 | Supplies are not found                               |
+
+        | REST_ERROR_5026 | Approved contract does not exist                     |
+
+        | REST_ERROR_5027 | Supplies must be selected on only one deal condition |
+
+        | REST_ERROR_5028 | Approved deal conditions do not exist                |
+
+        | REST_ERROR_5029 | Approved agreement does not exist                    |
+
+        | REST_ERROR_5031 | Account for financing cannot be empty                |
+
+        | REST_ERROR_5032 | Data validation failed                               |
+
+        | REST_ERROR_5033 | File is infected                                     |
+
+        | REST_ERROR_5034 | Invalid type of file                                 |
+
+        | REST_ERROR_5035 | File is empty                                        |
+
+        | REST_ERROR_5036 | Failed to read file                                  |
+
+        | REST_ERROR_5037 | Supplier are not found                               |
+
+        | SELECTED_ORGANIZATION_REQUIRED | selectedCnum is required when several organizations are available |
+
+        | SELECTED_ORGANIZATION_NOT_ALLOWED | selectedCnum is not included in allowed organizations |
+
+        '
+      enum:
+      - REST_ERROR_5001
+      - REST_ERROR_5004
+      - REST_ERROR_5017
+      - REST_ERROR_5024
+      - REST_ERROR_5025
+      - REST_ERROR_5026
+      - REST_ERROR_5027
+      - REST_ERROR_5028
+      - REST_ERROR_5029
+      - REST_ERROR_5031
+      - REST_ERROR_5032
+      - REST_ERROR_5033
+      - REST_ERROR_5034
+      - REST_ERROR_5035
+      - REST_ERROR_5036
+      - SELECTED_ORGANIZATION_REQUIRED
+      - SELECTED_ORGANIZATION_NOT_ALLOWED
+      example: REST_ERROR_5001
+      type: string
+    OfferResponse:
+      description: 'Контекст факторингового предложения.
+
+        Mapping: when availabilityStatus is AVAILABLE, unavailableReason is null and offer is present; otherwise unavailableReason explains why the offer is unavailable and offer is null.
+
+        '
+      example:
+        availabilityStatus: AVAILABLE
+        eligible: true
+        datasetVersion: mock-s1-2026-04-24
+        offer:
+          factoringType: WITHOUT_RECOURSE
+          rateText: Индикативная ставка от 2.5%
+          defermentText: Отсрочка до 120 дней
+          supportEmail: factoring_sales@raiffeisen.ru
+        eligibleDebtors:
+        - debtorCnum: '123456789'
+          debtorName: Ромашка
+          indicativeLimitAmount: 1000.0
+        latestLead:
+          leadId: e05f8afe-a72e-4a6f-8292-7edb51a724ec
+          cnum: '405760'
+          status: DRAFT
+          updatedAt: '2026-04-22T12:00:00Z'
+          selectedDebtors:
+          - debtorCnum: '123456789'
+            debtorName: Ромашка
+      properties:
+        availabilityStatus:
+          $ref: '#/components/schemas/OfferAvailabilityStatus'
+        eligible:
+          deprecated: true
+          description: Deprecated convenience flag; true only when availabilityStatus is AVAILABLE
+          example: true
+          type: boolean
+        unavailableReason:
+          allOf:
+          - $ref: '#/components/schemas/OfferUnavailableReason'
+          description: Причина недоступности offer; null, когда availabilityStatus равен AVAILABLE
+          example: CLIENT_NOT_ELIGIBLE
+          type:
+          - string
+          - 'null'
+        datasetVersion:
+          description: Версия approved debtor dataset, использованная для формирования ответа
+          example: mock-s1-2026-04-24
+          type: string
+        offer:
+          allOf:
+          - $ref: '#/components/schemas/Offer'
+          description: Индикативные условия факторингового предложения; null, когда offer недоступен
+          example:
+            factoringType: WITHOUT_RECOURSE
+            rateText: Индикативная ставка от 2.5%
+            defermentText: Отсрочка до 120 дней
+            supportEmail: factoring_sales@raiffeisen.ru
+          type:
+          - object
+          - 'null'
+        eligibleDebtors:
+          description: Доступные дебиторы
+          example:
+          - debtorCnum: '123456789'
+            debtorName: Ромашка
+            indicativeLimitAmount: 1000.0
+          items:
+            $ref: '#/components/schemas/EligibleDebtor'
+          type: array
+        latestLead:
+          allOf:
+          - $ref: '#/components/schemas/LeadSummary'
+          description: Summary последнего lead по selectedCnum; null, если lead ещё не создавался
+          example:
+            leadId: e05f8afe-a72e-4a6f-8292-7edb51a724ec
+            cnum: '405760'
+            status: DRAFT
+            updatedAt: '2026-04-22T12:00:00Z'
+            selectedDebtors:
+            - debtorCnum: '123456789'
+              debtorName: Ромашка
+          type:
+          - object
+          - 'null'
+      required:
+      - availabilityStatus
+      - datasetVersion
+      - eligible
+      - eligibleDebtors
+      - latestLead
+      - offer
+      type: object
+    ErrorMessage:
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    LeadSummaryDebtor:
+      description: Дебитор, выбранный в lead
+      example:
+        debtorCnum: '123456789'
+        debtorName: Ромашка
+      properties:
+        debtorCnum:
+          description: Клиентский номер дебитора
+          example: '123456789'
+          type: string
+        debtorName:
+          description: Отображаемое имя дебитора
+          example: Ромашка
+          type: string
+      required:
+      - debtorCnum
+      - debtorName
+      type: object
+    OfferAvailabilityStatus:
+      description: Доступность факторингового предложения для текущего клиента и выбранной организации
+      enum:
+      - AVAILABLE
+      - UNAVAILABLE
+      - EMPTY_DEBTOR_LIST
+      example: AVAILABLE
+      type: string
+    LeadSummary:
+      description: Краткая информация о последнем lead клиента
+      example:
+        leadId: e05f8afe-a72e-4a6f-8292-7edb51a724ec
+        cnum: '405760'
+        status: DRAFT
+        updatedAt: '2026-04-22T12:00:00Z'
+        selectedDebtors:
+        - debtorCnum: '123456789'
+          debtorName: Ромашка
+      properties:
+        leadId:
+          description: Идентификатор lead
+          example: e05f8afe-a72e-4a6f-8292-7edb51a724ec
+          format: uuid
+          type: string
+        cnum:
+          description: Ключ владения и access scope для lead
+          example: '405760'
+          type: string
+        status:
+          $ref: '#/components/schemas/LeadStatus'
+        updatedAt:
+          description: Дата и время последнего обновления lead
+          example: '2026-04-22T12:00:00Z'
+          format: date-time
+          type: string
+        selectedDebtors:
+          description: Дебиторы, выбранные в lead
+          items:
+            $ref: '#/components/schemas/LeadSummaryDebtor'
+          type: array
+      required:
+      - cnum
+      - leadId
+      - status
+      - updatedAt
+      type:
+      - object
+      - 'null'
+    LeadStatus:
+      description: Статус lead
+      enum:
+      - DRAFT
+      - SUBMITTED
+      - APPROVED
+      - REJECTED
+      - CANCELLED
+      - DELETED
+      example: DRAFT
+      type: string
+    OfferUnavailableReason:
+      description: Причина недоступности offer, если availabilityStatus не равен AVAILABLE
+      enum:
+      - CLIENT_NOT_ELIGIBLE
+      - NO_ELIGIBLE_DEBTORS
+      example: NO_ELIGIBLE_DEBTORS
+      type:
+      - string
+      - 'null'
+    EligibleDebtor:
+      description: Дебитор, доступный клиенту для факторингового предложения
+      example:
+        debtorCnum: '123456789'
+        debtorName: Ромашка
+        inn: '7701234567'
+        kpp: '770101001'
+        indicativeLimitAmount: 1000.0
+      properties:
+        debtorCnum:
+          description: Клиентский номер дебитора из approved debtor dataset
+          example: '123456789'
+          type: string
+        debtorName:
+          description: Отображаемое имя дебитора, сохраненное в approved debtor dataset при CSV import
+          example: Ромашка
+          type: string
+        inn:
+          description: ИНН дебитора. Может отсутствовать, если enrichment не выполнен
+          example: '7701234567'
+          type: string
+        kpp:
+          description: КПП дебитора. Может отсутствовать, если enrichment не выполнен
+          example: '770101001'
+          type: string
+        indicativeLimitAmount:
+          description: Индикативный лимит по дебитору
+          example: 1000.0
+          type: number
+      required:
+      - debtorCnum
+      - debtorName
+      - indicativeLimitAmount
+      type: object
+    Offer:
+      description: Индикативные условия факторингового предложения
+      example:
+        factoringType: WITHOUT_RECOURSE
+        rateText: Индикативная ставка от 2.5%
+        defermentText: Отсрочка до 120 дней
+        supportEmail: factoring_sales@raiffeisen.ru
+      properties:
+        factoringType:
+          description: Тип факторинга
+          example: WITHOUT_RECOURSE
+          type: string
+        rateText:
+          description: Текст ставки, отображаемый клиенту
+          example: Индикативная ставка от 2.5%
+          type: string
+        defermentText:
+          description: Текст отсрочки, отображаемый клиенту
+          example: Отсрочка до 120 дней
+          type: string
+        supportEmail:
+          description: Email поддержки по offer
+          example: factoring_sales@raiffeisen.ru
+          format: email
+          type: string
+      required:
+      - defermentText
+      - factoringType
+      - rateText
+      - supportEmail
+      type:
+      - object
+      - 'null'
+    ErrorResponse:
+      example:
+      - code: REST_ERROR_5001
+        message: General service error
+      items:
+        $ref: '#/components/schemas/ErrorMessage'
+      type: array
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-factoring-openapi.yml
+- raiffeisen-ru-factoring-openapi.yml

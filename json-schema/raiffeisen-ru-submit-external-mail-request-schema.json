@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-submit-external-mail-request-schema.json",
+  "title": "SubmitExternalMailRequest",
+  "description": "ЭП клиента",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-letters-openapi.yml#/components/schemas/SubmitExternalMailRequest",
+  "type": "object",
+  "properties": {
+    "serialNumber": {
+      "type": "string",
+      "description": "Серийный номер сертификата",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "value": {
+      "type": "string",
+      "format": "base64",
+      "description": "Значение ЭП"
+    },
+    "issuer": {
+      "type": "string",
+      "description": "Идентификатор поставщика сертификата",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "digestName": {
+      "type": "string",
+      "description": "Имя схемы подписи"
+    },
+    "digestVersion": {
+      "type": "string",
+      "description": "Версия схемы подписи"
+    },
+    "fio": {
+      "type": "string",
+      "description": "ФИО УЛК, наложившего данную подпись"
+    },
+    "position": {
+      "type": "string",
+      "description": "Должность УЛК, наложившего подпись"
+    }
+  },
+  "required": [
+    "serialNumber",
+    "value"
+  ]
+}

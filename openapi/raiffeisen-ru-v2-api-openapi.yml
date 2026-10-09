@@ -1,0 +1,294 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Пермиссии V2 API
+  version: 0.3.0
+  description: 'Operations tagged Пермиссии V2 across 2 of this provider''s published API definitions: raiffeisen-ru-user-permissions-openapi.yml, raiffeisen-ru-user-permissions-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/permissions
+tags:
+- name: Пермиссии V2
+paths:
+  /api/v2/permissions:
+    get:
+      tags:
+      - Пермиссии V2
+      operationId: permissionsV2
+      summary: Получить пермиссии пользователя
+      parameters:
+      - name: x-system-id
+        in: header
+        required: true
+        description: Идентификатор сервиса-потребителя
+        schema:
+          type: string
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              examples:
+                Successful response:
+                  value:
+                    CAD31M:
+                      curr-control:
+                        curr-control-info:
+                          view: true
+                          signRemove: true
+                          delete: true
+                        reissue-deal-contracts:
+                          view: true
+                          templateCreate: true
+                          export: true
+                      deposit-request:
+                        view: true
+                        import: true
+                        export: true
+                      statements:
+                        view: true
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+              examples:
+                MissingHeaderXSystemId:
+                  summary: Отсутствует обязательный заголовок x-system-id
+                  value:
+                    code: header_is_missing
+                    message: '''x-system-id'': header-parameter is missing'
+                EmployeeNotFound:
+                  summary: Сотрудник не найден
+                  value:
+                    code: employee_not_found
+                    message: df9924ce-3212-4354-b3dd-e3dc80d4c3e7
+                RoleNotFound:
+                  summary: Роль пользователя не найдена
+                  value:
+                    code: role_not_found
+                    message: Role id dcba1f96-91e9-4a89-a149-70c60b4da06a
+                UserHasNoRoleAssigned:
+                  summary: У пользователя не установлена роль
+                  value:
+                    code: role_not_found
+                    message: User with id dcba1f96-91e9-4a89-a149-70c60b4da06a has no role assigned
+                UserRoleNotFound:
+                  summary: Роль, утсановлнная у пользователя, не найдена
+                  value:
+                    code: role_not_found
+                    message: User id dcba1f96-91e9-4a89-a149-70c60b4da06a
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/permissions
+  /api/v2/permissions/{obj}:
+    get:
+      tags:
+      - Пермиссии V2
+      operationId: permissionsV2ByObj
+      summary: Получить пермиссии пользователя по объекту
+      parameters:
+      - name: obj
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: x-system-id
+        in: header
+        required: true
+        description: Идентификатор сервиса-потребителя
+        schema:
+          type: string
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              examples:
+                Successful response:
+                  value:
+                    CAD31M:
+                      view: true
+                      signRemove: true
+                      delete: true
+                      scrollerToExcel: true
+                      create: true
+                      createByTemplate: true
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+              examples:
+                MissingHeaderXSystemId:
+                  summary: Отсутствует обязательный заголовок x-system-id
+                  value:
+                    code: header_is_missing
+                    message: '''x-system-id'': header-parameter is missing'
+                BadRequest:
+                  summary: В path не передан параметр запроса
+                  value:
+                    code: bad_request
+                    message: bad request
+                EmployeeNotFound:
+                  summary: Сотрудник не найден
+                  value:
+                    code: employee_not_found
+                    message: df9924ce-3212-4354-b3dd-e3dc80d4c3e7
+                RoleNotFound:
+                  summary: Роль пользователя не найдена
+                  value:
+                    code: role_not_found
+                    message: Role id dcba1f96-91e9-4a89-a149-70c60b4da06a
+                UserHasNoRoleAssigned:
+                  summary: У пользователя не установлена роль
+                  value:
+                    code: role_not_found
+                    message: User with id dcba1f96-91e9-4a89-a149-70c60b4da06a has no role assigned
+                UserRoleNotFound:
+                  summary: Роль, утсановлнная у пользователя, не найдена
+                  value:
+                    code: role_not_found
+                    message: User id dcba1f96-91e9-4a89-a149-70c60b4da06a
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/permissions
+  /api/v2/permissions/{obj}/{cnum}:
+    get:
+      tags:
+      - Пермиссии V2
+      operationId: permissionsV2ByObjAndCnum
+      summary: Получить пермиссии пользователя по объекту и cnum
+      parameters:
+      - name: obj
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: cnum
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: x-system-id
+        in: header
+        required: true
+        description: Идентификатор сервиса-потребителя
+        schema:
+          type: string
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              examples:
+                Successful response:
+                  value:
+                    view: true
+                    signRemove: true
+                    delete: true
+                    scrollerToExcel: true
+                    create: true
+                    createByTemplate: true
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+              examples:
+                MissingHeaderXSystemId:
+                  summary: Отсутствует обязательный заголовок x-system-id
+                  value:
+                    code: header_is_missing
+                    message: '''x-system-id'': header-parameter is missing'
+                BadRequest:
+                  summary: В path не передан параметр запроса
+                  value:
+                    code: bad_request
+                    message: bad request
+                EmployeeNotFound:
+                  summary: Сотрудник не найден
+                  value:
+                    code: employee_not_found
+                    message: df9924ce-3212-4354-b3dd-e3dc80d4c3e7
+                RoleNotFound:
+                  summary: Роль пользователя не найдена
+                  value:
+                    code: role_not_found
+                    message: Role id dcba1f96-91e9-4a89-a149-70c60b4da06a
+                UserHasNoRoleAssigned:
+                  summary: У пользователя не установлена роль
+                  value:
+                    code: role_not_found
+                    message: User with id dcba1f96-91e9-4a89-a149-70c60b4da06a has no role assigned
+                UserRoleNotFound:
+                  summary: Роль, утсановлнная у пользователя, не найдена
+                  value:
+                    code: role_not_found
+                    message: User id dcba1f96-91e9-4a89-a149-70c60b4da06a
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/permissions
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  schemas:
+    ErrorResponseDTO:
+      type: object
+      description: Стандартизированный ответ с ошибкой
+      required:
+      - code
+      properties:
+        code:
+          type: string
+          description: Код ошибки
+        message:
+          type: string
+          description: Сообщение об ошибке
+        messageData:
+          type:
+          - object
+          - 'null'
+          description: Дополнительная информация об ошибке
+          additionalProperties: true
+x-refined-from:
+- raiffeisen-ru-user-permissions-openapi.yml
+- raiffeisen-ru-user-permissions-openapi.yml

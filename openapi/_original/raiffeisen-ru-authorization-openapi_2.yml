@@ -1,0 +1,1172 @@
+# x-archived-from: raiffeisen-ru-authorization-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.1.0
+info:
+  title: "Авторизация в сервисах Райффайзен Банка"
+  version: 1.0.0
+  description: |-
+    API входа пользователей и получения токенов для доступа к сервисам Райффайзен Банка
+    по Authorization Code Flow (по протоколам OAuth 2.1 и OpenID Connect 1.0).
+    Включает браузерные формы входа, настройки текущего процесса входа и страницу ошибки.
+servers:
+  - url: "https://id.business.raiffeisen.ru"
+tags:
+  - name: Аутентификация
+    description: Аутентификация пользователя и управление токенами OAuth2.
+  - name: Формы входа
+    description: Браузерные страницы и настройки текущего процесса входа.
+paths:
+  /oauth2/authorize:
+    get:
+      operationId: authorize
+      summary: Запрос на авторизацию (Code Flow)
+      description: |-
+        Запрос инициирует процесс аутентификации пользователя 
+        (формируется системой клиента).
+      tags:
+        - Аутентификация
+      parameters:
+        - name: response_type
+          in: query
+          required: true
+          description: Тип ответа, для Code Flow необходимо указать `code`.
+          schema:
+            type: string
+            enum: [ code ]
+            example: code
+        - name: code_challenge
+          in: query
+          required: true
+          description: |-
+            Хэш значения `code_verifier` (криптографически стойкой случайно сгенерированной строки):
+            `code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))`
+            
+            Подробнее о том, как создать code_challenge — 
+            [Proof Key for Code Exchange (PKCE)](https://datatracker.ietf.org/doc/html/rfc7636#section-4.2)
+          schema:
+            type: string
+            example: ewliMz7SBtJdHLlNuuJLdzu-gRs2olJQ24AQ8GTS6Qo
+        - name: code_challenge_method
+          in: query
+          required: true
+          description: Метод хэширования значения `code_verifier`, поддерживается только `S256`.
+          schema:
+            type: string
+            enum: [ S256 ]
+            example: S256
+        - name: client_id
+          in: query
+          required: true
+          description: Идентификатор клиента (выдается Райффайзен Банком после подачи заявления на подключение).
+          schema:
+            type: string
+            example: 01e3decf-f997-4b5d-b52c-6bc646b3a528
+        - name: redirect_uri
+          in: query
+          required: true
+          description: |-
+            URI, на который сервис аутентификации перенаправит пользователя после прохождения аутентификации 
+            (указывается при подключении клиента к Райффайзен Банку).
+          schema:
+            type: string
+            format: uri
+            example: https://www.rbo.raiffeisen.ru/
+        - name: scope
+          in: query
+          required: true
+          description: |-
+            Запрашиваемые привилегии доступа. 
+            Значения указываются через пробел.
+          schema:
+            type: string
+            example: "accounts:statement:read company:profile:read"
+        - name: state
+          in: query
+          required: true
+          description: |-
+            Криптографически стойкая случайная строка для защиты от CSRF-атак (генерируется системой клиента).
+            Возвращается в неизменном виде после успешной аутентификации пользователя. 
+            Система клиента должна проверять, соответствует ли полученное в ответе значение `state` исходному значению.
+          schema:
+            type: string
+            example: VvTS5lCd5949t3ysuUbzgxfhwid0JCWyNm8Ey2BX39Q
+      responses:
+        '302':
+          description: |-
+            Редирект на указанный в параметре `redirect_uri` URI клиента
+            в случае успешной аутентификации пользователя или ошибки в параметрах запроса.
+          headers:
+            Location:
+              description: |-
+                URI клиента для завершения авторизации.
+                
+                Если пользователь аутентифицирован, в параметрах URI будут переданы `code` и `state` 
+                для получения токенов доступа. Система клиента должна проверять, 
+                соответствует ли полученное в ответе значение `state` исходному значению.
+                
+                В случае ошибки в параметрах URI будет переданы `error` и `error_description` с описанием ошибки.
+              schema:
+                type: string
+                format: uri-reference
+              examples:
+                SuccessWithCode:
+                  summary: URI клиента c authorization code для получения токенов доступа
+                  value: "https://www.rbo.raiffeisen.ru/?code=tb424Ly7439iihvpJWUdh19sVdpEiPdCQCWnHqFu6DsCDtsmdye2rth8iJNS0oQWRgPeeHB4y2YH9zLZErCmN9cR81R1mMfeZpCrVQoVWZAKmnbbfPvQS--2qC-rUrbl&state=VvTS5lCd5949t3ysuUbzgxfhwid0JCWyNm8Ey2BX39Q"
+                InvalidRequestNoScope:
+                  summary: Ошибка в параметрах запроса (не указан scope)
+                  value: "https://www.rbo.raiffeisen.ru/?error=invalid_request&error_description=OAuth%202.0%20Parameter%3A%20scope&state=VvTS5lCd5949t3ysuUbzgxfhwid0JCWyNm8Ey2BX39Q"
+                InvalidRequestScope:
+                  summary: Ошибка в параметрах запроса (некорректное значение scope)
+                  value: "https://www.rbo.raiffeisen.ru/?error=invalid_scope&error_description=OAuth%202.0%20Parameter%3A%20scope&state=VvTS5lCd5949t3ysuUbzgxfhwid0JCWyNm8Ey2BX39Q"
+                InvalidRequestNoResponseType:
+                  summary: Ошибка в параметрах запроса (не указан response_type)
+                  value: "https://www.rbo.raiffeisen.ru/?error=invalid_request&error_description=OAuth%202.0%20Parameter%3A%20response_type&state=VvTS5lCd5949t3ysuUbzgxfhwid0JCWyNm8Ey2BX39Q"
+                InvalidRequestResponseType:
+                  summary: Ошибка в параметрах запроса (некорректное значение response_type)
+                  value: "https://www.rbo.raiffeisen.ru/?error=unsupported_response_type&error_description=OAuth%202.0%20Parameter%3A%20response_type&state=VvTS5lCd5949t3ysuUbzgxfhwid0JCWyNm8Ey2BX39Q"
+                InvalidRequestCodeChallenge:
+                  summary: Ошибка в параметрах запроса (некорректное значение code_challenge)
+                  value: "https://www.rbo.raiffeisen.ru/?error=invalid_request&error_description=OAuth%202.0%20Parameter%3A%20code_challenge&state=VvTS5lCd5949t3ysuUbzgxfhwid0JCWyNm8Ey2BX39Q"
+                InvalidRequestCodeChallengeMethod:
+                  summary: Ошибка в параметрах запроса (некорректное значение code_challenge_method)
+                  value: "https://www.rbo.raiffeisen.ru/?error=invalid_request&error_description=OAuth%202.0%20Parameter%3A%20code_challenge_method&state=VvTS5lCd5949t3ysuUbzgxfhwid0JCWyNm8Ey2BX39Q"
+                InvalidRequestState:
+                  summary: Ошибка в параметрах запроса (не указан state)
+                  value: "https://www.rbo.raiffeisen.ru/?error=invalid_request&error_description=OAuth%202.0%20Parameter%3A%20state"
+            Set-Cookie:
+              description: |-
+                Служебные куки сервиса аутентификации (например, authentication_flow, raifid.device.deviceId).
+              schema:
+                type: string
+        '303':
+          description: Редирект для продолжения процесса аутентификации пользователя.
+          headers:
+            Location:
+              description: URI для продолжения процесса аутентификации пользователя.
+              schema:
+                type: string
+                format: uri-reference
+              examples:
+                RedirectToLogin:
+                  summary: URI страницы для ввода аутентификационных данных пользователя
+                  value: "/login"
+            Set-Cookie:
+              description: |-
+                Служебные куки сервиса аутентификации (например, authentication_flow, raifid.device.deviceId).
+              schema:
+                type: string
+        '400':
+          description: |-
+            Запрос некорректен. Не указаны или переданы некорректные значения `client_id` или `redirect_uri`.
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                InvalidClientId:
+                  summary: Ошибка в параметрах запроса (не указано или передано некорректное значение client_id)
+                  value: "OAuth 2.0 Parameter: client_id"
+                InvalidRedirectUri:
+                  summary: Ошибка в параметрах запроса (не указано или передано некорректное значение redirect_uri)
+                  value: "OAuth 2.0 Parameter: redirect_uri"
+  /oauth2/token:
+    post:
+      operationId: token
+      summary: Получение и обновление токенов
+      description: |-
+        Получение токенов по Authorization Code (`grant_type=authorization_code`) 
+        или обновление токенов по Refresh Token (`grant_type=refresh_token`).
+      tags:
+        - Аутентификация
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRequestDTO'
+            examples:
+              AuthorizationCodeGrant:
+                summary: Получение токенов по Authorization Code
+                value:
+                  grant_type: authorization_code
+                  code: "mG9oKcfhuYthtkeH9Ovmv3T66cvH4PLVe3d6ulUiu_f8VbBxqsUkpmZzwHgjvTwzOvQi9idYfUBq5nSCNaxsJavxUAFx63u3MIHi20_va3ZkSPBT9GGi9ZvGDUO57kvT"
+                  code_verifier: "ACbrszxo9MTPRDHBej_Hyjftt9jc2r2aQZurfomS_ctYglRFj-ckHphyoc39_-9OD-G9itHoyvIMJTT8V3TSbksMm6KC1S4Ji7FXogJPtTx-vy3yp2CgPVxBBJkegSTA"
+                  client_id: "01e3decf-f997-4b5d-b52c-6bc646b3a528"
+                  client_secret: "ClientSecretPassword"
+                  redirect_uri: "https://www.rbo.raiffeisen.ru/"
+              RefreshTokenGrant:
+                summary: Обновление токенов по Refresh токену
+                value:
+                  grant_type: refresh_token
+                  refresh_token: "<opaque-refresh-token>"
+                  client_id: "01e3decf-f997-4b5d-b52c-6bc646b3a528"
+                  client_secret: "ClientSecretPassword"
+      responses:
+        '200':
+          description: Успешно выданы токены.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponseDTO'
+              examples:
+                TokenResponse:
+                  description: Успешный ответ с access_token и refresh_token.
+                  value:
+                    access_token: "<jwt-access-token>"
+                    expires_in: 1800
+                    token_type: "Bearer"
+                    scope: "openid profile"
+                    refresh_token: "<opaque-refresh-token>"
+                    refresh_expires_at: 1777618800
+        '400':
+          description: Ошибка параметров запроса.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuth2ErrorDTO'
+              examples:
+                InvalidGrantError:
+                  summary: Ошибка invalid_grant (неверный код или истекший токен)
+                  value:
+                    error: "invalid_grant"
+        '401':
+          description: Ошибка авторизации.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuth2ErrorDTO'
+              examples:
+                Error:
+                  summary: Ошибка invalid_client (неверно указан client_id или client_secret)
+                  value:
+                    error: "invalid_client"
+  /oauth2/revoke:
+    post:
+      operationId: revokeToken
+      summary: Отзыв токена
+      description: |-
+        Отзывает Access Token или Refresh Token, выданный клиенту.
+        Неизвестный сервису или уже отозванный токен также приводит к ответу 200 согласно RFC 7009.
+      tags:
+        - Аутентификация
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRevocationRequestDTO'
+      responses:
+        '200':
+          description: Запрос обработан. Тело ответа отсутствует, в том числе для неизвестного или уже отозванного токена.
+        '400':
+          description: Ошибка параметров запроса.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuth2ErrorDTO'
+        '401':
+          description: Ошибка аутентификации клиента.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuth2ErrorDTO'
+  /oauth2/jwks:
+    get:
+      operationId: getJwks
+      summary: Публичные ключи для проверки JWT
+      description: Возвращает набор публичных ключей сервиса в формате JWK Set для проверки подписи JWT.
+      tags:
+        - Аутентификация
+      responses:
+        '200':
+          description: Набор публичных ключей.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicJwksResponseDTO'
+  /oauth2/token/liveness:
+    get:
+      operationId: tokenLiveness
+      summary: Проверка активности Access Token
+      description: |-
+        Проверяет, что Access Token в заголовке `Authorization` выпущен сервисом,
+        не истек и не был отозван.
+
+        Ответы не содержат тела.
+      tags:
+        - Аутентификация
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Токен активен
+        '401':
+          description: Заголовок Authorization отсутствует, имеет неверный формат или токен недействителен
+        '503':
+          description: Проверка токена временно недоступна
+
+  /login:
+    get:
+      operationId: getLoginPage
+      summary: Получение формы текущего шага входа
+      description: |-
+        Возвращает HTML страницу входа без предварительной авторизации пользователя.
+        Процесс входа начинается через `GET /oauth2/authorize`; браузер должен сохранять служебные cookies.
+        Тип формы определяется `viewData.pageData.stepViewData.stepType`: `username-password`, `password`,
+        `phone`, `sms-otp`, `email-otp` или `consent`.
+
+        JSON внутри `script#viewData` с типом `application/json` описан схемой `LoginViewDataDTO`.
+        CSRF токен находится в `pageData.authenticationFlowContext.csrf`.
+        Если процесс входа завершён, выполняется редирект на исходный `/oauth2/authorize`.
+        Если процесс не найден, пользователь возвращается на зарегистрированный адрес клиентской системы
+        из `login_client_entry` либо на страницу выхода по умолчанию.
+      tags: [ Формы входа ]
+      parameters:
+        - $ref: '#/components/parameters/AuthenticationFlowCookie'
+        - $ref: '#/components/parameters/LoginClientEntryCookie'
+        - $ref: '#/components/parameters/CsrfCookie'
+        - name: step_error_details
+          in: cookie
+          description: Служебные данные ошибки предыдущей попытки ввода пароля или OTP.
+          schema:
+            type: string
+        - name: raifid.captcha.required
+          in: cookie
+          description: Признак отображения CAPTCHA; не отменяет проверку необходимости CAPTCHA сервером.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: HTML страница текущего шага с JSON в script#viewData.
+          headers:
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+          content:
+            text/html:
+              schema:
+                type: string
+                description: HTML с данными LoginViewDataDTO внутри script#viewData.
+              x-view-data-schema:
+                $ref: '#/components/schemas/LoginViewDataDTO'
+        '302':
+          description: Возврат к OAuth авторизации или на адрес клиентской системы при отсутствии процесса входа.
+          headers:
+            Location:
+              $ref: '#/components/headers/RedirectLocation'
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+        '303':
+          $ref: '#/components/responses/UiErrorRedirect'
+    post:
+      operationId: submitLoginStep
+      summary: Отправка формы текущего шага входа
+      description: |-
+        Обрабатывает один шаг входа: логин и пароль, номер телефона, пароль, SMS/Email OTP или согласие на scopes.
+        Нужны активный процесс входа, служебные cookies и CSRF токен из
+        `viewData.pageData.authenticationFlowContext.csrf`. Токен передаётся полем `_csrf`
+        вместе с cookie `XSRF-TOKEN`.
+
+        После обработки возвращается `303` на `/login`, исходный `/oauth2/authorize` или `/error`.
+        Ошибки ввода отображаются при следующем GET формы. Если процесс истёк, а cookie
+        `login_client_entry` действительна, возвращается `302` на адрес клиентской системы для повторного входа.
+      tags: [ Формы входа ]
+      parameters:
+        - $ref: '#/components/parameters/AuthenticationFlowCookie'
+        - $ref: '#/components/parameters/LoginClientEntryCookie'
+        - $ref: '#/components/parameters/CsrfCookie'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginStepRequestDTO'
+      responses:
+        '303':
+          description: |-
+            Продолжение входа или повтор формы после ошибки ввода — `/login`;
+            завершение всех шагов — исходный `/oauth2/authorize`;
+            ошибка CSRF или невозможность продолжить процесс — `/error`.
+          headers:
+            Location:
+              $ref: '#/components/headers/RedirectLocation'
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+        '302':
+          description: Процесс входа не найден; возврат на зарегистрированный адрес клиентской системы.
+          headers:
+            Location:
+              $ref: '#/components/headers/RedirectLocation'
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+  /login/restart:
+    get:
+      operationId: restartLogin
+      summary: Повторный запуск входа со страницы ошибки
+      description: |-
+        Восстанавливает исходный OAuth запрос по cookie `failed_authentication_flow_id`.
+        Если восстановить запрос нельзя, использует проверенный адрес клиентской системы из `login_client_entry`
+        либо страницу выхода по умолчанию. Cookie `failed_authentication_flow_id` очищается.
+      tags: [ Формы входа ]
+      parameters:
+        - $ref: '#/components/parameters/FailedAuthenticationFlowCookie'
+        - $ref: '#/components/parameters/LoginClientEntryCookie'
+      responses:
+        '302':
+          description: Редирект на исходный OAuth запрос, адрес клиентской системы или страницу выхода по умолчанию.
+          headers:
+            Location:
+              $ref: '#/components/headers/RedirectLocation'
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+        '303':
+          $ref: '#/components/responses/UiErrorRedirect'
+  /login/user-settings/auth-method:
+    post:
+      operationId: updateLoginAuthMethod
+      summary: Изменение способа входа
+      description: |-
+        Выбирает вход по паролю (`PASSWORD`) или телефону (`PHONE`) и начинает текущий процесс входа заново.
+        Требуются активный процесс входа и CSRF токен из `viewData.pageData.authenticationFlowContext.csrf`.
+        Передайте токен полем `_csrf` либо заголовком `X-XSRF-TOKEN` вместе с cookie `XSRF-TOKEN`.
+        При ошибке параметров, CSRF или отсутствии процесса входа выполняется редирект на `/error`.
+      tags: [ Формы входа ]
+      parameters:
+        - $ref: '#/components/parameters/AuthenticationFlowCookie'
+        - $ref: '#/components/parameters/CsrfCookie'
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [ authMethod ]
+              properties:
+                authMethod:
+                  type: string
+                  enum: [ PASSWORD, PHONE ]
+                _csrf:
+                  type: string
+                  description: CSRF токен; обязателен, если не передан заголовок X-XSRF-TOKEN.
+      responses:
+        '303':
+          description: Редирект на /login после смены способа входа либо на /error при ошибке.
+          headers:
+            Location:
+              $ref: '#/components/headers/RedirectLocation'
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+  /login/user-settings/locale:
+    patch:
+      operationId: updateLoginLocale
+      summary: Изменение языка формы входа
+      description: |-
+        Меняет язык без перезапуска текущего шага. Требуется cookie `authentication_flow`
+        либо `failed_authentication_flow_id` для смены языка на странице ошибки.
+        CSRF токен берётся из `viewData.pageData.authenticationFlowContext.csrf`
+        или `viewData.pageData.errorPageContext.csrf` и передаётся в `X-XSRF-TOKEN`.
+        Ответы не содержат тела. При ошибках возвращается HTTP status без редиректа на `/error`.
+      tags: [ Формы входа ]
+      parameters:
+        - name: locale
+          in: query
+          required: true
+          description: Язык формы входа.
+          schema:
+            $ref: '#/components/schemas/SupportedLocale'
+        - $ref: '#/components/parameters/AuthenticationFlowCookie'
+        - $ref: '#/components/parameters/FailedAuthenticationFlowCookie'
+        - $ref: '#/components/parameters/CsrfCookie'
+        - name: X-XSRF-TOKEN
+          in: header
+          required: true
+          description: CSRF токен из viewData страницы входа или ошибки.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Язык сохранён; текущий шаг не изменён.
+          headers:
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+        '400':
+          description: Не указан locale, язык не поддерживается или процесс входа не найден.
+        '403':
+          description: Ошибка проверки CSRF или доступа.
+        '500':
+          description: Временная ошибка при обновлении языка.
+  /login/user-settings/otp-method:
+    post:
+      operationId: updateLoginOtpMethod
+      summary: Выбор доставки OTP по email
+      description: |-
+        Выбирает резервную доставку OTP по email для текущего SMS второго фактора.
+        Требуются активный процесс входа и CSRF токен из `viewData.pageData.authenticationFlowContext.csrf`.
+        Передайте токен полем `_csrf` либо заголовком `X-XSRF-TOKEN` вместе с cookie `XSRF-TOKEN`.
+
+        Адрес email и доступность перехода проверяет сервер. Если переключение недоступно,
+        процесс не меняется и пользователь возвращается на `/login`.
+        OTP создаётся при следующем GET `/login`; при утрате доступности email сохраняется доставка по SMS.
+        Некорректный `otpMethod`, отсутствие процесса входа или ошибка CSRF приводят к редиректу на `/error`.
+      tags: [ Формы входа ]
+      parameters:
+        - $ref: '#/components/parameters/AuthenticationFlowCookie'
+        - $ref: '#/components/parameters/CsrfCookie'
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [ otpMethod ]
+              properties:
+                otpMethod:
+                  type: string
+                  enum: [ email ]
+                _csrf:
+                  type: string
+                  description: CSRF токен; обязателен, если не передан заголовок X-XSRF-TOKEN.
+      responses:
+        '303':
+          description: Редирект на /login после обработки выбора либо на /error при ошибке.
+          headers:
+            Location:
+              $ref: '#/components/headers/RedirectLocation'
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+  /error:
+    get:
+      operationId: getErrorPage
+      summary: Получение страницы ошибки входа
+      description: |-
+        Возвращает HTML страницу с JSON внутри `script#viewData` с типом `application/json`.
+        Структура JSON описана схемой `ErrorPageDataDTO`: код ошибки, доступные действия
+        `RELOAD`, `RETRY_LOGIN`, `REDIRECT` и CSRF токен для смены языка.
+
+        Читает и очищает служебную cookie `error_page_details`. Для повторного входа может установить
+        `failed_authentication_flow_id`. Если данных ошибки нет, они повреждены или ошибка требует выхода,
+        выполняется редирект на страницу выхода по умолчанию.
+      tags: [ Формы входа ]
+      parameters:
+        - name: error_page_details
+          in: cookie
+          description: Служебные данные ошибки, установленные сервером перед редиректом на /error.
+          schema:
+            type: string
+        - $ref: '#/components/parameters/FailedAuthenticationFlowCookie'
+      responses:
+        '200':
+          description: HTML страница ошибки с JSON в script#viewData.
+          headers:
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+          content:
+            text/html:
+              schema:
+                type: string
+                description: HTML с данными ErrorPageDataDTO внутри script#viewData.
+              x-view-data-schema:
+                $ref: '#/components/schemas/ErrorPageDataDTO'
+        '302':
+          description: Редирект на страницу выхода по умолчанию.
+          headers:
+            Location:
+              $ref: '#/components/headers/RedirectLocation'
+            Set-Cookie:
+              $ref: '#/components/headers/UiCookies'
+
+components:
+  parameters:
+    AuthenticationFlowCookie:
+      name: authentication_flow
+      in: cookie
+      description: |-
+        Идентификатор процесса входа, установленный сервером при переходе с /oauth2/authorize.
+        Состояние процесса хранится на сервере. Для отправки форм нужен действующий процесс входа.
+      schema:
+        type: string
+    FailedAuthenticationFlowCookie:
+      name: failed_authentication_flow_id
+      in: cookie
+      description: Идентификатор процесса входа, завершившегося ошибкой; используется для повтора входа и смены языка.
+      schema:
+        type: string
+    LoginClientEntryCookie:
+      name: login_client_entry
+      in: cookie
+      description: Подписанная HttpOnly cookie для возврата на зарегистрированный адрес клиентской системы.
+      schema:
+        type: string
+    CsrfCookie:
+      name: XSRF-TOKEN
+      in: cookie
+      description: Служебная CSRF cookie. Браузер сохраняет её и отправляет вместе с запросами формы.
+      schema:
+        type: string
+    CsrfHeader:
+      name: X-XSRF-TOKEN
+      in: header
+      description: CSRF токен из viewData; можно передать вместо поля _csrf в теле формы.
+      schema:
+        type: string
+  headers:
+    RedirectLocation:
+      description: Адрес следующего GET запроса браузера.
+      schema:
+        type: string
+        format: uri-reference
+    UiCookies:
+      description: |-
+        Служебные cookies процесса входа, CSRF и пользовательских настроек.
+        Ответ может содержать несколько Set-Cookie, включая установку или очистку authentication_flow,
+        XSRF-TOKEN, step_error_details, error_page_details и failed_authentication_flow_id.
+      schema:
+        type: string
+  responses:
+    UiErrorRedirect:
+      description: Редирект на /error; данные ошибки передаются в служебной cookie error_page_details.
+      headers:
+        Location:
+          description: Адрес страницы ошибки.
+          schema:
+            type: string
+            const: /error
+        Set-Cookie:
+          $ref: '#/components/headers/UiCookies'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Access Token, полученный в ответе /oauth2/token.
+  schemas:
+    LoginStepRequestDTO:
+      type: object
+      required: [ _csrf ]
+      description: Поля формы зависят от текущего stepType. CSRF токен передаётся в обязательном поле _csrf.
+      properties:
+        principal:
+          type: string
+          description: Логин для шага username-password или номер телефона для шага phone.
+        credentials:
+          type: string
+          format: password
+          description: Пароль для шагов username-password/password или код для sms-otp/email-otp.
+        selected_scope_groups:
+          type: string
+          description: Выбранные группы scopes для consent, через запятую.
+        smart-token:
+          type: string
+          description: Токен CAPTCHA, когда stepViewData.captchaRequired равен true.
+        _csrf:
+          type: string
+          description: CSRF токен из viewData.pageData.authenticationFlowContext.csrf.
+    TokenRevocationRequestDTO:
+      type: object
+      required: [ token ]
+      properties:
+        token:
+          type: string
+          description: Access Token или Refresh Token, который нужно отозвать.
+        token_type_hint:
+          type: string
+          enum: [ access_token, refresh_token ]
+          description: Подсказка о типе переданного токена.
+        client_id:
+          type: string
+          description: Идентификатор клиента (выдается Райффайзен Банком после подачи заявления на подключение).
+        client_secret:
+          type: string
+          description: Пароль клиента (указывается при подключении системы клиента к Райффайзен Банку).
+    PublicJwksResponseDTO:
+      type: object
+      required: [ keys ]
+      properties:
+        keys:
+          type: array
+          description: Публичные RSA-ключи для проверки подписи JWT.
+          items:
+            type: object
+            required: [ kty, kid, use, alg, n, e ]
+            properties:
+              kty:
+                type: string
+                description: Тип ключа.
+                example: RSA
+              kid:
+                type: string
+                description: Идентификатор ключа, соответствующий заголовку kid проверяемого JWT.
+              use:
+                type: string
+                description: Назначение ключа.
+                example: sig
+              alg:
+                type: string
+                description: Алгоритм подписи.
+                example: RS256
+              n:
+                type: string
+                description: Модуль RSA в формате Base64url.
+              e:
+                type: string
+                description: Публичная экспонента RSA в формате Base64url.
+                example: AQAB
+    TokenRequestDTO:
+      type: object
+      required: [ grant_type ]
+      properties:
+        grant_type:
+          type: string
+          enum: [ authorization_code, refresh_token ]
+          description: |-
+            Тип взаимодействия, в рамках которого происходит получение токенов:
+            - `authorization_code` для получения токенов по Authorization Code (Code Flow);
+            - `refresh_token` для получения новых токенов по Refresh токену.
+        code:
+          type: string
+          description: |-
+            Authorization Code (обязательный параметр для grant_type=authorization_code), 
+            значение переданное в параметре code после успешной аутентификации пользователя и 
+            перенаправлении на redirect_uri клиентского приложения.
+        code_verifier:
+          type: string
+          description: |-
+            Криптографически стойкая случайно сгенерированная строка,
+            которая согласно стандарту PKCE (RFC 7636) использовалась для генерации значения `code_challenge`
+            в запросе GET /oauth2/authorize (обязательный параметр для grant_type=authorization_code).
+        client_id:
+          type: string
+          description: Идентификатор клиента (выдается Райффайзен Банком после подачи заявления на подключение).
+        client_secret:
+          type: string
+          description: Пароль клиента (указывается при подключении системы клиента к Райффайзен Банку).
+        redirect_uri:
+          type: string
+          description: |-
+            URI, на который сервис аутентификации перенаправляет пользователя после прохождения аутентификации 
+            (указывается при подключении системы клиента к Райффайзен Банку).
+        refresh_token:
+          type: string
+          description: Refresh токен (обязательный параметр для grant_type=refresh_token).
+    TokenResponseDTO:
+      type: object
+      required: [ access_token, token_type, expires_in ]
+      properties:
+        access_token:
+          type: string
+          description: Access Token в формате JWT.
+        expires_in:
+          type: integer
+          description: Время действия токена в секундах.
+        token_type:
+          type: string
+          enum: [ Bearer ]
+          description: Тип токена.
+        scope:
+          type: string
+          description: Выданные привилегии доступа (значения указываются через пробел).
+        refresh_token:
+          type: string
+          description: Refresh Token.
+        id_token:
+          type: string
+          description: ID Token в формате JWT при использовании OpenID Connect (scope openid).
+        refresh_expires_at:
+          type: integer
+          description: Время завершения действия Refresh токена (Epoch Unix Timestamp).
+    OAuth2ErrorDTO:
+      type: object
+      required: [ error ]
+      properties:
+        error:
+          type: string
+          description: Код ошибки.
+        error_description:
+          type: string
+          description: Описание ошибки.
+
+    SupportedLocale:
+      type: string
+      description: Допустимая локаль аутентификационного сценария. Остальные значения не поддерживаются.
+      enum: [ ru, en ]
+      example: ru
+
+    LoginViewDataDTO:
+      type: object
+      required: [ pageType, pageData ]
+      description: |-
+        JSON данные, встроенные в HTML страницу /login внутри script#viewData с типом application/json.
+        Эти данные используются React SPA для отображения формы входа и отправки credentials.
+      properties:
+        pageType:
+          type: string
+          enum: [ LOGIN_FORM_STEP ]
+          example: "LOGIN_FORM_STEP"
+        pageData:
+          type: object
+          required: [ authenticationFlowContext, stepViewData, themeViewData, errors ]
+          properties:
+            authenticationFlowContext:
+              type: object
+              required: [ authenticationFlowId, authPageRefreshTtlMs, deviceId, csrf ]
+              properties:
+                authenticationFlowId:
+                  type: string
+                  description: Уникальный идентификатор текущего authentication flow
+                  example: "8379e3cb-50b2-47b4-8f4f-ea8d250a1d66"
+                authPageRefreshTtlMs:
+                  type: [ integer, "null" ]
+                  format: int64
+                  description: TTL до обновления auth page в миллисекундах.
+                deviceId:
+                  type: [ string, "null" ]
+                  description: Идентификатор устройства, если он известен.
+                csrf:
+                  type: string
+                  description: CSRF токен для POST `/login`.
+            stepViewData:
+              description: |-
+                Тип и дополнительные данные текущего шага. Дополнительные поля зависят от `stepType` и передаются
+                на том же уровне, без вложенного объекта `attributes`. Поле `attributesType`, используемое при
+                хранении authentication flow, в page data не передаётся.
+              discriminator:
+                propertyName: stepType
+                mapping:
+                  username-password: '#/components/schemas/UsernamePasswordStepViewDataDTO'
+                  password: '#/components/schemas/PasswordStepViewDataDTO'
+                  phone: '#/components/schemas/PhoneStepViewDataDTO'
+                  sms-otp: '#/components/schemas/SmsOtpStepViewDataDTO'
+                  email-otp: '#/components/schemas/EmailOtpStepViewDataDTO'
+                  consent: '#/components/schemas/ConsentStepViewDataDTO'
+              oneOf:
+                - $ref: '#/components/schemas/UsernamePasswordStepViewDataDTO'
+                - $ref: '#/components/schemas/PasswordStepViewDataDTO'
+                - $ref: '#/components/schemas/PhoneStepViewDataDTO'
+                - $ref: '#/components/schemas/SmsOtpStepViewDataDTO'
+                - $ref: '#/components/schemas/EmailOtpStepViewDataDTO'
+                - $ref: '#/components/schemas/ConsentStepViewDataDTO'
+                - type: "null"
+            themeViewData:
+              type: [ object, "null" ]
+              description: Данные login-страницы, предоставленные выбранной frontend-темой.
+              properties:
+                passwordResetEnabled:
+                  type: boolean
+                  description: Включён ли переход на форму запроса сброса пароля.
+                supportDrawer:
+                  $ref: '#/components/schemas/SupportDrawerByLocaleDTO'
+                systemMessages:
+                  $ref: '#/components/schemas/SystemMessagesByLocaleDTO'
+            errors:
+              $ref: '#/components/schemas/LoginFormErrorDetails'
+        locale:
+          description: Выбранная локаль формы входа.
+          oneOf:
+            - $ref: '#/components/schemas/SupportedLocale'
+            - type: "null"
+          example: en
+
+    UsernamePasswordStepViewDataDTO:
+      type: object
+      additionalProperties: false
+      required: [ stepType ]
+      properties:
+        stepType:
+          type: string
+          const: username-password
+        viewType:
+          type: string
+          enum: [ default, phoneDuplicated ]
+        phoneNumberView:
+          type: [ string, "null" ]
+          description: Номер телефона для отображения на форме логина и пароля.
+        principal:
+          type: [ string, "null" ]
+          description: Ранее введённый идентификатор пользователя.
+        captchaRequired:
+          type: boolean
+          description: Требуется ли CAPTCHA для текущей формы.
+
+    PasswordStepViewDataDTO:
+      type: object
+      additionalProperties: false
+      required: [ stepType ]
+      properties:
+        stepType:
+          type: string
+          const: password
+        viewType:
+          type: string
+          enum: [ default, phoneAuthNotAllowed, unknownDevice ]
+        captchaRequired:
+          type: boolean
+          description: Требуется ли CAPTCHA для текущей формы.
+
+    PhoneStepViewDataDTO:
+      type: object
+      additionalProperties: false
+      required: [ stepType ]
+      properties:
+        stepType:
+          type: string
+          const: phone
+        viewType:
+          type: string
+          enum: [ default ]
+        principal:
+          type: [ string, "null" ]
+          description: Ранее введённый идентификатор пользователя.
+        captchaRequired:
+          type: boolean
+          description: Требуется ли CAPTCHA для текущей формы.
+
+    SmsOtpStepViewDataDTO:
+      type: object
+      additionalProperties: false
+      required: [ stepType ]
+      properties:
+        stepType:
+          type: string
+          const: sms-otp
+        viewType:
+          type: string
+          enum: [ default, secondFactor ]
+        smsOtpAddressView:
+          type: [ string, "null" ]
+          description: Маскированный или полный номер телефона для SMS OTP.
+        smsOtpProcessId:
+          type: [ string, "null" ]
+          format: uuid
+          description: Идентификатор SMS OTP процесса.
+        emailDeliveryAvailable:
+          type: boolean
+          description: Доступна ли переключение резервной доставки кода на верифицированный email.
+
+    EmailOtpStepViewDataDTO:
+      type: object
+      additionalProperties: false
+      required: [ stepType ]
+      properties:
+        stepType:
+          type: string
+          const: email-otp
+        viewType:
+          type: string
+          enum: [ secondFactor ]
+        emailOtpProcessId:
+          type: [ string, "null" ]
+          format: uuid
+          description: Идентификатор email OTP процесса.
+
+    ConsentStepViewDataDTO:
+      type: object
+      additionalProperties: false
+      required: [ stepType ]
+      properties:
+        stepType:
+          type: string
+          const: consent
+        viewType:
+          type: string
+          enum: [ default ]
+        clientName:
+          type: [ string, "null" ]
+          description: Имя клиентского приложения для consent-формы.
+        availableScopeGroups:
+          type: [ string, "null" ]
+          description: Доступные группы scope для consent-формы в comma-separated формате.
+
+    SupportDrawerByLocaleDTO:
+      type: [ object, "null" ]
+      description: |-
+        Мапа локалей на конфигурацию дровера поддержки.
+        Ключи соответствуют локалям (`ru`, `en`).
+      properties:
+        ru:
+          $ref: '#/components/schemas/SupportDrawerDTO'
+        en:
+          $ref: '#/components/schemas/SupportDrawerDTO'
+
+    SystemMessagesByLocaleDTO:
+      type: [ object, "null" ]
+      description: |-
+        Активные системные сообщения, сгруппированные по локалям.
+        Значение `null` передаётся, когда активных сообщений нет или сервис системных сообщений недоступен.
+      properties:
+        ru:
+          type: array
+          items:
+            $ref: '#/components/schemas/SystemMessageDTO'
+        en:
+          type: array
+          items:
+            $ref: '#/components/schemas/SystemMessageDTO'
+
+    SystemMessageDTO:
+      type: object
+      required: [ id ]
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        title:
+          type: [ string, "null" ]
+          example: "Важное уведомление"
+        message:
+          type: [ string, "null" ]
+          example: "Система будет недоступна с 22:00 до 23:00"
+
+    SupportDrawerDTO:
+      type: object
+      description: Конфигурация дровера поддержки для одной локали.
+      allOf:
+        - $ref: '#/components/schemas/SupportDrawerHeaderDTO'
+        - $ref: '#/components/schemas/SupportDrawerContentDTO'
+
+    SupportDrawerHeaderDTO:
+      type: object
+      properties:
+        title:
+          type: [ string, "null" ]
+          example: "Служба поддержки"
+        description:
+          type: [ string, "null" ]
+          example: "Чтобы мы вас узнали, понадобится сказать ИНН и сумму последней операции по счету"
+        chatButtonText:
+          type: [ string, "null" ]
+          example: "Написать в чат"
+
+    SupportDrawerContentDTO:
+      type: object
+      properties:
+        sections:
+          type: [ array, "null" ]
+          example:
+            - title: "Малый бизнес"
+              subtitle: "Подзаголовок"
+              items:
+                - icon: "phone"
+                  title: "Для бесплатных звонков по России"
+                  value: "8 800 700-99-95"
+          items:
+            $ref: '#/components/schemas/SupportDrawerSectionDTO'
+        infoBannerText:
+          type: [ string, "null" ]
+          example: "Поддержка работает в будни с 5:00 до 20:00 (Время московское)"
+
+    SupportDrawerSectionDTO:
+      type: object
+      properties:
+        title:
+          type: [ string, "null" ]
+          example: "Малый бизнес"
+        subtitle:
+          type: [ string, "null" ]
+          example: "Подзаголовок"
+        items:
+          type: [ array, "null" ]
+          example:
+            - icon: "phone"
+              title: "Для бесплатных звонков по России"
+              value: "8 800 700-99-95"
+          items:
+            $ref: '#/components/schemas/SupportDrawerItemDTO'
+
+    SupportDrawerItemDTO:
+      type: object
+      properties:
+        icon:
+          type: [ string, "null" ]
+          example: "phone"
+        title:
+          type: [ string, "null" ]
+          example: "Для бесплатных звонков по России"
+        value:
+          type: [ string, "null" ]
+          example: "8 800 700-99-95"
+
+    ErrorPageDataDTO:
+      type: object
+      required: [ pageType, pageData ]
+      description: |-
+        JSON данные, встроенные в HTML страницу /error внутри script#viewData с типом application/json.
+        Эти данные используются React SPA для отображения error page.
+      properties:
+        pageType:
+          type: string
+          enum: [ ERROR ]
+          example: "ERROR"
+        pageData:
+          type: object
+          required: [ errorPageContext, errorDetails ]
+          properties:
+            errorPageContext:
+              type: object
+              required: [ csrf ]
+              properties:
+                csrf:
+                  type: string
+                  description: CSRF токен для background-запросов со страницы ошибки.
+                  example: "2m08G2v6RpNUyxbz85Jq6uJ0xSXXsxA_gRZ4Nky5BBdOzltU6gwKIg_IJaR5-HfEwr9e2NtC6ETji3UStyIeVX6KMi5592ls"
+            errorDetails:
+              type: object
+              required: [ errorCode, actions ]
+              properties:
+                errorCode:
+                  type: string
+                  description: |-
+                    Код ошибки для frontend error page.
+                    Возможные значения:
+                    - `unknown-error` — неизвестная ошибка
+                    - `fatal-error` — фатальная ошибка
+                    - `user-is-blocked` — пользователь заблокирован
+                    - `consent.*` — ошибки шага consent
+                    - `authenticate.sms-otp.*` — ошибки аутентификации SMS-OTP
+                    - `challenge.sms-otp.*` — ошибки ввода SMS-OTP кода
+                  example: "unknown-error"
+                actions:
+                  type: array
+                  description: Список действий, доступных пользователю на странице ошибки.
+                  items:
+                    $ref: '#/components/schemas/ErrorActionItemDTO'
+
+    ErrorActionItemDTO:
+      type: object
+      required: [ action ]
+      description: |-
+        Действие, доступное пользователю на странице ошибки.
+        Каждое действие отображается как кнопка или ссылка на error page.
+      properties:
+        action:
+          type: string
+          description: |-
+            Тип действия:
+            - `RELOAD` — обновление страницы (редирект на /login)
+            - `RETRY_LOGIN` — повторная попытка входа (редирект на /login/restart для перезапуска flow)
+            - `REDIRECT` — редирект на внешний URL
+          enum: [ RELOAD, RETRY_LOGIN, REDIRECT ]
+          example: "RETRY_LOGIN"
+        url:
+          type: [ string, "null" ]
+          description: |-
+            URL для действия. Обязателен для RELOAD, RETRY_LOGIN и REDIRECT.
+          example: "/login/restart"
+
+    LoginFormErrorDetails:
+      type: [ object, "null" ]
+      description: Коды ошибок формы входа, распределённые по месту отображения.
+      properties:
+        principalError:
+          type: [ string, "null" ]
+          description: "Код ошибки, связанный с principal (идентификатором пользователя)"
+          example: "challenge.username-password.wrong-credentials"
+        credentialsError:
+          type: [ string, "null" ]
+          description: "Код ошибки, связанный с credentials (паролем или OTP кодом)"
+          example: "challenge.sms-otp.wrong-credentials"
+        otherError:
+          type: [ string, "null" ]
+          description: "Код прочих ошибок (например, серверные ошибки или лимиты)"
+          example: "authentication.sms-otp.process-limit-exceeded"

@@ -1,0 +1,444 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Option API
+  version: 1.0.0
+  description: 'Operations tagged Option across 2 of this provider''s published API definitions: raiffeisen-ru-fx-openapi.yml, raiffeisen-ru-fx-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/fx
+tags:
+- name: Option
+paths:
+  /v1/options/quote:
+    post:
+      tags:
+      - Option
+      summary: Запрос опционной премии по CNUM
+      operationId: getOptionQuote
+      description: 'Чтобы запросить опционную премию, необходимо передать обязательные параметры и получить в ответе:
+
+        - идентификатор премии (quoteId)
+
+        - размер премии
+
+        - срок жизни премии'
+      parameters:
+      - in: header
+        name: CNUM
+        description: Уникальный идентификатор клиента (CNUM)
+        required: true
+        schema:
+          type: string
+          example: CADH0L
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Запрос опционной премии по CNUM
+        content:
+          application/json:
+            schema:
+              required:
+              - sellCurrency
+              - buyCurrency
+              - amount
+              - side
+              - optionSide
+              - strike
+              - valueDate
+              - endorsementType
+              - premiumCurrency
+              - settlMethod
+              type: object
+              properties:
+                sellCurrency:
+                  type: string
+                  description: Валюта суммы на списание со стороны клиента
+                  example: USD
+                buyCurrency:
+                  type: string
+                  description: Валюта суммы на зачисление со стороны клиента
+                  example: RUB
+                amount:
+                  type: string
+                  description: Объем, от которого был задан опцион
+                  example: 5000
+                side:
+                  type: string
+                  description: Сторона сделки относительно amount. Например, SELL, если объем был задан через поле суммы на списание
+                  example: SELL
+                  enum:
+                  - BUY
+                  - SELL
+                optionSide:
+                  type: string
+                  description: Сторона опциона
+                  example: BUY
+                  enum:
+                  - BUY
+                  - SELL
+                strike:
+                  type: string
+                  description: Цена исполнения (страйк)
+                  example: 90
+                valueDate:
+                  type: string
+                  format: date
+                  description: Дата платежа
+                  example: '2025-11-19'
+                dateOfPremium:
+                  type: string
+                  description: Дата премии. Заполнять для optionSide "SELL". Для optionSide "BUY" передавать null
+                  example: TRADE_DATE
+                  enum:
+                  - TRADE_DATE
+                  - VALUE_DATE
+                endorsementType:
+                  type: string
+                  description: Тип подписи сделки
+                  example: OTP
+                  enum:
+                  - CRYPTO_PRO
+                  - OTP
+                premiumCurrency:
+                  type: string
+                  description: Валюта премии
+                  example: RUB
+                settlMethod:
+                  type: string
+                  description: Способ расчётов
+                  example: NON_DELIVERABLE
+                  enum:
+                  - DELIVERABLE
+                  - NON_DELIVERABLE
+                settlCurrency:
+                  type: string
+                  description: Валюта счёта расчёта курсовой разницы. Указывать только для settlMethod "NON_DELIVERABLE" в одной из валют sellCurrency/buyCurrency
+                  example: RUB
+                fixingReferenceType:
+                  type: string
+                  description: Источник фиксинга. Для DELIVERABLE опциона не передавать
+                  example: CBRF_FIXING
+                  enum:
+                  - CBRF_FIXING
+                  - RAIF_FIXING
+            examples:
+              Пример CALL опциона:
+                summary: Пример беспоставочного опциона
+                value:
+                  sellCurrency: USD
+                  buyCurrency: RUB
+                  amount: 5000
+                  side: SELL
+                  optionSide: BUY
+                  strike: 90
+                  valueDate: '2025-11-19'
+                  dateOfPremium: null
+                  endorsementType: OTP
+                  premiumCurrency: RUB
+                  settlMethod: NON_DELIVERABLE
+                  settlCurrency: RUB
+                  fixingReferenceType: CBRF_FIXING
+              Пример PUT опциона:
+                summary: Пример поставочного опциона
+                value:
+                  sellCurrency: EUR
+                  buyCurrency: USD
+                  amount: 20000.5
+                  side: BUY
+                  optionSide: SELL
+                  strike: 100.5474
+                  valueDate: '2025-12-15'
+                  dateOfPremium: TRADE_DATE
+                  endorsementType: CRYPTO_PRO
+                  premiumCurrency: EUR
+                  settlMethod: DELIVERABLE
+        required: true
+      responses:
+        '200':
+          description: Опционная премия по запрошенным параметрам
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - result
+                - requestId
+                properties:
+                  result:
+                    type: object
+                    description: Результат запроса опционной премии
+                    required:
+                    - quoteId
+                    - currencyPair
+                    - optionType
+                    - sellAmount
+                    - sellCurrency
+                    - buyAmount
+                    - buyCurrency
+                    - premiumAmount
+                    - premiumPercent
+                    - premiumCurrency
+                    - strike
+                    - strikeDecimalPlaces
+                    - expiryDate
+                    - valueDate
+                    - tradeDate
+                    - ttl
+                    - tradeable
+                    properties:
+                      quoteId:
+                        type: string
+                        description: Идентификатор квоты
+                        example: 4394e69f995f11f0a9bef9063f1c899a
+                      currencyPair:
+                        type: string
+                        description: Валютная пара опциона
+                        example: EUR/RUB
+                      optionType:
+                        type: string
+                        description: Тип опциона
+                        example: CALL
+                        enum:
+                        - CALL
+                        - PUT
+                      sellAmount:
+                        type: string
+                        description: Сумма на списание со стороны клиента
+                        example: 600.0
+                      sellCurrency:
+                        type: string
+                        description: Валюта суммы на списание со стороны клиента
+                        example: RUB
+                      buyAmount:
+                        type: string
+                        description: Сумма на зачисление со стороны клиента
+                        example: 6.0
+                      buyCurrency:
+                        type: string
+                        description: Валюта суммы на зачисление со стороны клиента
+                        example: EUR
+                      premiumAmount:
+                        type: string
+                        description: Сумма премии
+                        example: 24.37
+                      premiumPercent:
+                        type: string
+                        description: Премия в процентах
+                        example: 4.06
+                      premiumCurrency:
+                        type: string
+                        description: Валюта премии
+                        example: RUB
+                      strike:
+                        type: string
+                        description: Цена исполнения
+                        example: 100.0
+                      strikeDecimalPlaces:
+                        type: integer
+                        description: Количество знаков после запятой цены исполнения
+                        example: 4
+                      expiryDate:
+                        type: string
+                        format: date
+                        description: Дата истечения срока опциона
+                        example: '2025-09-29'
+                      valueDate:
+                        type: string
+                        format: date
+                        description: Дата платежа опциона
+                        example: '2025-09-30'
+                      tradeDate:
+                        type: string
+                        format: date-time
+                        description: Дата запроса премии
+                        example: '2025-09-24T15:58:08.326844099Z'
+                      ttl:
+                        type: integer
+                        description: Срок жизни премии в мс
+                        example: 10000
+                      tradeable:
+                        type: boolean
+                        description: Признак, что торговля разрешена
+                        example: true
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса для трейсинга
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                - requestId
+                properties:
+                  error:
+                    type: object
+                    description: Объект с кодом ошибки
+                    required:
+                    - code
+                    properties:
+                      code:
+                        type: string
+                        description: Значение кода ошибки
+                        example: app.invalid.request
+                      message:
+                        type: string
+                        description: Описание кода ошибки
+                        example: Bad Request
+                      data:
+                        type: array
+                        description: Дополнительная информация об ошибке
+                        items:
+                          type: object
+                          properties:
+                            field:
+                              type: string
+                              description: Параметр
+                            value:
+                              type: string
+                              description: Значение параметра
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+                    example: c396fda4d36c4f12
+              examples:
+                Некорректный запрос:
+                  summary: Некорректный запрос
+                  value:
+                    error:
+                      code: app.invalid.request
+                      message: Bad Request
+                    requestId: c396fda4d36c4f12
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          description: Бизнес-ошибки
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                - requestId
+                properties:
+                  error:
+                    type: object
+                    description: Объект с кодом ошибки
+                    required:
+                    - code
+                    properties:
+                      code:
+                        type: string
+                        description: Значение кода ошибки
+                      message:
+                        type: string
+                        description: Описание кода ошибки
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+              examples:
+                Опционы выключены для клиента:
+                  summary: Запрос опционной премии выключен
+                  value:
+                    error:
+                      code: options.disabled
+                    requestId: c396fda4d36c4f12
+                Запрос вне часов торговли:
+                  summary: Запрос был произведен вне часов торговли
+                  value:
+                    error:
+                      code: options.invalid.trading.time.outside.trading.hours
+                    requestId: c396fda4d36c4f12
+                Запрос в нерабочий день:
+                  summary: Запрос был произведен в праздники
+                  value:
+                    error:
+                      code: options.invalid.trading.time.holiday
+                    requestId: c396fda4d36c4f12
+                Запрошенная сумма превышает допустимый порог лимита:
+                  summary: Запрошенная сумма превышает допустимый порог объема
+                  value:
+                    error:
+                      code: options.requested.amount.too.high
+                    requestId: c396fda4d36c4f12
+                Запрошенная сумма после округления равна 0:
+                  summary: Запрошенная сумма меньше допустимого объема
+                  value:
+                    error:
+                      code: options.requested.amount.too.low
+                    requestId: c396fda4d36c4f12
+                Запрошенная сумма после пересчёта из котируемой в базовую и округления равна 0:
+                  summary: Запрошенная сумма меньше допустимого объема
+                  value:
+                    error:
+                      code: options.opposite.amount.too.low
+                    requestId: c396fda4d36c4f12
+                Неподдерживаемая валютная пара:
+                  summary: Неподдерживаемая валютная пара
+                  value:
+                    error:
+                      code: options.unsupported.currency.pair
+                    requestId: c396fda4d36c4f12
+                Некорректная дата платежа:
+                  summary: Некорректная дата платежа
+                  value:
+                    error:
+                      code: options.value.date.invalid
+                    requestId: c396fda4d36c4f12
+                Получилась нулевая премия:
+                  summary: Получилась нулевая премия по условиям опциона
+                  value:
+                    error:
+                      code: options.premium.zero
+                    requestId: c396fda4d36c4f12
+                Страйк слишком высокий:
+                  summary: Страйк выше ожидаемого значения
+                  value:
+                    error:
+                      code: options.strike.too.high
+                    requestId: c396fda4d36c4f12
+                Страйк слишком низкий:
+                  summary: Страйк ниже ожидаемого значения
+                  value:
+                    error:
+                      code: options.strike.too.low
+                    requestId: c396fda4d36c4f12
+                Неизвестная ошибка прайсера:
+                  summary: Неизвестная ошибка
+                  value:
+                    error:
+                      code: options.option.pricer.unknown.error
+                    requestId: c396fda4d36c4f12
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/fx
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-fx-openapi.yml
+- raiffeisen-ru-fx-openapi.yml

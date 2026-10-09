@@ -1,0 +1,3532 @@
+---
+openapi: "3.0.3"
+info:
+  version: "1.0.0"
+  title: "Обмен валюты"
+  description: "### API предоставляет следующие возможности: \n- запрашивать обмен\
+    ные курсы валют\n- запрашивать дайджест (цифровой документ с условиями сделки\
+    ) для подписания электронно-цифровой подписью\n- инициировать исполнение спото\
+    вых сделок\n- запрашивать историю ранее заключенных сделок\n- запрашивать исто\
+    рию по подтверждениям сделок с учетом фильтров и сортировки"
+paths:
+  /v1/trades/securities:
+    get:
+      tags:
+      - "Client settings"
+      summary: "Запрос для получения списка доступных инструментов для спота и фор\
+        варда"
+      operationId: "tradesSecurities"
+      description: "Чтобы запросить список инструментов вызовите метод и получите\
+        \ в ответе список доступных инструментов"
+      parameters:
+      - in: "header"
+        name: "CNUM"
+        description: "Уникальный идентификатор клиента (CNUM)"
+        required: true
+        schema:
+          type: "string"
+          example: "U12345"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Массив со списком доступных инструментов"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required:
+                - "result"
+                - "requestId"
+                properties:
+                  result:
+                    type: "array"
+                    description: "Массив со списком досутпных инструментов"
+                    required:
+                    - "currencies"
+                    - "tenor"
+                    items:
+                      type: "object"
+                      properties:
+                        currencies:
+                          type: "object"
+                          description: "Объект с информацией о базовой и котируемо\
+                            й валютой из инструмента"
+                          required:
+                          - "base"
+                          - "quoted"
+                          properties:
+                            base:
+                              type: "string"
+                              description: "Базовая валют инструмента"
+                            quoted:
+                              type: "string"
+                              description: "Котируемая валюта инструмента"
+                        tenor:
+                          type: "string"
+                          description: "Значение определяющее дату расчета по сдел\
+                            ке, возможные значения TOD - сегодня, TOM - завтра, SPOT\
+                            \ - после завтра, BRD - форвардный тенор"
+                        valueDate:
+                          type: "string"
+                          description: "Дата расчета для инструмента с теноромами\
+                            \ TOD - сегодня, TOM - завтра, SPOT - после завтра"
+                        minSettlementDate:
+                          type: "string"
+                          description: "Минимальная дата расчета для форвардного т\
+                            енора, иначе null"
+                        maxSettlementDate:
+                          type: "string"
+                          description: "Максимальная дата расчета для форвардного\
+                            \ тенора, иначе null"
+                        decimalPlaces:
+                          type: "integer"
+                          description: "Количество знаков после запятой для курсов\
+                            \ валюты"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса для трейсинга"
+              examples:
+                Успешный ответ:
+                  summary: "Успешный ответ"
+                  value:
+                    result:
+                    - currencies:
+                        base: "USD"
+                        quoted: "RUB"
+                      tenor: "TOD"
+                      valueDate: "2024-05-19"
+                      minSettlementDate: null
+                      maxSettlementDate: null
+                      decimalPlaces: 4
+                    - currencies:
+                        base: "USD"
+                        quoted: "RUB"
+                      tenor: "BRD"
+                      valueDate: null
+                      minSettlementDate: "2024-05-19"
+                      maxSettlementDate: "2025-05-19"
+                      decimalPlaces: 3
+                    requestId: "e0e70833c68e3c32"
+        "400":
+          description: "Плохой запрос"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required:
+                - "error"
+                - "requestId"
+                properties:
+                  error:
+                    type: "object"
+                    description: "Объект с кодом ошибки"
+                    required:
+                    - "code"
+                    properties:
+                      code:
+                        type: "string"
+                        description: "Значение кода ошибки"
+                        example: "app.invalid.request"
+                      message:
+                        type: "string"
+                        description: "Описание кода ошибки"
+                        example: "Bad Request"
+                      data:
+                        type: "array"
+                        description: "Дополнительная информация об ошибке"
+                        items:
+                          type: "string"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+                    example: "58286c252677a6"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/trades/rates:
+    post:
+      tags:
+      - "Spot"
+      summary: "Получение обменного курса для спотовых сделок"
+      operationId: "tradesRates"
+      description: "Чтоб запросить обменный курс валют, введите обязательные парам\
+        етры и получите в ответе: \n  - идентификатор квоты\n  - курс покупки и пр\
+        одажи валюты"
+      parameters:
+      - in: "header"
+        name: "CNUM"
+        description: "Уникальный идентификатор клиента (CNUM)"
+        required: true
+        schema:
+          type: "string"
+          example: "U12345"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Запросить обменные курсы для валютной пары"
+        content:
+          application/json:
+            schema:
+              required:
+              - "amount"
+              - "currency"
+              - "currencyPair"
+              - "tenor"
+              type: "object"
+              properties:
+                amount:
+                  type: "number"
+                  description: "Объем на который запрашивается цена"
+                  example: 10000
+                currency:
+                  type: "string"
+                  description: "Валюта объема в соответсвии с стандартом ISO 4217"
+                  example: "USD"
+                currencyPair:
+                  type: "string"
+                  description: "Валютная пара"
+                  example: "USD/RUB"
+                tenor:
+                  type: "string"
+                  description: "Значение определяющее дату расчета по сделке, возм\
+                    ожные значения TOD - сегодня, TOM - завтра, SPOT - после завтр\
+                    а"
+                  example: "TOD"
+        required: true
+      responses:
+        "200":
+          description: "Обменный курс по запрошенным параметрам"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required:
+                - "result"
+                - "requestId"
+                properties:
+                  result:
+                    type: "object"
+                    description: "Объект с результатом исполнения запроса"
+                    required:
+                    - "rfqId"
+                    - "currencyPair"
+                    - "tenor"
+                    - "clientBuy"
+                    - "clientSell"
+                    - "priceDecimalPlaces"
+                    - "tradeDate"
+                    - "ttl"
+                    - "valueDate"
+                    properties:
+                      rfqId:
+                        type: "string"
+                        description: "Идентификатор запроса цены"
+                        example: "207b0e8112b911ef93a38bb1d711c250"
+                      currencyPair:
+                        type: "string"
+                        description: "Валютная пара из запроса"
+                        example: "USD/RUB"
+                      tenor:
+                        type: "string"
+                        description: "Значение определяющее дату расчета по сделке\
+                          , возможные значения TOD - сегодня, TOM - завтра, SPOT -\
+                          \ после завтра"
+                        example: "TOD"
+                      clientBuy:
+                        type: "object"
+                        description: "Объект c курсом и объемом покупки"
+                        required:
+                        - "price"
+                        - "amount"
+                        - "currency"
+                        properties:
+                          price:
+                            type: "number"
+                            description: "Обменный курс покупки"
+                            example: 92.4386
+                          amount:
+                            type: "number"
+                            description: "Объем покупки"
+                            example: 10000
+                          currency:
+                            type: "string"
+                            description: "Валюта объема покупки"
+                            example: "USD"
+                      clientSell:
+                        type: "object"
+                        description: "Объект c курсом и объемом продажи"
+                        required:
+                        - "price"
+                        - "amount"
+                        - "currency"
+                        properties:
+                          price:
+                            type: "number"
+                            description: "Обменный курс продажи"
+                            example: 92.5386
+                          amount:
+                            type: "number"
+                            description: "Объем продажи"
+                            example: 10000
+                          currency:
+                            type: "string"
+                            description: "Валюта объема продажа"
+                            example: "USD"
+                      priceDecimalPlaces:
+                        type: "integer"
+                        description: "Количество знаков после запятой для курсов в\
+                          алюты"
+                        example: 4
+                      tradeDate:
+                        type: "string"
+                        description: "Дата совершения операции по серверу"
+                        example: "2024-05-16"
+                      valueDate:
+                        type: "string"
+                        description: "Дата расчета по сделке"
+                        example: "2024-05-19"
+                      ttl:
+                        type: "integer"
+                        description: "Время жизни обменных курсов в миллисекундах"
+                        example: 10000
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса для трейсинга"
+                    example: "58286c2526a677a6"
+        "400":
+          description: "Плохой запрос"
+          content:
+            application/json:
+              schema:
+                required:
+                - "error"
+                - "requestId"
+                type: "object"
+                properties:
+                  error:
+                    type: "object"
+                    description: "Объект с кодом ошибки"
+                    required:
+                    - "code"
+                    properties:
+                      code:
+                        type: "string"
+                        description: "Значение кода ошибки"
+                      message:
+                        type: "string"
+                        description: "Описание ошибки"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+              examples:
+                Некорректный запрос:
+                  summary: "Некорректный запрос"
+                  value:
+                    error:
+                      code: "app.invalid.request"
+                      message: "Bad Request"
+                    requestId: "c396fda4d36c4f12"
+                Недоступный инструмент:
+                  summary: "Недоступный инструмент"
+                  value:
+                    error:
+                      code: "unavailable.instrument"
+                    requestId: "c396fda4d36c4f12"
+                Слишком маленькая сумма сделки:
+                  summary: "Слишком маленькая сумма сделки"
+                  value:
+                    error:
+                      code: "rfq.base.amount.too.small"
+                      message: ""
+                      data:
+                      - field: "baseAmount"
+                        value: 1
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          description: "Бизнес ошибки"
+          content:
+            application/json:
+              schema:
+                required:
+                - "error"
+                - "requestId"
+                type: "object"
+                properties:
+                  error:
+                    type: "object"
+                    description: "Объект с кодом ошибки"
+                    required:
+                    - "code"
+                    properties:
+                      code:
+                        type: "string"
+                        description: "Значение кода ошибки"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+              examples:
+                Запрос курсов выключен:
+                  summary: "Запрос курсов выключен"
+                  value:
+                    error:
+                      code: "rfq.disabled"
+                      message: null
+                    requestId: "c396fda4d36c4f12"
+                Запрос был произведен вне часов торговли:
+                  summary: "Запрос был произведен вне часов торговли"
+                  value:
+                    error:
+                      code: "rfq.market.data.invalid.trading.time.outside.trading.hours"
+                      message: null
+                    requestId: "c396fda4d36c4f12"
+                Запрос был произведен в праздник или нерабочий день:
+                  summary: "Запрос был произведен в праздник или нерабочий день"
+                  value:
+                    error:
+                      code: "rfq.market.data.invalid.trading.time.holiday"
+                      message: null
+                    requestId: "c396fda4d36c4f12"
+                Запрошенная сумма превышает допустимый порог:
+                  summary: "Запрошенная сумма превышает допустимый порог"
+                  value:
+                    error:
+                      code: "rfq.quote.exceeds.limits"
+                      message: null
+                    requestId: "c396fda4d36c4f12"
+                Нет ликвидности для предоставления цены:
+                  summary: "Нет ликвидности для предоставления цены"
+                  value:
+                    error:
+                      code: "rfq.market.data.not.available"
+                      message: null
+                    requestId: "c396fda4d36c4f12"
+        "424":
+          description: "Некорректный подписант"
+          content:
+            application/json:
+              schema:
+                required:
+                - "error"
+                - "requestId"
+                type: "object"
+                properties:
+                  error:
+                    type: "object"
+                    description: "Объект с кодом ошибки"
+                    required:
+                    - "code"
+                    properties:
+                      code:
+                        type: "string"
+                        description: "Значение кода ошибки"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+              examples:
+                Некорректный подписант:
+                  summary: "Некорректный подписант"
+                  value:
+                    error:
+                      code: "operator.signer.not.found"
+                      message: null
+                    requestId: "c396fda4d36c4f12"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/trades/digest:
+    post:
+      tags:
+      - "Spot"
+      summary: "Запрос дайджеста для спотовых сделок"
+      operationId: "tradesDigest"
+      description: "Чтоб запросить дайджест, введите обязательные параметры и полу\
+        чите в ответе: \n  - дайджест\n  - идентификатор будущего ордера"
+      parameters:
+      - in: "header"
+        name: "CNUM"
+        description: "Уникальный идентификатор клиента (CNUM)"
+        required: true
+        schema:
+          type: "string"
+          example: "U12345"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Запросить дайджест по ранее полученному курсу валюты"
+        content:
+          application/json:
+            schema:
+              required:
+              - "rfqId"
+              - "side"
+              - "publicKeyCertificate"
+              type: "object"
+              properties:
+                rfqId:
+                  type: "string"
+                  description: "Идентификатор запроса цены"
+                  example: "90b611d0407f11ef9cf4d329b5dcf6c2"
+                side:
+                  type: "string"
+                  description: "Сторона сделки (BUY/SELL)"
+                  example: "BUY"
+                publicKeyCertificate:
+                  type: "string"
+                  description: "Сертификат публичного ключа из токена CryptoPro, з\
+                    ашифрованный в BASE64"
+                  example: "cadf8371-c7b9-4407-bf94-2e8ae685a97"
+        required: true
+      responses:
+        "200":
+          description: "Обменный курс по запрошенным параметрам"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required:
+                - "result"
+                - "requestId"
+                properties:
+                  result:
+                    type: "object"
+                    description: "Объект с результатом исполнения запроса"
+                    required:
+                    - "digest"
+                    - "preorderId"
+                    properties:
+                      digest:
+                        type: "string"
+                        description: "Документ c условиями сделки для подписания с\
+                          \ помощью КриптоПро сертификата"
+                        example: "eyJidXlBY2NvdW50Ijp7Im51bWJlciI6IjQwNzAyMTU2NDAwMDAyMzAxMDM0IiwiY3VycmVuY3kiOiJDTkgifSwiYnV5QW1vdW50IjoiODgyLjQzIiwic2VsbEFjY291bnQiOnsibnVtYmVyIjoiNDA3MDI4MTAxMDAwMDEzMDEwMzQiLCJjdXJyZW5jeSI6IlJVQiJ9LCJzZWxsQW1vdW50IjoiMTAwMDAuMDAiLCJjbGllbnRTaWRlIjoiU0VMTCIsInByaWNlIjoiMTEuMzMyMyIsImN1cnJlbmN5UGFpciI6IkNOSC9SVUIiLCJ0ZW5vciI6IlRPRCIsInZhbHVlRGF0ZSI6MTcyMDc0MjQwMC4wMDAwMDAwMDAsInRyYWRlRGF0ZSI6MTcyMDgxNDYwNy40OTMwMDAwMDAsInRyYWRlTW9kZSI6IkJBTEFOQ0UiLCJjbGllbnQiOnsiaWQiOiIzMDEwMzQiLCJuYW1lIjoi0JDQstC40LvQtdC60YEg0J7QntCeIn0sInRyYWRlciI6eyJpZCI6IjM3OTU2MjEiLCJuYW1lIjoiVW5rbm93biBVbmtub3duIn19"
+                      preorderId:
+                        type: "string"
+                        description: "Идентификатор будущего ордера"
+                        example: 2101723
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса для трейсинга"
+                    example: "58286c2526a677a6"
+        "400":
+          description: "Плохой запрос"
+          content:
+            application/json:
+              schema:
+                required:
+                - "error"
+                - "requestId"
+                type: "object"
+                properties:
+                  error:
+                    type: "object"
+                    description: "Объект с кодом ошибки"
+                    required:
+                    - "code"
+                    properties:
+                      code:
+                        type: "string"
+                        description: "Значение кода ошибки"
+                        example: "app.invalid.request"
+                      message:
+                        type: "string"
+                        description: "Описание ошибки"
+                        example: "Bad Request"
+                      data:
+                        type: "array"
+                        description: "Дополнительные даннные об ошибке"
+                        items:
+                          type: "object"
+                          properties:
+                            field:
+                              type: "string"
+                              description: "Параметр"
+                            value:
+                              type: "string"
+                              description: "Значение пармаметра"
+                            status:
+                              type: "string"
+                              description: "Статус авторизации счетов"
+                            fromAccount:
+                              type: "object"
+                              description: "Объект с параметрами счета списания"
+                              properties:
+                                number:
+                                  type: "string"
+                                  description: "Счет списания"
+                                currency:
+                                  type: "string"
+                                  description: "Валюта счета списания"
+                            toAccount:
+                              type: "object"
+                              description: "Объект с параметрами счета зачисления"
+                              properties:
+                                number:
+                                  type: "string"
+                                  description: "Счет зачисления"
+                                currency:
+                                  type: "string"
+                                  description: "Валюта счета зачисления"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+                    example: "c396fda4d36c4f12"
+              examples:
+                Невалидный запрос:
+                  summary: "Невалидный запрос"
+                  value:
+                    error:
+                      code: "app.invalid.request"
+                      message: "Bad Request"
+                Невалидный идентификатор курса валюты:
+                  summary: "Невалидный идентификатор курса валюты"
+                  value:
+                    error:
+                      code: "preorder.bad.rfq.id"
+                      message: "Unable to find RFQ '9b6cfe8bacc911efb26f47dc2d9006e8'\
+                        \ for client 'BAADMP'"
+                      data:
+                      - field: "client.id"
+                        value: "301034"
+                      - field: "rfqId"
+                        value: "9b6cfe8bacc911efb26f47dc2d9006e8"
+                      - field: "signer.id"
+                        value: "1174513"
+                    requestId: "c396fda4d36c4f12"
+                Ошибка авторизации счетов:
+                  summary: "Ошибка авторизации счетов"
+                  value:
+                    error:
+                      code: "order.execution.not.authorized"
+                      message: "Unauthorized preorder"
+                      data:
+                        status: "FROM_ACCOUNT_NOT_ENOUGH_AUTHORITIES"
+                        fromAccount:
+                          number: "EXTERNAL_ACCOUNT_RUB"
+                          currency: "RUB"
+                        toAccount:
+                          number: "EXTERNAL_ACCOUNT_USD"
+                          currency: "USD"
+                    requestId: "c396fda4d36c4f12"
+                Истек срок жизни курса валюты:
+                  summary: "Истек срок жизни курса валюты"
+                  value:
+                    error:
+                      code: "order.execution.request.rejected.stale"
+                      message: "Order execution request '0000003413105' rejected with\
+                        \ code [FXO_STALE_PREORDER:'Preorder '0000003413105' created\
+                        \ by trader '1085222' rejected with status 'FXO_STALE_PREORDER'!']"
+                    requestId: "c396fda4d36c4f12"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          description: "Бизнес ошибки"
+          content:
+            application/json:
+              schema:
+                required:
+                - "error"
+                - "requestId"
+                type: "object"
+                properties:
+                  error:
+                    type: "object"
+                    description: "Объект с кодом ошибки"
+                    required:
+                    - "code"
+                    properties:
+                      code:
+                        type: "string"
+                        description: "Значение кода ошибки"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+              examples:
+                Превышение допустимого объема лимитов:
+                  summary: "Превышение допустимого объема лимитов"
+                  value:
+                    error:
+                      code: "app.trade.limits.exceeded"
+                    requestId: "c396fda4d36c4f12"
+                Превышено допустимое количество сделок в определенный период:
+                  summary: "Превышено допустимое количество сделок в определенный\
+                    \ период"
+                  value:
+                    error:
+                      code: "order.execution.cool-down.period.violated"
+                      message: "Trading was cooled down for client '000000' and currency\
+                        \ pair 'EUR/RUB' until 2024-11-25T13:14:20.777 UTC"
+                      data:
+                        clientId: 0
+                        currencies: "EUR/RUB"
+                        coolDownUntil: "2024-11-25T13:14:20.777"
+                    requestId: "c396fda4d36c4f12"
+        "424":
+          description: "Некорректный подписант"
+          content:
+            application/json:
+              schema:
+                required:
+                - "error"
+                - "requestId"
+                type: "object"
+                properties:
+                  error:
+                    type: "object"
+                    description: "Объект с кодом ошибки"
+                    required:
+                    - "code"
+                    properties:
+                      code:
+                        type: "string"
+                        description: "Значение кода ошибки"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+              examples:
+                Некорректный подписант:
+                  summary: "Некорректный подписант"
+                  value:
+                    error:
+                      code: "operator.signer.not.found"
+                      message: "Operator signer data not found for client '000000'\
+                        \ and user 'ade09b26-6cf5-482a-adbb-d5b1369b986d'"
+                    requestId: "c396fda4d36c4f12"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/trades/create:
+    post:
+      tags:
+      - "Spot"
+      summary: "Запрос на создание ордера для спотовой сделки"
+      operationId: "tradesCreate"
+      description: "Чтобы создать ордер, подпишите полученный дайджест с помощью с\
+        ертификата КриптоПро и отправьте его в запросе вместе с preorderId и получ\
+        ите в ответе: \n  - результат исполнения ордера\n  - идентификатор исполне\
+        нного ордера"
+      parameters:
+      - in: "header"
+        name: "CNUM"
+        description: "Уникальный идентификатор клиента (CNUM)"
+        required: true
+        schema:
+          type: "string"
+          example: "U12345"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Исполнить ордер на обмен валюты по подписанному дайджесту"
+        content:
+          application/json:
+            schema:
+              required:
+              - "preorderId"
+              - "signature"
+              type: "object"
+              properties:
+                preorderId:
+                  type: "string"
+                  description: "Идентификатор будущего ордера"
+                  example: 2101723
+                signature:
+                  type: "string"
+                  description: "Подпись полученного дайджеста сертификатом КриптоП\
+                    ро в формает BASE64"
+                  example: "MIIKUwYJKoZIhvcNAQcCoIIKRDCCCkACAQExDjAMBggqhQMHAQECAgUAMAsGCSqGSIb3=="
+        required: true
+      responses:
+        "200":
+          description: "Результат исполнения ордера на обмена валюты"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required:
+                - "result"
+                - "requestId"
+                properties:
+                  result:
+                    type: "object"
+                    description: "Объект с результатом исполнения запроса"
+                    required:
+                    - "orderId"
+                    - "buyAmount"
+                    - "buyCurrency"
+                    - "sellAmount"
+                    - "sellCurrency"
+                    - "clientSide"
+                    - "price"
+                    - "priceDecimalPlaces"
+                    - "currencyPair"
+                    - "tenor"
+                    - "tradeDate"
+                    - "valueDate"
+                    properties:
+                      orderId:
+                        type: "string"
+                        description: "Идентификатор ордера"
+                        example: 2101723
+                      buyAmount:
+                        type: "string"
+                        description: "Сумма покупки"
+                        example: 10000.03
+                      buyCurrency:
+                        type: "string"
+                        description: "Валюта покупки"
+                        example: "USD"
+                      sellAmount:
+                        type: "string"
+                        description: "Сумма продажи"
+                        example: 9000000.11
+                      sellCurrency:
+                        type: "string"
+                        description: "Валюта продажи"
+                        example: "RUB"
+                      clientSide:
+                        type: "string"
+                        description: "Сторона сделки"
+                        example: "BUY"
+                      price:
+                        type: "string"
+                        description: "Курс сделки"
+                        example: 78.1326
+                      priceDecimalPlaces:
+                        type: "integer"
+                        description: "Количество цифр в курсе после запятой"
+                        example: 4
+                      currencyPair:
+                        type: "string"
+                        description: "Валютная пара"
+                        example: "USD/RUB"
+                      tenor:
+                        type: "string"
+                        description: "Значение определяющее дату расчета по сделке\
+                          , возможные значения TOD - сегодня, TOM - завтра, SPOT -\
+                          \ после завтра"
+                        example: "TOD"
+                      tradeDate:
+                        type: "string"
+                        description: "Дата сделки"
+                        example: "2024-05-15"
+                      valueDate:
+                        type: "string"
+                        description: "Дата расчета"
+                        example: "2024-05-17"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса для трейсинга"
+                    example: "58286c2526a677a6"
+        "400":
+          description: "Плохой запрос"
+          content:
+            application/json:
+              schema:
+                required:
+                - "error"
+                - "requestId"
+                type: "object"
+                properties:
+                  error:
+                    type: "object"
+                    description: "Объект с кодом ошибки"
+                    required:
+                    - "code"
+                    properties:
+                      code:
+                        type: "string"
+                        description: "Значение кода ошибки"
+                        example: "app.invalid.request"
+                      message:
+                        type: "string"
+                        description: "Описание ошибки"
+                        example: "Bad Request"
+                      data:
+                        type: "array"
+                        description: "Дополнительные даннные об ошибке"
+                        items:
+                          type: "object"
+                          properties:
+                            field:
+                              type: "string"
+                              description: "Параметр"
+                            value:
+                              type: "string"
+                              description: "Значение пармаметра"
+                            status:
+                              type: "string"
+                              description: "Статус авторизации счетов"
+                            fromAccount:
+                              type: "object"
+                              description: "Объект с параметрами счета списания"
+                              properties:
+                                number:
+                                  type: "string"
+                                  description: "Счет списания"
+                                currency:
+                                  type: "string"
+                                  description: "Валюта счета списания"
+                            toAccount:
+                              type: "object"
+                              description: "Объект с параметрами счета зачисления"
+                              properties:
+                                number:
+                                  type: "string"
+                                  description: "Счет зачисления"
+                                currency:
+                                  type: "string"
+                                  description: "Валюта счета зачисления"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+                    example: "c396fda4d36c4f12"
+              examples:
+                Невалидный запрос:
+                  summary: "Невалидный запрос"
+                  value:
+                    error:
+                      code: "app.invalid.request"
+                      message: "Invalid request"
+                      data:
+                      - field: "tradeMode"
+                    requestId: "0165ffafab23aa69"
+                Невалидный идентификатор преордера:
+                  summary: "Невалидный идентификатор преордера"
+                  value:
+                    error:
+                      code: "order.execution.bad.preorderId"
+                      message: "Unable to find Preorder '0000010010733' for client\
+                        \ '301034'"
+                      data:
+                      - field: "client.id"
+                        value: "301034"
+                      - field: "preorderId"
+                        value: "0000010010733"
+                    requestId: "0165ffafab23aa69"
+                Истек срок жизни курса валюты:
+                  summary: "Истек срок жизни курса валюты"
+                  value:
+                    error:
+                      code: "order.execution.request.rejected.stale"
+                      message: "Order execution request '0000003413105' rejected with\
+                        \ code [FXO_STALE_PREORDER:'Preorder '0000003413105' created\
+                        \ by trader '1085222' rejected with status 'FXO_STALE_PREORDER'!']"
+                    requestId: "c396fda4d36c4f12"
+                Выключен режим заключения сделок под предпоставочный лимит:
+                  summary: "Выключен режим заключения сделок под предпоставочный л\
+                    имит"
+                  value:
+                    error:
+                      code: "app.dvp.disabled"
+                      message: "DVP disabled"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          description: "Бизнес ошибки"
+          content:
+            application/json:
+              schema:
+                required:
+                - "error"
+                - "requestId"
+                type: "object"
+                properties:
+                  error:
+                    type: "object"
+                    description: "Объект с кодом ошибки"
+                    required:
+                    - "code"
+                    properties:
+                      code:
+                        type: "string"
+                        description: "Значение кода ошибки"
+                      message:
+                        type: "string"
+                        description: "Описание кода ошибки"
+                      data:
+                        type: "object"
+                        description: "Дополнительная информация об ошибке"
+                        properties:
+                          tradingHours:
+                            type: "object"
+                            description: "Информация о часах торговли"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+              examples:
+                Выключена возможность заключать сделки:
+                  summary: "Выключена возможность заключать сделки"
+                  value:
+                    error:
+                      code: "order.execution.trading.disabled"
+                      message: "Trading disable for client '000000' and instrument\
+                        \ 'USD/RUB_SPOT'"
+                    requestId: "c396fda4d36c4f12"
+                Превышение допустимого объема лимитов:
+                  summary: "Превышение допустимого объема лимитов"
+                  value:
+                    error:
+                      code: "app.trade.limits.exceeded"
+                    requestId: "c396fda4d36c4f12"
+                Запрещено покупкать валюту:
+                  summary: "Запрещено покупкать валюту"
+                  value:
+                    error:
+                      code: "app.nonresident.buy.operation.disabled"
+                      message: "Base currency BUY operation disabled!"
+                    requestId: "c396fda4d36c4f12"
+                Превышен порог на объем сделки:
+                  summary: "Превышен порог на объем сделки"
+                  value:
+                    error:
+                      code: "order.execution.request.rejected.threshold.exceeded"
+                      data:
+                        threshold: 3000000
+                        cooldown: 0
+                        amount: 4089254.82
+                        currency: "USD"
+                    requestId: "c396fda4d36c4f12"
+                Клиент не найден:
+                  summary: "Клиент не найден"
+                  value:
+                    error:
+                      code: "order.execution.client.not.found"
+                    requestId: "c396fda4d36c4f12"
+                Наступил праздник по рублю:
+                  summary: "Наступил праздник по рублю"
+                  value:
+                    error:
+                      code: "order.execution.invalid.trading.time.holiday"
+                    requestId: "c396fda4d36c4f12"
+                Закончились часы торговли по выбранному инструменту:
+                  summary: "Закончились часы торговли по выбранному инструменту"
+                  value:
+                    error:
+                      code: "order.execution.invalid.trading.time.outside.trading.hours"
+                      message: "Try to execute order outside trading hours for client\
+                        \ '301034' and instrument 'USD/BYN_TOD'\""
+                      data:
+                        tradingHours:
+                          ranges:
+                          - from: "23:00"
+                            to: "11:00"
+                    requestId: "c396fda4d36c4f12"
+                Превышено допустимое количество сделок в определенный период:
+                  summary: "Превышено допустимое количество сделок в определенный\
+                    \ период"
+                  value:
+                    error:
+                      code: "order.execution.cool-down.period.violated"
+                      message: "Trading was cooled down for client '000000' and currency\
+                        \ pair 'EUR/RUB' until 2024-11-25T13:14:20.777 UTC"
+                      data:
+                        clientId: 0
+                        currencies: "EUR/RUB"
+                        coolDownUntil: "2024-11-25T13:14:20.777"
+                    requestId: "c396fda4d36c4f12"
+                Превышен порог максимального объема сделки в источнике ликвидности:
+                  summary: "Превышен порог максимального объема сделки в источнике\
+                    \ ликвидности"
+                  value:
+                    error:
+                      code: "order.execution.request.rejected.limit.exceeded"
+                      data:
+                        instrument: "CNH/RUB_TOM"
+                        side: "SELL"
+                        amount: 1.22870249E7
+                        limit:
+                          currency: "CNH"
+                          value: 12000000
+                          name: "12000000_CNH"
+                    requestId: "c396fda4d36c4f12"
+                Выбранный инструмент больше не поддерживается:
+                  summary: "Выбранный инструмент больше не поддерживается"
+                  value:
+                    error:
+                      code: "order.execution.request.rejected.unsupported.instrument"
+                      message: "Order execution request '0000000017663' rejected with\
+                        \ code [UNKNOWN_INSTRUMENT:'Ccy2 orders not supported RUB/USD_SPOT']"
+                    requestId: "c396fda4d36c4f12"
+                Выбранная дата расчетов стала невалидной:
+                  summary: "Выбранная дата расчетов стала невалидной"
+                  value:
+                    error:
+                      code: "order.execution.request.rejected.invalid.value.date"
+                      message: "Order execution request '0000003394676' rejected with\
+                        \ code [FXO_INVALID_VALUE_DATE:'Preorder '0000003394676' created\
+                        \ by trader '776534' rejected with status 'FXO_INVALID_VALUE_DATE'!']\""
+                    requestId: "c396fda4d36c4f12"
+                Запрос на исполнение ордера отклонен в связи с высокой волатильностью:
+                  summary: "Запрос на исполнение ордера отклонен в связи с высокой\
+                    \ волатильностью"
+                  value:
+                    error:
+                      code: "order.execution.request.rejected"
+                      message: "Order execution request '0000000020366' rejected with\
+                        \ code [REJECTED_BY_EXCHANGE_OR_BROKER:'null']"
+                    requestId: "c396fda4d36c4f12"
+                Некорректный сертификат КриптоПро:
+                  summary: "Некорректный сертификат КриптоПро"
+                  value:
+                    error:
+                      code: "order.execution.request.rejected.invalid.cryptopro.signature"
+                      message: "Invalid order signature"
+                      data:
+                        remainCount: 1
+                    requestId: "c396fda4d36c4f12"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/securities/{product}/calendar/valuedates:
+    post:
+      tags:
+      - "Forward"
+      summary: "Получение форвардных дат расчетов по тенору"
+      operationId: "getForwardValueDates"
+      description: "Получение дат расчетов для форвардов по массиву инструментов с\
+        \ базовой валютой, котируемой валютой и тенором"
+      parameters:
+      - in: "header"
+        name: "CNUM"
+        description: "Уникальный идентификатор клиента (CNUM)"
+        required: true
+        schema:
+          type: "string"
+          example: "U12345"
+      - in: "path"
+        name: "product"
+        description: "Продукт, для которого запрашиваются даты расчетов"
+        required: true
+        schema:
+          type: "string"
+          example: "rfq"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Запрос дат расчетов для форвардов"
+        content:
+          application/json:
+            schema:
+              type: "object"
+              required:
+              - "instruments"
+              properties:
+                instruments:
+                  type: "array"
+                  description: "Массив инструментов"
+                  items:
+                    type: "object"
+                    required:
+                    - "base"
+                    - "quoted"
+                    - "tenor"
+                    properties:
+                      base:
+                        type: "string"
+                        description: "Базовая валюта"
+                        example: "USD"
+                      quoted:
+                        type: "string"
+                        description: "Котируемая валюта"
+                        example: "RUB"
+                      tenor:
+                        type: "string"
+                        description: "Форвардный тенор"
+                        example: "W1"
+                        enum:
+                        - "W1"
+                        - "W2"
+                        - "W3"
+                        - "M1"
+                        - "M2"
+                        - "M3"
+                        - "M4"
+                        - "M5"
+                        - "M6"
+                        - "M7"
+                        - "M8"
+                        - "M9"
+                        - "M10"
+                        - "M11"
+                        - "Y1"
+            examples:
+              Пример запроса:
+                summary: "Пример запроса"
+                value:
+                  instruments:
+                  - base: "USD"
+                    quoted: "RUB"
+                    tenor: "W1"
+        required: true
+      responses:
+        "200":
+          description: "Даты расчетов для запрошенных форвардных теноров"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required:
+                - "result"
+                - "requestId"
+                properties:
+                  result:
+                    type: "object"
+                    description: "Объект с результатом исполнения запроса"
+                    required:
+                    - "instruments"
+                    - "errors"
+                    properties:
+                      instruments:
+                        type: "array"
+                        description: "Массив инструментов с рассчитанными датами р\
+                          асчетов"
+                        items:
+                          type: "object"
+                          required:
+                          - "base"
+                          - "quoted"
+                          - "tenor"
+                          - "valueDate"
+                          properties:
+                            base:
+                              type: "string"
+                              description: "Базовая валюта"
+                              example: "USD"
+                            quoted:
+                              type: "string"
+                              description: "Котируемая валюта"
+                              example: "RUB"
+                            tenor:
+                              type: "string"
+                              description: "Форвардный тенор"
+                              example: "W1"
+                            valueDate:
+                              type: "string"
+                              format: "date"
+                              description: "Дата расчетов"
+                              example: "2026-05-27"
+                      errors:
+                        type: "array"
+                        description: "Массив ошибок, если по какому-то инструменту\
+                          \ не удалось определить дату расчетов"
+                        items:
+                          type: "object"
+                          required:
+                          - "base"
+                          - "quoted"
+                          - "tenor"
+                          - "message"
+                          properties:
+                            base:
+                              type: "string"
+                              description: "Базовая валюта"
+                              example: "USD"
+                            quoted:
+                              type: "string"
+                              description: "Котируемая валюта"
+                              example: "RUB"
+                            tenor:
+                              type: "string"
+                              description: "Форвардный тенор"
+                              example: "W1"
+                            message:
+                              type: "string"
+                              description: "Сообщение об ошибке"
+                              example: "Value date undefined"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса для трейсинга"
+                    example: "6a0e086258fb68d75a32237a1e58f441"
+              examples:
+                Успешный ответ:
+                  summary: "Успешный ответ"
+                  value:
+                    result:
+                      instruments:
+                      - base: "RUB"
+                        quoted: "USD"
+                        tenor: "W1"
+                        valueDate: "2026-05-27"
+                      errors: []
+                    requestId: "6a0e086258fb68d75a32237a1e58f441"
+                Частично успешный ответ:
+                  summary: "Частично успешный ответ"
+                  value:
+                    result:
+                      instruments:
+                      - base: "RUB"
+                        quoted: "USD"
+                        tenor: "W1"
+                        valueDate: "2026-05-27"
+                      errors:
+                      - base: "RUB"
+                        quoted: "USD"
+                        tenor: "M1"
+                        message: "Value date undefined"
+                    requestId: "6a0e086258fb68d75a32237a1e58f441"
+        "400":
+          description: "Некорректный запрос"
+          content:
+            application/json:
+              schema:
+                required:
+                - "error"
+                - "requestId"
+                type: "object"
+                properties:
+                  error:
+                    type: "object"
+                    description: "Объект с кодом ошибки"
+                    required:
+                    - "code"
+                    properties:
+                      code:
+                        type: "string"
+                        description: "Значение кода ошибки"
+                        example: "app.invalid.request"
+                      message:
+                        type: "string"
+                        description: "Описание ошибки"
+                        example: "Bad Request"
+                      data:
+                        type: "object"
+                        description: "Дополнительная информация об ошибке"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+                    example: "6a0e086258fb68d75a32237a1e58f441"
+              examples:
+                Некорректный запрос:
+                  summary: "Некорректный запрос"
+                  value:
+                    error:
+                      code: "app.invalid.request"
+                      message: "Bad Request"
+                    requestId: "6a0e086258fb68d75a32237a1e58f441"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/securities/{product}/ndf/calendar/fixing-references:
+    post:
+      tags:
+      - "Forward"
+      summary: "Получение доступного способа определения курса спот"
+      operationId: "getNdfFixingReferences"
+      description: "Получение источника данных, по которому в дату оценки банк опр\
+        еделит курс фиксинга, с которым сравнивается курс форварда для расчета кур\
+        совой разницы"
+      parameters:
+      - in: "header"
+        name: "CNUM"
+        description: "Уникальный идентификатор клиента (CNUM)"
+        required: true
+        schema:
+          type: "string"
+          example: "U12345"
+      - in: "path"
+        name: "product"
+        description: "Продукт, для которого запрашиваются доступные способы опреде\
+          ления курса спот"
+        required: true
+        schema:
+          type: "string"
+          example: "rfq"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Запрос доступных способов определения курса спот"
+        content:
+          application/json:
+            schema:
+              type: "object"
+              required:
+              - "base"
+              - "quoted"
+              - "valueDate"
+              properties:
+                base:
+                  type: "string"
+                  description: "Базовая валюта"
+                  example: "USD"
+                quoted:
+                  type: "string"
+                  description: "Котируемая валюта"
+                  example: "RUB"
+                valueDate:
+                  type: "string"
+                  format: "date"
+                  description: "Дата расчетов"
+                  example: "2026-05-28"
+            examples:
+              Пример запроса:
+                summary: "Пример запроса"
+                value:
+                  base: "USD"
+                  quoted: "RUB"
+                  valueDate: "2026-05-28"
+        required: true
+      responses:
+        "200":
+          description: "Доступные способы определения курса спот"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required:
+                - "result"
+                - "requestId"
+                properties:
+                  result:
+                    type: "object"
+                    description: "Объект с результатом исполнения запроса"
+                    required:
+                    - "fixingReferences"
+                    properties:
+                      fixingReferences:
+                        type: "array"
+                        description: "Массив доступных источников данных для опред\
+                          еления курса фиксинга"
+                        items:
+                          type: "object"
+                          required:
+                          - "type"
+                          - "fixingDate"
+                          properties:
+                            type:
+                              type: "string"
+                              description: "Источник данных для определения курса\
+                                \ фиксинга"
+                              example: "RAIF_FIXING"
+                            fixingDate:
+                              type: "string"
+                              format: "date"
+                              description: "Дата оценки"
+                              example: "2026-05-27"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса для трейсинга"
+                    example: "6a0ee4780b5058561de931f2aad90b2d"
+              examples:
+                Успешный ответ:
+                  summary: "Успешный ответ"
+                  value:
+                    result:
+                      fixingReferences:
+                      - type: "RAIF_FIXING"
+                        fixingDate: "2026-05-27"
+                    requestId: "6a0ee4780b5058561de931f2aad90b2d"
+        "400":
+          description: "Некорректный запрос"
+          content:
+            application/json:
+              schema:
+                required:
+                - "error"
+                - "requestId"
+                type: "object"
+                properties:
+                  error:
+                    type: "object"
+                    description: "Объект с кодом ошибки"
+                    required:
+                    - "code"
+                    properties:
+                      code:
+                        type: "string"
+                        description: "Значение кода ошибки"
+                        example: "app.invalid.request"
+                      message:
+                        type: "string"
+                        description: "Описание ошибки"
+                        example: "Bad Request"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+                    example: "6a0ee4780b5058561de931f2aad90b2d"
+              examples:
+                Некорректный запрос:
+                  summary: "Некорректный запрос"
+                  value:
+                    error:
+                      code: "app.invalid.request"
+                      message: "Bad Request"
+                    requestId: "6a0ee4780b5058561de931f2aad90b2d"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/rfq/forward:
+    get:
+      tags:
+      - "Forward"
+      summary: "Получение обменного курса для поставочного/беспоставочного форвард\
+        а"
+      operationId: "getForwardRfq"
+      description: "Чтоб запросить обменный курс валют, введите обязательные парам\
+        етры и получите в ответе:\n  - идентификатор квоты\n  - курс на указанную\
+        \ сторону"
+      parameters:
+      - in: "header"
+        name: "CNUM"
+        description: "Уникальный идентификатор клиента (CNUM)"
+        required: true
+        schema:
+          type: "string"
+          example: "U12345"
+      - in: "query"
+        name: "baseCurrency"
+        description: "Базовая валюта"
+        required: true
+        schema:
+          type: "string"
+          example: "USD"
+      - in: "query"
+        name: "quotedCurrency"
+        description: "Котируемая валюта"
+        required: true
+        schema:
+          type: "string"
+          example: "RUB"
+      - in: "query"
+        name: "amount"
+        description: "Объем, на который запрашивается цена"
+        required: true
+        schema:
+          type: "string"
+          example: 5000
+      - in: "query"
+        name: "side"
+        description: "Сторона сделки"
+        required: true
+        schema:
+          type: "string"
+          enum:
+          - "BUY"
+          - "SELL"
+          example: "SELL"
+      - in: "query"
+        name: "endorsement"
+        description: "Способ подтверждения сделки"
+        required: true
+        schema:
+          type: "string"
+          example: "CRYPTO_PRO"
+      - in: "query"
+        name: "valueDate"
+        description: "Дата расчетов по форвардной сделке"
+        required: true
+        schema:
+          type: "string"
+          format: "date"
+          example: "2026-05-28"
+      - in: "query"
+        name: "settlMethod"
+        description: "Тип расчетов по сделке"
+        required: true
+        schema:
+          type: "string"
+          enum:
+          - "DELIVERABLE"
+          - "NON_DELIVERABLE"
+        examples:
+          Поставочный форвард:
+            summary: "Поставочный форвард"
+            value: "DELIVERABLE"
+          Беспоставочный форвард:
+            summary: "Беспоставочный форвард"
+            value: "NON_DELIVERABLE"
+      - in: "query"
+        name: "fixingType"
+        description: "Способ определения курса спот для беспоставочного форварда.\
+          \ Его можно определить по ответу соответствующего API"
+        required: false
+        schema:
+          type: "string"
+          enum:
+          - "RAIF_FIXING"
+          - "CBRF_FIXING"
+        examples:
+          Поставочный форвард:
+            summary: "Поставочный форвард"
+            value: "Не указывать"
+          Беспоставочный форвард:
+            summary: "Беспоставочный форвард"
+            value: "RAIF_FIXING"
+      - in: "query"
+        name: "initialMarginCurrency"
+        description: "Валюта первоначальной маржевой суммы. Указывается, если нуже\
+          н курс для форварда под обеспечение"
+        required: false
+        schema:
+          type: "string"
+          enum:
+          - "RUB"
+        examples:
+          Поставочный форвард:
+            summary: "Форвард не под обеспечение"
+            value: "Не указывать"
+          Беспоставочный форвард:
+            summary: "Форвард под обеспечение"
+            value: "RUB"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Обменный курс для поставочного/беспоставочного форварда"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required:
+                - "result"
+                - "requestId"
+                properties:
+                  result:
+                    type: "object"
+                    description: "Объект с результатом исполнения запроса"
+                    required:
+                    - "rfqId"
+                    - "buyAmount"
+                    - "buyCurrency"
+                    - "sellAmount"
+                    - "sellCurrency"
+                    - "clientSide"
+                    - "price"
+                    - "priceDecimalPlaces"
+                    - "initialMargin"
+                    - "currencyPair"
+                    - "tenor"
+                    - "valueDate"
+                    - "tradeDate"
+                    - "ttl"
+                    - "enableTrading"
+                    properties:
+                      rfqId:
+                        type: "string"
+                        description: "Идентификатор запроса цены"
+                        example: "dc037808550811f18473e3d33f213b47"
+                      buyAmount:
+                        type: "string"
+                        description: "Сумма покупки"
+                        example: "468560"
+                      buyCurrency:
+                        type: "string"
+                        description: "Валюта покупки"
+                        example: "RUB"
+                      sellAmount:
+                        type: "string"
+                        description: "Сумма продажи"
+                        example: "5000"
+                      sellCurrency:
+                        type: "string"
+                        description: "Валюта продажи"
+                        example: "USD"
+                      clientSide:
+                        type: "string"
+                        description: "Сторона сделки"
+                        example: "SELL"
+                      price:
+                        type: "string"
+                        description: "Курс сделки"
+                        example: "93.712"
+                      priceDecimalPlaces:
+                        type: "integer"
+                        description: "Количество знаков после запятой для курса"
+                        example: 3
+                      initialMargin:
+                        type: "object"
+                        description: "Первоначальная маржевая сумма по форвардной\
+                          \ сделке"
+                        required:
+                        - "amount"
+                        - "percent"
+                        - "currency"
+                        properties:
+                          amount:
+                            type: "string"
+                            description: "Сумма первоначальной маржевой суммы"
+                            example: "1000.00"
+                          percent:
+                            type: "string"
+                            description: "Процент первоначальной маржевой суммы"
+                            example: "10.00"
+                          currency:
+                            type: "string"
+                            description: "Валюта первоначальной маржевой суммы"
+                            example: "RUB"
+                      currencyPair:
+                        type: "string"
+                        description: "Валютная пара"
+                        example: "USD/RUB"
+                      tenor:
+                        type: "string"
+                        description: "Тенор сделки"
+                        example: "BRD"
+                      valueDate:
+                        type: "string"
+                        description: "Дата расчетов по сделке"
+                        example: "2026-05-28T00:00:00Z"
+                      tradeDate:
+                        type: "string"
+                        description: "Дата совершения операции"
+                        example: "2026-05-21"
+                      ttl:
+                        type: "integer"
+                        description: "Время жизни обменного курса в миллисекундах"
+                        example: 10000
+                      enableTrading:
+                        type: "boolean"
+                        description: "Признак доступности заключения сделки по пол\
+                          ученной котировке"
+                        example: true
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса для трейсинга"
+                    example: "6a0eed7ca78a443595f7be90b8acac88"
+              examples:
+                Успешный ответ:
+                  summary: "Успешный ответ"
+                  value:
+                    result:
+                      rfqId: "dc037808550811f18473e3d33f213b47"
+                      buyAmount: "468560"
+                      buyCurrency: "RUB"
+                      sellAmount: "5000"
+                      sellCurrency: "USD"
+                      clientSide: "SELL"
+                      price: "93.712"
+                      priceDecimalPlaces: 3
+                      initialMargin:
+                        amount: "1000.00"
+                        percent: "10.00"
+                        currency: "RUB"
+                      currencyPair: "USD/RUB"
+                      tenor: "BRD"
+                      valueDate: "2026-05-28T00:00:00Z"
+                      tradeDate: "2026-05-21"
+                      ttl: 10000
+                      enableTrading: true
+                    requestId: "6a0eed7ca78a443595f7be90b8acac88"
+        "400":
+          description: "Некорректный запрос"
+          content:
+            application/json:
+              schema:
+                required:
+                - "error"
+                - "requestId"
+                type: "object"
+                properties:
+                  error:
+                    type: "object"
+                    description: "Объект с кодом ошибки"
+                    required:
+                    - "code"
+                    properties:
+                      code:
+                        type: "string"
+                        description: "Значение кода ошибки"
+                      message:
+                        type: "string"
+                        description: "Описание ошибки"
+                      data:
+                        type: "array"
+                        description: "Дополнительные данные об ошибке"
+                        items:
+                          type: "object"
+                          properties:
+                            field:
+                              type: "string"
+                              description: "Параметр"
+                            value:
+                              type: "string"
+                              description: "Значение параметра"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+                    example: "6a0eed7ca78a443595f7be90b8acac88"
+              examples:
+                Некорректный запрос:
+                  summary: "Некорректный запрос"
+                  value:
+                    error:
+                      code: "app.invalid.request"
+                      message: "Bad Request"
+                    requestId: "6a0eed7ca78a443595f7be90b8acac88"
+                Недоступный инструмент:
+                  summary: "Недоступный инструмент"
+                  value:
+                    error:
+                      code: "unavailable.instrument"
+                    requestId: "6a0eed7ca78a443595f7be90b8acac88"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          description: "Бизнес ошибки"
+          content:
+            application/json:
+              schema:
+                required:
+                - "error"
+                - "requestId"
+                type: "object"
+                properties:
+                  error:
+                    type: "object"
+                    description: "Объект с кодом ошибки"
+                    required:
+                    - "code"
+                    properties:
+                      code:
+                        type: "string"
+                        description: "Значение кода ошибки"
+                      message:
+                        type: "string"
+                        description: "Описание ошибки"
+                      data:
+                        type: "object"
+                        description: "Дополнительная информация об ошибке"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+                    example: "6a0eed7ca78a443595f7be90b8acac88"
+              examples:
+                Запрос курсов выключен:
+                  summary: "Запрос курсов выключен"
+                  value:
+                    error:
+                      code: "rfq.disabled"
+                      message: null
+                    requestId: "6a0eed7ca78a443595f7be90b8acac88"
+                Запрос был произведен вне часов торговли:
+                  summary: "Запрос был произведен вне часов торговли"
+                  value:
+                    error:
+                      code: "rfq.market.data.invalid.trading.time.outside.trading.hours"
+                      message: null
+                    requestId: "6a0eed7ca78a443595f7be90b8acac88"
+                Запрос был произведен в праздник или нерабочий день:
+                  summary: "Запрос был произведен в праздник или нерабочий день"
+                  value:
+                    error:
+                      code: "rfq.market.data.invalid.trading.time.holiday"
+                      message: null
+                    requestId: "6a0eed7ca78a443595f7be90b8acac88"
+                Запрошенная сумма превышает допустимый порог:
+                  summary: "Запрошенная сумма превышает допустимый порог"
+                  value:
+                    error:
+                      code: "rfq.quote.exceeds.limits"
+                      message: null
+                    requestId: "6a0eed7ca78a443595f7be90b8acac88"
+                Нет ликвидности для предоставления цены:
+                  summary: "Нет ликвидности для предоставления цены"
+                  value:
+                    error:
+                      code: "rfq.market.data.not.available"
+                      message: null
+                    requestId: "6a0eed7ca78a443595f7be90b8acac88"
+                Инструмент выключен:
+                  summary: "Инструмент выключен"
+                  value:
+                    error:
+                      code: "rfq.market.data.disabled"
+                      message: null
+                    requestId: "6a0eed7ca78a443595f7be90b8acac88"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/trades/blotter:
+    post:
+      tags:
+      - "Deals history"
+      summary: "Запрос для получения истории спотовых и форвардных сделок"
+      operationId: "tradesBlotter"
+      description: "Чтобы запросить историю сделок заполните параметры фильтрации\
+        \ и сортировки и получите в ответе историю ранее заключенных сделок с их п\
+        араметрами"
+      parameters:
+      - in: "header"
+        name: "CNUM"
+        description: "Уникальный идентификатор клиента (CNUM)"
+        required: true
+        schema:
+          type: "string"
+          example: "U12345"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Запросить историю сделок"
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                offset:
+                  type: "integer"
+                  description: "Значение смещения строк со сделками из истории сде\
+                    лок"
+                limit:
+                  type: "integer"
+                  description: "Ограничение на количество строк со сделками из ист\
+                    ории сделок"
+                filter:
+                  type: "array"
+                  description: "Объект с параметрами фильтрации"
+                  items:
+                    type: "object"
+                    properties:
+                      property:
+                        type: "string"
+                        description: "Параметры фильтрации"
+                      clause:
+                        type: "array"
+                        description: "Массив со значениями параметров, по которым\
+                          \ необходимо производить фильтрацию"
+                        items:
+                          type: "string"
+                sort:
+                  type: "array"
+                  description: "Объект с параметрами фильтрации"
+                  items:
+                    type: "object"
+                    properties:
+                      direction:
+                        type: "string"
+                        description: "Направление сортировки, с возможными значени\
+                          ями \"ASC\" или \"DESC\""
+                      property:
+                        type: "string"
+                        description: "Параметр по которому необходимо сортировать"
+            examples:
+              Запрос с фильтраций и сортировкой:
+                summary: "Запрос с фильтраций и сортировкой"
+                value:
+                  offset: 0
+                  limit: 60
+                  sort:
+                  - property: "tradeDate"
+                    direction: "DESC"
+                  filter:
+                  - property: "currencyPair"
+                    clause:
+                    - "USD/RUB"
+                    - "AUD/RUB"
+                    - "USD/CNH"
+              Запрос с фильтрацией:
+                summary: "Запрос с фильтрацией"
+                value:
+                  offset: 0
+                  limit: 60
+                  filter:
+                  - property: "currencyPair"
+                    clause:
+                    - "USD/RUB"
+                    - "AUD/RUB"
+                    - "USD/CNH"
+              Запрос с сортировкой:
+                summary: "Запрос с сортировкой"
+                value:
+                  offset: 0
+                  limit: 60
+                  sort:
+                  - property: "tradeDate"
+                    direction: "DESC"
+        required: true
+      responses:
+        "200":
+          description: "История сделок"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required:
+                - "result"
+                - "requestId"
+                properties:
+                  result:
+                    type: "object"
+                    description: "Объект с результатом исполнения запроса"
+                    required:
+                    - "hasMore"
+                    - "list"
+                    properties:
+                      hasMore:
+                        type: "boolean"
+                        description: "Признак наличия записей удовлетворяющие пара\
+                          метры запросы"
+                      list:
+                        type: "array"
+                        description: "Массив истории сделок"
+                        items:
+                          type: "object"
+                          properties:
+                            id:
+                              type: "string"
+                              description: "Идентификатор записи в истории сделок"
+                              example: 1765
+                            orderId:
+                              type: "string"
+                              description: "Идентификатор сделки"
+                              example: "0000000004480"
+                            buyAccount:
+                              type: "object"
+                              description: "Объект с информацией о счете покупки"
+                              required:
+                              - "currency"
+                              - "externalAccount"
+                              - "number"
+                              - "trustManagementName"
+                              properties:
+                                currency:
+                                  type: "string"
+                                  description: "Валюта счета покупки"
+                                  example: "USD"
+                                externalAccount:
+                                  type: "boolean"
+                                  description: "Признак внешнего счета"
+                                  example: true
+                                number:
+                                  type: "string"
+                                  description: "Номер счета покупки"
+                                  example: "EXTERNAL_ACCOUNT_USD"
+                                trustManagementName:
+                                  type: "string"
+                                  description: "Наименование управляющей компании"
+                                  example: null
+                            buyAmount:
+                              type: "string"
+                              description: "Объем покупки"
+                              example: 84596.4
+                            sellAccount:
+                              type: "object"
+                              description: "Объект с информацией о счете продажи"
+                              required:
+                              - "currency"
+                              - "externalAccount"
+                              - "number"
+                              - "trustManagementName"
+                              properties:
+                                currency:
+                                  type: "string"
+                                  description: "Валюта счета продажи"
+                                  example: "RUB"
+                                externalAccount:
+                                  type: "boolean"
+                                  description: "Признак внешнего счета"
+                                  example: true
+                                number:
+                                  type: "string"
+                                  description: "Номер счета продажи"
+                                  example: "EXTERNAL_ACCOUNT_RUB"
+                                trustManagementName:
+                                  type: "string"
+                                  description: "Наименование управляющей компании"
+                                  example: null
+                            sellAmount:
+                              type: "string"
+                              description: "Объем продажи"
+                              example: 1000
+                            price:
+                              type: "string"
+                              description: "Курс сделки"
+                              example: 84.5964
+                            priceDecimalPlaces:
+                              type: "integer"
+                              description: "Количество цифр в курсе после запятой"
+                              example: 4
+                            currencyPair:
+                              type: "string"
+                              description: "Валютная пара"
+                              example: "USD/RUB"
+                            tenor:
+                              type: "string"
+                              description: "Значение определяющее дату расчета по\
+                                \ сделке, возможные значения TOD - сегодня, TOM -\
+                                \ завтра, SPOT - после завтра"
+                              example: "TOD"
+                            tradeMode:
+                              type: "string"
+                              description: "Режим кредитования сделки"
+                              example: "DVP"
+                            clientSide:
+                              type: "string"
+                              description: "Сторона сделки"
+                              example: "SELL"
+                            traders:
+                              type: "object"
+                              description: "Объект с информацией о подписантах сде\
+                                лки"
+                              required:
+                              - "id"
+                              - "name"
+                              properties:
+                                id:
+                                  type: "string"
+                                  description: "Идентификтор подписанта"
+                                  example: 1
+                                name:
+                                  type: "string"
+                                  description: "ФИО подписанта"
+                                  example: "Вячеславов Александр Михайлович"
+                            client:
+                              type: "object"
+                              description: "Объект с информацией о клиенте"
+                              required:
+                              - "id"
+                              - "name"
+                              - "clientType"
+                              properties:
+                                id:
+                                  type: "string"
+                                  description: "Идентификтор клиента"
+                                  example: 304086
+                                name:
+                                  type: "string"
+                                  description: "Наименование клиента"
+                                  example: "Рога и копыта"
+                                clientType:
+                                  type: "string"
+                                  description: "Тип клиента"
+                                  example: "REAL"
+                            valueDate:
+                              type: "string"
+                              description: "Дата расчетов по сделке"
+                              example: "2024-05-22T00:00:00Z"
+                            tradeDate:
+                              type: "string"
+                              description: "Дата заключения сделки"
+                              example: "2024-05-22T20:30:21Z"
+                            debitDate:
+                              type: "string"
+                              description: "Дата списания средств по сделке"
+                              example: "2024-05-22T00:00:00Z"
+                            product:
+                              type: "string"
+                              description: "Режим заключения сделки"
+                              example: "RFQ"
+                            useNetting:
+                              type: "boolean"
+                              description: "Признак использования неттинга"
+                              example: false
+                            externalConfirmation:
+                              type: "boolean"
+                              description: "Признак внешнего способа подтверждения\
+                                \ сделки"
+                              example: false
+                            settlMethod:
+                              type: "string"
+                              description: "Метод поставки по сделке"
+                              example: "DELIVERABLE"
+                            proposalId:
+                              type: "string"
+                              description: "Идентификатор заявки на конверсию в ре\
+                                жиме множесвтенной подписи"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+                    example: "e0e70833c68e3c32"
+              examples:
+                Успешный ответ:
+                  summary: "Успешный ответ"
+                  value:
+                    result:
+                      hasMore: true
+                      list:
+                      - id: 1765
+                        orderId: "0000000004480"
+                        buyAccount:
+                          number: "EXTERNAL_ACCOUNT_RUB"
+                          currency: "RUB"
+                          trustManagementName: null
+                          externalAccount: true
+                        buyAmount: "84596.4"
+                        sellAccount:
+                          number: "EXTERNAL_ACCOUNT_EUR"
+                          currency: "EUR"
+                          trustManagementName: null
+                          externalAccount: true
+                        sellAmount: 1000
+                        price: 84.5964
+                        priceDecimalPlaces: 4
+                        currencyPair: "EUR/RUB"
+                        tenor: "TOD"
+                        tradeMode: "DVP"
+                        useNetting: false
+                        clientSide: "SELL"
+                        traders:
+                        - id: "111111"
+                          name: "Вячеславов Александр Михайлович"
+                        client:
+                          id: 409387
+                          name: "ООО Рога и Копыта"
+                          clientType: "REAL"
+                        valueDate: "2024-05-22T00:00:00Z"
+                        tradeDate: "2024-05-22T20:30:21Z"
+                        debitDate: "2024-05-22T00:00:00Z"
+                        product: "RFQ"
+                        externalConfirmation: false
+                        settlMethod: "DELIVERABLE"
+                        proposalId: null
+                    requestId: "e0e70833c68e3c32"
+        "400":
+          description: "Плохой запрос"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required:
+                - "error"
+                - "requestId"
+                properties:
+                  error:
+                    type: "object"
+                    description: "Объект с кодом ошибки"
+                    required:
+                    - "code"
+                    properties:
+                      code:
+                        type: "string"
+                        description: "Значение кода ошибки"
+                      message:
+                        type: "string"
+                        description: "Описание кода ошибки"
+                      data:
+                        type: "array"
+                        description: "Дополнительная информация об ошибке"
+                        items:
+                          type: "object"
+                          properties:
+                            field:
+                              type: "string"
+                              description: "Параметр"
+                            value:
+                              type: "string"
+                              description: "Значение пармаметра"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+              examples:
+                Некорректная страница истории сделок:
+                  summary: "Некорректная страница истории сделок"
+                  value:
+                    error:
+                      code: "blotter.page.number.invalid"
+                      message: ""
+                      data:
+                      - field: "pageNumber"
+                        value: "0"
+                    requestId: "e0e70833c68e3c32"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/swaps/blotter:
+    post:
+      tags:
+      - "Deals history"
+      summary: "Запрос для получения истории своповых сделок"
+      operationId: "swapsBlotter"
+      description: "Чтобы запросить историю сделок заполните параметры фильтрации\
+        \ и сортировки и получите в ответе историю ранее заключенных сделок с их п\
+        араметрами"
+      parameters:
+      - in: "header"
+        name: "CNUM"
+        description: "Уникальный идентификатор клиента (CNUM)"
+        required: true
+        schema:
+          type: "string"
+          example: "U12345"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Запросить историю своповых сделок"
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                offset:
+                  type: "integer"
+                  description: "Значение смещения строк со сделками из истории сде\
+                    лок"
+                  example: 0
+                limit:
+                  type: "integer"
+                  description: "Ограничение на количество строк со сделками из ист\
+                    ории сделок"
+                  example: 10
+                sort:
+                  type: "array"
+                  description: "Объект с параметрами сортировки"
+                  items:
+                    type: "object"
+                    properties:
+                      property:
+                        type: "string"
+                        description: "Параметр, по которому необходимо сортировать"
+                        enum:
+                        - "nearLeg.sellAmount"
+                        - "nearLeg.buyAmount"
+                        - "farLeg.buyAmount"
+                        - "farLeg.sellAmount"
+                        - "tradeDate"
+                        - "signer.name"
+                        example: "tradeDate"
+                      direction:
+                        type: "string"
+                        description: "Направление сортировки, с возможными значени\
+                          ями ASC или DESC"
+                        enum:
+                        - "ASC"
+                        - "DESC"
+                        example: "DESC"
+                filter:
+                  type: "array"
+                  description: "Объект с параметрами фильтрации"
+                  items:
+                    type: "object"
+                    properties:
+                      property:
+                        type: "string"
+                        description: "Параметр фильтрации"
+                        enum:
+                        - "dealId"
+                        - "tradeDate"
+                        - "swapSide"
+                        - "nearLeg.valueDate"
+                        - "farLeg.valueDate"
+                        - "nearLeg.tenor"
+                        - "farLeg.tenor"
+                        - "nearLeg.buyAmount"
+                        - "farLeg.buyAmount"
+                        - "nearLeg.sellAmount"
+                        - "farLeg.sellAmount"
+                        - "nearLeg.buyAmount.currency"
+                        - "farLeg.buyAmount.currency"
+                        - "nearLeg.sellAmount.currency"
+                        - "farLeg.sellAmount.currency"
+                        - "nearLeg.price"
+                        - "farLeg.price"
+                        - "swapPoints"
+                        - "marketCurrencyPair"
+                        - "baseAccount.number"
+                        - "quotedAccount.number"
+                        - "signer.name"
+                      clause:
+                        type: "array"
+                        description: "Массив значений параметра, по которым необхо\
+                          димо производить фильтрацию"
+                        items:
+                          type: "string"
+            examples:
+              Запрос с сортировкой:
+                summary: "Запрос с сортировкой"
+                value:
+                  offset: 0
+                  limit: 10
+                  sort:
+                  - property: "tradeDate"
+                    direction: "DESC"
+                  filter: []
+        required: true
+      responses:
+        "200":
+          description: "История своповых сделок"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required:
+                - "result"
+                - "requestId"
+                properties:
+                  result:
+                    type: "object"
+                    description: "Объект с результатом исполнения запроса"
+                    required:
+                    - "result"
+                    - "hasMorePages"
+                    properties:
+                      result:
+                        type: "array"
+                        description: "Массив истории своповых сделок"
+                        items:
+                          type: "object"
+                          properties:
+                            id:
+                              type: "integer"
+                              description: "Идентификатор записи в истории сделок"
+                              example: 18
+                            dealId:
+                              type: "string"
+                              description: "Идентификатор сделки"
+                              example: 3097
+                            signer:
+                              type: "object"
+                              description: "Объект с информацией о подписанте сдел\
+                                ки"
+                              properties:
+                                id:
+                                  type: "string"
+                                  description: "Идентификатор подписанта"
+                                  example: "organization.user.authority.external.id"
+                                name:
+                                  type: "string"
+                                  description: "ФИО подписанта"
+                                  example: "Вячеславов Александр Михайлович"
+                            marketCurrencyPair:
+                              type: "string"
+                              description: "Валютная пара"
+                              example: "EUR/RUB"
+                            swapSide:
+                              type: "string"
+                              description: "Сторона своповой сделки"
+                              example: "SELL"
+                            baseAccount:
+                              type: "object"
+                              description: "Объект с информацией о счете в базовой\
+                                \ валюте"
+                              properties:
+                                number:
+                                  type: "string"
+                                  description: "Номер счета"
+                                  example: 40817840000000382769
+                                currency:
+                                  type: "string"
+                                  description: "Валюта счета"
+                                  example: "EUR"
+                                trustManagementName:
+                                  type: "string"
+                                  description: "Наименование управляющей компании"
+                                  example: null
+                                externalAccount:
+                                  type: "boolean"
+                                  description: "Признак внешнего счета"
+                                  example: true
+                            quotedAccount:
+                              type: "object"
+                              description: "Объект с информацией о счете в котируе\
+                                мой валюте"
+                              properties:
+                                number:
+                                  type: "string"
+                                  description: "Номер счета"
+                                  example: 40817840000000382769
+                                currency:
+                                  type: "string"
+                                  description: "Валюта счета"
+                                  example: "RUB"
+                                trustManagementName:
+                                  type: "string"
+                                  description: "Наименование управляющей компании"
+                                  example: null
+                                externalAccount:
+                                  type: "boolean"
+                                  description: "Признак внешнего счета"
+                                  example: true
+                            clientAmount:
+                              type: "object"
+                              description: "Объем, от которого задавалась сделка"
+                              properties:
+                                value:
+                                  type: "string"
+                                  description: "Значение объема"
+                                  example: "10000"
+                                currency:
+                                  type: "string"
+                                  description: "Валюта объема"
+                                  example: "EUR"
+                            swapPoints:
+                              type: "object"
+                              description: "Своп-разница"
+                              properties:
+                                value:
+                                  type: "string"
+                                  description: "Значение своп-разницы"
+                                  example: "-4.0275"
+                                decimalPlaces:
+                                  type: "integer"
+                                  description: "Количество знаков после запятой"
+                                  example: 4
+                            externalConfirmation:
+                              type: "boolean"
+                              description: "Признак внешнего способа подтверждения\
+                                \ сделки"
+                              example: true
+                            tradeDate:
+                              type: "string"
+                              format: "date"
+                              description: "Дата заключения сделки"
+                              example: "2026-04-29"
+                            client:
+                              type: "object"
+                              description: "Объект с информацией о клиенте"
+                              properties:
+                                id:
+                                  type: "string"
+                                  description: "Идентификатор клиента"
+                                  example: 409387
+                                name:
+                                  type: "string"
+                                  description: "Наименование клиента"
+                                  example: "ООО Рога и Копыта"
+                                clientType:
+                                  type: "string"
+                                  description: "Тип клиента"
+                                  example: "REAL"
+                            nearLeg:
+                              type: "object"
+                              description: "Ближняя нога своповой сделки"
+                              properties:
+                                valueDate:
+                                  type: "string"
+                                  format: "date"
+                                  description: "Дата расчетов"
+                                  example: "2026-04-30"
+                                tenor:
+                                  type: "string"
+                                  description: "Тенор"
+                                  example: "TOM"
+                                sellAmount:
+                                  type: "object"
+                                  description: "Сумма продажи"
+                                  properties:
+                                    value:
+                                      type: "string"
+                                      description: "Объем суммы продажи"
+                                      example: "1043152.00"
+                                    currency:
+                                      type: "string"
+                                      description: "Валюта суммы продажи"
+                                      example: "RUB"
+                                buyAmount:
+                                  type: "object"
+                                  description: "Сумма покупки"
+                                  properties:
+                                    value:
+                                      type: "string"
+                                      description: "Объем суммы покупки"
+                                      example: "10000"
+                                    currency:
+                                      type: "string"
+                                      description: "Валюта суммы покупки"
+                                      example: "EUR"
+                                price:
+                                  type: "object"
+                                  description: "Курс"
+                                  properties:
+                                    value:
+                                      type: "string"
+                                      description: "Значение курса"
+                                      example: "104.3152"
+                                    decimalPlaces:
+                                      type: "integer"
+                                      description: "Количество знаков после запято\
+                                        й"
+                                      example: 4
+                                tradeMode:
+                                  type: "string"
+                                  description: "Режим кредитования сделки"
+                                  example: "DVP"
+                                predelivery:
+                                  type: "boolean"
+                                  description: "Признак предпоставки"
+                                  example: true
+                                useNetting:
+                                  type: "boolean"
+                                  description: "Признак использования неттинга"
+                                  example: false
+                                debitDate:
+                                  type: "string"
+                                  format: "date"
+                                  description: "Дата расчетов первой ноги"
+                                  example: "2026-04-30"
+                            farLeg:
+                              type: "object"
+                              description: "Дальняя нога своповой сделки"
+                              properties:
+                                valueDate:
+                                  type: "string"
+                                  format: "date"
+                                  description: "Дата расчетов"
+                                  example: "2026-05-04"
+                                tenor:
+                                  type: "string"
+                                  description: "Тенор"
+                                  example: "SPOT"
+                                sellAmount:
+                                  type: "object"
+                                  description: "Сумма продажи"
+                                  properties:
+                                    value:
+                                      type: "string"
+                                      description: "Объем суммы продажи"
+                                      example: "10000"
+                                    currency:
+                                      type: "string"
+                                      description: "Валюта суммы продажи"
+                                      example: "EUR"
+                                buyAmount:
+                                  type: "object"
+                                  description: "Сумма покупки"
+                                  properties:
+                                    value:
+                                      type: "string"
+                                      description: "Объем суммы покупки"
+                                      example: "1002877.00"
+                                    currency:
+                                      type: "string"
+                                      description: "Валюта суммы покупки"
+                                      example: "RUB"
+                                price:
+                                  type: "object"
+                                  description: "Курс"
+                                  properties:
+                                    value:
+                                      type: "string"
+                                      description: "Значение курса"
+                                      example: "100.2877"
+                                    decimalPlaces:
+                                      type: "integer"
+                                      description: "Количество знаков после запято\
+                                        й"
+                                      example: 4
+                                tradeMode:
+                                  type: "string"
+                                  description: "Режим кредитования сделки"
+                                  example: "DVP"
+                                predelivery:
+                                  type: "boolean"
+                                  description: "Признак предпоставки"
+                                  example: true
+                                useNetting:
+                                  type: "boolean"
+                                  description: "Признак использования неттинга"
+                                  example: false
+                                debitDate:
+                                  type: "string"
+                                  format: "date"
+                                  description: "Дата расчетов по второй ноге"
+                                  example: "2026-05-04"
+                      hasMorePages:
+                        type: "boolean"
+                        description: "Признак наличия следующих страниц истории сд\
+                          елок"
+                        example: true
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+                    example: "6a1000513f41198d3a9f3f274812156f"
+              examples:
+                Успешный ответ:
+                  summary: "Успешный ответ"
+                  value:
+                    result:
+                      result:
+                      - id: 18
+                        dealId: 3097
+                        signer:
+                          id: "organization.user.authority.external.id"
+                          name: "Вячеславов Александр Михайлович"
+                        marketCurrencyPair: "EUR/RUB"
+                        swapSide: "SELL"
+                        baseAccount:
+                          number: "EXTERNAL_ACCOUNT_EUR"
+                          currency: "EUR"
+                          trustManagementName: null
+                          externalAccount: true
+                        quotedAccount:
+                          number: "EXTERNAL_ACCOUNT_RUB"
+                          currency: "RUB"
+                          trustManagementName: null
+                          externalAccount: true
+                        clientAmount:
+                          value: "10000"
+                          currency: "EUR"
+                        swapPoints:
+                          value: "-4.0275"
+                          decimalPlaces: 4
+                        externalConfirmation: true
+                        tradeDate: "2026-04-29"
+                        client:
+                          id: 409387
+                          name: "ООО Рога и Копыта"
+                          clientType: "REAL"
+                        nearLeg:
+                          valueDate: "2026-04-30"
+                          tenor: "TOM"
+                          sellAmount:
+                            value: "1043152.00"
+                            currency: "RUB"
+                          buyAmount:
+                            value: "10000"
+                            currency: "EUR"
+                          price:
+                            value: "104.3152"
+                            decimalPlaces: 4
+                          tradeMode: "DVP"
+                          predelivery: true
+                          useNetting: false
+                          debitDate: "2026-04-30"
+                        farLeg:
+                          valueDate: "2026-05-04"
+                          tenor: "SPOT"
+                          sellAmount:
+                            value: "10000"
+                            currency: "EUR"
+                          buyAmount:
+                            value: "1002877.00"
+                            currency: "RUB"
+                          price:
+                            value: "100.2877"
+                            decimalPlaces: 4
+                          tradeMode: "DVP"
+                          predelivery: true
+                          useNetting: false
+                          debitDate: "2026-05-04"
+                      hasMorePages: true
+                    requestId: "6a1000513f41198d3a9f3f274812156f"
+        "400":
+          description: "Некорректный запрос"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required:
+                - "error"
+                - "requestId"
+                properties:
+                  error:
+                    type: "object"
+                    description: "Объект с кодом ошибки и описанием"
+                    required:
+                    - "code"
+                    properties:
+                      code:
+                        type: "string"
+                        description: "Значение кода ошибки"
+                      message:
+                        type: "string"
+                        description: "Описание кода ошибки"
+                      data:
+                        type: "array"
+                        description: "Дополнительная информация об ошибке"
+                        items:
+                          type: "object"
+                          properties:
+                            field:
+                              type: "string"
+                              description: "Параметр, вызвавший ошибку"
+                            value:
+                              type: "string"
+                              description: "Значение параметра"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/deliverable/conversion/blotter:
+    post:
+      tags:
+      - "Deals history"
+      summary: "Запрос для получения истории подтверждений сделок"
+      operationId: "deliverableConversionBlotter"
+      description: "Чтобы запросить историю подтверждений сделок заполните парамет\
+        ры фильтрации и сортировки и получите в ответе историю ранее созданных под\
+        тверждений сделок с их параметрами"
+      parameters:
+      - in: "header"
+        name: "CNUM"
+        description: "Уникальный идентификатор клиента (CNUM)"
+        required: true
+        schema:
+          type: "string"
+          example: "U12345"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Запросить историю подтверждений сделок"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeliverableConversionBlotterRequest"
+            examples:
+              Запрос с фильтрацией и сортировкой:
+                summary: "Запрос с фильтрацией по статусу \"Исполнен\" и Дате созд\
+                  ания"
+                value:
+                  offset: 0
+                  limit: 10
+                  sort:
+                  - property: "creationDate"
+                    direction: "DESC"
+                  filter:
+                  - property: "status"
+                    clause:
+                    - "DONE"
+                  - property: "creationDate"
+                    clause:
+                      from:
+                        value: 1769979600000
+                        inclusive: true
+                      to:
+                        value: 1770238799999
+                        inclusive: true
+      responses:
+        "200":
+          description: "История подтверждений сделок"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeliverableConversionBlotterResponse"
+        "400":
+          description: "Некорректный запрос"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required:
+                - "error"
+                - "requestId"
+                properties:
+                  error:
+                    type: "object"
+                    description: "Объект с кодом ошибки и описанием"
+                    required:
+                    - "code"
+                    properties:
+                      code:
+                        type: "string"
+                        description: "Значение кода ошибки"
+                      message:
+                        type: "string"
+                        description: "Описание кода ошибки"
+                      data:
+                        type: "array"
+                        description: "Дополнительная информация об ошибке"
+                        items:
+                          type: "object"
+                          properties:
+                            field:
+                              type: "string"
+                              description: "Параметр, вызвавший ошибку"
+                            value:
+                              type: "string"
+                              description: "Значение параметра"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/options/quote:
+    post:
+      tags:
+      - "Option"
+      summary: "Запрос опционной премии по CNUM"
+      operationId: "getOptionQuote"
+      description: "Чтобы запросить опционную премию, необходимо передать обязател\
+        ьные параметры и получить в ответе:\n  - идентификатор премии (quoteId)\n\
+        \  - размер премии\n  - срок жизни премии"
+      parameters:
+      - in: "header"
+        name: "CNUM"
+        description: "Уникальный идентификатор клиента (CNUM)"
+        required: true
+        schema:
+          type: "string"
+          example: "CADH0L"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Запрос опционной премии по CNUM"
+        content:
+          application/json:
+            schema:
+              required:
+              - "sellCurrency"
+              - "buyCurrency"
+              - "amount"
+              - "side"
+              - "optionSide"
+              - "strike"
+              - "valueDate"
+              - "endorsementType"
+              - "premiumCurrency"
+              - "settlMethod"
+              type: "object"
+              properties:
+                sellCurrency:
+                  type: "string"
+                  description: "Валюта суммы на списание со стороны клиента"
+                  example: "USD"
+                buyCurrency:
+                  type: "string"
+                  description: "Валюта суммы на зачисление со стороны клиента"
+                  example: "RUB"
+                amount:
+                  type: "string"
+                  description: "Объем, от которого был задан опцион"
+                  example: 5000
+                side:
+                  type: "string"
+                  description: "Сторона сделки относительно amount. Например, SELL,\
+                    \ если объем был задан через поле суммы на списание"
+                  example: "SELL"
+                  enum:
+                  - "BUY"
+                  - "SELL"
+                optionSide:
+                  type: "string"
+                  description: "Сторона опциона"
+                  example: "BUY"
+                  enum:
+                  - "BUY"
+                  - "SELL"
+                strike:
+                  type: "string"
+                  description: "Цена исполнения (страйк)"
+                  example: 90
+                valueDate:
+                  type: "string"
+                  format: "date"
+                  description: "Дата платежа"
+                  example: "2025-11-19"
+                dateOfPremium:
+                  type: "string"
+                  description: "Дата премии. Заполнять для optionSide \"SELL\". Дл\
+                    я optionSide \"BUY\" передавать null"
+                  example: "TRADE_DATE"
+                  enum:
+                  - "TRADE_DATE"
+                  - "VALUE_DATE"
+                endorsementType:
+                  type: "string"
+                  description: "Тип подписи сделки"
+                  example: "OTP"
+                  enum:
+                  - "CRYPTO_PRO"
+                  - "OTP"
+                premiumCurrency:
+                  type: "string"
+                  description: "Валюта премии"
+                  example: "RUB"
+                settlMethod:
+                  type: "string"
+                  description: "Способ расчётов"
+                  example: "NON_DELIVERABLE"
+                  enum:
+                  - "DELIVERABLE"
+                  - "NON_DELIVERABLE"
+                settlCurrency:
+                  type: "string"
+                  description: "Валюта счёта расчёта курсовой разницы. Указывать т\
+                    олько для settlMethod \"NON_DELIVERABLE\" в одной из валют sellCurrency/buyCurrency"
+                  example: "RUB"
+                fixingReferenceType:
+                  type: "string"
+                  description: "Источник фиксинга. Для DELIVERABLE опциона не пере\
+                    давать"
+                  example: "CBRF_FIXING"
+                  enum:
+                  - "CBRF_FIXING"
+                  - "RAIF_FIXING"
+            examples:
+              Пример CALL опциона:
+                summary: "Пример беспоставочного опциона"
+                value:
+                  sellCurrency: "USD"
+                  buyCurrency: "RUB"
+                  amount: 5000
+                  side: "SELL"
+                  optionSide: "BUY"
+                  strike: 90
+                  valueDate: "2025-11-19"
+                  dateOfPremium: null
+                  endorsementType: "OTP"
+                  premiumCurrency: "RUB"
+                  settlMethod: "NON_DELIVERABLE"
+                  settlCurrency: "RUB"
+                  fixingReferenceType: "CBRF_FIXING"
+              Пример PUT опциона:
+                summary: "Пример поставочного опциона"
+                value:
+                  sellCurrency: "EUR"
+                  buyCurrency: "USD"
+                  amount: 20000.5
+                  side: "BUY"
+                  optionSide: "SELL"
+                  strike: 100.5474
+                  valueDate: "2025-12-15"
+                  dateOfPremium: "TRADE_DATE"
+                  endorsementType: "CRYPTO_PRO"
+                  premiumCurrency: "EUR"
+                  settlMethod: "DELIVERABLE"
+        required: true
+      responses:
+        "200":
+          description: "Опционная премия по запрошенным параметрам"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required:
+                - "result"
+                - "requestId"
+                properties:
+                  result:
+                    type: "object"
+                    description: "Результат запроса опционной премии"
+                    required:
+                    - "quoteId"
+                    - "currencyPair"
+                    - "optionType"
+                    - "sellAmount"
+                    - "sellCurrency"
+                    - "buyAmount"
+                    - "buyCurrency"
+                    - "premiumAmount"
+                    - "premiumPercent"
+                    - "premiumCurrency"
+                    - "strike"
+                    - "strikeDecimalPlaces"
+                    - "expiryDate"
+                    - "valueDate"
+                    - "tradeDate"
+                    - "ttl"
+                    - "tradeable"
+                    properties:
+                      quoteId:
+                        type: "string"
+                        description: "Идентификатор квоты"
+                        example: "4394e69f995f11f0a9bef9063f1c899a"
+                      currencyPair:
+                        type: "string"
+                        description: "Валютная пара опциона"
+                        example: "EUR/RUB"
+                      optionType:
+                        type: "string"
+                        description: "Тип опциона"
+                        example: "CALL"
+                        enum:
+                        - "CALL"
+                        - "PUT"
+                      sellAmount:
+                        type: "string"
+                        description: "Сумма на списание со стороны клиента"
+                        example: 600.0
+                      sellCurrency:
+                        type: "string"
+                        description: "Валюта суммы на списание со стороны клиента"
+                        example: "RUB"
+                      buyAmount:
+                        type: "string"
+                        description: "Сумма на зачисление со стороны клиента"
+                        example: 6.0
+                      buyCurrency:
+                        type: "string"
+                        description: "Валюта суммы на зачисление со стороны клиент\
+                          а"
+                        example: "EUR"
+                      premiumAmount:
+                        type: "string"
+                        description: "Сумма премии"
+                        example: 24.37
+                      premiumPercent:
+                        type: "string"
+                        description: "Премия в процентах"
+                        example: 4.06
+                      premiumCurrency:
+                        type: "string"
+                        description: "Валюта премии"
+                        example: "RUB"
+                      strike:
+                        type: "string"
+                        description: "Цена исполнения"
+                        example: 100.0
+                      strikeDecimalPlaces:
+                        type: "integer"
+                        description: "Количество знаков после запятой цены исполне\
+                          ния"
+                        example: 4
+                      expiryDate:
+                        type: "string"
+                        format: "date"
+                        description: "Дата истечения срока опциона"
+                        example: "2025-09-29"
+                      valueDate:
+                        type: "string"
+                        format: "date"
+                        description: "Дата платежа опциона"
+                        example: "2025-09-30"
+                      tradeDate:
+                        type: "string"
+                        format: "date-time"
+                        description: "Дата запроса премии"
+                        example: "2025-09-24T15:58:08.326844099Z"
+                      ttl:
+                        type: "integer"
+                        description: "Срок жизни премии в мс"
+                        example: 10000
+                      tradeable:
+                        type: "boolean"
+                        description: "Признак, что торговля разрешена"
+                        example: true
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса для трейсинга"
+        "400":
+          description: "Некорректный запрос"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required:
+                - "error"
+                - "requestId"
+                properties:
+                  error:
+                    type: "object"
+                    description: "Объект с кодом ошибки"
+                    required:
+                    - "code"
+                    properties:
+                      code:
+                        type: "string"
+                        description: "Значение кода ошибки"
+                        example: "app.invalid.request"
+                      message:
+                        type: "string"
+                        description: "Описание кода ошибки"
+                        example: "Bad Request"
+                      data:
+                        type: "array"
+                        description: "Дополнительная информация об ошибке"
+                        items:
+                          type: "object"
+                          properties:
+                            field:
+                              type: "string"
+                              description: "Параметр"
+                            value:
+                              type: "string"
+                              description: "Значение параметра"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+                    example: "c396fda4d36c4f12"
+              examples:
+                Некорректный запрос:
+                  summary: "Некорректный запрос"
+                  value:
+                    error:
+                      code: "app.invalid.request"
+                      message: "Bad Request"
+                    requestId: "c396fda4d36c4f12"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          description: "Бизнес-ошибки"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required:
+                - "error"
+                - "requestId"
+                properties:
+                  error:
+                    type: "object"
+                    description: "Объект с кодом ошибки"
+                    required:
+                    - "code"
+                    properties:
+                      code:
+                        type: "string"
+                        description: "Значение кода ошибки"
+                      message:
+                        type: "string"
+                        description: "Описание кода ошибки"
+                  requestId:
+                    type: "string"
+                    description: "Идентификатор запроса"
+              examples:
+                Опционы выключены для клиента:
+                  summary: "Запрос опционной премии выключен"
+                  value:
+                    error:
+                      code: "options.disabled"
+                    requestId: "c396fda4d36c4f12"
+                Запрос вне часов торговли:
+                  summary: "Запрос был произведен вне часов торговли"
+                  value:
+                    error:
+                      code: "options.invalid.trading.time.outside.trading.hours"
+                    requestId: "c396fda4d36c4f12"
+                Запрос в нерабочий день:
+                  summary: "Запрос был произведен в праздники"
+                  value:
+                    error:
+                      code: "options.invalid.trading.time.holiday"
+                    requestId: "c396fda4d36c4f12"
+                Запрошенная сумма превышает допустимый порог лимита:
+                  summary: "Запрошенная сумма превышает допустимый порог объема"
+                  value:
+                    error:
+                      code: "options.requested.amount.too.high"
+                    requestId: "c396fda4d36c4f12"
+                Запрошенная сумма после округления равна 0:
+                  summary: "Запрошенная сумма меньше допустимого объема"
+                  value:
+                    error:
+                      code: "options.requested.amount.too.low"
+                    requestId: "c396fda4d36c4f12"
+                Запрошенная сумма после пересчёта из котируемой в базовую и округления равна 0:
+                  summary: "Запрошенная сумма меньше допустимого объема"
+                  value:
+                    error:
+                      code: "options.opposite.amount.too.low"
+                    requestId: "c396fda4d36c4f12"
+                Неподдерживаемая валютная пара:
+                  summary: "Неподдерживаемая валютная пара"
+                  value:
+                    error:
+                      code: "options.unsupported.currency.pair"
+                    requestId: "c396fda4d36c4f12"
+                Некорректная дата платежа:
+                  summary: "Некорректная дата платежа"
+                  value:
+                    error:
+                      code: "options.value.date.invalid"
+                    requestId: "c396fda4d36c4f12"
+                Получилась нулевая премия:
+                  summary: "Получилась нулевая премия по условиям опциона"
+                  value:
+                    error:
+                      code: "options.premium.zero"
+                    requestId: "c396fda4d36c4f12"
+                Страйк слишком высокий:
+                  summary: "Страйк выше ожидаемого значения"
+                  value:
+                    error:
+                      code: "options.strike.too.high"
+                    requestId: "c396fda4d36c4f12"
+                Страйк слишком низкий:
+                  summary: "Страйк ниже ожидаемого значения"
+                  value:
+                    error:
+                      code: "options.strike.too.low"
+                    requestId: "c396fda4d36c4f12"
+                Неизвестная ошибка прайсера:
+                  summary: "Неизвестная ошибка"
+                  value:
+                    error:
+                      code: "options.option.pricer.unknown.error"
+                    requestId: "c396fda4d36c4f12"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+  schemas:
+    DeliverableConversionBlotterRequest:
+      type: "object"
+      required:
+      - "offset"
+      - "limit"
+      properties:
+        offset:
+          type: "integer"
+          description: "Значение смещения строк из истории"
+        limit:
+          type: "integer"
+          description: "Ограничение на количество строк из истории, не более 1000\
+            \ записей в одном запросе"
+        filter:
+          type: "array"
+          description: "Объект с параметрами фильтрации.\nДоступные фильтры (property):\n\
+            - id — номер заявки\n- creationDate — дата создания (from/to)\n- processingDate\
+            \ — дата обработки (from/to)\n- sendDate — дата отправления (from/to)\n\
+            - creator.signer.name — автор\n- tradeDate — дата заключения сделки (from/to)\n\
+            - clientBuyAccount.currency — валюта зачисления\n- clientSellAccount.currency\
+            \ — валюта списания\n- clientBuyAmount — сумма зачисления\n- clientSellAmount\
+            \ — сумма списания\n- price — обменный курс\n- participant.signer.name\
+            \ — подписант\n- comment — заметка\n- status — статус"
+          items:
+            $ref: "#/components/schemas/BlotterFilterItem"
+        sort:
+          type: "array"
+          description: "Объект с параметрами сортировки"
+          items:
+            $ref: "#/components/schemas/BlotterSortItem"
+    BlotterSortItem:
+      type: "object"
+      properties:
+        property:
+          type: "string"
+          description: "Объект с параметрами сортировки.\nДоступные паарметры (property):\n\
+            - creationDate\n- sendDate\n- processingDate\n- creator.signer.name"
+        direction:
+          type: "string"
+          description: "Направление сортировки, с возможными значениями \"ASC\" ил\
+            и \"DESC\""
+          enum:
+          - "ASC"
+          - "DESC"
+    BlotterFilterItem:
+      type: "object"
+      required:
+      - "property"
+      - "clause"
+      properties:
+        property:
+          type: "string"
+          description: "Параметр фильтрации"
+          enum:
+          - "id"
+          - "creationDate"
+          - "processingDate"
+          - "sendDate"
+          - "creator.signer.name"
+          - "tradeDate"
+          - "clientBuyAccount.currency"
+          - "clientSellAccount.currency"
+          - "clientBuyAmount"
+          - "clientSellAmount"
+          - "price"
+          - "participant.signer.name"
+          - "comment"
+          - "status"
+        clause:
+          type: "array"
+          description: "Значение фильтра"
+    DeliverableConversionBlotterResponse:
+      type: "object"
+      required:
+      - "result"
+      - "requestId"
+      properties:
+        result:
+          type: "object"
+          description: "Объект с результатом исполнения запроса"
+          required:
+          - "hasMore"
+          - "list"
+          properties:
+            hasMore:
+              type: "boolean"
+              description: "Признак наличия других записей в истории, удовлетворяю\
+                щих параметрам запроса"
+            list:
+              type: "array"
+              description: "Массив истории подтверждений сделок"
+              items:
+                $ref: "#/components/schemas/DeliverableConversionBlotterItem"
+        requestId:
+          type: "string"
+          description: "Идентификатор запроса"
+    DeliverableConversionBlotterItem:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          description: "Идентификатор записи"
+        clientBuyAccount:
+          type: "object"
+          description: "Объект с информацией о счете покупки"
+          required:
+          - "number"
+          - "currency"
+          - "accountType"
+          - "trustManagementName"
+          properties:
+            number:
+              type: "string"
+              description: "Номер счета покупки"
+              example: 12334
+            currency:
+              type: "object"
+              description: "Валюта счета покупки"
+              required:
+              - "isoCode"
+              - "numericCode"
+              properties:
+                isoCode:
+                  type: "string"
+                  example: "RUB"
+                numericCode:
+                  type: "string"
+                  example: 643
+            accountType:
+              type: "string"
+              description: "Тип счета (INTERNAL/EXTERNAL)"
+              example: "EXTERNAL"
+            trustManagementName:
+              type: "string"
+              description: "Наименование управляющей компании"
+              example: null
+        clientSellAccount:
+          type: "object"
+          description: "Объект с информацией о счете продажи"
+          required:
+          - "number"
+          - "currency"
+          - "accountType"
+          - "trustManagementName"
+          properties:
+            number:
+              type: "string"
+              description: "Номер счета продажи"
+              example: 40817840000000382729
+            currency:
+              type: "object"
+              description: "Валюта счета продажи"
+              required:
+              - "isoCode"
+              - "numericCode"
+              properties:
+                isoCode:
+                  type: "string"
+                  example: "USD"
+                numericCode:
+                  type: "string"
+                  example: 840
+            accountType:
+              type: "string"
+              description: "Тип счета (INTERNAL/EXTERNAL)"
+              example: "INTERNAL"
+            trustManagementName:
+              type: "string"
+              description: "Наименование управляющей компании"
+              example: null
+        clientSellAmount:
+          type: "string"
+          description: "Сумма продажи"
+        clientBuyAmount:
+          type: "string"
+          description: "Сумма покупки"
+        creationDate:
+          type: "string"
+          description: "Дата создания подтверждения (ISO 8601)"
+          example: "2025-07-22T13:23:13.507701Z"
+        tradeDate:
+          type: "string"
+          description: "Дата заключения сделки (ISO 8601)"
+          example: "2025-07-22T13:23:13.507701Z"
+        valueDate:
+          type: "string"
+          description: "Дата расчетов по сделке (ISO 8601)"
+          example: "2025-07-22T13:23:13.507701Z"
+        sendDate:
+          type: "string"
+          description: "Дата подписания подтверждения (ISO 8601)"
+          example: "2025-07-22T13:23:13.507701Z"
+        processingDate:
+          type: "string"
+          description: "Дата исполнения подтверждения (ISO 8601)"
+          example: "2025-07-22T13:27:04.747733Z"
+        price:
+          type: "string"
+          description: "Обменный курс"
+        creator:
+          type: "object"
+          description: "Информация о создателе сделки"
+          required:
+          - "id"
+          - "name"
+          properties:
+            id:
+              type: "string"
+              description: "Идентификатор создателя"
+              example: "organization.user.authority.external.id"
+            name:
+              type: "string"
+              description: "ФИО создателя"
+              example: "Вячеславов Александр Михайлович"
+        traders:
+          type: "array"
+          description: "Список подписантов сделки"
+          items:
+            type: "object"
+            properties:
+              id:
+                type: "string"
+                description: "Идентификатор подписанта"
+                example: "organization.user.authority.external.id"
+              name:
+                type: "string"
+                description: "ФИО подписанта"
+                example: "Вячеславов Александр Михайлович"
+        status:
+          type: "string"
+          description: "Статус подтверждения"
+        resultComment:
+          type: "string"
+          nullable: true
+          description: "Комментарий при отклонении подтверждения"
+        comment:
+          type: "string"
+          nullable: true
+          description: "Комментарий к подтверждению"
+        conversionAgreementNumber:
+          type: "string"
+          description: "Номер подтверждения"
+        confirmDeal:
+          type: "boolean"
+          nullable: true
+          description: "Признак, что подтверждение формируется на основании соглаш\
+            ения об условиях совершения конверсионной сделки"
+        client:
+          type: "object"
+          description: "Объект с информацией о клиенте"
+          required:
+          - "id"
+          - "name"
+          - "shortName"
+          - "clientType"
+          properties:
+            id:
+              type: "string"
+              description: "Идентификатор клиента"
+              example: 409387
+            name:
+              type: "string"
+              description: "Наименование клиента"
+              example: "Авилекс ООО"
+            shortName:
+              type: "string"
+              description: "Короткое наименование клиента"
+              example: "Авилекс"
+            clientType:
+              type: "string"
+              description: "Тип клиента"
+              example: "REAL"
+servers:
+- url: "https://api.raiffeisen.ru/fx"

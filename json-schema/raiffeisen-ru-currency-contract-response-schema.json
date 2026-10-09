@@ -1,0 +1,647 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-currency-contract-response-schema.json",
+  "title": "CurrencyContractResponse",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-currency-control-documents-openapi.yml#/components/schemas/CurrencyContractResponse",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "#/$defs/CurrencyContractRequest"
+    },
+    {
+      "$ref": "#/$defs/DocumentResponseBase"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "passportNumber": {
+          "type": "string",
+          "description": "Уникальный номер контракта, присвоенный банком"
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "Attachment": {
+      "type": "object",
+      "description": "Вложение к документу; поля переносятся из ответа загрузки.\n\n- в digest входят `fileId`, `fileName` и `contentHash`; алгоритм SHA-256 фиксирован правилами;\n- банк сверяет имя и хэш с сохранённым файлом; несовпадение — `400 VALIDATION_ERROR`;\n- переданные значения не заменяются серверными перед проверкой подписи.\n",
+      "required": [
+        "fileId",
+        "fileName",
+        "contentHash"
+      ],
+      "properties": {
+        "fileId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID загруженного файла"
+        },
+        "fileName": {
+          "type": "string",
+          "description": "Имя из ответа загрузки"
+        },
+        "contentHash": {
+          "$ref": "#/$defs/FileContentHash"
+        }
+      }
+    },
+    "CnFeaItem": {
+      "type": "object",
+      "description": "Сведения о товаре с кодом Товарной номенклатуры внешнеэкономической деятельности (ТН ВЭД).",
+      "required": [
+        "code"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 10,
+          "pattern": "^[0-9]{8,10}(?![\\s\\S])",
+          "description": "Код ТН ВЭД"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 400,
+          "description": "Наименование товара"
+        },
+        "scope": {
+          "type": "string",
+          "maxLength": 240,
+          "description": "Сфера применения товара"
+        }
+      }
+    },
+    "ContactPerson": {
+      "type": "object",
+      "required": [
+        "name",
+        "phone"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "ФИО контактного лица"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Телефон контактного лица"
+        }
+      }
+    },
+    "ContractType": {
+      "type": "string",
+      "enum": [
+        "IMPORT",
+        "EXPORT",
+        "MIX_TRADE"
+      ],
+      "description": "Тип контракта"
+    },
+    "Counterparty": {
+      "type": "object",
+      "required": [
+        "name",
+        "countryCode",
+        "countryName"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Наименование нерезидента"
+        },
+        "countryCode": {
+          "type": "string",
+          "description": "Код страны (ОКСМ, 3 цифры)"
+        },
+        "countryName": {
+          "type": "string",
+          "description": "Наименование страны"
+        },
+        "affiliatedPerson": {
+          "type": "boolean",
+          "description": "Признак аффилированного лица. true = аффилированное лицо (в форме \"*\")"
+        }
+      }
+    },
+    "CurrencyContract": {
+      "type": "object",
+      "required": [
+        "type",
+        "date",
+        "currencyCode",
+        "currencyName"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ContractType"
+        },
+        "number": {
+          "type": "string",
+          "description": "Номер контракта"
+        },
+        "withoutNumber": {
+          "type": "boolean",
+          "description": "Признак «Без номера»"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата контракта"
+        },
+        "amount": {
+          "type": "string",
+          "description": "Сумма контракта в валюте контракта"
+        },
+        "withoutAmount": {
+          "type": "boolean",
+          "description": "Признак «Без суммы»"
+        },
+        "currencyCode": {
+          "type": "string",
+          "description": "Код валюты контракта (ОКВ, 3 символа)"
+        },
+        "currencyName": {
+          "type": "string",
+          "description": "Наименование валюты контракта"
+        },
+        "finishDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата завершения исполнения обязательств"
+        },
+        "previousPassportNumber": {
+          "type": "string",
+          "maxLength": 22,
+          "description": "Ранее присвоенный уникальный номер контракта при переводе из другого банка"
+        }
+      }
+    },
+    "CurrencyContractRequest": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/DocumentRequestBase"
+        },
+        {
+          "type": "object",
+          "required": [
+            "contract",
+            "counterparties",
+            "registrationReason"
+          ],
+          "properties": {
+            "resident": {
+              "$ref": "#/$defs/ResidentForRegistration"
+            },
+            "contract": {
+              "$ref": "#/$defs/CurrencyContract"
+            },
+            "dealSubject": {
+              "$ref": "#/$defs/DealSubject"
+            },
+            "counterparties": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/Counterparty"
+              }
+            },
+            "registrationReason": {
+              "$ref": "#/$defs/RegistrationReason"
+            },
+            "rightsTransfer": {
+              "$ref": "#/$defs/RightsTransfer"
+            }
+          }
+        }
+      ]
+    },
+    "DealSubject": {
+      "type": "object",
+      "description": "Предмет сделки: товары, получатели и сведения о поставке для комплаенс-проверки.\n",
+      "properties": {
+        "cnFea": {
+          "type": "array",
+          "description": "Товары с кодами ТН ВЭД (Commodity Nomenclature of Foreign Economic Activity). Допускается пустой массив.",
+          "items": {
+            "$ref": "#/$defs/CnFeaItem"
+          }
+        },
+        "recipients": {
+          "type": "array",
+          "description": "Получатели товаров. Допускается пустой массив.",
+          "items": {
+            "$ref": "#/$defs/GoodsRecipient"
+          }
+        },
+        "finalDeliveryAddress": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Адрес или место конечной поставки товаров"
+        },
+        "goodsRoute": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Маршрут следования товаров"
+        }
+      }
+    },
+    "DigestVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Версия правил формирования дайджеста для типа документа из этого запроса.\n\n- правила данной версии фиксируют канонизацию, состав допустимых полей, исключения, порядок массивов и алгоритм хэша вложений;\n- версии разных типов документов продвигаются независимо: изменение состава полей одного типа не повышает версию остальных;\n- если не передана, backend выбирает актуальную версию на начало обработки нового документа и сохраняет её вместе с подписью;\n- клиент вычисляет подпись до отправки запроса и должен использовать актуальную публикованную версию правил, даже если поле не передано;\n- выбранная или переданная версия включается в подписываемый текст; правила и формат дайджеста описаны в документации «Подпись документов — формирование дайджеста»;\n- неизвестная или не принимаемая версия — `400 UNSUPPORTED_DIGEST_VERSION`.\n"
+    },
+    "DocumentIdentifier": {
+      "type": "object",
+      "required": [
+        "externalId",
+        "date"
+      ],
+      "properties": {
+        "externalId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Уникальный идентификатор во внешней системе"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата составления документа"
+        },
+        "number": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 9999999,
+          "description": "Номер документа"
+        }
+      }
+    },
+    "DocumentRequestBase": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/DocumentIdentifier"
+        },
+        {
+          "$ref": "#/$defs/WithAttachments"
+        },
+        {
+          "$ref": "#/$defs/WithSignatures"
+        },
+        {
+          "type": "object",
+          "required": [
+            "resident",
+            "contactPerson"
+          ],
+          "properties": {
+            "resident": {
+              "$ref": "#/$defs/Resident"
+            },
+            "contactPerson": {
+              "$ref": "#/$defs/ContactPerson"
+            },
+            "clientComment": {
+              "type": "string",
+              "maxLength": 2000,
+              "description": "Произвольный комментарий клиента для сотрудника банка, обрабатывающего документ."
+            }
+          }
+        }
+      ]
+    },
+    "DocumentResponseBase": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "signatures": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SignatureResponse"
+          },
+          "description": "Применённые подписи с сохранённой версией digest, включая выбранную backend"
+        },
+        "status": {
+          "$ref": "#/$defs/DocumentStatus"
+        },
+        "statusComment": {
+          "type": "string",
+          "description": "Комментарий к статусу"
+        },
+        "submittedDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата отправки в Банк"
+        },
+        "acceptanceDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата принятия/возврата Банком"
+        },
+        "officerName": {
+          "type": "string",
+          "description": "Исполнитель в Банке"
+        },
+        "bankMessage": {
+          "type": "string",
+          "description": "Сообщение Банка с причиной отказа, запросом дополнительной информации или замечаниями к документу"
+        }
+      }
+    },
+    "DocumentStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "NEEDS_ANSWER",
+        "ACCEPTED",
+        "MODIFIED",
+        "REJECTED"
+      ],
+      "description": "Статус документа валютного контроля.\n\n`ACCEPTED`, `MODIFIED` и `REJECTED` являются финальными статусами.\n`MODIFIED` означает, что документ принят Банком с замечаниями и учтён с корректировками или условиями Банка.\n`NEEDS_ANSWER` означает, что Банк запросил у клиента дополнительную информацию; содержание запроса передаётся в `bankMessage` полного ответа документа.\n"
+    },
+    "FileContentHash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 исходных байтов файла без multipart-обрамления и преобразований, в шестнадцатеричном виде, нижний регистр.\n\nАлгоритм фиксирован: SHA-256, отдельное поле не передаётся.\n"
+    },
+    "GoodsRecipient": {
+      "type": "object",
+      "description": "Получатель товаров.",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 400,
+          "description": "Наименование получателя"
+        }
+      }
+    },
+    "RegistrationReason": {
+      "type": "string",
+      "enum": [
+        "NO_CONDITIONS",
+        "PRELIMINARY_AGREEMENT",
+        "EXPORT_CONTRACT_LATER"
+      ],
+      "description": "Основание постановки на учет контракта"
+    },
+    "Resident": {
+      "type": "object",
+      "required": [
+        "name",
+        "inn"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Наименование резидента"
+        },
+        "inn": {
+          "type": "string",
+          "pattern": "^[0-9]{10,12}$",
+          "description": "ИНН резидента (10 цифр для организаций, 12 для ИП)"
+        },
+        "address": {
+          "$ref": "#/$defs/ResidentAddress"
+        },
+        "kpp": {
+          "type": "string",
+          "pattern": "^[0-9]{9}$",
+          "description": "КПП резидента"
+        },
+        "ogrn": {
+          "type": "string",
+          "pattern": "^[0-9]{13}$",
+          "description": "ОГРН"
+        },
+        "ogrnDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата внесения в госреестр"
+        }
+      }
+    },
+    "ResidentAddress": {
+      "type": "object",
+      "properties": {
+        "region": {
+          "type": "string",
+          "description": "Субъект Российской Федерации"
+        },
+        "area": {
+          "type": "string",
+          "description": "Район в регионе"
+        },
+        "city": {
+          "type": "string",
+          "description": "Город"
+        },
+        "settlement": {
+          "type": "string",
+          "description": "Населенный пункт"
+        },
+        "street": {
+          "type": "string",
+          "description": "Улица (проспект, переулок и т.д.)"
+        },
+        "house": {
+          "type": "string",
+          "description": "Номер дома (владение)"
+        },
+        "block": {
+          "type": "string",
+          "description": "Корпус (строение)"
+        },
+        "office": {
+          "type": "string",
+          "description": "Офис (квартира)"
+        }
+      }
+    },
+    "ResidentForRegistration": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/Resident"
+        },
+        {
+          "type": "object",
+          "required": [
+            "address",
+            "kpp"
+          ]
+        }
+      ]
+    },
+    "RightsTransfer": {
+      "type": "object",
+      "required": [
+        "type",
+        "name",
+        "documentNumber",
+        "documentDate"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/RightsTransferType"
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование (ФИО для физического лица)"
+        },
+        "address": {
+          "$ref": "#/$defs/RightsTransferAddress"
+        },
+        "ogrn": {
+          "type": "string",
+          "pattern": "^[0-9]{13}$",
+          "description": "ОГРН (для юридического лица)"
+        },
+        "ogrnDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата внесения ОГРН в госреестр"
+        },
+        "inn": {
+          "type": "string",
+          "pattern": "^[0-9]{10,12}$",
+          "description": "ИНН"
+        },
+        "kpp": {
+          "type": "string",
+          "pattern": "^[0-9]{9}$",
+          "description": "КПП (для юридического лица)"
+        },
+        "documentNumber": {
+          "type": "string",
+          "description": "Номер документа о переходе прав"
+        },
+        "documentDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата документа о переходе прав"
+        },
+        "countryCode": {
+          "type": "string",
+          "description": "Код страны (для нерезидента, ОКСМ)"
+        }
+      }
+    },
+    "RightsTransferAddress": {
+      "type": "object",
+      "properties": {
+        "region": {
+          "type": "string",
+          "description": "Субъект Российской Федерации"
+        },
+        "area": {
+          "type": "string",
+          "description": "Район в регионе"
+        },
+        "city": {
+          "type": "string",
+          "description": "Город"
+        },
+        "settlement": {
+          "type": "string",
+          "description": "Населенный пункт"
+        },
+        "street": {
+          "type": "string",
+          "description": "Улица (проспект, переулок и т.д.)"
+        },
+        "house": {
+          "type": "string",
+          "description": "Номер дома (владение)"
+        },
+        "block": {
+          "type": "string",
+          "description": "Корпус (строение)"
+        },
+        "office": {
+          "type": "string",
+          "description": "Офис (квартира)"
+        }
+      }
+    },
+    "RightsTransferType": {
+      "type": "string",
+      "enum": [
+        "RESIDENT_LEGAL_OR_ENTREPRENEUR",
+        "INDIVIDUAL",
+        "NON_RESIDENT"
+      ],
+      "description": "Тип лица в переходе прав"
+    },
+    "Signature": {
+      "type": "object",
+      "description": "Электронная подпись документа; версия в запросе необязательна",
+      "required": [
+        "certificateId",
+        "signature"
+      ],
+      "properties": {
+        "digestVersion": {
+          "$ref": "#/$defs/DigestVersion"
+        },
+        "certificateId": {
+          "type": "string",
+          "description": "ID сертификата ЭП"
+        },
+        "signature": {
+          "type": "string",
+          "contentEncoding": "base64",
+          "description": "Значение подписи (Base64)"
+        }
+      }
+    },
+    "SignatureResponse": {
+      "description": "Принятая подпись; фактически использованная версия всегда возвращается явно",
+      "allOf": [
+        {
+          "$ref": "#/$defs/Signature"
+        },
+        {
+          "type": "object",
+          "required": [
+            "digestVersion"
+          ]
+        }
+      ]
+    },
+    "WithAttachments": {
+      "type": "object",
+      "properties": {
+        "attachments": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/Attachment"
+          },
+          "description": "Вложения: `fileId`, `fileName` и `contentHash` из успешного ответа `POST /currency-control/files`.\n\n**Проверки сервера:**\n- принадлежность файлов клиенту, срок доступности и ограничения документа;\n- недоступное вложение — `400 VALIDATION_ERROR` по `attachments[N].fileId`;\n- для справки о подтверждающих документах размер каждого вложения не должен превышать 10485760 байт.\n\n**Жизненный цикл:**\n- при успешном сохранении документа (включая `DRAFT`) связь и отмена удаления невостребованного файла фиксируются атомарно; из метаданных исчезает поле `expiresAt`;\n- использованный файл не возвращается в режим невостребованного после удаления ссылки;\n- хранение и доступ сохраняются до окончания срока хранения всех связанных документов.\n\n> **Внимание:** при гонке с очисткой либо сохраняется документ с защищённым файлом, либо запрос отклоняется.\n> Ошибка или откат не отменяют срок.\n"
+        }
+      }
+    },
+    "WithSignatures": {
+      "type": "object",
+      "properties": {
+        "signatures": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Signature"
+          },
+          "description": "Электронные подписи"
+        }
+      }
+    }
+  }
+}

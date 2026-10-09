@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-report-task-type-schema.json",
+  "title": "ReportTaskType",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-brokerage-reports-openapi.yml#/components/schemas/ReportTaskType",
+  "required": [
+    "type",
+    "desc"
+  ],
+  "type": "object",
+  "properties": {
+    "type": {
+      "$ref": "#/$defs/ReportType"
+    },
+    "desc": {
+      "type": "string",
+      "description": "Описание типа отчёта"
+    },
+    "isUseAccountParameter": {
+      "type": "boolean",
+      "description": "Если true, поле account обязательно при создании задачи; если false, его можно не передавать"
+    },
+    "allowedFileTypes": {
+      "type": "array",
+      "description": "Допустимые типы файлов; значения type передаются в fileTypes при создании задачи",
+      "items": {
+        "$ref": "#/$defs/ReportFileType"
+      }
+    },
+    "defaultFileTypes": {
+      "type": "array",
+      "description": "Типы файлов, формируемые по умолчанию, если fileTypes не задан или передан пустым списком",
+      "items": {
+        "$ref": "#/$defs/ReportFileType"
+      }
+    }
+  },
+  "$defs": {
+    "ReportFileType": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ReportFileTypeCode"
+        },
+        "nameRus": {
+          "type": "string",
+          "description": "Название типа файла на русском языке"
+        },
+        "nameEng": {
+          "type": "string",
+          "description": "Название типа файла на английском языке"
+        }
+      }
+    },
+    "ReportFileTypeCode": {
+      "type": "string",
+      "description": "Код типа файла отчёта",
+      "enum": [
+        "SIMPLE_DOCUMENTARY",
+        "PRINTED_FORM",
+        "QES",
+        "FACSIMILE"
+      ]
+    },
+    "ReportType": {
+      "type": "string",
+      "description": "Тип отчёта",
+      "enum": [
+        "STATEMENT_FOR_1C",
+        "BROKERAGE_REPORT"
+      ]
+    }
+  }
+}

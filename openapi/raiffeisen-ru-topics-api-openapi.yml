@@ -1,0 +1,137 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Topics API
+  version: 1.0.0
+  description: 'Operations tagged Topics across 2 of this provider''s published API definitions: raiffeisen-ru-letters-openapi.yml, raiffeisen-ru-letters-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/letters
+tags:
+- name: Topics
+  description: Темы переписок
+paths:
+  /v1/topics:
+    get:
+      summary: Получение тем переписок
+      description: Метод получения тем переписок
+      tags:
+      - Topics
+      operationId: getTopics
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalTopicsResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/letters
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  schemas:
+    ExternalTopicsResponse:
+      type: array
+      description: Список доступных тематик переписок
+      example:
+      - id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+        theme: Заявки
+        product: Торговое финансирование
+        clarification: Другие вопросы
+      items:
+        $ref: '#/components/schemas/ExternalTopic'
+    ExternalTopic:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор темы
+          example: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+        theme:
+          type: string
+          description: Тема
+          example: Заявки
+        product:
+          type: string
+          description: Продукт
+          example: Торговое финансирование
+        clarification:
+          type: string
+          description: Уточнение
+          example: Другие вопросы
+      required:
+      - id
+      - theme
+      - product
+      - clarification
+    ErrorResponse:
+      type: object
+      description: Ошибка обработки запроса
+      example:
+        message: Validation failed
+        error:
+          code: BAD_REQUEST
+          message: Validation failed
+      properties:
+        message:
+          type: string
+          description: Текст ошибки в устаревшем формате, сохранённый для обратной совместимости
+          example: Validation failed
+        error:
+          type: object
+          description: Структурированная информация об ошибке
+          example:
+            code: VALIDATION_ERROR
+            message: Validation failed
+          properties:
+            code:
+              type: string
+              description: Машиночитаемый код ошибки
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              description: Описание ошибки
+              example: Validation failed
+          required:
+          - code
+          - message
+      required:
+      - error
+x-refined-from:
+- raiffeisen-ru-letters-openapi.yml
+- raiffeisen-ru-letters-openapi.yml

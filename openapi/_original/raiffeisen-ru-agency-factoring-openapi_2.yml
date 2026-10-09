@@ -1,0 +1,3885 @@
+# x-archived-from: raiffeisen-ru-agency-factoring-openapi.yml
+# x-archived-on: 2026-10-09
+---
+openapi: "3.0.3"
+info:
+  description: "API Агентского факторинга"
+  title: "Финансирование. Агентский факторинг"
+  version: "1.0.0"
+tags:
+- description: "Агентский договора"
+  name: "Agreement"
+- description: "Кредитор"
+  name: "Creditor"
+- description: "Рабочий день"
+  name: "Day"
+- description: "Счета на оплату комиссий"
+  name: "FeeInvoice"
+- description: "Лимит"
+  name: "Limit"
+- description: "Поручение"
+  name: "Order"
+- description: "Пакет поручений"
+  name: "Packet"
+- description: "Парсер файлов реестров"
+  name: "Parser"
+- description: "Заявление на досрочное погашение основного долга"
+  name: "Proposition"
+paths:
+  /v1/agreements:
+    get:
+      description: "Метод получение соглашений пользователя по параметрам"
+      operationId: "getAgreements"
+      parameters:
+      - description: "Клиентский номер (CNUM)"
+        in: "query"
+        name: "cnums"
+        required: false
+        schema:
+          example: "AAABBB"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Одобренный"
+                  value:
+                  - cqrsVersion: -1628796591
+                    compensationPeriod: 100
+                    taxCompensationPeriod: true
+                    nonAcceptanceWithdrawalFee: true
+                    endWorkingDayFeeInvoice: 10
+                    maxCompensationPeriod: 200
+                    bkiAcceptanceDate: "2025-01-01"
+                    isTaxAvailable: true
+                    principal:
+                      ogrn: "1027739326449"
+                      shortNameRus: "АО Ромашка"
+                      cqrsVersion: -1628796591
+                      inn: "7744000302"
+                      kpp: "770401001"
+                      id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      state:
+                        statusDate: "2021-07-10T06:53:37.433111Z"
+                        errors: []
+                        status: "APPROVED"
+                      fullNameEng: "Joint Stock Chamomile"
+                      cnum: "AA10AA"
+                      fullNameRus: "Акционерное общество Ромашка"
+                    isBkiAccepted: true
+                    number: "АФ-1"
+                    autoprolongation: true
+                    startWorkingDayFeeInvoice: 5
+                    nonAcceptanceWithdrawal: true
+                    id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                    state:
+                      statusDate: "2021-07-10T06:53:37.433111Z"
+                      errors: []
+                      status: "APPROVED"
+                    startDate: "2025-01-01"
+                    expirationDate: "2025-01-01"
+              schema:
+                $ref: "#/components/schemas/AgreementListResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: "REST_ERR_5001"
+                    message: "General service error"
+                    traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение соглашений пользователя"
+      tags:
+      - "Agreement"
+  /v1/limits:
+    get:
+      description: "Метод получения лимита"
+      operationId: "getLimits"
+      parameters:
+      - description: "Клиентский номер (CNUM)"
+        in: "query"
+        name: "cnums"
+        required: false
+        schema:
+          example: "AAABBB"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Одобренный"
+                  value:
+                  - principal:
+                      ogrn: "1027739326449"
+                      shortNameRus: "АО Ромашка"
+                      cqrsVersion: -1628796591
+                      inn: "7744000302"
+                      kpp: "770401001"
+                      id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      state:
+                        statusDate: "2021-07-10T06:53:37.433111Z"
+                        errors: []
+                        status: "APPROVED"
+                      fullNameEng: "Joint Stock Chamomile"
+                      cnum: "AA10AA"
+                      fullNameRus: "Акционерное общество Ромашка"
+                    rest: 90.0
+                    amount: 100.01
+                    cqrsVersion: -1628796591
+                    id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                    used: 10.01
+                    state:
+                      statusDate: "2021-07-10T06:53:37.433111Z"
+                      errors: []
+                      status: "APPROVED"
+                    currencyCode: "RUB"
+              schema:
+                $ref: "#/components/schemas/LimitListResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: "REST_ERR_5001"
+                    message: "General service error"
+                    traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получения лимита"
+      tags:
+      - "Limit"
+  /v1/creditors/organization-requisites:
+    get:
+      description: "Метод поиска организации по ИНН для создания кредитора"
+      operationId: "findOrganizations"
+      parameters:
+      - description: "ИНН организации"
+        in: "query"
+        name: "inn"
+        required: true
+        schema:
+          example: "7777225556"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                one:
+                  summary: "Одна организация"
+                  value:
+                  - ogrn: "123456789012345"
+                    inn: "1234567890"
+                    kpp: "123456789"
+                    fullNameRus: "АО Ромашка"
+              schema:
+                $ref: "#/components/schemas/CreditorRequisitesListResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              example:
+              - code: "REST_ERR_5001"
+                message: "General service error"
+                traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Поиск организации по ИНН"
+      tags:
+      - "Creditor"
+  /v1/creditors:
+    get:
+      description: "Метод получение списка кредиторов по фильтрам"
+      operationId: "getCreditors"
+      parameters:
+      - description: "Номер договора"
+        in: "query"
+        name: "agreementNumber"
+        required: true
+        schema:
+          example: "АФ-1"
+          type: "string"
+      - description: "Наименование или ИНН кредитора"
+        in: "query"
+        name: "search"
+        required: false
+        schema:
+          example: "7777225556"
+          type: "string"
+      - description: "Статус кредитора"
+        examples:
+          oneStatus:
+            summary: "Пример с одним статусом"
+            value:
+            - "APPROVED"
+          multipleStatuses:
+            summary: "Пример с несколькими статусами"
+            value:
+            - "APPROVED"
+            - "REJECTED"
+        in: "query"
+        name: "statuses"
+        required: false
+        schema:
+          example:
+          - "APPROVED"
+          items:
+            $ref: "#/components/schemas/CreditorStatus"
+          type: "array"
+      - description: "Количество элементов для сдвига"
+        in: "query"
+        name: "offset"
+        required: true
+        schema:
+          example: 0
+          type: "integer"
+      - description: "Ограничение элементов"
+        in: "query"
+        name: "limit"
+        required: true
+        schema:
+          example: 10
+          type: "integer"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Несколько кредиторов"
+                  value:
+                    creditors:
+                    - fullNameRus: "АО Ромашка"
+                      ogrn: "123456789012345"
+                      cqrsVersion: -1628796591
+                      inn: "1234567890"
+                      kpp: "123456789"
+                      id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      state:
+                        statusDate: "2021-07-10T06:53:37.433111Z"
+                        errors:
+                        - traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+                          code: "ERR_0001"
+                          message: "Creditor not valid"
+                        status: "REJECTED"
+                    - fullNameRus: "АО Лютик"
+                      ogrn: "123456789012349"
+                      cqrsVersion: -1628796592
+                      inn: "1234567891"
+                      kpp: "123456789"
+                      id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d517"
+                      state:
+                        statusDate: "2021-07-10T06:53:37.433111Z"
+                        errors: []
+                        status: "APPROVED"
+                    limit: 1
+                    offset: 2
+                    totalCount: 10
+              schema:
+                $ref: "#/components/schemas/CreditorPageResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: "REST_ERR_5001"
+                    message: "General service error"
+                    traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение списка кредиторов по фильтрам"
+      tags:
+      - "Creditor"
+    post:
+      description: "Для осуществления финансирования по агентскому договору потреб\
+        уется заведение кредиторов в системе"
+      operationId: "createCreditor"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              full:
+                summary: "Запрос на создание кредитора"
+                value:
+                  fullNameRus: "АО Ромашка"
+                  inn: "1234567890"
+                  ogrn: "123456789012345"
+                  kpp: "123456789"
+                  agreementNumber: "АФ-1"
+            schema:
+              $ref: "#/components/schemas/CreateCreditorRequest"
+        description: "Параметры для создания кредитора"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Успешно создан"
+                  value:
+                  - ogrn: "123456789012345"
+                    cqrsVersion: -1628796591
+                    inn: "1234567890"
+                    kpp: "123456789"
+                    id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                    state:
+                      statusDate: "2021-07-10T06:53:37.433211"
+                      errors: []
+                      status: "FETCHED"
+                    fullNameRus: "АО Ромашка"
+              schema:
+                $ref: "#/components/schemas/CreditorListResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: "REST_ERR_5001"
+                    message: "General service error"
+                    traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Создание кредитора"
+      tags:
+      - "Creditor"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/orders/search:
+    post:
+      description: "Метод получение списка поручений по фильтрам"
+      operationId: "getOrders"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              full:
+                summary: "Запрос на получение списка поручений по фильтрам"
+                value:
+                  creditorNameOrInn: "рОмаШкА"
+                  packetIds:
+                  - "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                  - "bf1d1868-a98e-4ae5-976f-0c4e21e0d512"
+                  sorting:
+                  - orderBy: "DESC"
+                    sortBy: "MATURITY_DATE"
+                  - orderBy: "DESC"
+                    sortBy: "MATURITY_DATE"
+                  dateTo: "2021-07-10"
+                  statuses:
+                  - "AWAITING_FUNDING"
+                  - "FINANCED"
+                  paging:
+                    offset: 1
+                    limit: 10
+                  packetNumbers:
+                  - "03032020-1"
+                  - "03032020-2"
+                  agreementNumber: "АФ-1"
+                  dateFrom: "2021-07-10"
+            schema:
+              $ref: "#/components/schemas/GetOrderRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Несколько поручений"
+                  value:
+                    orders:
+                    - orderType: "COMMON"
+                      cqrsVersion: -1628796591
+                      executionDate: "2025-01-01"
+                      creditorRequisites:
+                        ogrn: "123456789012345"
+                        inn: "1234567890"
+                        kpp: "123456789"
+                        fullNameRus: "АО Ромашка"
+                      packet:
+                        number: "2025-04-01-111"
+                        ordersCount: 2
+                        financedSum: "100.11"
+                        cqrsVersion: -1628796591
+                        packetSum: 100.11
+                        id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                        state:
+                          statusDate: "2021-07-10T06:53:37.433111Z"
+                          errors: []
+                          status: "ACCEPTED_BY_BANK"
+                        packetDate: "2025-01-01"
+                        referenceId: "32121313213"
+                        financedDate: "2025-01-01"
+                      orderSum: 1111.11
+                      referenceId: "1111-2222-3333"
+                      maturityDate: "2025-01-01"
+                      paymentRequisites:
+                        purpose: "Оплата по контракту 111111 от 31.12.2021"
+                        correspondentAccount: "30101810200000000700"
+                        recipientBankName: "АО «Райффайзенбанк»"
+                        bic: "044525700"
+                        account: "40702810200001430012"
+                      creditor:
+                        ogrn: "123456789012345"
+                        cqrsVersion: -1628796591
+                        inn: "1234567890"
+                        kpp: "123456789"
+                        id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                        state:
+                          statusDate: "2021-07-10T06:53:37.433111Z"
+                          errors: []
+                          status: "REJECTED"
+                        fullNameRus: "АО Ромашка"
+                      payment:
+                        date: "2025-04-01"
+                        number: 125
+                      id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      debtSum: 55.55
+                      state:
+                        statusDate: "2021-07-10T06:53:37.433111Z"
+                        errors:
+                        - code: "ERR_1002"
+                          message: "Creditor not valid"
+                        - code: "ERR_1006"
+                          message: "Exceed maximum limit"
+                        status: "REJECTED"
+                      orderDate: "2025-01-01"
+                      currencyCode: "RUB"
+                    - orderType: "TAX"
+                      cqrsVersion: -1628796591
+                      executionDate: "2025-01-01"
+                      creditorRequisites:
+                        ogrn: "123456789012345"
+                        inn: "1234567890"
+                        kpp: "123456789"
+                        fullNameRus: "АО Ромашка"
+                      packet:
+                        number: "2025-04-01-111"
+                        ordersCount: 2
+                        financedSum: "100.11"
+                        cqrsVersion: -1628796591
+                        packetSum: 100.11
+                        id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                        state:
+                          statusDate: "2021-07-10T06:53:37.433111Z"
+                          errors: []
+                          status: "ACCEPTED_BY_BANK"
+                        packetDate: "2025-01-01"
+                        referenceId: "132131323"
+                        financedDate: "2025-01-01"
+                      orderSum: 1111.11
+                      referenceId: "1111-2222-3333"
+                      maturityDate: "2025-01-01"
+                      paymentRequisites:
+                        purpose: "Оплата по контракту 111111 от 31.12.2021"
+                        correspondentAccount: "30101810200000000700"
+                        recipientBankName: "АО «Райффайзенбанк»"
+                        bic: "044525700"
+                        account: "40702810200001430012"
+                      creditor:
+                        ogrn: "123456789012345"
+                        cqrsVersion: -1628796591
+                        inn: "1234567890"
+                        kpp: "123456789"
+                        id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                        state:
+                          statusDate: "2021-07-10T06:53:37.433111Z"
+                          errors: []
+                          status: "APPROVED"
+                        fullNameRus: "АО Ромашка"
+                      payment:
+                        date: "2025-04-01"
+                        number: 125
+                      id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      debtSum: 55.55
+                      state:
+                        statusDate: "2021-07-10T06:53:37.433111Z"
+                        errors: []
+                        status: "FINANCED"
+                      taxRequisites:
+                        kppPayer: "770801001"
+                        docNumberPaymentReason: "0"
+                        taxPayerStatus: "01"
+                        oktmo: "63701000"
+                        paymentReason: "0"
+                        taxPeriod: "0"
+                        cbc: "18200000000000000000"
+                        docDatePaymentReason: "0"
+                        receiverName: "Казначейство России (ФНС России)"
+                        uin: "1820996623340000000000000"
+                      orderDate: "2025-01-01"
+                      currencyCode: "RUB"
+                    totalCount: 10
+                    offset: 1
+                    limit: 10
+              schema:
+                $ref: "#/components/schemas/OrderPageResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: "REST_ERR_5001"
+                    message: "General service error"
+                    traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение списка поручений по фильтрам"
+      tags:
+      - "Order"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/orders/{id}:
+    get:
+      description: "Метод получения поручения по идентификатору"
+      operationId: "getOrderById"
+      parameters:
+      - description: "Идентификатор поручения"
+        in: "path"
+        name: "id"
+        required: true
+        schema:
+          example: "76b44414-8259-4a09-b4dd-dbe33e0a1729"
+          format: "uuid"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                common:
+                  summary: "Поручение контрагенту"
+                  value:
+                    orderType: "COMMON"
+                    cqrsVersion: -1628796591
+                    executionDate: "2025-01-01"
+                    creditorRequisites:
+                      ogrn: "123456789012345"
+                      inn: "1234567890"
+                      kpp: "123456789"
+                      fullNameRus: "АО Ромашка"
+                    packet:
+                      number: "2025-04-01-111"
+                      ordersCount: 2
+                      financedSum: "100.11"
+                      cqrsVersion: -1628796591
+                      packetSum: 100.11
+                      id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      state:
+                        statusDate: "2021-07-10T06:53:37.433111Z"
+                        errors: []
+                        status: "ACCEPTED_BY_BANK"
+                      packetDate: "2025-01-01"
+                      referenceId: "123456"
+                      financedDate: "2025-01-01"
+                    orderSum: 1111.11
+                    referenceId: "1111-2222-3333"
+                    maturityDate: "2025-01-01"
+                    paymentRequisites:
+                      purpose: "Оплата по контракту 111111 от 31.12.2021"
+                      correspondentAccount: "30101810200000000700"
+                      recipientBankName: "АО «Райффайзенбанк»"
+                      bic: "044525700"
+                      account: "40702810200001430012"
+                    creditor:
+                      ogrn: "123456789012345"
+                      cqrsVersion: -1628796591
+                      inn: "1234567890"
+                      kpp: "123456789"
+                      id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      state:
+                        statusDate: "2021-07-10T06:53:37.433111Z"
+                        errors: []
+                        status: "APPROVED"
+                      fullNameRus: "АО Ромашка"
+                    payment:
+                      date: "2025-04-01"
+                      number: 125
+                    id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                    debtSum: 55.55
+                    state:
+                      statusDate: "2021-07-10T06:53:37.433111Z"
+                      errors: []
+                      status: "FINANCED"
+                    orderDate: "2025-01-01"
+                    currencyCode: "RUB"
+                tax:
+                  summary: "Поручение в налоговую"
+                  value:
+                    orderType: "TAX"
+                    cqrsVersion: -1628796591
+                    executionDate: "2025-01-01"
+                    creditorRequisites:
+                      ogrn: "123456789012345"
+                      inn: "1234567890"
+                      kpp: "123456789"
+                      fullNameRus: "АО Ромашка"
+                    packet:
+                      number: "2025-04-01-111"
+                      ordersCount: 2
+                      financedSum: "100.11"
+                      cqrsVersion: -1628796591
+                      packetSum: 100.11
+                      id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      state:
+                        statusDate: "2021-07-10T06:53:37.433111Z"
+                        errors: []
+                        status: "ACCEPTED_BY_BANK"
+                      packetDate: "2025-01-01"
+                      referenceId: "123456"
+                      financedDate: "2025-01-01"
+                    orderSum: 1111.11
+                    referenceId: "1111-2222-3333"
+                    maturityDate: "2025-01-01"
+                    paymentRequisites:
+                      purpose: "Оплата по контракту 111111 от 31.12.2021"
+                      correspondentAccount: "30101810200000000700"
+                      recipientBankName: "АО «Райффайзенбанк»"
+                      bic: "044525700"
+                      account: "40702810200001430012"
+                    creditor:
+                      ogrn: "123456789012345"
+                      cqrsVersion: -1628796591
+                      inn: "1234567890"
+                      kpp: "123456789"
+                      id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      state:
+                        statusDate: "2021-07-10T06:53:37.433111Z"
+                        errors: []
+                        status: "APPROVED"
+                      fullNameRus: "АО Ромашка"
+                    payment:
+                      date: "2025-04-01"
+                      number: 125
+                    id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                    debtSum: 55.55
+                    state:
+                      statusDate: "2021-07-10T06:53:37.433111Z"
+                      errors: []
+                      status: "FINANCED"
+                    taxRequisites:
+                      kppPayer: "770801001"
+                      docNumberPaymentReason: "0"
+                      taxPayerStatus: "01"
+                      oktmo: "63701000"
+                      paymentReason: "0"
+                      taxPeriod: "0"
+                      cbc: "18200000000000000000"
+                      docDatePaymentReason: "0"
+                      receiverName: "Казначейство России (ФНС России)"
+                      uin: "1820996623340000000000000"
+                    orderDate: "2025-01-01"
+                    currencyCode: "RUB"
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: "REST_ERR_5001"
+                    message: "General service error"
+                    traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение поручения по идентификатору"
+      tags:
+      - "Order"
+  /v1/orders/total-debt:
+    get:
+      description: "Метод получение общей суммы долга по договору"
+      operationId: "getTotalDebt"
+      parameters:
+      - description: "Идентификатор договора"
+        in: "query"
+        name: "agreementId"
+        required: true
+        schema:
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          format: "uuid"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Долг присутствует"
+                  value:
+                    totalDebt: "100.11"
+                    overDebt: "100.11"
+                    maturityTodayDebt: "100.11"
+              schema:
+                $ref: "#/components/schemas/OrderTotalDebtResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: "REST_ERR_5001"
+                    message: "General service error"
+                    traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение общей суммы долга по договору"
+      tags:
+      - "Order"
+  /v1/orders/{id}/payment-orders/report:
+    get:
+      description: "Метод получения файла с платежным поручением в формате pdf без\
+        \ подписи со стороны банка"
+      operationId: "getPaymentOrderReport"
+      parameters:
+      - description: "Идентификатор поручения"
+        in: "path"
+        name: "id"
+        required: true
+        schema:
+          example: "123e4567-e89b-12d3-a456-426614174000"
+          format: "uuid"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/pdf:
+              schema:
+                format: "binary"
+                type: "string"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: "REST_ERR_5001"
+                    message: "General service error"
+                    traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение файла с платежным поручением в формате pdf"
+      tags:
+      - "Order"
+    head:
+      description: "Метод получения размера файла с платежным поручением в формате\
+        \ pdf без подписи со стороны банка"
+      operationId: "getPaymentOrderReportSize"
+      parameters:
+      - description: "Идентификатор поручения"
+        explode: false
+        in: "path"
+        name: "id"
+        required: true
+        schema:
+          example: "123e4567-e89b-12d3-a456-426614174000"
+          format: "uuid"
+          type: "string"
+        style: "simple"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "OK"
+          headers:
+            Content-Disposition:
+              examples:
+                simple:
+                  value: "report.pdf"
+              schema:
+                example: "report.pdf"
+                type: "string"
+            Content-Length:
+              examples:
+                simple:
+                  value: 1000000
+              schema:
+                example: 1000000
+                type: "integer"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: "REST_ERR_5001"
+                    message: "General service error"
+                    traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение размера файла с платежным поручением в формате pdf"
+      tags:
+      - "Order"
+  /v1/orders/payment-orders/reports:
+    head:
+      description: "Method of obtaining the size of the archive with payment orders\
+        \ without a signature from the bank"
+      operationId: "getPaymentOrdersReportSize"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              multiple:
+                summary: "Запрос на получение архива с платежными поручениями"
+                value:
+                  ids:
+                  - "29bda8ca-4d33-11ec-81d3-0242ac130000"
+                  - "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+            schema:
+              $ref: "#/components/schemas/GetPaymentOrdersReportArchiveRequest"
+        description: "Идентификаторы поручений, которые выбрал клиент"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          headers:
+            Content-Disposition:
+              examples:
+                simple:
+                  value: "reports.zip"
+              schema:
+                example: "reports.zip"
+                type: "string"
+            Content-Length:
+              examples:
+                simple:
+                  value: 1000000
+              schema:
+                example: 1000000
+                type: "integer"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: "REST_ERR_5001"
+                    message: "General service error"
+                    traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение размера архива с платежными поручениями в формате pdf"
+      tags:
+      - "Order"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+    post:
+      description: "Метод получения архива с платежными поручениями без подписи со\
+        \ стороны банка"
+      operationId: "getPaymentOrdersReport"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              multiple:
+                summary: "Запрос на получение архива с платежным поручением"
+                value:
+                  ids:
+                  - "29bda8ca-4d33-11ec-81d3-0242ac130000"
+                  - "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+            schema:
+              $ref: "#/components/schemas/GetPaymentOrdersReportArchiveRequest"
+        description: "Идентификаторы поручений, которые выбрал клиент"
+        required: true
+      responses:
+        "200":
+          content:
+            application/zip:
+              schema:
+                format: "binary"
+                type: "string"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: "REST_ERR_5001"
+                    message: "General service error"
+                    traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение архива с платежными поручениями в формате pdf"
+      tags:
+      - "Order"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/packets:
+    get:
+      description: "Метод получение списка пакетов поручений по фильтрам"
+      operationId: "getPackets"
+      parameters:
+      - description: "Номер договора"
+        in: "query"
+        name: "agreementNumber"
+        required: true
+        schema:
+          example: "АФ-1"
+          type: "string"
+      - description: "Номера реестров"
+        explode: true
+        in: "query"
+        name: "number"
+        schema:
+          example: "12345678"
+          type: "string"
+      - description: "Дата реестра"
+        in: "query"
+        name: "dateFrom"
+        required: false
+        schema:
+          example: "2025-01-01"
+          format: "date"
+          type: "string"
+      - description: "Дата реестра"
+        in: "query"
+        name: "dateTo"
+        required: false
+        schema:
+          example: "2025-01-01"
+          format: "date"
+          type: "string"
+      - description: "Статус реестра"
+        examples:
+          oneStatus:
+            summary: "Пример с одним статусом"
+            value:
+            - "DOCUMENT_IN_PROGRESS"
+          multipleStatuses:
+            summary: "Пример с несколькими статусами"
+            value:
+            - "DOCUMENT_IN_PROGRESS"
+            - "SIGN_AWAITING"
+        explode: true
+        in: "query"
+        name: "statuses"
+        required: false
+        schema:
+          example:
+          - "DOCUMENT_IN_PROGRESS"
+          items:
+            $ref: "#/components/schemas/PacketStatus"
+          type: "array"
+      - description: "Количество элементов для сдвига"
+        in: "query"
+        name: "offset"
+        required: true
+        schema:
+          example: 0
+          type: "integer"
+      - description: "Ограничение элементов"
+        in: "query"
+        name: "limit"
+        required: true
+        schema:
+          example: 10
+          type: "integer"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                multiple:
+                  summary: "Несколько пакетов"
+                  value:
+                    offset: 1
+                    limit: 10
+                    totalCount: 100
+                    packets:
+                    - number: "2025-04-01-111"
+                      ordersCount: 2
+                      financedSum: "100.11"
+                      cqrsVersion: -1628796591
+                      packetSum: 100.11
+                      id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      state:
+                        statusDate: "2021-07-10T06:53:37.433111Z"
+                        errors: []
+                        status: "SIGN_AWAITING"
+                      packetDate: "2025-01-01"
+                      referenceId: "123123123"
+                      financedDate: "2025-01-01"
+                    - number: "2025-04-01-111"
+                      ordersCount: 2
+                      financedSum: "100.11"
+                      cqrsVersion: -1628796591
+                      packetSum: 100.11
+                      id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      state:
+                        statusDate: "2021-07-10T06:53:37.433111Z"
+                        errors: []
+                        status: "ACCEPTED_BY_BANK"
+                      packetDate: "2025-01-01"
+                      referenceId: "12312313"
+                      financedDate: "2025-01-01"
+              schema:
+                $ref: "#/components/schemas/PacketPageResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: "REST_ERR_5001"
+                    message: "General service error"
+                    traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение списка пакетов поручений по фильтрам"
+      tags:
+      - "Packet"
+    post:
+      description: "Метод загрузки поручений"
+      operationId: "createPacket"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePacketRequest"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Загрузка поручений"
+      tags:
+      - "Packet"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/packets/{id}:
+    get:
+      description: "Метод получение пакета поручений по идентификатору"
+      operationId: "getPacketById"
+      parameters:
+      - description: "Идентификатор реестра"
+        in: "path"
+        name: "id"
+        required: true
+        schema:
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          format: "uuid"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                financed:
+                  summary: "Успешно исполнен"
+                  value:
+                    number: "2025-04-01-111"
+                    ordersCount: 2
+                    financedSum: "100.11"
+                    cqrsVersion: -1628796591
+                    packetSum: 100.11
+                    id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                    state:
+                      statusDate: "2021-07-10T06:53:37.433111Z"
+                      errors: []
+                      status: "ACCEPTED_BY_BANK"
+                    packetDate: "2025-01-01"
+                    referenceId: "3123123123"
+                    financedDate: "2025-01-01"
+              schema:
+                $ref: "#/components/schemas/PacketResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: "REST_ERR_5001"
+                    message: "General service error"
+                    traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение пакета поручений по идентификатору"
+      tags:
+      - "Packet"
+  /v1/parser/packet:
+    post:
+      description: "Метод парсинга файла Пакет поручений"
+      operationId: "parsePacket"
+      requestBody:
+        content:
+          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            schema:
+              format: "binary"
+              type: "string"
+        description: "Файл Пакет поручений в формате xlsx"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParsedOrderListResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParserErrorListResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Парсинг файла Пакет поручений"
+      tags:
+      - "Parser"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/parser/tax-packet:
+    post:
+      description: "Метод парсинга файла Пакет поручений для налогов"
+      operationId: "parseTaxPacket"
+      requestBody:
+        content:
+          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            schema:
+              format: "binary"
+              type: "string"
+        description: "Файл пакета поручений в формате xlsx"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParsedOrderListResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParserErrorListResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Парсинг файла Пакет поручений для налогов"
+      tags:
+      - "Parser"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/tax-packets:
+    post:
+      description: "Метод загрузки поручений для выплаты налогов"
+      operationId: "createTaxPacket"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePacketRequest"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParserErrorListResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Загрузка поручений для выплаты налогов"
+      tags:
+      - "Parser"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/agreements/{id}/accounts:
+    get:
+      description: "Метод получения счетов списания по параметрам"
+      operationId: "getAccounts"
+      parameters:
+      - description: "Номер договора"
+        in: "path"
+        name: "id"
+        required: true
+        schema:
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          format: "uuid"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Несколько аккаунтов"
+                  value:
+                    accounts:
+                    - agreementId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      cbaNumber: "40916819105000006497"
+                      state:
+                        statusDate: "2021-07-10T06:53:37.433111Z"
+                        errors: []
+                        status: "ACTIVE"
+                      id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      cqrsVersion: -1628796591
+                    - agreementId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      cbaNumber: "40916819105090006497"
+                      state:
+                        statusDate: "2021-07-10T06:53:37.433111Z"
+                        errors: []
+                        status: "ACTIVE"
+                      id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      cqrsVersion: -1628795591
+              schema:
+                $ref: "#/components/schemas/AccountForWithdrawalResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "ERROR"
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "ERROR"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение списка счетов для списания по параметрам"
+      tags:
+      - "Agreement"
+  /v1/propositions/search:
+    post:
+      description: "Метод поиска заявления на досрочное погашение основного долга"
+      operationId: "propositionsSearch"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              full:
+                summary: "Запрос на поиск заявлений на досрочное погашение основно\
+                  го долга"
+                value:
+                  agreementNumber: "АФ-1111"
+                  propositionIds:
+                  - "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                  - "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                  statuses:
+                  - "UNSIGNED"
+                  - "PARTLY_SIGNED"
+                  paging:
+                    offset: 1
+                    limit: 10
+            schema:
+              $ref: "#/components/schemas/SearchPropositionRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Несколько заявлений"
+                  value:
+                    propositions:
+                    - agreementNumber: "АФ-1111"
+                      orderId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      cqrsVersion: -1628796591
+                      number: 1
+                      accountId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      amount: 10000
+                      isFull: false
+                      creationDate: "2025-01-01"
+                      maturityDate: "2025-01-01"
+                      id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      referenceId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      state:
+                        statusDate: "2021-07-10T06:53:37.433111Z"
+                        errors:
+                        - traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+                          code: "ERR_0001"
+                          message: "Error"
+                        status: "REJECTED"
+                    - agreementNumber: "АФ-1111"
+                      orderId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      cqrsVersion: -1628796591
+                      number: 1
+                      accountId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      amount: 10000
+                      isFull: false
+                      creationDate: "2025-01-01"
+                      maturityDate: "2025-01-01"
+                      id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      referenceId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      state:
+                        statusDate: "2021-07-10T06:53:37.433111Z"
+                        errors: []
+                        status: "UNSIGNED"
+                    limit: 1
+                    offset: 2
+                    totalCount: 10
+              schema:
+                $ref: "#/components/schemas/PropositionPageResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "ERROR"
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "ERROR"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Метод поиска заявления на досрочное погашение основного долга"
+      tags:
+      - "Proposition"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/propositions:
+    post:
+      description: "Создание заявлений на досрочное погашение"
+      operationId: "createPropositions"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              full:
+                summary: "Запрос на создание заявлений на досрочное погашение"
+                value:
+                  repaidOrdersMetaData:
+                  - id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                    referenceId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                    amount: 100000
+                  - id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                    referenceId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                    amount: 10000
+                  creationDate: "2025-01-01"
+                  paymentDate: "2025-01-01"
+                  accountNumber: "40916819105000006497"
+                  agreementNumber: "АФ-1111"
+            schema:
+              $ref: "#/components/schemas/CreatePropositionRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Несколько заявлений"
+                  value:
+                    propositions:
+                    - agreementNumber: "АФ-1111"
+                      orderId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      cqrsVersion: -1628796591
+                      number: 1
+                      accountId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      amount: 10000
+                      isFull: false
+                      creationDate: "2025-01-01"
+                      maturityDate: "2025-01-01"
+                      id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      referenceId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      state:
+                        statusDate: "2021-07-10T06:53:37.433111Z"
+                        errors:
+                        - traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+                          code: "ERR_0001"
+                          message: "Error"
+                        status: "REJECTED"
+                    - agreementNumber: "АФ-1111"
+                      orderId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      cqrsVersion: -1628796591
+                      number: 1
+                      accountId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      amount: 10000
+                      isFull: false
+                      creationDate: "2025-01-01"
+                      maturityDate: "2025-01-01"
+                      id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      referenceId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      state:
+                        statusDate: "2021-07-10T06:53:37.433111Z"
+                        errors: []
+                        status: "UNSIGNED"
+                    limit: 1
+                    offset: 2
+                    totalCount: 10
+              schema:
+                $ref: "#/components/schemas/PropositionPageResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "ERROR"
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "ERROR"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Создание заявлений на досрочное погашение"
+      tags:
+      - "Proposition"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/propositions/{id}/change-status-to-retired:
+    post:
+      description: "Перевод заявления на досрочное погашение в архив (удаление зая\
+        влений)"
+      operationId: "changePropositionStatusToRetired"
+      parameters:
+      - description: "Идентификатор заявления"
+        in: "path"
+        name: "id"
+        required: true
+        schema:
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          format: "uuid"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              full:
+                summary: "Запрос на архивацию заявления на досрочное погашение"
+                value:
+                  param: null
+                  id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                  cqrsVersion: -1628796591
+            schema:
+              $ref: "#/components/schemas/ChangePropositionStatusRequest"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "ERROR"
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "ERROR"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Архивация заявлений на досрочное погашение"
+      tags:
+      - "Proposition"
+  /v1/propositions/digests:
+    post:
+      description: "Метод получение digest-ов заявлений"
+      operationId: "getPropositionsDigests"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              full:
+                summary: "Запрос на получение digest-ов заявлений"
+                value:
+                  agreementNumber: "АФ-1111"
+                  ids:
+                  - "2c44306f-fc96-4780-9b37-6447273b190e"
+                  - "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                  statuses: []
+                  paging:
+                    offset: 1
+                    limit: 10
+            schema:
+              $ref: "#/components/schemas/PropositionsDigestRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Несколько digest-ов"
+                  value:
+                    digests:
+                    - id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      digest: "0L/RgNC40LzQtdGAIGRpZ2VzdC3QsA=="
+                    - id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                      digest: "0L/RgNC40LzQtdGAIGRpZ2VzdC3QsA=="
+                    limit: 1
+                    offset: 2
+                    totalCount: 10
+              schema:
+                $ref: "#/components/schemas/PropositionDigestPageResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "ERROR"
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "ERROR"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение digest-ов заявлений"
+      tags:
+      - "Proposition"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/propositions/{id}/sign:
+    post:
+      description: "Метод передача подписи заявления на верификацию"
+      operationId: "propositionsSign"
+      parameters:
+      - description: "Идентификатор заявления"
+        in: "path"
+        name: "id"
+        required: true
+        schema:
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          format: "uuid"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              full:
+                summary: "Запрос на передачу подписи заявления на верификацию"
+                value:
+                  id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                  sign: "c2lnbiBzYW1wbGUgc2FtcGxl"
+            schema:
+              $ref: "#/components/schemas/PropositionSignRequest"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "ERROR"
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "ERROR"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Передача подписи заявления на верификацию"
+      tags:
+      - "Proposition"
+  /v1/fee-invoices/debt:
+    get:
+      description: "Метод получения задолженностей по комиссиям договора"
+      operationId: "getFeeInvoicesDebt"
+      parameters:
+      - description: "Номер договора"
+        in: "query"
+        name: "agreementNumber"
+        required: true
+        schema:
+          example: "АФ-1"
+          type: "string"
+      - description: "Дата оплаты счета"
+        in: "query"
+        name: "feeInvoicePaymentDate"
+        required: false
+        schema:
+          example: "2025-01-01"
+          format: "date"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Данные о задолженности"
+                  value:
+                    agreementNumber: "АФ-1111"
+                    feeInvoicesOverDebt: "1000.05"
+                    feeInvoicesCurrentDebt: "2000.05"
+              schema:
+                $ref: "#/components/schemas/FeeInvoicesDebtResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: "REST_ERR_5001"
+                    message: "General service error"
+                    traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение задолженностей по комиссиям договора"
+      tags:
+      - "FeeInvoice"
+  /v1/days/working-time:
+    get:
+      description: "Метод проверки рабочего дня/времени"
+      operationId: "workingTime"
+      parameters:
+      - description: "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
+        in: "query"
+        name: "dateTimeToCheck"
+        required: true
+        schema:
+          example: "2021-07-10T06:53:37.433211Z"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Результат проверки соответствия переданной даты/времен\
+                    и рабочему дню/времени"
+                  value:
+                    isWorkingDateTime: true
+              schema:
+                $ref: "#/components/schemas/WorkingTimeResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: "REST_ERR_5001"
+                    message: "General service error"
+                    traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Проверка рабочего дня/времени"
+      tags:
+      - "Day"
+components:
+  schemas:
+    AgreementListResponse:
+      description: "Список агентских договоров"
+      example:
+      - cqrsVersion: -1628796591
+        compensationPeriod: 100
+        taxCompensationPeriod: true
+        nonAcceptanceWithdrawalFee: true
+        endWorkingDayFeeInvoice: 10
+        maxCompensationPeriod: 200
+        bkiAcceptanceDate: "2025-01-01"
+        isTaxAvailable: true
+        principal:
+          ogrn: "1027739326449"
+          shortNameRus: "АО Ромашка"
+          cqrsVersion: -1628796591
+          inn: "7744000302"
+          kpp: "770401001"
+          id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          state:
+            statusDate: "2021-07-10T06:53:37.433111Z"
+            errors: []
+            status: "APPROVED"
+          fullNameEng: "Joint Stock Chamomile"
+          cnum: "AA10AA"
+          fullNameRus: "Акционерное общество Ромашка"
+        isBkiAccepted: true
+        number: "АФ-1"
+        autoprolongation: true
+        startWorkingDayFeeInvoice: 5
+        nonAcceptanceWithdrawal: true
+        id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        state:
+          statusDate: "2021-07-10T06:53:37.433111Z"
+          errors: []
+          status: "APPROVED"
+        startDate: "2025-01-01"
+        expirationDate: "2025-01-01"
+      items:
+        $ref: "#/components/schemas/Agreement"
+      type: "array"
+    ErrorResponse:
+      description: "Список ошибок"
+      example:
+      - code: "REST_ERR_5001"
+        message: "General service error"
+        traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+      items:
+        $ref: "#/components/schemas/ErrorMessage"
+      type: "array"
+    LimitListResponse:
+      description: "Список лимитов"
+      example:
+      - principal:
+          ogrn: "1027739326449"
+          shortNameRus: "АО Ромашка"
+          cqrsVersion: -1628796591
+          inn: "7744000302"
+          kpp: "770401001"
+          id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          state:
+            statusDate: "2021-07-10T06:53:37.433111Z"
+            errors: []
+            status: "APPROVED"
+          fullNameEng: "Joint Stock Chamomile"
+          cnum: "AA10AA"
+          fullNameRus: "Акционерное общество Ромашка"
+        rest: 90.0
+        amount: 100.01
+        cqrsVersion: -1628796591
+        id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        used: 10.01
+        state:
+          statusDate: "2021-07-10T06:53:37.433111Z"
+          errors: []
+          status: "APPROVED"
+        currencyCode: "RUB"
+      items:
+        $ref: "#/components/schemas/Limit"
+      type: "array"
+    CreditorRequisitesListResponse:
+      description: "Список реквизитов кредитора"
+      example:
+      - ogrn: "123456789012345"
+        inn: "1234567890"
+        kpp: "123456789"
+        fullNameRus: "АО Ромашка"
+      items:
+        $ref: "#/components/schemas/CreditorRequisites"
+      type: "array"
+    CreditorStatus:
+      description: "Статус кредитора"
+      enum:
+      - "FETCHED"
+      - "SENT_TO_CHECK"
+      - "APPROVED"
+      - "REJECTED"
+      example: "APPROVED"
+      type: "string"
+    CreditorPageResponse:
+      allOf:
+      - properties:
+          creditors:
+            description: "Кредиторы"
+            items:
+              $ref: "#/components/schemas/CreditorResponse"
+            type: "array"
+        type: "object"
+      - $ref: "#/components/schemas/PaginationResponse"
+      example:
+        creditors:
+        - ogrn: "123456789012345"
+          inn: "1234567890"
+          kpp: "123456789"
+          fullNameRus: "АО Ромашка"
+          id: "2c44306f-fc96-4780-9b37-6447273b190e"
+          state:
+            statusDate: "2025-07-10T06:53:37.433211"
+            errors: []
+            status: "APPROVED"
+          cqrsVersion: -1628796591
+        offset: 0
+        limit: 10
+        totalCount: 100
+      type: "object"
+    CreateCreditorRequest:
+      allOf:
+      - $ref: "#/components/schemas/CreditorRequisites"
+      - properties:
+          agreementNumber:
+            description: "Номер агентского договора"
+            example: "АФ-1"
+            type: "string"
+        required:
+        - "agreementNumber"
+        type: "object"
+      example:
+        ogrn: "123456789012345"
+        inn: "1234567890"
+        kpp: "123456789"
+        fullNameRus: "АО Ромашка"
+        agreementNumber: "АФ-1"
+    CreditorListResponse:
+      description: "Список кредиторов"
+      example:
+      - ogrn: "123456789012345"
+        cqrsVersion: -1628796591
+        inn: "1234567890"
+        kpp: "123456789"
+        id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        state:
+          statusDate: "2021-07-10T06:53:37.433211"
+          errors: []
+          status: "FETCHED"
+        fullNameRus: "АО Ромашка"
+      items:
+        $ref: "#/components/schemas/CreditorResponse"
+      type: "array"
+    GetOrderRequest:
+      example:
+        agreementNumber: "АФ-1"
+        packetIds:
+        - "2c44306f-fc96-4780-9b37-6447273b190e"
+        - "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        packetNumbers:
+        - "03032020-1"
+        - "03032020-2"
+        statuses:
+        - "AWAITING_FUNDING"
+        - "FINANCED"
+        dateFrom: "2025-01-01"
+        dateTo: "2025-01-01"
+        creditorNameOrInn: "рОмаШкА"
+        paging:
+          offset: 0
+          limit: 10
+        sorting:
+        - orderBy: "DESC"
+          sortBy: "MATURITY_DATE"
+      properties:
+        agreementNumber:
+          description: "Номер договора"
+          example: "АФ-1"
+          type: "string"
+        packetIds:
+          description: "Идентификаторы реестров"
+          example:
+          - "2c44306f-fc96-4780-9b37-6447273b190e"
+          - "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          items:
+            example: "2c44306f-fc96-4780-9b37-6447273b190e"
+            format: "uuid"
+            type: "string"
+          type: "array"
+        packetNumbers:
+          description: "Номера реестров"
+          example:
+          - "03032020-1"
+          - "03032020-2"
+          items:
+            allOf:
+            - example: "03032020-1"
+              type: "string"
+          type: "array"
+        statuses:
+          description: "Статусы поручений"
+          example:
+          - "AWAITING_FUNDING"
+          - "FINANCED"
+          items:
+            $ref: "#/components/schemas/OrderStatus"
+          type: "array"
+        dateFrom:
+          description: "Дата поручения"
+          example: "2025-01-01"
+          format: "date"
+          type: "string"
+        dateTo:
+          description: "Дата поручения"
+          example: "2025-01-01"
+          format: "date"
+          type: "string"
+        creditorNameOrInn:
+          description: "Наименование или ИНН кредитора"
+          example: "рОмаШкА"
+          type: "string"
+        paging:
+          $ref: "#/components/schemas/PaginationRequest"
+        sorting:
+          description: "Сортировки"
+          example:
+          - orderBy: "DESC"
+            sortBy: "MATURITY_DATE"
+          items:
+            $ref: "#/components/schemas/SortingOrder"
+          type: "array"
+      type: "object"
+    OrderPageResponse:
+      allOf:
+      - properties:
+          orders:
+            description: "Поручения"
+            items:
+              $ref: "#/components/schemas/OrderResponse"
+            type: "array"
+        type: "object"
+      - $ref: "#/components/schemas/PaginationResponse"
+      example:
+        orders:
+        - id: "2c44306f-fc96-4780-9b37-6447273b190e"
+          referenceId: "1111-2222-3333"
+          creditorRequisites:
+            ogrn: "123456789012345"
+            inn: "1234567890"
+            kpp: "123456789"
+            fullNameRus: "АО Ромашка"
+          paymentRequisites:
+            purpose: "Оплата по контракту 111111 от 31.12.2021"
+            correspondentAccount: "30101810200000000700"
+            recipientBankName: "АО «Райффайзенбанк»"
+            bic: "044525700"
+            account: "40702810200001430012"
+          orderType: "COMMON"
+          orderDate: "2025-01-01"
+          maturityDate: "2025-01-01"
+          executionDate: "2025-01-01"
+          orderSum: 1111.11
+          debtSum: 55.55
+          currencyCode: "RUB"
+          state:
+            statusDate: "2025-07-10T06:53:37.433211"
+            errors: []
+            status: "FINANCED"
+          cqrsVersion: -1628796591
+        offset: 0
+        limit: 10
+        totalCount: 100
+      type: "object"
+    OrderResponse:
+      allOf:
+      - properties:
+          id:
+            description: "Идентификатор поручения"
+            example: "2c44306f-fc96-4780-9b37-6447273b190e"
+            format: "uuid"
+            type: "string"
+          referenceId:
+            description: "Идентификатор поручения клиента, если поручение загружен\
+              о через API"
+            example: "1111-2222-3333"
+            type: "string"
+          creditorRequisites:
+            $ref: "#/components/schemas/CreditorRequisites"
+          paymentRequisites:
+            $ref: "#/components/schemas/PaymentRequisites"
+          taxRequisites:
+            $ref: "#/components/schemas/TaxRequisites"
+          creditor:
+            $ref: "#/components/schemas/CreditorResponse"
+          payment:
+            $ref: "#/components/schemas/Payment"
+          packet:
+            $ref: "#/components/schemas/PacketResponse"
+          orderType:
+            $ref: "#/components/schemas/OrderType"
+          orderDate:
+            description: "Дата поручения"
+            example: "2025-01-01"
+            format: "date"
+            type: "string"
+          maturityDate:
+            description: "Дата погашения"
+            example: "2025-01-01"
+            format: "date"
+            type: "string"
+          executionDate:
+            description: "Дата исполнения"
+            example: "2025-01-01"
+            format: "date"
+            type: "string"
+          orderSum:
+            description: "Сумма поручения"
+            example: 1111.11
+            type: "number"
+          debtSum:
+            description: "Сумма задолженности по поручению"
+            example: 55.55
+            type: "number"
+          currencyCode:
+            $ref: "#/components/schemas/CurrencyCode"
+          state:
+            $ref: "#/components/schemas/OrderState"
+          cqrsVersion:
+            $ref: "#/components/schemas/CqrsVersion"
+        required:
+        - "cqrsVersion"
+        - "creditorRequisites"
+        - "currencyCode"
+        - "debtSum"
+        - "id"
+        - "maturityDate"
+        - "orderDate"
+        - "orderSum"
+        - "orderType"
+        - "paymentRequisites"
+        - "referenceId"
+        - "state"
+        type: "object"
+      example:
+        id: "2c44306f-fc96-4780-9b37-6447273b190e"
+        referenceId: "1111-2222-3333"
+        creditorRequisites:
+          ogrn: "123456789012345"
+          inn: "1234567890"
+          kpp: "123456789"
+          fullNameRus: "АО Ромашка"
+        paymentRequisites:
+          purpose: "Оплата по контракту 111111 от 31.12.2021"
+          correspondentAccount: "30101810200000000700"
+          recipientBankName: "АО «Райффайзенбанк»"
+          bic: "044525700"
+          account: "40702810200001430012"
+        orderType: "COMMON"
+        orderDate: "2025-01-01"
+        maturityDate: "2025-01-01"
+        executionDate: "2025-01-01"
+        orderSum: 1111.11
+        debtSum: 55.55
+        currencyCode: "RUB"
+        state:
+          statusDate: "2025-07-10T06:53:37.433211"
+          errors: []
+          status: "FINANCED"
+        cqrsVersion: -1628796591
+    OrderTotalDebtResponse:
+      example:
+        totalDebt: "100.11"
+        overDebt: "100.11"
+        maturityTodayDebt: "100.11"
+      properties:
+        totalDebt:
+          description: "Сумма задолженности на момент запроса"
+          example: "100.11"
+          type: "string"
+        overDebt:
+          description: "Сумма просроченной задолженности"
+          example: "100.11"
+          type: "string"
+        maturityTodayDebt:
+          description: "Сумма задолженности поручений с плановой датой погашения н\
+            а сегодня"
+          example: "100.11"
+          type: "string"
+      required:
+      - "maturityTodayDebt"
+      - "overDebt"
+      - "totalDebt"
+      type: "object"
+    GetPaymentOrdersReportArchiveRequest:
+      example:
+        ids:
+        - "2c44306f-fc96-4780-9b37-6447273b190e"
+        - "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+      properties:
+        ids:
+          description: "Индентфиикаторы поручений"
+          example:
+          - "2c44306f-fc96-4780-9b37-6447273b190e"
+          - "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          items:
+            example: "2c44306f-fc96-4780-9b37-6447273b190e"
+            format: "uuid"
+            type: "string"
+          type: "array"
+      type: "object"
+    PacketStatus:
+      description: "Статус реестра поручений"
+      enum:
+      - "SIGN_AWAITING"
+      - "SIGN_REJECTED"
+      - "DOCUMENT_IN_PROGRESS"
+      - "ACCEPTED_BY_BANK"
+      example: "ACCEPTED_BY_BANK"
+      type: "string"
+    PacketPageResponse:
+      allOf:
+      - properties:
+          packets:
+            description: "Реестры"
+            items:
+              $ref: "#/components/schemas/PacketResponse"
+            type: "array"
+        type: "object"
+      - $ref: "#/components/schemas/PaginationResponse"
+      example:
+        packets:
+        - id: "2c44306f-fc96-4780-9b37-6447273b190e"
+          referenceId: "2c44306f-fc96-4780-9b37-6447273b190e"
+          number: "2025-04-01-111"
+          packetDate: "2025-01-01"
+          financedDate: "2025-01-01"
+          packetSum: 100.11
+          ordersCount: 2
+          financedSum: "100.11"
+          state:
+            statusDate: "2025-07-10T06:53:37.433211"
+            errors: []
+            status: "ACCEPTED_BY_BANK"
+          cqrsVersion: -1628796591
+        offset: 0
+        limit: 10
+        totalCount: 100
+      type: "object"
+    CreatePacketRequest:
+      description: "Запрос создания пакета поручений"
+      example:
+        orders:
+        - creditorRequisite:
+            fullNameRus: "АО Ромашка"
+            inn: "1234567890"
+            ogrn: "123456789012345"
+            kpp: "123456789"
+          paymentRequisite:
+            account: "40702810200001430012"
+            correspondentAccount: "30101810200000000700"
+            bic: "044525700"
+            recipientBankName: "АО «Райффайзенбанк»"
+            purpose: "Оплата по контракту 111111 от 31.12.2021"
+          taxRequisite:
+            taxPayerStatus: "01"
+            kppPayer: "770801001"
+            uin: "1820996623340000000000000"
+            cbc: "18200000000000000000"
+            oktmo: "63701000"
+            paymentReason: "0"
+            taxPeriod: "0"
+            docNumberPaymentReason: "0"
+            docDatePaymentReason: "0"
+            receiverName: "Казначейство России (ФНС России)"
+          maturityDate: "2025-12-31"
+          orderSum: "123.40"
+          currencyCode: "RUB"
+        agreementNumber: "АФ-777"
+      properties:
+        orders:
+          description: "Список распарсенных поручений"
+          example:
+          - creditorRequisite:
+              fullNameRus: "АО Ромашка"
+              inn: "1234567890"
+              ogrn: "123456789012345"
+              kpp: "123456789"
+            paymentRequisite:
+              account: "40702810200001430012"
+              correspondentAccount: "30101810200000000700"
+              bic: "044525700"
+              recipientBankName: "АО «Райффайзенбанк»"
+              purpose: "Оплата по контракту 111111 от 31.12.2021"
+            taxRequisite:
+              taxPayerStatus: "01"
+              kppPayer: "770801001"
+              uin: "1820996623340000000000000"
+              cbc: "18200000000000000000"
+              oktmo: "63701000"
+              paymentReason: "0"
+              taxPeriod: "0"
+              docNumberPaymentReason: "0"
+              docDatePaymentReason: "0"
+              receiverName: "Казначейство России (ФНС России)"
+            maturityDate: "2025-12-31"
+            orderSum: "123.40"
+            currencyCode: "RUB"
+          items:
+            $ref: "#/components/schemas/ParsedOrderResponse"
+          type: "array"
+        agreementNumber:
+          description: "Номер агентского договора"
+          example: "АФ-777"
+          type: "string"
+      required:
+      - "agreementNumber"
+      - "orders"
+      type: "object"
+    PacketResponse:
+      description: "Реестр поручений"
+      example:
+        id: "2c44306f-fc96-4780-9b37-6447273b190e"
+        referenceId: "2c44306f-fc96-4780-9b37-6447273b190e"
+        number: "2025-04-01-111"
+        packetDate: "2025-01-01"
+        financedDate: "2025-01-01"
+        packetSum: 100.11
+        ordersCount: 2
+        financedSum: "100.11"
+        state:
+          statusDate: "2025-07-10T06:53:37.433211"
+          errors: []
+          status: "ACCEPTED_BY_BANK"
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: "Идентификатор пакета"
+          example: "2c44306f-fc96-4780-9b37-6447273b190e"
+          format: "uuid"
+          type: "string"
+        referenceId:
+          description: "Идентификатор реестра поручений клиента, если реестр загру\
+            жен через API"
+          example: "2c44306f-fc96-4780-9b37-6447273b190e"
+          type: "string"
+        number:
+          description: "Номер реестра поручений"
+          example: "2025-04-01-111"
+          type: "string"
+        packetDate:
+          description: "Дата реестра поручений"
+          example: "2025-01-01"
+          format: "date"
+          type: "string"
+        financedDate:
+          description: "Максимальный executionDate из исполненных поручений"
+          example: "2025-01-01"
+          format: "date"
+          type: "string"
+        packetSum:
+          description: "Сумма реестра"
+          example: 100.11
+          type: "number"
+        ordersCount:
+          description: "Количество поручений"
+          example: 2
+          type: "integer"
+        financedSum:
+          description: "Сумма финансирования"
+          example: "100.11"
+          type: "string"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/PacketState"
+          description: "Состояние пакета"
+          example:
+            statusDate: "2025-07-10T06:53:37.433211"
+            errors: []
+            status: "ACCEPTED_BY_BANK"
+          type: "object"
+        cqrsVersion:
+          description: "hashCode от state - состояния реестра"
+          example: -1628796591
+          type: "integer"
+      required:
+      - "cqrsVersion"
+      - "id"
+      - "number"
+      - "packetDate"
+      - "referenceId"
+      - "state"
+      type: "object"
+    ParsedOrderListResponse:
+      description: "Список распарсенных поручений"
+      example:
+      - creditorRequisite:
+          fullNameRus: "АО Ромашка"
+          inn: "1234567890"
+          ogrn: "123456789012345"
+          kpp: "123456789"
+        paymentRequisite:
+          account: "40702810200001430012"
+          correspondentAccount: "30101810200000000700"
+          bic: "044525700"
+          recipientBankName: "АО «Райффайзенбанк»"
+          purpose: "Оплата по контракту 111111 от 31.12.2021"
+        taxRequisite:
+          taxPayerStatus: "01"
+          kppPayer: "770801001"
+          uin: "1820996623340000000000000"
+          cbc: "18200000000000000000"
+          oktmo: "63701000"
+          paymentReason: "0"
+          taxPeriod: "0"
+          docNumberPaymentReason: "0"
+          docDatePaymentReason: "0"
+          receiverName: "Казначейство России (ФНС России)"
+        maturityDate: "2025-12-31"
+        orderSum: "123.40"
+        currencyCode: "RUB"
+      items:
+        $ref: "#/components/schemas/ParsedOrderResponse"
+      type: "array"
+    ParserErrorListResponse:
+      description: "Список ошибок парсера"
+      example:
+      - code: "REST_ERR_5001"
+        message: "General service error"
+        traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+        lineNumber: 5
+      items:
+        $ref: "#/components/schemas/ParserError"
+      type: "array"
+    AccountForWithdrawalResponse:
+      example:
+        accounts:
+        - id: "76b44414-8259-4a09-b4dd-dbe33e0a1729"
+          agreementId: "76b44414-8259-4a09-b4dd-dbe33e0a1729"
+          cbaNumber: "40916819105000006497"
+          state:
+            statusDate: "2025-07-10T06:53:37.433211"
+            errors: []
+            status: "ACTIVE"
+          cqrsVersion: -1628796591
+      properties:
+        accounts:
+          description: "Счета"
+          example:
+          - id: "76b44414-8259-4a09-b4dd-dbe33e0a1729"
+            agreementId: "76b44414-8259-4a09-b4dd-dbe33e0a1729"
+            cbaNumber: "40916819105000006497"
+            state:
+              statusDate: "2025-07-10T06:53:37.433211"
+              errors: []
+              status: "ACTIVE"
+            cqrsVersion: -1628796591
+          items:
+            $ref: "#/components/schemas/Account"
+          type: "array"
+      type: "object"
+    SearchPropositionRequest:
+      example:
+        agreementNumber: "АФ-1111"
+        propositionIds:
+        - "2c44306f-fc96-4780-9b37-6447273b190e"
+        - "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        statuses:
+        - "UNSIGNED"
+        - "DONE"
+        paging:
+          offset: 0
+          limit: 10
+        sorting:
+        - sortBy: "CREATION_DATE"
+          orderBy: "DESC"
+      properties:
+        agreementNumber:
+          description: "Номер договора"
+          example: "АФ-1111"
+          type: "string"
+        propositionIds:
+          description: "Идентификаторы заявлений"
+          example:
+          - "2c44306f-fc96-4780-9b37-6447273b190e"
+          - "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          items:
+            example: "2c44306f-fc96-4780-9b37-6447273b190e"
+            format: "uuid"
+            type: "string"
+          type: "array"
+        statuses:
+          description: "Статусы заявлений"
+          example:
+          - "UNSIGNED"
+          - "DONE"
+          items:
+            $ref: "#/components/schemas/PropositionStatus"
+          type: "array"
+        paging:
+          $ref: "#/components/schemas/PaginationRequest"
+        sorting:
+          description: "Сортировки"
+          example:
+          - sortBy: "CREATION_DATE"
+            orderBy: "DESC"
+          items:
+            $ref: "#/components/schemas/PropositionSortingRequest"
+          type: "array"
+      required:
+      - "agreementNumber"
+      - "paging"
+      type: "object"
+    PropositionPageResponse:
+      allOf:
+      - properties:
+          propositions:
+            description: "Заявления"
+            items:
+              $ref: "#/components/schemas/Proposition"
+            type: "array"
+        type: "object"
+      - $ref: "#/components/schemas/PaginationResponse"
+      example:
+        propositions:
+        - id: "2c44306f-fc96-4780-9b37-6447273b190e"
+          agreementNumber: "АФ-1111"
+          orderId: "2c44306f-fc96-4780-9b37-6447273b190e"
+          accountId: "2c44306f-fc96-4780-9b37-6447273b190e"
+          referenceId: "2c44306f-fc96-4780-9b37-6447273b190e"
+          number: 1
+          creationDate: "2025-01-01"
+          maturityDate: "2025-01-01"
+          amount: 10000
+          isFull: false
+          state:
+            statusDate: "2025-07-10T06:53:37.433211"
+            errors: []
+            status: "DONE"
+          cqrsVersion: -1628796591
+        offset: 0
+        limit: 10
+        totalCount: 100
+      type: "object"
+    CreatePropositionRequest:
+      description: "Создание заявления на досрочное погашение"
+      example:
+        repaidOrdersMetaData:
+        - id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          referenceId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          amount: 100000
+        creationDate: "2025-01-01"
+        paymentDate: "2025-01-01"
+        accountNumber: "40916819105000006497"
+        agreementNumber: "АФ-1111"
+      properties:
+        repaidOrdersMetaData:
+          description: "Данные по поручениям необходимые для создания заявления на\
+            \ досрочное погашение"
+          example:
+          - id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+            referenceId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+            amount: 100000
+          items:
+            $ref: "#/components/schemas/PropositionOrderMetaData"
+          type: "array"
+        paymentDate:
+          description: "Дата погашения заявления на досрочное погашение"
+          example: "2025-01-01"
+          format: "date"
+          type: "string"
+        creationDate:
+          description: "Дата создания заявления на досрочное погашение"
+          example: "2025-01-01"
+          format: "date"
+          type: "string"
+        accountNumber:
+          description: "20-значный номер счета ЦБ для списания средств"
+          example: "40916819105000006497"
+          type: "string"
+        agreementNumber:
+          description: "Номер договора"
+          example: "АФ-1111"
+          type: "string"
+      required:
+      - "accountNumber"
+      - "agreementNumber"
+      - "creationDate"
+      - "paymentDate"
+      - "repaidOrdersMetaData"
+      type: "object"
+    ChangePropositionStatusRequest:
+      description: "Запрос на изменение статуса заявления (архивация)"
+      example:
+        id: "2c44306f-fc96-4780-9b37-6447273b190e"
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: "Идентификатор заявления"
+          example: "2c44306f-fc96-4780-9b37-6447273b190e"
+          format: "uuid"
+          type: "string"
+        cqrsVersion:
+          allOf:
+          - $ref: "#/components/schemas/CqrsVersion"
+          description: "hashCode от state - состояния заявления"
+          example: "-1628796591"
+      required:
+      - "cqrsVersion"
+      - "id"
+      type: "object"
+    PropositionsDigestRequest:
+      example:
+        ids:
+        - "2c44306f-fc96-4780-9b37-6447273b190e"
+        - "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        paging:
+          offset: 0
+          limit: 10
+        sorting:
+        - sortBy: "CREATION_DATE"
+          orderBy: "DESC"
+      properties:
+        ids:
+          description: "Идентификаторы заявлений"
+          example:
+          - "2c44306f-fc96-4780-9b37-6447273b190e"
+          - "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          items:
+            example: "2c44306f-fc96-4780-9b37-6447273b190e"
+            format: "uuid"
+            type: "string"
+          type: "array"
+        paging:
+          $ref: "#/components/schemas/PaginationRequest"
+        sorting:
+          description: "Сортировки"
+          example:
+          - sortBy: "CREATION_DATE"
+            orderBy: "DESC"
+          items:
+            $ref: "#/components/schemas/PropositionSortingRequest"
+          type: "array"
+      required:
+      - "ids"
+      type: "object"
+    PropositionDigestPageResponse:
+      allOf:
+      - properties:
+          digests:
+            description: "Подписи"
+            items:
+              $ref: "#/components/schemas/PropositionDigestResponse"
+            type: "array"
+        type: "object"
+      - $ref: "#/components/schemas/PaginationResponse"
+      example:
+        digests:
+        - id: "2c44306f-fc96-4780-9b37-6447273b190e"
+          digest: "0L/RgNC40LzQtdGAIGRpZ2VzdC3QsA=="
+        offset: 0
+        limit: 10
+        totalCount: 100
+      type: "object"
+    PropositionSignRequest:
+      example:
+        id: "2c44306f-fc96-4780-9b37-6447273b190e"
+        sign: "signature"
+      properties:
+        id:
+          description: "Идентификатор заявления"
+          example: "2c44306f-fc96-4780-9b37-6447273b190e"
+          format: "uuid"
+          type: "string"
+        sign:
+          description: "Подпись заявления"
+          example: "signature"
+          type: "string"
+      required:
+      - "id"
+      - "sign"
+      type: "object"
+    FeeInvoicesDebtResponse:
+      example:
+        agreementNumber: "АФ-1111"
+        feeInvoicesOverDebt: "100.11"
+        feeInvoicesCurrentDebt: "100.11"
+      properties:
+        agreementNumber:
+          description: "Номер договора"
+          example: "АФ-1111"
+          type: "string"
+        feeInvoicesOverDebt:
+          description: "Сумма просроченных комиссий по договору"
+          example: "100.11"
+          type: "string"
+        feeInvoicesCurrentDebt:
+          description: "Сумма неоплаченной срочной задолженности по комиссиям по д\
+            оговору"
+          example: "100.11"
+          type: "string"
+      required:
+      - "agreementNumber"
+      - "feeInvoicesCurrentDebt"
+      - "feeInvoicesOverDebt"
+      type: "object"
+    WorkingTimeResponse:
+      example:
+        isWorkingDateTime: false
+      properties:
+        isWorkingDateTime:
+          description: "Рабочие день/время или нет"
+          example: false
+          type: "boolean"
+      required:
+      - "isWorkingDateTime"
+      type: "object"
+    Agreement:
+      example:
+        id: "2c44306f-fc96-4780-9b37-6447273b190e"
+        principal:
+          id: "2c44306f-fc96-4780-9b37-6447273b190e"
+          cnum: "AA10AA"
+          shortNameRus: "АО Ромашка"
+          fullNameRus: "Акционерное общество Ромашка"
+          fullNameEng: "Joint Stock Chamomile"
+          inn: "7744000302"
+          ogrn: "1027739326449"
+          kpp: "770401001"
+          state:
+            statusDate: "2025-07-10T06:53:37.433211"
+            errors: []
+            status: "APPROVED"
+          cqrsVersion: -1628796591
+        autoprolongation: true
+        compensationPeriod: 100
+        maxCompensationPeriod: 200
+        number: "АФ-1"
+        startDate: "2025-01-01"
+        expirationDate: "2025-01-01"
+        startWorkingDayFeeInvoice: 5
+        endWorkingDayFeeInvoice: 10
+        nonAcceptanceWithdrawal: true
+        nonAcceptanceWithdrawalFee: true
+        isBkiAccepted: true
+        bkiAcceptanceDate: "2025-01-01"
+        isTaxAvailable: true
+        taxCompensationPeriod: true
+        state:
+          statusDate: "2025-07-10T06:53:37.433211"
+          errors: []
+          status: "APPROVED"
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: "Идентификатор договора"
+          example: "2c44306f-fc96-4780-9b37-6447273b190e"
+          format: "uuid"
+          type: "string"
+        principal:
+          $ref: "#/components/schemas/Principal"
+        autoprolongation:
+          description: "Признак автопролонгации соглашения"
+          example: true
+          type: "boolean"
+        compensationPeriod:
+          description: "Срок компенсации"
+          example: 100
+          type: "integer"
+        maxCompensationPeriod:
+          description: "Максимальный срок компенсации"
+          example: 200
+          type: "integer"
+        number:
+          description: "Номер соглашения"
+          example: "АФ-1"
+          type: "string"
+        startDate:
+          description: "Дата заключения соглашения"
+          example: "2025-01-01"
+          format: "date"
+          type: "string"
+        expirationDate:
+          description: "Дата окончания соглашения"
+          example: "2025-01-01"
+          format: "date"
+          type: "string"
+        startWorkingDayFeeInvoice:
+          description: "Первый день оплаты комиссий"
+          example: 5
+          type: "integer"
+        endWorkingDayFeeInvoice:
+          description: "Последний день оплаты комиссий"
+          example: 10
+          type: "integer"
+        nonAcceptanceWithdrawal:
+          description: "Согласие на безакцептное списание основного долга"
+          example: true
+          type: "boolean"
+        nonAcceptanceWithdrawalFee:
+          description: "Согласие на безакцептное списание долга по комиссиям"
+          example: true
+          type: "boolean"
+        isBkiAccepted:
+          description: "Согласие на проверку в БКИ"
+          example: true
+          type: "boolean"
+        bkiAcceptanceDate:
+          description: "Дата согласия на проверку в БКИ"
+          example: "2025-01-01"
+          format: "date"
+          type: "string"
+        isTaxAvailable:
+          description: "Доступность отправки платежей в бюджет"
+          example: true
+          type: "boolean"
+        taxCompensationPeriod:
+          description: "Максимальный срок компенсации для платежей в бюджет"
+          example: true
+          type: "boolean"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/AgreementState"
+          description: "Состояние договора"
+          type: "object"
+        cqrsVersion:
+          description: "hashCode от state - состояния реестра"
+          example: -1628796591
+          type: "integer"
+      required:
+      - "autoprolongation"
+      - "compensationPeriod"
+      - "cqrsVersion"
+      - "endWorkingDayFeeInvoice"
+      - "id"
+      - "isBkiAccepted"
+      - "isTaxAvailable"
+      - "maxCompensationPeriod"
+      - "nonAcceptanceWithdrawal"
+      - "nonAcceptanceWithdrawalFee"
+      - "number"
+      - "startDate"
+      - "startWorkingDayFeeInvoice"
+      - "state"
+      type: "object"
+    ErrorMessage:
+      example:
+        code: "REST_ERR_5001"
+        message: "General service error"
+        traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+      properties:
+        code:
+          $ref: "#/components/schemas/RestErrorCodes"
+        message:
+          description: "Сообщение"
+          example: "General service error"
+          type: "string"
+        traceId:
+          description: "traceId"
+          example: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+          type: "string"
+      required:
+      - "code"
+      - "message"
+      - "traceId"
+      type: "object"
+    Limit:
+      example:
+        id: "2c44306f-fc96-4780-9b37-6447273b190e"
+        principal:
+          id: "2c44306f-fc96-4780-9b37-6447273b190e"
+          cnum: "AA10AA"
+          shortNameRus: "АО Ромашка"
+          fullNameRus: "Акционерное общество Ромашка"
+          fullNameEng: "Joint Stock Chamomile"
+          inn: "7744000302"
+          ogrn: "1027739326449"
+          kpp: "770401001"
+          state:
+            statusDate: "2025-07-10T06:53:37.433211"
+            errors: []
+            status: "APPROVED"
+          cqrsVersion: -1628796591
+        amount: 100.01
+        used: 10.01
+        rest: 90.0
+        currencyCode: "RUB"
+        state:
+          statusDate: "2025-07-10T06:53:37.433211"
+          errors: []
+          status: "APPROVED"
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: "Идентификатор лимита"
+          example: "2c44306f-fc96-4780-9b37-6447273b190e"
+          format: "uuid"
+          type: "string"
+        principal:
+          $ref: "#/components/schemas/Principal"
+        amount:
+          description: "Сумма лимита"
+          example: 100.01
+          type: "number"
+        used:
+          description: "Сумма использование лимита"
+          example: 10.01
+          type: "number"
+        rest:
+          description: "Остаток лимита"
+          example: 90.0
+          type: "number"
+        currencyCode:
+          $ref: "#/components/schemas/CurrencyCode"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/LimitState"
+          description: "Состояние лимита"
+          type: "object"
+        cqrsVersion:
+          description: "hashCode от state - состояния реестра"
+          example: -1628796591
+          type: "integer"
+      type: "object"
+    CreditorRequisites:
+      description: "Реквизиты кредитора"
+      example:
+        fullNameRus: "АО Ромашка"
+        inn: "1234567890"
+        ogrn: "123456789012345"
+        kpp: "123456789"
+      properties:
+        fullNameRus:
+          description: "Полное наименование кредитора"
+          example: "АО Ромашка"
+          type: "string"
+        inn:
+          description: "ИНН кредитора"
+          example: "1234567890"
+          maxLength: 12
+          minLength: 10
+          type: "string"
+        ogrn:
+          description: "ОГРН кредитора"
+          example: "123456789012345"
+          maxLength: 15
+          minLength: 13
+          type: "string"
+        kpp:
+          description: "КПП кредитора"
+          example: "123456789"
+          maxLength: 9
+          minLength: 9
+          type: "string"
+      required:
+      - "fullNameRus"
+      - "inn"
+      - "ogrn"
+      type: "object"
+    CreditorResponse:
+      allOf:
+      - $ref: "#/components/schemas/CreditorRequisites"
+      - properties:
+          id:
+            description: "Идентификатор кредитора"
+            example: "2c44306f-fc96-4780-9b37-6447273b190e"
+            format: "uuid"
+            type: "string"
+          state:
+            $ref: "#/components/schemas/CreditorState"
+          cqrsVersion:
+            $ref: "#/components/schemas/CqrsVersion"
+        required:
+        - "cqrsVersion"
+        - "id"
+        - "state"
+        type: "object"
+      description: "Кредитор"
+      example:
+        ogrn: "123456789012345"
+        inn: "1234567890"
+        kpp: "123456789"
+        fullNameRus: "АО Ромашка"
+        id: "2c44306f-fc96-4780-9b37-6447273b190e"
+        state:
+          statusDate: "2025-07-10T06:53:37.433211"
+          errors: []
+          status: "APPROVED"
+        cqrsVersion: -1628796591
+    PaginationResponse:
+      example:
+        offset: 0
+        limit: 10
+        totalCount: 100
+      properties:
+        offset:
+          description: "Количество элементов для сдвига"
+          example: 1
+          type: "integer"
+        limit:
+          description: "Итоговое количество элементов"
+          example: 10
+          type: "integer"
+        totalCount:
+          description: "Общее количество элементов"
+          example: 100
+          type: "integer"
+      required:
+      - "limit"
+      - "offset"
+      - "totalCount"
+      type: "object"
+    OrderStatus:
+      description: "Статус поручения"
+      enum:
+      - "AWAITING_FUNDING"
+      - "REJECTED"
+      - "FINANCED"
+      - "REPAID"
+      - "PARTIALLY_REPAID"
+      - "FINANCED_OVERDUE"
+      - "REPAID_OVERDUE"
+      - "PARTIAL_REPAID_OVERDUE"
+      - "AWAITING_REPAY"
+      - "RETURNED"
+      example: "FINANCED"
+      type: "string"
+    PaginationRequest:
+      description: "Параметры пагинации"
+      example:
+        offset: 0
+        limit: 10
+      properties:
+        offset:
+          description: "Количество элементов для сдвига"
+          example: 1
+          type: "integer"
+        limit:
+          description: "Ограничение элементов"
+          example: 10
+          type: "integer"
+      required:
+      - "limit"
+      - "offset"
+      type: "object"
+    SortingOrder:
+      description: "Направление сортировки по полю"
+      example:
+        sortBy: "MATURITY_DATE"
+        orderBy: "DESC"
+      properties:
+        sortBy:
+          $ref: "#/components/schemas/OrderSortFields"
+        orderBy:
+          $ref: "#/components/schemas/Direction"
+      required:
+      - "orderBy"
+      - "sortBy"
+      type: "object"
+    PaymentRequisites:
+      description: "Платежные реквизиты"
+      example:
+        account: "40702810200001430012"
+        correspondentAccount: "30101810200000000700"
+        bic: "044525700"
+        recipientBankName: "АО «Райффайзенбанк»"
+        purpose: "Оплата по контракту 111111 от 31.12.2021"
+      properties:
+        account:
+          description: "Расчетный счет получателя"
+          example: "40702810200001430012"
+          type: "string"
+        correspondentAccount:
+          description: "Корреспондентский счет получателя"
+          example: "30101810200000000700"
+          type: "string"
+        bic:
+          description: "БИК банка получателя"
+          example: "044525700"
+          type: "string"
+        recipientBankName:
+          description: "Наименование банка получателя"
+          example: "АО «Райффайзенбанк»"
+          type: "string"
+        purpose:
+          description: "Назначение платежа"
+          example: "Оплата по контракту 111111 от 31.12.2021"
+          type: "string"
+      required:
+      - "account"
+      - "bic"
+      - "correspondentAccount"
+      - "purpose"
+      - "recipientBankName"
+      type: "object"
+    TaxRequisites:
+      description: "Налоговые реквизиты"
+      example:
+        taxPayerStatus: "01"
+        kppPayer: "770801001"
+        uin: "1820996623340000000000000"
+        cbc: "18200000000000000000"
+        oktmo: "63701000"
+        paymentReason: "0"
+        taxPeriod: "0"
+        docNumberPaymentReason: "0"
+        docDatePaymentReason: "0"
+        receiverName: "Казначейство России (ФНС России)"
+      properties:
+        taxPayerStatus:
+          description: "Статус налогоплательщика"
+          example: "01"
+          type: "string"
+        kppPayer:
+          description: "КПП плательщика"
+          example: "770801001"
+          type: "string"
+        uin:
+          description: "УИН (уникальный идентификатор начислений)"
+          example: "1820996623340000000000000"
+          type: "string"
+        cbc:
+          description: "КБК (код бюджетной классификации)"
+          example: "18200000000000000000"
+          type: "string"
+        oktmo:
+          description: "ОКТМО (Общероссийский классификатор территорий муниципальн\
+            ых образований)"
+          example: "63701000"
+          type: "string"
+        paymentReason:
+          description: "Основание платежа"
+          example: "0"
+          type: "string"
+        taxPeriod:
+          description: "Налоговый период"
+          example: "0"
+          type: "string"
+        docNumberPaymentReason:
+          description: "Номер документа основания платежа"
+          example: "0"
+          type: "string"
+        docDatePaymentReason:
+          description: "Дата документа основания платежа"
+          example: "0"
+          type: "string"
+        receiverName:
+          description: "Наименование получателя"
+          example: "Казначейство России (ФНС России)"
+          type: "string"
+      type: "object"
+    Payment:
+      description: "Исходящий платеж"
+      example:
+        number: 125
+        date: "2025-04-01"
+      properties:
+        number:
+          description: "Номер исходящего платежа"
+          example: 125
+          type: "integer"
+        date:
+          description: "Дата исходящего платежа"
+          example: "2025-04-01"
+          type: "string"
+      type: "object"
+    OrderType:
+      description: "Тип поручения. TAX - в налоговую, COMMON - контрагенту"
+      enum:
+      - "TAX"
+      - "COMMON"
+      example: "COMMON"
+      type: "string"
+    CurrencyCode:
+      description: "Валюта платежа"
+      enum:
+      - "RUB"
+      example: "RUB"
+      type: "string"
+    OrderState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/OrderStatus"
+        type: "object"
+      description: "Состояние поручения"
+      example:
+        statusDate: "2025-07-10T06:53:37.433211"
+        errors: []
+        status: "FINANCED"
+      type: "object"
+    CqrsVersion:
+      description: "hashCode от state - состояния реестра"
+      example: -1628796591
+      type: "integer"
+    ParsedOrderResponse:
+      example:
+        creditorRequisite:
+          fullNameRus: "АО Ромашка"
+          inn: "1234567890"
+          ogrn: "123456789012345"
+          kpp: "123456789"
+        paymentRequisite:
+          account: "40702810200001430012"
+          correspondentAccount: "30101810200000000700"
+          bic: "044525700"
+          recipientBankName: "АО «Райффайзенбанк»"
+          purpose: "Оплата по контракту 111111 от 31.12.2021"
+        taxRequisite:
+          taxPayerStatus: "01"
+          kppPayer: "770801001"
+          uin: "1820996623340000000000000"
+          cbc: "18200000000000000000"
+          oktmo: "63701000"
+          paymentReason: "0"
+          taxPeriod: "0"
+          docNumberPaymentReason: "0"
+          docDatePaymentReason: "0"
+          receiverName: "Казначейство России (ФНС России)"
+        maturityDate: "2025-12-31"
+        orderSum: "123.40"
+        currencyCode: "RUB"
+      properties:
+        creditorRequisite:
+          $ref: "#/components/schemas/CreditorRequisites"
+        paymentRequisite:
+          $ref: "#/components/schemas/PaymentRequisites"
+        taxRequisite:
+          $ref: "#/components/schemas/TaxRequisites"
+        maturityDate:
+          description: "Дата погашения задолженности"
+          example: "2025-12-31"
+          format: "date"
+          type: "string"
+        orderSum:
+          description: "Сумма поручения"
+          example: "123.40"
+          pattern: "^\\d+(\\.\\d{1,2})?$"
+          type: "string"
+        currencyCode:
+          description: "Валюта"
+          example: "RUB"
+          type: "string"
+      required:
+      - "creditorRequisite"
+      - "currencyCode"
+      - "maturityDate"
+      - "orderSum"
+      - "paymentRequisite"
+      type: "object"
+    PacketState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/PacketStatus"
+        type: "object"
+      description: "Состояние пакета"
+      example:
+        statusDate: "2025-07-10T06:53:37.433211"
+        errors: []
+        status: "ACCEPTED_BY_BANK"
+      type: "object"
+    ParserError:
+      example:
+        code: "REST_ERR_5001"
+        message: "General service error"
+        traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+        lineNumber: 5
+      properties:
+        code:
+          $ref: "#/components/schemas/RestErrorCodes"
+        message:
+          description: "Сообщение"
+          example: "General service error"
+          type: "string"
+        traceId:
+          description: "traceId"
+          example: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+          type: "string"
+        lineNumber:
+          description: "Номер строки в файле, где произошла ошибка"
+          example: 5
+          type: "integer"
+      required:
+      - "code"
+      - "lineNumber"
+      - "message"
+      - "traceId"
+      type: "object"
+    Account:
+      example:
+        id: "76b44414-8259-4a09-b4dd-dbe33e0a1729"
+        agreementId: "76b44414-8259-4a09-b4dd-dbe33e0a1729"
+        cbaNumber: "40916819105000006497"
+        state:
+          statusDate: "2025-07-10T06:53:37.433211"
+          errors: []
+          status: "ACTIVE"
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: "Идентификатор счета"
+          example: "76b44414-8259-4a09-b4dd-dbe33e0a1729"
+          format: "uuid"
+          type: "string"
+        agreementId:
+          description: "Идентификатор договора"
+          example: "76b44414-8259-4a09-b4dd-dbe33e0a1729"
+          format: "uuid"
+          type: "string"
+        cbaNumber:
+          description: "Номер счета списания по договору"
+          example: "40916819105000006497"
+          maxLength: 20
+          minLength: 20
+          type: "string"
+        balanceAmount:
+          description: "Баланс счета"
+          type: "integer"
+        state:
+          $ref: "#/components/schemas/AccountState"
+        cqrsVersion:
+          description: "hashCode от state - состояния реестра"
+          example: -1628796591
+          type: "integer"
+      required:
+      - "agreementId"
+      - "cbaNumber"
+      - "cqrsVersion"
+      - "state"
+      type: "object"
+    PropositionStatus:
+      description: "Статус заявления"
+      enum:
+      - "UNSIGNED"
+      - "AWAITS_SIGN_CHECK"
+      - "PARTLY_SIGNED"
+      - "IN_QUEUE"
+      - "PROCESSING"
+      - "DONE"
+      - "REJECTED"
+      example: "DONE"
+      type: "string"
+    PropositionSortingRequest:
+      description: "Запрос сортировки предложений"
+      example:
+        sortBy: "CREATION_DATE"
+        orderBy: "DESC"
+      properties:
+        sortBy:
+          $ref: "#/components/schemas/PropositionSortFields"
+        orderBy:
+          $ref: "#/components/schemas/Direction"
+      required:
+      - "orderBy"
+      - "sortBy"
+      type: "object"
+    Proposition:
+      example:
+        id: "2c44306f-fc96-4780-9b37-6447273b190e"
+        agreementNumber: "АФ-1111"
+        orderId: "2c44306f-fc96-4780-9b37-6447273b190e"
+        accountId: "2c44306f-fc96-4780-9b37-6447273b190e"
+        referenceId: "2c44306f-fc96-4780-9b37-6447273b190e"
+        number: 1
+        creationDate: "2025-01-01"
+        maturityDate: "2025-01-01"
+        amount: 10000
+        isFull: false
+        state:
+          statusDate: "2025-07-10T06:53:37.433211"
+          errors: []
+          status: "DONE"
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: "Идентификатор заявления"
+          example: "2c44306f-fc96-4780-9b37-6447273b190e"
+          format: "uuid"
+          type: "string"
+        agreementNumber:
+          description: "Номер договора"
+          example: "АФ-1111"
+          type: "string"
+        orderId:
+          description: "Идентификатор поручения"
+          example: "2c44306f-fc96-4780-9b37-6447273b190e"
+          format: "uuid"
+          type: "string"
+        accountId:
+          description: "Идентификатор счета"
+          example: "2c44306f-fc96-4780-9b37-6447273b190e"
+          format: "uuid"
+          type: "string"
+        referenceId:
+          description: "Идентификатор заявления клиента, если создание заявления п\
+            роисходит через API"
+          example: "2c44306f-fc96-4780-9b37-6447273b190e"
+          format: "uuid"
+          type: "string"
+        number:
+          description: "Номер заявления"
+          example: 1
+          type: "integer"
+        creationDate:
+          description: "Дата создания заявления"
+          example: "2025-01-01"
+          format: "date"
+          type: "string"
+        maturityDate:
+          description: "Плановая дата погашения поручения"
+          example: "2025-01-01"
+          format: "date"
+          type: "string"
+        amount:
+          description: "Сумма погашения. Допускается не более 2 знаков после запят\
+            ой"
+          example: 10000
+          type: "number"
+        isFull:
+          description: "Тип погашения. Полное или частичное"
+          example: false
+          type: "boolean"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/PropositionState"
+          description: "Состояние заявления"
+          type: "object"
+        cqrsVersion:
+          description: "hashCode от state - состояния реестра"
+          example: -1628796591
+          type: "integer"
+      required:
+      - "accountId"
+      - "agreementNumber"
+      - "amount"
+      - "cqrsVersion"
+      - "creationDate"
+      - "id"
+      - "maturityDate"
+      - "number"
+      - "orderId"
+      - "referenceId"
+      - "state"
+      type: "object"
+    PropositionOrderMetaData:
+      description: "Данные по поручениям необходимые для создания заявления на дос\
+        рочное погашение"
+      example:
+        id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        referenceId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        amount: 10000
+      properties:
+        id:
+          description: "Идентификатор поручения"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          format: "uuid"
+          type: "string"
+        referenceId:
+          description: "Идентификатор заявления, если создание заявления происходи\
+            т через API"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          format: "uuid"
+          type: "string"
+        amount:
+          description: "Сумма погашения"
+          example: 10000
+          type: "number"
+      required:
+      - "id"
+      type: "object"
+    PropositionDigestResponse:
+      example:
+        id: "2c44306f-fc96-4780-9b37-6447273b190e"
+        digest: "0L/RgNC40LzQtdGAIGRpZ2VzdC3QsA=="
+      properties:
+        id:
+          description: "Идентификатор заявления"
+          example: "2c44306f-fc96-4780-9b37-6447273b190e"
+          format: "uuid"
+          type: "string"
+        digest:
+          description: "Дайджест заявления"
+          example: "0L/RgNC40LzQtdGAIGRpZ2VzdC3QsA=="
+          type: "string"
+      type: "object"
+    Principal:
+      description: "Принципал"
+      example:
+        id: "2c44306f-fc96-4780-9b37-6447273b190e"
+        cnum: "AA10AA"
+        shortNameRus: "АО Ромашка"
+        fullNameRus: "Акционерное общество Ромашка"
+        fullNameEng: "Joint Stock Chamomile"
+        inn: "7744000302"
+        ogrn: "1027739326449"
+        kpp: "770401001"
+        state:
+          statusDate: "2025-07-10T06:53:37.433211"
+          errors: []
+          status: "APPROVED"
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: "Идентификатор принципала"
+          example: "2c44306f-fc96-4780-9b37-6447273b190e"
+          format: "uuid"
+          type: "string"
+        cnum:
+          description: "Клиентский номер (CNUM)"
+          example: "AA10AA"
+          type: "string"
+        shortNameRus:
+          description: "Сокращенное наименование организации"
+          example: "АО Ромашка"
+          type: "string"
+        fullNameRus:
+          description: "Полное наименование организации"
+          example: "Акционерное общество Ромашка"
+          type: "string"
+        fullNameEng:
+          description: "Полное наименование организации на англ. языке"
+          example: "Joint Stock Chamomile"
+          type: "string"
+        inn:
+          description: "ИНН"
+          example: "7744000302"
+          type: "string"
+        ogrn:
+          description: "ОГРН"
+          example: "1027739326449"
+          type: "string"
+        kpp:
+          description: "КПП"
+          example: "770401001"
+          type: "string"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/PrincipalState"
+          description: "Состояние пакета"
+          type: "object"
+        cqrsVersion:
+          description: "hashCode от state - состояния реестра"
+          example: -1628796591
+          type: "integer"
+      required:
+      - "cnum"
+      - "cqrsVersion"
+      - "fullNameEng"
+      - "fullNameRus"
+      - "id"
+      - "inn"
+      - "kpp"
+      - "ogrn"
+      - "shortNameRus"
+      - "state"
+      type: "object"
+    AgreementState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/AgreementStatus"
+        type: "object"
+      description: "Состояние договора"
+      example:
+        statusDate: "2025-07-10T06:53:37.433211"
+        errors: []
+        status: "APPROVED"
+      type: "object"
+    RestErrorCodes:
+      description: "| code            | description                              \
+        \  |\n|-----------------|--------------------------------------------|\n|\
+        \ REST_ERR_5001   | General service error                       |\n| REST_ERR_5040\
+        \   | Tax is not available                        |\n| REST_ERR_5041   | Incorrect\
+        \ format of taxpayer status         |\n| REST_ERR_5042   | Incorrect format\
+        \ of KPP payer's             |\n| REST_ERR_5043   | Incorrect format of UIN\
+        \                     |\n| REST_ERR_5044   | Incorrect format of CBC     \
+        \                |\n| REST_ERR_5045   | Incorrect format of OKTMO        \
+        \           |\n| REST_ERR_5046   | Incorrect format of payment reason    \
+        \      |\n| REST_ERR_5047   | Incorrect format of tax period             \
+        \ |\n| REST_ERR_5048   | Incorrect format of the payment reason document number\
+        \ |\n| REST_ERR_5049   | Incorrect format of the payment reason document date\
+        \   |\n| REST_ERR_5050   | Incorrect format of receiver name           |\n\
+        | REST_ERR_5051   | Incorrect format of purpose                 |\n"
+      enum:
+      - "REST_ERR_5001"
+      - "REST_ERR_5040"
+      - "REST_ERR_5041"
+      - "REST_ERR_5042"
+      - "REST_ERR_5043"
+      - "REST_ERR_5044"
+      - "REST_ERR_5045"
+      - "REST_ERR_5046"
+      - "REST_ERR_5047"
+      - "REST_ERR_5048"
+      - "REST_ERR_5049"
+      - "REST_ERR_5050"
+      - "REST_ERR_5051"
+      example: "REST_ERR_5001"
+      type: "string"
+    LimitState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/LimitStatus"
+        type: "object"
+      description: "Состояние лимита"
+      example:
+        statusDate: "2025-07-10T06:53:37.433211"
+        errors: []
+        status: "APPROVED"
+      type: "object"
+    CreditorState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/CreditorStatus"
+        type: "object"
+      description: "Состояние кредитора"
+      example:
+        statusDate: "2025-07-10T06:53:37.433211"
+        errors: []
+        status: "APPROVED"
+      type: "object"
+    OrderSortFields:
+      description: "Поле для сортировки Поручения"
+      enum:
+      - "MATURITY_DATE"
+      - "ORDER_DATE"
+      - "DEBT_SUM"
+      example: "MATURITY_DATE"
+      type: "string"
+    Direction:
+      description: "Направление сортировки"
+      enum:
+      - "DESC"
+      - "ASC"
+      example: "DESC"
+      type: "string"
+    State:
+      description: "Состояние объекта"
+      example:
+        statusDate: "2025-07-10T06:53:37.433211"
+        errors: []
+      properties:
+        statusDate:
+          description: "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+          format: "date-time"
+          pattern: "([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})"
+          type: "string"
+        errors:
+          description: "Ошибки"
+          items:
+            $ref: "#/components/schemas/Error"
+          type: "array"
+      required:
+      - "statusDate"
+      type: "object"
+    AccountState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/AccountStatus"
+        type: "object"
+      description: "Состояние счета"
+      example:
+        statusDate: "2025-07-10T06:53:37.433211"
+        errors: []
+        status: "ACTIVE"
+      type: "object"
+    PropositionSortFields:
+      description: "Поле для сортировки заявления"
+      enum:
+      - "CREATION_DATE"
+      - "MATURITY_DATE"
+      - "NUMBER"
+      example: "CREATION_DATE"
+      type: "string"
+    PropositionState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/PropositionStatus"
+        type: "object"
+      description: "Состояние заявления"
+      example:
+        statusDate: "2025-07-10T06:53:37.433211"
+        errors: []
+        status: "DONE"
+      type: "object"
+    PrincipalState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/PrincipalStatus"
+        type: "object"
+      description: "Состояние пакета"
+      example:
+        statusDate: "2025-07-10T06:53:37.433211"
+        errors: []
+        status: "APPROVED"
+      type: "object"
+    AgreementStatus:
+      description: "Статус договора"
+      enum:
+      - "APPROVED"
+      - "INVALID"
+      example: "APPROVED"
+      type: "string"
+    LimitStatus:
+      description: "Статус лимита"
+      enum:
+      - "APPROVED"
+      - "INVALID"
+      example: "APPROVED"
+      type: "string"
+    Error:
+      example:
+        code: "ERR_1001"
+        message: "General service error"
+      properties:
+        code:
+          $ref: "#/components/schemas/ErrorCodes"
+        message:
+          description: "Сообщение"
+          example: "General service error"
+          type: "string"
+        traceId:
+          description: "traceId"
+          example: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+          type: "string"
+      required:
+      - "code"
+      - "message"
+      type: "object"
+    AccountStatus:
+      description: "Статус счета"
+      enum:
+      - "ACTIVE"
+      - "BLOCKED"
+      example: "ACTIVE"
+      type: "string"
+    PrincipalStatus:
+      description: "Статус принципала"
+      enum:
+      - "FETCHED"
+      - "APPROVED"
+      - "REJECTED"
+      example: "APPROVED"
+      type: "string"
+    ErrorCodes:
+      description: "| code       | description                        |\n|------------|------------------------------------|\n\
+        | ERR_0000   | Unexpected error                   |\n| ERR_0001   | Creditor\
+        \ not valid                 |\n| ERR_0002   | Error getting okved from DaData\
+        \    |\n| ERR_0003   | Affiliation check not valid        |\n| ERR_0004  \
+        \ | Affiliation check nof found        |\n| ERR_1001   | Requisites not valid\
+        \               |\n| ERR_1002   | Creditor not valid                 |\n|\
+        \ ERR_1003   | The financing period is longer than the maximum |\n| ERR_1004\
+        \   | Exceeded daily limit               |\n| ERR_1005   | Creditor not found\
+        \                 |\n| ERR_1006   | Exceed maximum limit               |\n\
+        | ERR_1007   | Date is not found in calendar      |\n| ERR_1008   | Agreement\
+        \ not found                |\n| ERR_1009   | Agreement not valid         \
+        \       |\n| ERR_1010   | Agreement is blocked               |\n| ERR_1011\
+        \   | Order date invalid                 |\n| ERR_1012   | Maturity date invalid\
+        \              |\n| ERR_1013   | Limit not valid                    |\n| ERR_1014\
+        \   | Due date is unavailable            |\n| ERR_1015   | Tariff plan not\
+        \ found              |\n| ERR_1016   | Order date is not working day     \
+        \ |\n| ERR_1017   | Tariff plan not approved           |\n| ERR_2000   | General\
+        \ service error              |\n| ERR_4001   | Requisites not valid      \
+        \         |\n| ERR_4002   | Payment rejected by operator       |\n| ERR_4003\
+        \   | Payment rejected by CBR            |\n| ERR_6000   | Entry rejected\
+        \ by CIG              |\n| ERR_9001   | Value date is over               \
+        \  |\n| ERR_9002   | First financing date is over       |\n| ERR_11001  |\
+        \ Minimum Margin check failed        |\n| ERR_12001  | Account is blocked\
+        \                 |\n"
+      enum:
+      - "ERR_0000"
+      - "ERR_0001"
+      - "ERR_0002"
+      - "ERR_0003"
+      - "ERR_0004"
+      - "ERR_1001"
+      - "ERR_1002"
+      - "ERR_1003"
+      - "ERR_1004"
+      - "ERR_1005"
+      - "ERR_1006"
+      - "ERR_1007"
+      - "ERR_1008"
+      - "ERR_1009"
+      - "ERR_1010"
+      - "ERR_1011"
+      - "ERR_1012"
+      - "ERR_1013"
+      - "ERR_1014"
+      - "ERR_1015"
+      - "ERR_1016"
+      - "ERR_1017"
+      - "ERR_2000"
+      - "ERR_4001"
+      - "ERR_4002"
+      - "ERR_4003"
+      - "ERR_6000"
+      - "ERR_9001"
+      - "ERR_9002"
+      - "ERR_11001"
+      - "ERR_12001"
+      example: "ERR_2000"
+      type: "string"
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+servers:
+- url: "https://api.raiffeisen.ru/payables-financing"

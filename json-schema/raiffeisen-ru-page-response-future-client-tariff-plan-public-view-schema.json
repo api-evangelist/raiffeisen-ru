@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-page-response-future-client-tariff-plan-public-view-schema.json",
+  "title": "PageResponseFutureClientTariffPlanPublicView",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-client-tariffs-openapi.yml#/components/schemas/PageResponseFutureClientTariffPlanPublicView",
+  "required": [
+    "content",
+    "hasNext",
+    "hasPrevious",
+    "number",
+    "size"
+  ],
+  "type": "object",
+  "properties": {
+    "content": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/FutureClientTariffPlanPublicView"
+      }
+    },
+    "size": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "number": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "hasNext": {
+      "type": "boolean"
+    },
+    "hasPrevious": {
+      "type": "boolean"
+    }
+  },
+  "$defs": {
+    "FutureClientTariffPlanPublicView": {
+      "required": [
+        "activateAt",
+        "client",
+        "clientTariffPlanVersion",
+        "id",
+        "servicePackage",
+        "servicePackageName",
+        "tariffPlan",
+        "tariffPlanDocumentId",
+        "tariffPlanName",
+        "tariffPlanPublicName"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Уникальный идентификатор",
+          "format": "int64"
+        },
+        "client": {
+          "type": "string",
+          "description": "Cnum клиента"
+        },
+        "tariffPlan": {
+          "type": "string",
+          "description": "Код тарифного плана"
+        },
+        "tariffPlanName": {
+          "type": "string",
+          "description": "Наименование тарифного плана"
+        },
+        "tariffPlanPublicName": {
+          "type": "string",
+          "description": "Публичное наименование тарифного плана"
+        },
+        "servicePackage": {
+          "type": "string",
+          "description": "Код сервисного пакета"
+        },
+        "servicePackageName": {
+          "type": "string",
+          "description": "Наименование сервисного пакета"
+        },
+        "activateAt": {
+          "type": "string",
+          "description": "Дата активации",
+          "format": "date-time"
+        },
+        "clientTariffPlanVersion": {
+          "type": "string",
+          "description": "Версия тарифного плана клиента"
+        },
+        "tariffPlanDocumentId": {
+          "type": "integer",
+          "description": "Идентификатор документа тарифного плана",
+          "format": "int64"
+        }
+      },
+      "description": "Публичное представление будущего тарифного плана клиента"
+    }
+  }
+}

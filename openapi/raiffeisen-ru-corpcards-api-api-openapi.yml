@@ -1,0 +1,1027 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Corpcards API
+  version: '0.1'
+  contact:
+    email: dcc@raiffeisen.ru
+    name: Support e-mail
+    x-team-id: 228
+    x-short-team-name: Corporate Cards
+  x-description-i18n:
+    eng: "Automated card issuance via API or registry. This allows you to issue corporate cards without documents or passports. Send us a list of cardholders via a registry through your online banking or API—we’ll issue the cards for you.\n\n# Registry\n\n1. Send the list of employees via online banking in XLS, CSV, or XML format. You can fill out the employee list manually or export it from your accounting system.\n\n2. If you order cards at a [bank branch](https://docs.google.com/spreadsheets/d/1lT-qOCGrAW7u9IFn8tDWwO1bnUt_gNPEncINGvVVbKE), delivery takes 3-5 business days.\n   If you order cards to be delivered to cardholders' addresses (only for XLS and CSV formats), delivery takes 5-7 business days, depending on the region. Cardholders will receive an SMS notification when their card is ready.\n\n## Registry Format\n  Template: <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/Заявление на выпуск карт для нерезидентов v2.xlsx'\" color=\"primary\">XLS</Button>\n\n  Examples: <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/xml_registry1.xml'\" color=\"primary\">XML_1</Button> <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/xml_registry2.xml'\" color=\"primary\">XML_2</Button> <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/csv_registry.csv'\" color=\"primary\">CSV</Button>\n\n   Parameter Name                     | Value\n  ------------------------------------|------------------------------------------------------------------------------------------\n   ИдПервичногоДокумента              | Unique registry identifier on the Company's side\n   РасчетныйСчетОрганизации           | Company account opened with the Bank to which the cards will be linked\n   ВидВклада/КодВидаВклада            | Card type <br> (MIR_CORPORATE/ MIR_CORPORATE_VIRTUAL/ CASH_IN&OUT)\n   Фамилия                            | Last name of the employee-cardholder\n   Имя                                | First name of the employee-cardholder\n   Отчество                           | Middle name of the employee-cardholder\n   ЭмбоссированныйТекст               | First and last name of the employee-cardholder in Latin script (to be printed on the card)\n   ОтделениеБанка/ ФилиалОтделенияБанка | Bank branch code where the cards will be delivered\n   Пол                                | Gender of the employee-cardholder\n   ДатаРождения                       | Date of birth\n   МестоРождения.СтранаНазвание       | Country of birth\n   Серия                              | Passport series (Russian passport)\n   Номер                              | Passport number (Russian passport)\n   ДатаВыдачи                         | Passport issue date\n   КемВыдан                           | Passport issuing authority\n   Гражданство                        | Citizenship\n   АдресПрописки.Страна               | Country of registration\n   АдресПрописки.РегионНазвание       | Region of registration address\n   АдресПрописки.НаселенныйПунктНазвание | Locality of registration address\n   АдресПрописки.УлицаНазвание        | Street of registration address <br> (if absent, specify \"Нет\")\n   АдресПрописки.Дом                  | House number of registration address\n   МобильныйТелефон                   | Employee-cardholder’s mobile phone <br> (79210000001 or 9210000001)\n   Суточный лимит <br> (CSV file)     | Daily cash withdrawal limit\n   Месячный лимит <br> (CSV file)     | Monthly spending limit\n   Секретное слово <br> (CSV file)    | Cardholder’s secret word\n   Индекс доставки <br> (CSV file)    | Delivery postal code\n   Регион доставки <br> (CSV file)    | Delivery region\n   Населенный пункт доставки <br> (CSV file) | Delivery locality\n   Улица доставки <br> (CSV file)     | Delivery street\n   Дом доставки <br> (CSV file)       | Delivery house number\n   Корпус доставки <br> (CSV file)    | Delivery building/block\n\n## Instructions for Exporting Registry from 1С\n[Instructions for Exporting Registry from 1С](https://docs.google.com/document/d/1xk9q9MDW1qx9oqQI64FF9PUBdShuLc-rgYuciY2SbzI)\n\n## List of Bank Branches for Card Pickup\n[List of Bank Branches for Card Pickup](https://docs.google.com/spreadsheets/d/1lT-qOCGrAW7u9IFn8tDWwO1bnUt_gNPEncINGvVVbKE)\n\n# About the API\n\nAfter signing the contract, you will receive an email with authorization details for the service.\n\n1. Integrate our API with your accounting system.\n2. Send the list of employees.\n3. Check card issuance status.\n4. Within 3-5 business days, the cards will be delivered to the bank branch. Cardholders will receive an SMS notification.\n\nCommunication is carried out via HTTP using GET/POST methods (each request description specifies the required method and address).\n   - POST requests use JSON arguments.\n   - GET requests work with query strings.\n\nThe API always returns a response in JSON format, regardless of the request type.\n   - Every response includes a message code (`code`). If a logical error occurs during processing, the API will also return an error description (`message`).\n\n## Authorization\n\nTo authorize requests, the following is required:\n- `secretKey` – a secret key used for inter-service communication.\n\nIMPORTANT: The secret key must be stored securely. Do not publish it on third-party resources or share it with unauthorized parties.\n\nInter-service requests are authorized via the API secret key (`SECRET_KEY`). The authorization parameter is specified in the `Authorization` header, formatted as `\"Bearer SECRET_KEY\"`.\n"
+  x-logo:
+    url: images/raifflogo.png
+    backgroundColor: '#FFFFFF'
+    altText: Raiff logo
+  description: 'Operations tagged corpcards-api across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-corporate-cards-openapi.json, raiffeisen-ru-raif-pay-corporate-cards-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://pay-test.raif.ru
+  description: Sandbox
+- url: https://pay.raif.ru
+  description: Production
+security:
+- Authorization: []
+tags:
+- name: corpcards-api
+  x-displayName: Выпуск карт
+  x-x-displayName-i18n:
+    eng: Issuing cards
+  description: 'Для реализации взаимодействия Райффайзенбанк предоставляет API:
+
+    * запрос на создание карт с использованием HTTP;
+
+    * получение информации о статусе запроса на создание карт'
+  x-description-i18n:
+    eng: 'To implement the integration, Raiffeisenbank provides the following API:
+
+      * Card issuance request** via HTTP;
+
+      * Request status retrieval** for card issuance.
+
+      '
+paths:
+  /api/cards/v1/emission/batch/issuing:
+    post:
+      summary: Заявка на создание карт
+      x-summary-i18n:
+        eng: Card emission request
+      description: Метод на подачу заявки на выпуск карт
+      x-description-i18n:
+        eng: Card emission request method
+      operationId: emissionCardsBatch
+      tags:
+      - corpcards-api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchExternalDtoWithoutCard'
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/components/responses/400_with_errors'
+        '401':
+          $ref: '#/components/responses/401'
+        '500':
+          $ref: '#/components/responses/500'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+  /api/cards/v1/emission/batch/issuing/{batchId}:
+    parameters:
+    - $ref: '#/components/parameters/BatchId'
+    get:
+      summary: Статус заявки на выпуск карт
+      x-summary-i18n:
+        eng: Card issuing status
+      description: Метод получения информации о статусе заявки
+      x-description-i18n:
+        eng: Get card issuing status method
+      operationId: emissionCardsBatchStatus
+      tags:
+      - corpcards-api
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: Массив со списком карт и их статусами
+                x-description-i18n:
+                  eng: array with cards and statuses
+                items:
+                  $ref: '#/components/schemas/CardApplicationDto'
+        '400':
+          $ref: '#/components/responses/400_without_errors'
+        '401':
+          $ref: '#/components/responses/401'
+        '500':
+          $ref: '#/components/responses/500'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+  /api/cards/v1/emission/batch/binding:
+    post:
+      summary: Заявка на привязку моментальных карт
+      x-summary-i18n:
+        eng: Card binding
+      description: Метод на подачу заявки на привязку моментальных карт
+      x-description-i18n:
+        eng: Instant card binding request
+      operationId: emissionCardsBinding
+      tags:
+      - corpcards-api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchExternalDto'
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/components/responses/400_with_errors'
+        '401':
+          $ref: '#/components/responses/401'
+        '500':
+          $ref: '#/components/responses/500'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+  /api/cards/v1/emission/batch/binding/{batchId}:
+    parameters:
+    - $ref: '#/components/parameters/BatchId'
+    get:
+      summary: Статус запроса на привязку моментальных карт
+      x-summary-i18n:
+        eng: Instant card binding status request
+      description: Информация о статусе заявки на привязку моментальных карт
+      x-description-i18n:
+        eng: Instant card binding request status information
+      operationId: emissionCardsBindingStatus
+      tags:
+      - corpcards-api
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: Массив со списком карт и их статусами
+                x-description-i18n:
+                  eng: array with cards and statuses
+                items:
+                  allOf:
+                  - $ref: '#/components/schemas/CardApplicationDto'
+        '400':
+          $ref: '#/components/responses/400_without_errors'
+        '401':
+          $ref: '#/components/responses/401'
+        '500':
+          $ref: '#/components/responses/500'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+components:
+  schemas:
+    CardInstantFieldsDto:
+      type: object
+      description: Данные моментальной карты
+      x-description-i18n:
+        eng: Instant card details
+      required:
+      - lastFourDigits
+      - cardId
+      properties:
+        lastFourDigits:
+          allOf:
+          - $ref: '#/components/schemas/LastFourDigits'
+        cardId:
+          allOf:
+          - $ref: '#/components/schemas/CardId'
+          description: Уникальный банковский идентификатор карты. Строка с целым числом
+          x-description-i18n:
+            eng: Unique bank card identifier. String with number
+          minLength: 8
+          maxLength: 8
+          example: '87654321'
+    EmployeeId:
+      type: string
+      description: Табельный номер сотрудника
+      example: 3012345633
+    IssuedDate:
+      type: string
+      format: YYYY-MM-DD
+      description: Дата выдачи документа
+      x-description-i18n:
+        eng: Document issue date
+      example: '2010-01-30'
+    CardExternalRequestDto:
+      type: object
+      required:
+      - id
+      - account
+      - product
+      - branchId
+      - person
+      - card
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/Id'
+        account:
+          maxLength: 20
+          minLength: 20
+          allOf:
+          - $ref: '#/components/schemas/Account'
+        product:
+          allOf:
+          - $ref: '#/components/schemas/Product'
+        dailyLimit:
+          allOf:
+          - $ref: '#/components/schemas/DailyLimit'
+        monthlyLimit:
+          allOf:
+          - $ref: '#/components/schemas/MonthlyLimit'
+        branchId:
+          maxLength: 3
+          minLength: 3
+          allOf:
+          - $ref: '#/components/schemas/BranchId'
+        person:
+          allOf:
+          - $ref: '#/components/schemas/PersonExternalRequestDto'
+        card:
+          allOf:
+          - $ref: '#/components/schemas/CardInstantFieldsDto'
+    Region:
+      type: string
+      description: Регион адреса прописки. В строке допускаются кириллица, цифры, пробелы и .,();:#/№-
+      x-description-i18n:
+        eng: 'Region of registered address. Allowed characters: Cyrillic letters, digits, spaces, and .,();:#/№-'
+      maxLength: 30
+      example: Москва
+    SecretWord:
+      type: string
+      description: Кодовое слово. Необязательное поле. Допускаются кириллица, латиница, цифры.
+      x-description-i18n:
+        eng: 'Secret word. Optional field. Allowed characters: Cyrillic, Latin letters, digits.'
+      maxLength: 20
+      example: secretword123
+    Message:
+      type: string
+      description: Описание ошибки. Отсутствует, если процесс прошёл успешно.
+      x-description-i18n:
+        eng: Error description. Absent if the process completed successfully.
+      example: 'Ошибка в паспортных данных: неверно указаны ФИО и номер паспорта. Отредактируйте заявку и отправьте еще раз'
+    BatchExternalDtoWithoutCard:
+      type: object
+      required:
+      - batchId
+      - cards
+      properties:
+        batchId:
+          allOf:
+          - $ref: '#/components/schemas/UserBatchId'
+        cards:
+          type: array
+          description: Список карт на выпуск
+          x-description-i18n:
+            eng: Cards for emission
+          items:
+            allOf:
+            - $ref: '#/components/schemas/CardExternalRequestDtoWithoutCard'
+    City:
+      type: string
+      description: Город местонахождения Отделения Банка
+      x-description-i18n:
+        eng: 'City of location of the Bank Branch
+
+          '
+      example: Москва
+    AddressResultDto:
+      type: object
+      description: Информация об адресе держателя карты
+      x-description-i18n:
+        eng: Cardholder address information
+      required:
+      - region
+      - city
+      - house
+      properties:
+        countryOfRegistrationIsoCode:
+          allOf:
+          - $ref: '#/components/schemas/CountryOfBirthIsoCode'
+          description: Код страны адреса прописки (ISO). Необязательное поле. Строка с целым числом
+          x-description-i18n:
+            eng: Country of registration address code (ISO). Optional field. String with number.
+        region:
+          allOf:
+          - $ref: '#/components/schemas/Region'
+        city:
+          allOf:
+          - $ref: '#/components/schemas/City'
+          description: Населенный пункт адреса прописки. В строке допускаются кириллица, цифры, пробелы и .,();:#/№-
+          x-description-i18n:
+            eng: 'Locality of registered address. Allowed characters: Cyrillic letters, digits, spaces, and .,();:#/№-'
+          maxLength: 30
+        street:
+          allOf:
+          - $ref: '#/components/schemas/Street'
+        house:
+          allOf:
+          - $ref: '#/components/schemas/House'
+        building:
+          allOf:
+          - $ref: '#/components/schemas/Building'
+        postalCode:
+          allOf:
+          - $ref: '#/components/schemas/PostalCode'
+    PassportRequestDto:
+      type: object
+      description: Информация о паспорте РФ держателя карты
+      x-description-i18n:
+        eng: Russian passport details of the cardholder
+      required:
+      - series
+      - number
+      - issuedBy
+      - issuedDate
+      - placeOfBirth
+      - departmentCode
+      properties:
+        series:
+          allOf:
+          - $ref: '#/components/schemas/Series'
+        number:
+          allOf:
+          - $ref: '#/components/schemas/Number'
+        issuedBy:
+          allOf:
+          - $ref: '#/components/schemas/IssuedBy'
+        issuedDate:
+          allOf:
+          - $ref: '#/components/schemas/IssuedDate'
+        countryOfBirthIsoCode:
+          allOf:
+          - $ref: '#/components/schemas/CountryOfBirthIsoCode'
+        placeOfBirth:
+          allOf:
+          - $ref: '#/components/schemas/PlaceOfBirth'
+        departmentCode:
+          allOf:
+          - $ref: '#/components/schemas/DepartmentCode'
+    CardApplicationDto:
+      type: object
+      description: Информация по карте
+      x-description-i18n:
+        eng: Card information
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/Id'
+        cardId:
+          allOf:
+          - $ref: '#/components/schemas/CardId'
+          example: '12345678'
+        account:
+          allOf:
+          - $ref: '#/components/schemas/Account'
+        product:
+          allOf:
+          - $ref: '#/components/schemas/Product'
+          example: MC_CORPORATE
+        dailyLimit:
+          allOf:
+          - $ref: '#/components/schemas/DailyLimit'
+        monthlyLimit:
+          allOf:
+          - $ref: '#/components/schemas/MonthlyLimit'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status-2'
+        person:
+          allOf:
+          - $ref: '#/components/schemas/PersonResultDto'
+        deliveryAddress:
+          allOf:
+          - $ref: '#/components/schemas/AddressResultDto'
+    PlaceOfBirth:
+      type: string
+      maxLength: 150
+      description: Место рождения
+      x-description-i18n:
+        eng: Place of birth
+    Name:
+      type: string
+      description: Имя
+      x-description-i18n:
+        eng: Name
+      example: Тест
+    Surname:
+      type: string
+      description: Фамилия
+      x-description-i18n:
+        eng: Surname
+      example: Тестов
+    PostalCode:
+      type: string
+      description: Почтовый индекс. Строка с целым числом. Необязательное поле
+      x-description-i18n:
+        eng: Postal/ZIP code. Integer string. Optional field
+      maxLength: 6
+      minLength: 6
+      example: '127521'
+    PersonExternalRequestDto:
+      type: object
+      description: Данные держателя карты
+      x-description-i18n:
+        eng: Card holder's details
+      required:
+      - surname
+      - name
+      - birthday
+      - gender
+      - cellPhone
+      - passport
+      - address
+      properties:
+        surname:
+          allOf:
+          - $ref: '#/components/schemas/Surname'
+          description: 'Фамилия. Допускаются символы: кириллица, дефис, пробел, апостроф.'
+          x-description-i18n:
+            eng: 'Last name. Allowed characters: Cyrillic letters, hyphen, space, apostrophe.'
+          maxLength: 50
+        name:
+          allOf:
+          - $ref: '#/components/schemas/Name'
+          description: 'Имя. Допускаются символы: кириллица, дефис, пробел, апостроф.'
+          x-description-i18n:
+            eng: 'First name. Allowed characters: Cyrillic letters, hyphen, space, apostrophe.'
+          maxLength: 50
+        patronymic:
+          allOf:
+          - $ref: '#/components/schemas/Patronymic'
+          description: 'Отчество. Допускаются символы: кириллица, дефис, пробел, апостроф.'
+          x-description-i18n:
+            eng: 'Patronymic name. Allowed characters: Cyrillic letters, hyphen, space, apostrophe.'
+          maxLength: 50
+        birthday:
+          allOf:
+          - $ref: '#/components/schemas/Birthday'
+        gender:
+          allOf:
+          - $ref: '#/components/schemas/Gender'
+        cellPhone:
+          allOf:
+          - $ref: '#/components/schemas/CellPhone'
+        transcriptFullName:
+          allOf:
+          - $ref: '#/components/schemas/TranscriptFullName'
+        citizenshipCode:
+          allOf:
+          - $ref: '#/components/schemas/CitizenshipCode'
+        secretWord:
+          allOf:
+          - $ref: '#/components/schemas/SecretWord'
+        employeeId:
+          allOf:
+          - $ref: '#/components/schemas/EmployeeId'
+        email:
+          allOf:
+          - $ref: '#/components/schemas/Email'
+        passport:
+          allOf:
+          - $ref: '#/components/schemas/PassportRequestDto'
+        address:
+          allOf:
+          - $ref: '#/components/schemas/AddressRequestDto'
+    IssuedBy:
+      type: string
+      description: Кем выдан документ. В строке допускаются кириллица, цифры, пробелы и .,();:#/№-
+      x-description-i18n:
+        eng: 'Issuing authority. Allowed characters: Cyrillic letters, digits, spaces, and .,();:#/№-'
+      maxLength: 150
+      example: ОУФМС по МО в городском округе Серпухов
+    AddressRequestDto:
+      type: object
+      description: Информация об адресе держателя карты
+      x-description-i18n:
+        eng: Cardholder address information
+      required:
+      - region
+      - city
+      - house
+      properties:
+        countryOfRegistrationIsoCode:
+          allOf:
+          - $ref: '#/components/schemas/CountryOfBirthIsoCode'
+          description: Код страны адреса прописки (ISO). Необязательное поле. Строка с целым числом
+          x-description-i18n:
+            eng: Country of registration address code (ISO). Optional field. String with number.
+        region:
+          allOf:
+          - $ref: '#/components/schemas/Region'
+        city:
+          allOf:
+          - $ref: '#/components/schemas/City'
+          description: Населенный пункт адреса прописки. В строке допускаются кириллица, цифры, пробелы и .,();:#/№-
+          x-description-i18n:
+            eng: 'Locality of registered address. Allowed characters: Cyrillic letters, digits, spaces, and .,();:#/№-'
+          maxLength: 30
+        street:
+          allOf:
+          - $ref: '#/components/schemas/Street'
+        house:
+          allOf:
+          - $ref: '#/components/schemas/House'
+        building:
+          allOf:
+          - $ref: '#/components/schemas/Building'
+        postalCode:
+          allOf:
+          - $ref: '#/components/schemas/PostalCode'
+    MonthlyLimit:
+      type: string
+      description: Ежемесячный общий расходный лимит по карте в рублях. Строка с целым числом. Необязательное поле, по умолчанию устанавливается в соответствии с типом карты.
+      x-description-i18n:
+        eng: Monthly cash withdrawal limit for the card in RUB. Integer. Optional field, defaults according to the card type.
+      example: '5000'
+    Gender:
+      type: string
+      description: Пол держателя карты
+      x-description-i18n:
+        eng: Cardholder gender
+      maxLength: 6
+      enum:
+      - MALE
+      - FEMALE
+      example: MALE
+    CitizenshipCode:
+      type: string
+      description: Код страны гражданства (ISO). Необязательное поле. По умолчанию 643 (РОССИЯ)
+      x-description-i18n:
+        eng: 'Country of citizenship code (ISO). Optional field. Default: 643 (RUSSIA).'
+      maxLength: 3
+      minLength: 3
+      example: '643'
+    BranchId:
+      type: string
+      x-description-i18n:
+        eng: '3-digit digital code of the Bank Branch
+
+          '
+      description: 3-х значный цифровой код Отделения Банка
+      example: '740'
+    CardId:
+      type: string
+      description: Уникальный банковский идентификатор карты
+      x-description-i18n:
+        eng: Unique bank card identifier
+    BatchExternalDto:
+      type: object
+      required:
+      - batchId
+      - cards
+      properties:
+        batchId:
+          allOf:
+          - $ref: '#/components/schemas/UserBatchId'
+        cards:
+          type: array
+          description: Список карт на выпуск
+          x-description-i18n:
+            eng: array cards binding
+          items:
+            allOf:
+            - $ref: '#/components/schemas/CardExternalRequestDto'
+    Status-2:
+      type: object
+      description: Статус по карте
+      properties:
+        value:
+          allOf:
+          - $ref: '#/components/schemas/Value'
+        description:
+          allOf:
+          - $ref: '#/components/schemas/Description'
+        message:
+          allOf:
+          - $ref: '#/components/schemas/Message'
+        dateTime:
+          allOf:
+          - $ref: '#/components/schemas/DateTime'
+    Patronymic:
+      type: string
+      description: Отчество
+      x-description-i18n:
+        eng: Patronymic
+      example: Тестович
+    CompanyId:
+      type: string
+      description: CNUM компании
+      x-description-i18n:
+        eng: Company CNUM
+      example: HBA23K
+    Birthday:
+      type: string
+      format: YYYY-MM-DD
+      description: Дата рождения
+      x-description-i18n:
+        eng: Birthday
+      example: '1980-01-30'
+    CellPhone:
+      type: string
+      description: 'Номер мобильного телефона, используется для смс-информирования и активации карты. Строка с целым числом: +7xxxxxxxxxx / 89xxxxxxxxx / 79xxxxxxxxx / 9xxxxxxxxx.'
+      x-description-i18n:
+        eng: 'Mobile phone number used for SMS notifications and card activation. *Integer string in formats: +7xxxxxxxxxx / 89xxxxxxxxx / 79xxxxxxxxx / 9xxxxxxxxx.*'
+      maxLength: 12
+      example: '79123456789'
+    Description:
+      type: string
+      description: Описание статуса
+      x-description-i18n:
+        eng: Description status
+      example: В обработке
+    PersonResultDto:
+      type: object
+      description: Информация по держателю карты
+      x-description-i18n:
+        eng: Cardholer information
+      properties:
+        companyId:
+          allOf:
+          - $ref: '#/components/schemas/CompanyId'
+        maskedName:
+          allOf:
+          - $ref: '#/components/schemas/MaskedName'
+        birthday:
+          allOf:
+          - $ref: '#/components/schemas/Birthday'
+        gender:
+          allOf:
+          - $ref: '#/components/schemas/Gender'
+        maskedCellPhone:
+          allOf:
+          - $ref: '#/components/schemas/MaskedCellPhone'
+        employeeId:
+          allOf:
+          - $ref: '#/components/schemas/EmployeeId'
+        email:
+          allOf:
+          - $ref: '#/components/schemas/Email'
+        passport:
+          allOf:
+          - $ref: '#/components/schemas/PassportResultDto'
+        branchId:
+          allOf:
+          - $ref: '#/components/schemas/BranchId'
+    LastFourDigits:
+      type: string
+      description: Последние четыре цифры моментальной карты. Строка с целым числом
+      x-description-i18n:
+        eng: Last four digits of the instant card. String with number
+      minLength: 4
+      maxLength: 4
+      example: '4321'
+    UserBatchId:
+      type: string
+      description: Уникальный идентификатор пакета
+      x-description-i18n:
+        eng: Unique batch id
+      maxLength: 36
+      example: d780dd10-3276-4d0b-afd0-29e271491e24
+    DailyLimit:
+      type: string
+      description: Ежедневный лимит на снятие наличных по карте в рублях. Строка с целым числом. Необязательное поле, по умолчанию устанавливается в соответствии с типом карты.
+      x-description-i18n:
+        eng: Daily cash withdrawal limit for the card in RUB. Integer. Optional field, defaults according to the card type.
+      example: '500'
+    Value:
+      type: string
+      description: Код статуса
+      x-description-i18n:
+        eng: Status code
+      enum:
+      - IN_PROGRESS
+      - SUCCESS
+      - REJECTED
+      example: IN_PROGRESS
+    MaskedNumber:
+      type: string
+      description: Маскированный номер карты
+      x-description-i18n:
+        eng: Masked card number
+      example: 1***56
+    Street:
+      type: string
+      description: Улица адреса прописки. В строке допускаются кириллица, цифры, пробелы и .,();:#/№-
+      x-description-i18n:
+        eng: 'Street of registered address. Allowed characters: Cyrillic letters, digits, spaces, and .,();:#/№-'
+      maxLength: 50
+      example: Октябрьская
+    Email:
+      type: string
+      maxLength: 100
+      pattern: ^([+_%A-Za-zА-Яа-я0-9]+(\.[+_%A-Za-zА-Яа-я0-9]+)*@([A-Za-zА-Яа-я0-9\-]+\.)+[A-Za-zА-Яа-я]{2,20})$
+      description: Электронная почта. Поле обязательно для выпуска виртуальных карт
+      x-description-i18n:
+        eng: Email. Required field for virtual card emission.
+      example: test@test.ru
+    DepartmentCode:
+      type: string
+      pattern: ^\d{3}\-\d{3}$
+      description: Код подразделения документа
+      x-description-i18n:
+        eng: Department code
+    Number:
+      type: string
+      description: Номер документа. Строка с целым числом
+      x-description-i18n:
+        eng: Document number. String with number.
+      maxLength: 6
+      minLength: 6
+      example: '123456'
+    House:
+      type: string
+      description: Номер дома адреса прописки. В строке допускаются кириллица, цифры, пробелы и .,();:#/№-
+      x-description-i18n:
+        eng: 'House number of registered address. Allowed characters: Cyrillic letters, digits, spaces, and .,();:#/№-'
+      maxLength: 12
+      example: '84'
+    Id:
+      type: string
+      description: Уникальный идентификатор запроса на выпуск карты
+      x-description-i18n:
+        eng: Card emission UID
+      maxLength: 36
+      example: c130bc10-3286-4d0b-afd0-29e271491e13
+    Account:
+      type: string
+      description: Номер счета
+      x-description-i18n:
+        eng: Account number
+      example: '40702810603000060801'
+    Building:
+      type: string
+      description: Номер строения адреса прописки. Необязательное поле. В строке допускаются кириллица, цифры, пробелы и .,();:#/№-
+      x-description-i18n:
+        eng: 'Building number of registered address. Optional field. Allowed characters: Cyrillic letters, digits, spaces, and .,();:#/№-'
+      maxLength: 10
+      example: '3'
+    PassportResultDto:
+      type: object
+      description: Информация о паспорте держателя карты
+      x-description-i18n:
+        eng: Cardholder's passport information
+      properties:
+        maskedSeries:
+          allOf:
+          - $ref: '#/components/schemas/MaskedSeries'
+        maskedNumber:
+          allOf:
+          - $ref: '#/components/schemas/MaskedNumber'
+        issuedDate:
+          allOf:
+          - $ref: '#/components/schemas/IssuedDate'
+        countryOfBirthIsoCode:
+          allOf:
+          - $ref: '#/components/schemas/CountryOfBirthIsoCode'
+        placeOfBirth:
+          allOf:
+          - $ref: '#/components/schemas/PlaceOfBirth'
+        departmentCode:
+          allOf:
+          - $ref: '#/components/schemas/DepartmentCode'
+    CountryOfBirthIsoCode:
+      type: string
+      description: Код страны рождения (ISO). Строка с целым числом
+      x-description-i18n:
+        eng: Country of birth code (ISO). String with number.
+      maxLength: 3
+      minLength: 3
+      example: '643'
+    Product:
+      type: string
+      description: Карточный продукт
+      x-description-i18n:
+        eng: Card product
+      enum:
+      - MIR_CORPORATE
+      - MIR_CORPORATE_VIRTUAL
+      - CASH_IN&OUT
+    MaskedCellPhone:
+      type: string
+      description: Маскированный номер телефона
+      x-description-i18n:
+        eng: Masked cell phone
+      example: 7916***4567
+    MaskedName:
+      type: string
+      description: Фамилия и инициалы
+      x-description-i18n:
+        eng: Masked name
+      example: Тестов Т.Т.
+    DateTime:
+      type: string
+      description: Дата и время обновления
+      format: date-time
+      example: '2025-08-29T07:29:26.795033'
+    MaskedSeries:
+      type: string
+      description: Маскированная серия паспорта
+      x-description-i18n:
+        eng: Masked series
+      example: 1*3*
+    CardExternalRequestDtoWithoutCard:
+      type: object
+      required:
+      - id
+      - account
+      - product
+      - branchId
+      - person
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/Id'
+        account:
+          maxLength: 20
+          minLength: 20
+          allOf:
+          - $ref: '#/components/schemas/Account'
+        product:
+          allOf:
+          - $ref: '#/components/schemas/Product'
+        dailyLimit:
+          allOf:
+          - $ref: '#/components/schemas/DailyLimit'
+        monthlyLimit:
+          allOf:
+          - $ref: '#/components/schemas/MonthlyLimit'
+        branchId:
+          maxLength: 3
+          minLength: 3
+          allOf:
+          - $ref: '#/components/schemas/BranchId'
+        person:
+          allOf:
+          - $ref: '#/components/schemas/PersonExternalRequestDto'
+        deliveryAddress:
+          allOf:
+          - $ref: '#/components/schemas/AddressRequestDto'
+    Series:
+      type: string
+      description: Серия документа. Строка с целым числом
+      x-description-i18n:
+        eng: Document series. String with number.
+      maxLength: 4
+      minLength: 4
+      example: '1234'
+    TranscriptFullName:
+      type: string
+      description: ФИО в альтернативной транскрипции. Необязательное поле. Допускаются латиница, дефисы и пробелы.
+      x-description-i18n:
+        eng: 'Name in alternative transcription. Optional field. Allowed characters: Latin letters, hyphens, and spaces.'
+      maxLength: 150
+      example: Testov Test Testovich
+  responses:
+    400_without_errors:
+      description: Ошибка валидации
+      x-description-i18n:
+        eng: Validation error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Код ошибки.
+                x-description-i18n:
+                  eng: Error code
+                example: INVALID_DATA
+              message:
+                type: string
+                description: Текст ошибки.
+                x-description-i18n:
+                  eng: Error description
+                example: Некорректные данные
+              traceId:
+                type: string
+                description: Trace id запроса
+                x-description-i18n:
+                  eng: Trace id request
+    '401':
+      description: Неверный токен аутентификации
+      x-description-i18n:
+        eng: Invalid authentication token
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Код ошибки
+                x-description-i18n:
+                  eng: Error code
+                example: Unauthorized
+              message:
+                type: string
+                description: Описание ошибки
+                x-description-i18n:
+                  eng: Error description
+                example: some exception
+              traceId:
+                type: string
+                description: Trace id запроса
+                x-description-i18n:
+                  eng: Trace id request
+            required:
+            - code
+            - message
+    '500':
+      description: Внутренняя ошибка
+      x-description-i18n:
+        eng: Internal error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Код ошибки
+                x-description-i18n:
+                  eng: Error code
+                example: Internal Server Error
+              message:
+                type: string
+                description: Описание ошибки
+                x-description-i18n:
+                  eng: Error description
+                example: some message
+              traceId:
+                type: string
+                description: Trace id запроса
+                x-description-i18n:
+                  eng: Trace id request
+    400_with_errors:
+      description: Ошибка валидации
+      x-description-i18n:
+        eng: Validation error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Код ошибки.
+                x-description-i18n:
+                  eng: Error code
+                example: INVALID_DATA
+              message:
+                type: string
+                description: Текст ошибки.
+                x-description-i18n:
+                  eng: Error text
+                example: Некорректные данные
+              errors:
+                type: array
+                description: Ошибки, возникшие при валидации запроса.
+                x-description-i18n:
+                  eng: Errors during validation
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: Уникальный идентификатор запроса на выпуск карты.
+                      x-description-i18n:
+                        eng: Unique card emission request identifier
+                      example: c130bc10-3286-4d0b-afd0-29e271491e13
+                    invalidFields:
+                      type: array
+                      description: Массив со списком полей.
+                      x-description-i18n:
+                        eng: array with invalid fields
+                      items:
+                        type: string
+                        example: person.passport.series
+              traceId:
+                type: string
+                description: Trace id запроса
+  parameters:
+    BatchId:
+      name: batchId
+      in: path
+      required: true
+      description: Уникальный идентификатор пакета, по которому нужно получить статус
+      x-description-i18n:
+        eng: Unique batch identifier to check status for
+      schema:
+        type: string
+  securitySchemes:
+    Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer secret key
+      x-internal: false
+x-refined-from:
+- raiffeisen-ru-raif-pay-corporate-cards-openapi.json
+- raiffeisen-ru-raif-pay-corporate-cards-openapi.yml

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-report-refund-card-response-schema.json",
+  "title": "reportRefundCardResponse",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-raif-pay-reports-openapi.yml#/components/schemas/reportRefundCardResponse",
+  "type": "object",
+  "properties": {
+    "orderId": {
+      "type": "string",
+      "description": "Идентификатор операции "
+    },
+    "amount": {
+      "type": "number",
+      "description": "Сумма операции"
+    },
+    "transactionDate": {
+      "type": "string",
+      "description": "Дата операции"
+    },
+    "paymentSystem": {
+      "type": "string",
+      "description": "Платежная система"
+    },
+    "paymentDetails": {
+      "type": "string",
+      "description": "Назначение платежа"
+    },
+    "transactionId": {
+      "type": "integer",
+      "description": "Идентификатор транзакции в системе Банка"
+    },
+    "clientId": {
+      "type": "string",
+      "description": "Маскированный номер карты клиента"
+    },
+    "authCode": {
+      "type": "string",
+      "description": "Код авторизации платежа, полученный от Банка-эмитента"
+    },
+    "rrn": {
+      "type": "string",
+      "description": "Номер для идентификации"
+    },
+    "refundId": {
+      "type": "string",
+      "description": "Идентификатор запроса на возврат в системе партнера"
+    }
+  }
+}

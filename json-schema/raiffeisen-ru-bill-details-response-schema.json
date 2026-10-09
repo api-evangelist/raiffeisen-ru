@@ -1,0 +1,728 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-bill-details-response-schema.json",
+  "title": "BillDetailsResponse",
+  "description": "Детальная информация о счете на оплату",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-invoices-openapi.yml#/components/schemas/BillDetailsResponse",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Идентификатор счета"
+    },
+    "status": {
+      "type": "string",
+      "description": "Статус счета на оплату",
+      "enum": [
+        "PAYMENT_PENDING",
+        "PAID"
+      ]
+    },
+    "docNumber": {
+      "type": "string",
+      "description": "Номер документа"
+    },
+    "cnum": {
+      "type": "string",
+      "description": "CNUM организации"
+    },
+    "goods": {
+      "$ref": "#/$defs/GoodsResponse"
+    },
+    "invoice": {
+      "$ref": "#/$defs/Invoice",
+      "description": "Счёт на оплату"
+    },
+    "payer": {
+      "$ref": "#/$defs/Payer",
+      "description": "Плательщик"
+    },
+    "payee": {
+      "$ref": "#/$defs/PayeeResponse",
+      "description": "Получатель платежа"
+    },
+    "linkedDocuments": {
+      "type": "array",
+      "description": "Связанные закрывающие документы",
+      "items": {
+        "$ref": "#/$defs/BillDetailsLinkedDocumentResponse"
+      }
+    },
+    "payments": {
+      "type": "array",
+      "description": "Оплаты по счету",
+      "items": {
+        "$ref": "#/$defs/BillPaymentResponse"
+      }
+    },
+    "statusIsUpdating": {
+      "type": "boolean",
+      "description": "Признак того, что статус счета сейчас обновляется"
+    },
+    "createdOn": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Дата и время создания счета"
+    },
+    "receipts": {
+      "type": "array",
+      "description": "Связанные чеки самозанятых",
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      }
+    }
+  },
+  "required": [
+    "cnum",
+    "createdOn",
+    "docNumber",
+    "goods",
+    "id",
+    "invoice",
+    "linkedDocuments",
+    "payee",
+    "payer",
+    "payments",
+    "receipts",
+    "status",
+    "statusIsUpdating"
+  ],
+  "$defs": {
+    "AccountResponse": {
+      "type": "object",
+      "description": "Банковский счёт получателя",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Наименование банка"
+        },
+        "num": {
+          "type": "string",
+          "description": "Номер счёта"
+        },
+        "branchName": {
+          "type": "string",
+          "description": "Наименование отделения банка"
+        },
+        "corrAcc": {
+          "type": "string",
+          "description": "Корреспондентский счёт"
+        },
+        "bic": {
+          "type": "string",
+          "description": "БИК банка"
+        }
+      },
+      "required": [
+        "bic",
+        "branchName",
+        "corrAcc",
+        "name",
+        "num"
+      ]
+    },
+    "BillDetailsLinkedDocumentResponse": {
+      "type": "object",
+      "description": "Связанный документ в детальной информации о счете",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Идентификатор связанного документа"
+        },
+        "type": {
+          "type": "string",
+          "description": "Тип закрывающего документа",
+          "enum": [
+            "BILL",
+            "WORK_ACT",
+            "CONSIGNMENT_NOTE",
+            "UPD",
+            "INVOICE_FACTURA"
+          ]
+        },
+        "documentNumber": {
+          "type": "string",
+          "description": "Номер связанного документа"
+        },
+        "documentDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата связанного документа"
+        },
+        "totalPrice": {
+          "type": "number",
+          "description": "Итоговая сумма"
+        },
+        "totalVatAmount": {
+          "type": "number",
+          "description": "Итоговый НДС"
+        },
+        "payer": {
+          "$ref": "#/$defs/Payer",
+          "description": "Плательщик"
+        }
+      },
+      "required": [
+        "documentDate",
+        "id",
+        "totalPrice",
+        "totalVatAmount",
+        "type"
+      ]
+    },
+    "BillPaymentResponse": {
+      "type": "object",
+      "description": "Оплата по счету",
+      "properties": {
+        "transactionKey": {
+          "type": "string",
+          "description": "Уникальный ключ транзакции для предотвращения дублей"
+        },
+        "operDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата операции"
+        },
+        "corrName": {
+          "type": "string",
+          "description": "Наименование контрагента"
+        },
+        "total": {
+          "type": "number",
+          "description": "Сумма оплаты"
+        },
+        "docNum": {
+          "type": "string",
+          "description": "Номер документа"
+        },
+        "corrAccount": {
+          "type": "string",
+          "description": "Счёт контрагента"
+        },
+        "accountCurrency": {
+          "type": "string",
+          "description": "Валюта счета (код по ISO 4217)",
+          "enum": [
+            "AFA",
+            "ALK",
+            "ALL",
+            "DZD",
+            "ADP",
+            "AOK",
+            "AON",
+            "AZM",
+            "ARA",
+            "ARP",
+            "ARS",
+            "ARY",
+            "AUD",
+            "ATS",
+            "BSD",
+            "BHD",
+            "BDT",
+            "AMD",
+            "BBD",
+            "BEF",
+            "BMD",
+            "BTN",
+            "BOB",
+            "BOP",
+            "BAD",
+            "BWP",
+            "BRB",
+            "BRC",
+            "BRE",
+            "BRN",
+            "BZD",
+            "SBD",
+            "BND",
+            "BGJ",
+            "BGK",
+            "BGL",
+            "BUK",
+            "MMK",
+            "BIF",
+            "BYB",
+            "KHR",
+            "CAD",
+            "CVE",
+            "KYD",
+            "LKR",
+            "CLP",
+            "CNY",
+            "COP",
+            "KMF",
+            "ZRN",
+            "ZRZ",
+            "CRC",
+            "HRD",
+            "HRK",
+            "CUP",
+            "CYP",
+            "CSK",
+            "CSJ",
+            "CZK",
+            "DKK",
+            "DOP",
+            "ECS",
+            "SVC",
+            "GQE",
+            "ETB",
+            "ERN",
+            "EEK",
+            "FKP",
+            "FJD",
+            "FIM",
+            "FRF",
+            "DJF",
+            "GEK",
+            "GMD",
+            "DEM",
+            "DDM",
+            "GHC",
+            "GIP",
+            "GRD",
+            "GTQ",
+            "GNE",
+            "GNF",
+            "GNS",
+            "GYD",
+            "HTG",
+            "HNL",
+            "HKD",
+            "HUF",
+            "ISJ",
+            "ISK",
+            "INR",
+            "IDR",
+            "IRR",
+            "IQD",
+            "IEP",
+            "ILP",
+            "ILR",
+            "ILS",
+            "ITL",
+            "JMD",
+            "JPY",
+            "KZT",
+            "JOD",
+            "KES",
+            "KPW",
+            "KRW",
+            "KWD",
+            "KGS",
+            "LAJ",
+            "LAK",
+            "LBP",
+            "LSL",
+            "LSM",
+            "LVL",
+            "LVR",
+            "LRD",
+            "LYD",
+            "LTL",
+            "LTT",
+            "LUF",
+            "MOP",
+            "MGF",
+            "MWK",
+            "MYR",
+            "MVQ",
+            "MVR",
+            "MLF",
+            "MTL",
+            "MTP",
+            "MRO",
+            "MUR",
+            "MXN",
+            "MXP",
+            "MNT",
+            "MDL",
+            "MAD",
+            "MZE",
+            "MZM",
+            "OMR",
+            "NAD",
+            "NPR",
+            "NLG",
+            "ANG",
+            "AWG",
+            "VUV",
+            "NZD",
+            "NIC",
+            "NIO",
+            "NGN",
+            "NOK",
+            "PKR",
+            "PAB",
+            "PGK",
+            "PYG",
+            "PEH",
+            "PEI",
+            "PEN",
+            "PES",
+            "PHP",
+            "PLZ",
+            "PTE",
+            "GWE",
+            "GWP",
+            "TPE",
+            "QAR",
+            "ROK",
+            "ROL",
+            "RUB",
+            "RWF",
+            "SHP",
+            "STD",
+            "SAR",
+            "SCR",
+            "SLL",
+            "SGD",
+            "SKK",
+            "VNC",
+            "VND",
+            "SIT",
+            "SOS",
+            "ZAR",
+            "RHD",
+            "ZWC",
+            "ZWD",
+            "YDD",
+            "ESP",
+            "SSP",
+            "SDD",
+            "SDP",
+            "SRG",
+            "SZL",
+            "SEK",
+            "CHF",
+            "SYP",
+            "TJR",
+            "THB",
+            "TOP",
+            "TTD",
+            "AED",
+            "TND",
+            "TRL",
+            "TMM",
+            "UGS",
+            "UGW",
+            "UGX",
+            "UAK",
+            "MKD",
+            "RUR",
+            "SUR",
+            "EGP",
+            "GBP",
+            "TZS",
+            "USD",
+            "UYN",
+            "UYP",
+            "UYU",
+            "UZS",
+            "VEB",
+            "WST",
+            "YER",
+            "YUD",
+            "YUN",
+            "CSD",
+            "YUM",
+            "ZMK",
+            "TWD",
+            "SLE",
+            "VED",
+            "UYW",
+            "VES",
+            "MRU",
+            "STN",
+            "CUC",
+            "ZWL",
+            "BYN",
+            "TMT",
+            "ZWR",
+            "GHS",
+            "VEF",
+            "SDG",
+            "GHP",
+            "UYI",
+            "RSD",
+            "ZWN",
+            "MZN",
+            "AZN",
+            "AYM",
+            "RON",
+            "CHE",
+            "CHC",
+            "CHW",
+            "TRY",
+            "XAF",
+            "XCD",
+            "XOF",
+            "XPF",
+            "XEU",
+            "XBA",
+            "XBB",
+            "XBC",
+            "XBD",
+            "XAU",
+            "XDR",
+            "XAG",
+            "XPT",
+            "XTS",
+            "XPD",
+            "XUA",
+            "ZMW",
+            "SRD",
+            "MGA",
+            "COU",
+            "AFN",
+            "TJS",
+            "AOA",
+            "BYR",
+            "BGN",
+            "CDF",
+            "BAM",
+            "EUR",
+            "MXV",
+            "UAH",
+            "GEL",
+            "AOR",
+            "ECV",
+            "BOV",
+            "PLN",
+            "BRL",
+            "BRR",
+            "LUL",
+            "LUC",
+            "CLF",
+            "ZAL",
+            "BEL",
+            "BEC",
+            "XSU",
+            "ESB",
+            "ESA",
+            "USN",
+            "USS",
+            "XXX"
+          ]
+        },
+        "orgName": {
+          "type": "string",
+          "description": "Наименование организации"
+        },
+        "purpose": {
+          "type": "string",
+          "description": "Назначение платежа"
+        }
+      },
+      "required": [
+        "transactionKey"
+      ]
+    },
+    "GoodsResponse": {
+      "type": "object",
+      "description": "Товары",
+      "properties": {
+        "totalVatAmount": {
+          "type": "number",
+          "description": "Итоговый НДС"
+        },
+        "totalPrice": {
+          "type": "number",
+          "description": "Итоговая сумма"
+        },
+        "items": {
+          "type": "array",
+          "description": "Товары",
+          "items": {
+            "$ref": "#/$defs/ItemMiniResponse"
+          }
+        }
+      },
+      "required": [
+        "items",
+        "totalPrice",
+        "totalVatAmount"
+      ]
+    },
+    "Invoice": {
+      "type": "object",
+      "description": "Счёт на оплату",
+      "properties": {
+        "num": {
+          "type": "string",
+          "description": "Номер счёта в буквенно-цифровом формате (может содержать латиницу, кириллицу, цифры, дефис и слэш)",
+          "pattern": "^(?=[A-Za-zА-Яа-я0-9/-]{1,30})(?=.*[1-9]+).*$"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата выставления счёта"
+        },
+        "cause": {
+          "type": "string",
+          "description": "Основание для выставления счёта"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Комментарий"
+        }
+      },
+      "required": [
+        "date",
+        "num"
+      ]
+    },
+    "ItemMiniResponse": {
+      "type": "object",
+      "description": "Модель товара",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Идентификатор товара (возвращается в ответах по счетам, у закрывающих документов отсутствует)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование единицы товара."
+        },
+        "count": {
+          "type": "number",
+          "description": "Количество"
+        },
+        "price": {
+          "type": "number",
+          "description": "Цена единицы товара"
+        },
+        "vat": {
+          "$ref": "#/$defs/Unit",
+          "description": "НДС"
+        },
+        "unit": {
+          "$ref": "#/$defs/Unit",
+          "description": "Единица измерения"
+        },
+        "sum": {
+          "type": "number",
+          "description": "Итоговая стоимость"
+        },
+        "vatAmount": {
+          "type": "number",
+          "description": "НДС"
+        }
+      },
+      "required": [
+        "count",
+        "name",
+        "price",
+        "sum",
+        "unit",
+        "vat",
+        "vatAmount"
+      ]
+    },
+    "PayeeResponse": {
+      "type": "object",
+      "description": "Получатель платежа",
+      "properties": {
+        "inn": {
+          "type": "string",
+          "description": "ИНН получателя платежа"
+        },
+        "kpp": {
+          "type": "string",
+          "description": "КПП получателя платежа"
+        },
+        "cnum": {
+          "type": "string",
+          "description": "CNUM организации"
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование получателя платежа"
+        },
+        "juridicalAddress": {
+          "type": "string",
+          "description": "Юридический адрес получателя платежа"
+        },
+        "lawType": {
+          "type": "string",
+          "description": "Организационно-правовая форма"
+        },
+        "account": {
+          "$ref": "#/$defs/AccountResponse",
+          "description": "Банковский счёт получателя платежа"
+        }
+      },
+      "required": [
+        "account",
+        "cnum",
+        "inn",
+        "juridicalAddress"
+      ]
+    },
+    "Payer": {
+      "type": "object",
+      "description": "Плательщик",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Тип плательщика. INDIVIDUAL (ФЛ) / LEGAL (юр. лицо) / NONE (без типа)",
+          "enum": [
+            "INDIVIDUAL",
+            "LEGAL",
+            "NONE"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование плательщика"
+        },
+        "inn": {
+          "type": "string",
+          "description": "ИНН плательщика"
+        },
+        "kpp": {
+          "type": "string",
+          "description": "КПП плательщика"
+        },
+        "address": {
+          "type": "string",
+          "description": "Адрес плательщика"
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "Unit": {
+      "type": "object",
+      "description": "Модель единицы измерения",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Кодовое название"
+        },
+        "abbreviation": {
+          "type": "string",
+          "description": "Единица измерения"
+        },
+        "value": {
+          "type": "string",
+          "description": "Значение"
+        }
+      },
+      "required": [
+        "abbreviation",
+        "name",
+        "value"
+      ]
+    }
+  }
+}

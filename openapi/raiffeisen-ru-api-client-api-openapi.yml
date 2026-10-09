@@ -1,0 +1,181 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru API - Client API
+  version: 1.0.1
+  description: 'Operations tagged API - Client across 2 of this provider''s published API definitions: raiffeisen-ru-rcam-openapi.yml, raiffeisen-ru-rcam-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/rcam-insurance
+tags:
+- name: API - Client
+  description: Информация о клиенте
+paths:
+  /v1/client/{cnum}:
+    get:
+      operationId: getClientInfo
+      parameters:
+      - name: cnum
+        description: CNUM клиента
+        required: true
+        in: path
+        schema:
+          example: ANA4BM
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Информация о клиенте
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientInfoResponse'
+        '400':
+          description: cnum невалиден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+        '404':
+          description: Клиент не найдет
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundException'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Получение информации о клиенте (комплаенс статус)
+      tags:
+      - API - Client
+    servers:
+    - url: https://api.raiffeisen.ru/rcam-insurance
+  /v1/client/{cnum}/fund-account/{fundAccountNumber}:
+    get:
+      description: Получение информации о состоянии лицевого счета.
+      operationId: getFundAccountInfo
+      parameters:
+      - name: fundAccountNumber
+        required: true
+        in: path
+        schema:
+          example: RC4BLP2027
+          type: string
+      - name: cnum
+        required: true
+        in: path
+        schema:
+          example: ANA4BM
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Информация о лицевом счете
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FundAccountResponse'
+        '400':
+          description: Невалидные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+        '404':
+          description: Лицевой счет у клиента не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundException'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Получение информации о лицевом счете
+      tags:
+      - API - Client
+    servers:
+    - url: https://api.raiffeisen.ru/rcam-insurance
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  schemas:
+    ClientInfoResponse:
+      type: object
+      properties:
+        cnum:
+          type: string
+          example: ANA4BM
+          description: CNUM клиента
+        complianceStatus:
+          type: string
+          enum:
+          - REJECTED
+          - SUCCESS
+          example: SUCCESS
+          description: Комплаенс статус клиента
+      required:
+      - cnum
+      - complianceStatus
+    BadRequestException:
+      type: object
+    FundAccountResponse:
+      type: object
+      properties:
+        accountNumber:
+          type: string
+          example: RC4BLP2027
+          description: Лицевой счет клиента
+        executionDate:
+          type: string
+          description: Дата открытия счета (YYYY-MM-DD)
+          example: '2026-02-09'
+          format: date
+        numberOfShares:
+          type: number
+          example: 123
+          description: Количество паев
+        firstIssuanceDate:
+          type: string
+          description: Дата первого начисления паев (YYYY-MM-DD)
+          example: '2026-02-09'
+          format: date
+        isActive:
+          type: boolean
+          example: true
+          description: Состояние Лицевого счета
+      required:
+      - accountNumber
+      - executionDate
+      - numberOfShares
+      - isActive
+    NotFoundException:
+      type: object
+x-refined-from:
+- raiffeisen-ru-rcam-openapi.yml
+- raiffeisen-ru-rcam-openapi.yml

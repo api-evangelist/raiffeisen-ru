@@ -1,0 +1,4347 @@
+# x-archived-from: raiffeisen-ru-factoring-openapi.yml
+# x-archived-on: 2026-10-09
+---
+openapi: "3.0.3"
+info:
+  description: "API Факторинга"
+  title: "Финансирование. Факторинг"
+  version: "1.0.0"
+servers:
+- url: "https://api.raiffeisen.ru/factoring"
+tags:
+- description: "Договор Факторинга"
+  name: "Agreement"
+- description: "Сумма договора Факторинга"
+  name: "AgreementSum"
+- description: "Контракт"
+  name: "Contract"
+- description: "Основные условия обслуживания поставщик-дебитор"
+  name: "DealConditions"
+- description: "Дебитор"
+  name: "Debtor"
+- description: "Запрос на финансирование"
+  name: "FinancingRequest"
+- description: "Контекст факторингового предложения и доступности"
+  name: "Offer"
+- description: "Реестр поставок"
+  name: "Registry"
+- description: "Отчет"
+  name: "Report"
+- description: "Сублимит - лимит на дебитора в рамках конкретного договора Фактори\
+    нга"
+  name: "Sublimit"
+- description: "Поставщик"
+  name: "Supplier"
+- description: "Поставка"
+  name: "Supply"
+- description: "Тарифный план"
+  name: "TariffPlan"
+paths:
+  /v1/agreements:
+    get:
+      description: "Метод получения договоров Факторинга со счетами по параметрам"
+      operationId: "getAgreements"
+      parameters:
+      - description: "Список клиентских номеров"
+        in: "query"
+        name: "cnums"
+        required: false
+        schema:
+          example:
+          - "CACJEW"
+          - "AAABBB"
+          items:
+            example: "CACJEW"
+            type: "string"
+          type: "array"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                withAllAccounts:
+                  summary: "Договоры с двумя видами счетов"
+                  value:
+                    agreements:
+                    - id: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+                      supplierId: "74f36f89-3e28-4291-896f-b76801238e89"
+                      number: "ДФ-1234"
+                      startDate: "2025-05-01"
+                      feeInvoiceCompensationPeriod: 10
+                      isNonAcceptanceWithdrawalFee: false
+                      internalAccounts:
+                      - id: "0a587aa4-bad9-47ea-beee-6e7775c879f0"
+                        cbaNumber: "40702810400000053038"
+                        isForFinancing: true
+                        state:
+                          status: "ACTIVE"
+                          statusDate: "2025-10-15T12:13:11.512123"
+                          errors: []
+                          cqrsVersion: -5471340216
+                      - id: "96f88f49-09d4-4580-bb84-1a327e89dd3b"
+                        cbaNumber: "40701610400000053040"
+                        isForFinancing: true
+                        state:
+                          status: "BLOCKED"
+                          statusDate: "2025-10-10T17:51:01.256712"
+                          errors: []
+                          cqrsVersion: -1237890432
+                      externalAccounts:
+                      - id: "dfbea6f1-309c-4c0e-815d-7d6527a234c8"
+                        cbaNumber: "40702978200000023058"
+                        bankFullNameRus: "ОАО КБ \"ЖИЛСТРОЙБАНК\""
+                        isForFinancing: false
+                        state:
+                          status: "ACTIVE"
+                          statusDate: "2025-10-01T08:05:51.024123"
+                          errors: []
+                          cqrsVersion: 1742767789
+                      - id: "b2d62049-c229-4849-9234-6c5d9e9d1e80"
+                        cbaNumber: "40702931700000023512"
+                        bankFullNameRus: "АО \"РОССЕЛЬХОЗБАНК\""
+                        isForFinancing: true
+                        state:
+                          status: "ACTIVE"
+                          statusDate: "2025-09-25T14:31:20.0965678"
+                          errors: []
+                          cqrsVersion: 6298231120
+                      state:
+                        status: "APPROVED"
+                        statusDate: "2025-10-16T12:00:01.024991"
+                        errors: []
+                        cqrsVersion: 1742767789
+                    - id: "52d76346-1aa1-4268-ae14-fb6d8e048305"
+                      supplierId: "74f36f89-3e28-4291-896f-b76801238e89"
+                      number: "ДФ-9876"
+                      startDate: "2025-07-15"
+                      feeInvoiceCompensationPeriod: 20
+                      isNonAcceptanceWithdrawalFee: true
+                      internalAccounts:
+                      - id: "05217cb1-8abe-4807-8843-5d54840aeed2"
+                        cbaNumber: "40702810400000053038"
+                        isForFinancing: true
+                        state:
+                          status: "ACTIVE"
+                          statusDate: "2025-10-15T12:13:11.512312"
+                          errors: []
+                          cqrsVersion: -5471340216
+                      - id: "93bf311e-ceb4-47ac-8e06-32d6ba64a297"
+                        cbaNumber: "40701610400000053040"
+                        isForFinancing: true
+                        state:
+                          status: "BLOCKED"
+                          statusDate: "2025-10-10T17:51:01.256453"
+                          errors: []
+                          cqrsVersion: -1237890432
+                      externalAccounts:
+                      - id: "02882c49-6b3d-4e34-a76c-648e2fead85a"
+                        cbaNumber: "40702978200000023058"
+                        bankFullNameRus: "ОАО КБ \"ЖИЛСТРОЙБАНК\""
+                        isForFinancing: false
+                        state:
+                          status: "ACTIVE"
+                          statusDate: "2025-10-01T08:05:51.024112"
+                          errors: []
+                          cqrsVersion: 1742767789
+                      - id: "83f89556-a9a0-4431-a5f5-56be6b414835"
+                        cbaNumber: "40702931700000023512"
+                        bankFullNameRus: "АО \"РОССЕЛЬХОЗБАНК\""
+                        isForFinancing: true
+                        state:
+                          status: "ACTIVE"
+                          statusDate: "2025-09-25T14:31:20.096345"
+                          errors: []
+                          cqrsVersion: 6298231120
+                      state:
+                        status: "APPROVED"
+                        statusDate: "2025-10-16T12:00:01.024667"
+                        errors: []
+                        cqrsVersion: 1742767789
+                onlyWithInternal:
+                  summary: "Договор со счетами клиента только в Райффайзенбанке"
+                  value:
+                    agreements:
+                    - id: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+                      supplierId: "74f36f89-3e28-4291-896f-b76801238e89"
+                      number: "ДФ-1234"
+                      startDate: "2025-05-01"
+                      feeInvoiceCompensationPeriod: 10
+                      isNonAcceptanceWithdrawalFee: false
+                      internalAccounts:
+                      - id: "0a587aa4-bad9-47ea-beee-6e7775c879f0"
+                        cbaNumber: "40702810400000053038"
+                        isForFinancing: true
+                        state:
+                          status: "ACTIVE"
+                          statusDate: "2025-10-15T12:13:11.512889"
+                          errors: []
+                          cqrsVersion: -5471340216
+                      - id: "96f88f49-09d4-4580-bb84-1a327e89dd3b"
+                        cbaNumber: "40701610400000053040"
+                        isForFinancing: true
+                        state:
+                          status: "BLOCKED"
+                          statusDate: "2025-10-10T17:51:01.256931"
+                          errors: []
+                          cqrsVersion: -1237890432
+                      externalAccounts: []
+                      state:
+                        status: "APPROVED"
+                        statusDate: "2025-10-16T12:00:01.024212"
+                        errors: []
+                        cqrsVersion: 1742767789
+                onlyWithExternal:
+                  summary: "Договор со счетами клиента только во внешнем банке"
+                  value:
+                    agreements:
+                    - id: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+                      supplierId: "74f36f89-3e28-4291-896f-b76801238e89"
+                      number: "ДФ-1234"
+                      startDate: "2025-05-01"
+                      feeInvoiceCompensationPeriod: 20
+                      isNonAcceptanceWithdrawalFee: true
+                      internalAccounts: []
+                      externalAccounts:
+                      - id: "dfbea6f1-309c-4c0e-815d-7d6527a234c8"
+                        cbaNumber: "40702978200000023058"
+                        bankFullNameRus: "ОАО КБ \"ЖИЛСТРОЙБАНК\""
+                        isForFinancing: false
+                        state:
+                          status: "ACTIVE"
+                          statusDate: "2025-10-01T08:05:51.024325"
+                          errors: []
+                          cqrsVersion: 1742767789
+                      - id: "b2d62049-c229-4849-9234-6c5d9e9d1e80"
+                        cbaNumber: "40702931700000023512"
+                        bankFullNameRus: "АО \"РОССЕЛЬХОЗБАНК\""
+                        isForFinancing: true
+                        state:
+                          status: "ACTIVE"
+                          statusDate: "2025-09-25T14:31:20.056023"
+                          errors: []
+                          cqrsVersion: 6298231120
+                      state:
+                        status: "APPROVED"
+                        statusDate: "2025-10-16T12:00:01.024129"
+                        errors: []
+                        cqrsVersion: 1742767789
+              schema:
+                $ref: "#/components/schemas/AgreementListResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Ошибка"
+                  value:
+                  - code: "REST_ERROR_5001"
+                    message: "General service error"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение договоров Факторинга"
+      tags:
+      - "Agreement"
+  /v1/agreement-sums:
+    get:
+      description: "Метод получения сумм договоров Факторинга по параметрам"
+      operationId: "getAgreementSums"
+      parameters:
+      - description: "Идентификатор договора Факторинга. Если указан, в ответе буд\
+          ет возвращен список, содержащий не более одного элемента\n"
+        in: "query"
+        name: "agreementId"
+        required: false
+        schema:
+          example: "5d4ee077-09ad-4d60-953d-845055187941"
+          format: "uuid"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                single:
+                  description: "Сумма одного договора. Такой результат возможен пр\
+                    и указании agreementId"
+                  summary: "Сумма одного договора"
+                  value:
+                    agreementSums:
+                    - id: "5d4ee077-09ad-4d60-953d-845055187941"
+                      agreementId: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+                      amount: 2000000.0
+                      availableAmount: 500000.68
+                      utilizedAmount: 1000000.53
+                      state:
+                        status: "ACTIVE"
+                        statusDate: "2025-10-16T12:00:01.024991"
+                        errors: []
+                        cqrsVersion: 1742767789
+                multiple:
+                  description: "Несколько сумм договоров. Такой результат возможен\
+                    \ без указания agreementId"
+                  summary: "Суммы нескольких договоров"
+                  value:
+                    agreementSums:
+                    - id: "5d4ee077-09ad-4d60-953d-845055187941"
+                      agreementId: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+                      amount: 2000000.0
+                      availableAmount: 500000.68
+                      utilizedAmount: 1000000.53
+                      state:
+                        status: "ACTIVE"
+                        statusDate: "2025-10-16T12:00:01.024991"
+                        errors: []
+                        cqrsVersion: 1742767789
+                    - id: "35a20a89-decc-456c-a63b-a4dddda197ef"
+                      agreementId: "033bbe3b-eb5e-4cd2-b8bd-4b42433e3d77"
+                      amount: 1.23456789E8
+                      availableAmount: 1.2345178888E8
+                      utilizedAmount: 5000.12
+                      state:
+                        status: "ACTIVE"
+                        statusDate: "2026-01-16T08:12:51.053201"
+                        errors: []
+                        cqrsVersion: 612360112
+              schema:
+                $ref: "#/components/schemas/AgreementSumListResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Ошибка"
+                  value:
+                  - code: "REST_ERROR_5001"
+                    message: "General service error"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение сумм договоров Факторинга"
+      tags:
+      - "AgreementSum"
+  /v1/agreement-sums/sublimits:
+    get:
+      description: "Метод получения сублимитов по параметрам"
+      operationId: "getSublimits"
+      parameters:
+      - description: "Идентификатор основных условий обслуживания поставщик-дебито\
+          р. Если указан, в ответе будет возвращён список, содержащий не более одн\
+          ого элемента\n"
+        in: "query"
+        name: "dealConditionsId"
+        required: false
+        schema:
+          example: "b5c1e36d-bde1-42bf-8d72-9d0aa4504f73"
+          format: "uuid"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                single:
+                  description: "Один сублимит. Такой результат возможен при указан\
+                    ии dealConditionsId"
+                  summary: "Один сублимит"
+                  value:
+                    sublimits:
+                    - id: "04ab216e-5626-4111-86d8-f606048fc000"
+                      dealConditionsId: "b5c1e36d-bde1-42bf-8d72-9d0aa4504f73"
+                      amount: 2000000.0
+                      utilizedAmount: 987654.38
+                      state:
+                        status: "APPROVED"
+                        statusDate: "2025-10-16T12:00:01.024001"
+                        errors: []
+                        cqrsVersion: 1742767789
+                multiple:
+                  description: "Несколько сублимитов для разных основных условий о\
+                    бслуживания. Такой результат возможен без указания dealConditionsId\n"
+                  summary: "Несколько сублимитов"
+                  value:
+                    sublimits:
+                    - id: "04ab216e-5626-4111-86d8-f606048fc000"
+                      dealConditionsId: "b5c1e36d-bde1-42bf-8d72-9d0aa4504f73"
+                      amount: 2000000.0
+                      utilizedAmount: 987654.38
+                      state:
+                        status: "APPROVED"
+                        statusDate: "2025-10-16T12:00:01.024001"
+                        errors: []
+                        cqrsVersion: 1742767789
+                    - id: "b76ab99e-067c-4eea-ab51-2f759d6d0bbe"
+                      dealConditionsId: "58a4683f-f1f6-41e8-9615-b1c8ea39523d"
+                      amount: 1500000.0
+                      utilizedAmount: 0.0
+                      state:
+                        status: "IN_PROCESSING"
+                        statusDate: "2025-08-12T19:31:43.645387"
+                        errors: []
+                        cqrsVersion: 1742767789
+              schema:
+                $ref: "#/components/schemas/SublimitListResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Ошибка"
+                  value:
+                  - code: "REST_ERROR_5001"
+                    message: "General service error"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение сублимитов"
+      tags:
+      - "Sublimit"
+  /v1/contracts:
+    get:
+      description: "Метод получения контрактов по параметрам"
+      operationId: "getContracts"
+      parameters:
+      - description: "Идентификатор основных условий обслуживания поставщик-дебито\
+          р"
+        in: "query"
+        name: "dealConditionsId"
+        required: false
+        schema:
+          example: "b5c1e36d-bde1-42bf-8d72-9d0aa4504f73"
+          format: "uuid"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                multipleContracts:
+                  summary: "Контракты"
+                  value:
+                    contracts:
+                    - id: "4f7d974a-dd63-421b-ba2b-712da215b86b"
+                      number: "A12345"
+                      state:
+                        status: "APPROVED"
+                        statusDate: "2025-10-16T12:00:01.024991"
+                        errors: []
+                        cqrsVersion: 1742767789
+                    - id: "0d8809f8-2c7f-4c62-8a51-2468906b7f1c"
+                      number: "54321B"
+                      state:
+                        status: "IN_PROCESSING"
+                        statusDate: "2025-10-16T18:48:15.032112"
+                        errors: []
+                        cqrsVersion: 5139236428
+              schema:
+                $ref: "#/components/schemas/ContractListResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Ошибка"
+                  value:
+                  - code: "REST_ERROR_5001"
+                    message: "General service error"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение контрактов"
+      tags:
+      - "Contract"
+  /v1/deal-conditions:
+    get:
+      description: "Метод получения основных условий обслуживания поставщик-дебито\
+        р по параметрам"
+      operationId: "getDealConditions"
+      parameters:
+      - description: "Идентификатор договора Факторинга"
+        in: "query"
+        name: "agreementId"
+        required: false
+        schema:
+          example: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+          format: "uuid"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                for-one-agreement:
+                  description: "Основные условия обслуживания для одного договора\
+                    . Например, был указан agreementId"
+                  summary: "Основные условия обслуживания для одного договора"
+                  value:
+                    dealConditions:
+                    - id: "b5c1e36d-bde1-42bf-8d72-9d0aa4504f73"
+                      agreementId: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+                      debtorId: "8867503f-10a5-4591-b739-78d75f3607c1"
+                      state:
+                        status: "APPROVED"
+                        statusDate: "2025-10-16T12:00:01.321458"
+                        errors: []
+                        cqrsVersion: 1742767789
+                    - id: "b2a81463-24ea-4917-aaae-3c72170ec117"
+                      agreementId: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+                      debtorId: "fcad2408-4ebb-4cdc-a93d-577ec4528f54"
+                      state:
+                        status: "IN_PROCESSING"
+                        statusDate: "2025-10-04T15:21:54.582162"
+                        errors: []
+                        cqrsVersion: 3816547290
+                for-multiple-agreements:
+                  description: "Основные условия обслуживания для нескольких догов\
+                    оров. Такой результат возможен без указания agreementId"
+                  summary: "Основные условия обслуживания для нескольких договоров"
+                  value:
+                    dealConditions:
+                    - id: "b5c1e36d-bde1-42bf-8d72-9d0aa4504f73"
+                      agreementId: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+                      debtorId: "8867503f-10a5-4591-b739-78d75f3607c1"
+                      state:
+                        status: "APPROVED"
+                        statusDate: "2025-10-16T12:00:01.321458"
+                        errors: []
+                        cqrsVersion: 1742767789
+                    - id: "b2a81463-24ea-4917-aaae-3c72170ec117"
+                      agreementId: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+                      debtorId: "fcad2408-4ebb-4cdc-a93d-577ec4528f54"
+                      state:
+                        status: "IN_PROCESSING"
+                        statusDate: "2025-10-04T15:21:54.651823"
+                        errors: []
+                        cqrsVersion: 3816547290
+                    - id: "3c6251f9-fe4d-4f2b-b9aa-e284b1c95ccd"
+                      agreementId: "bbf1240d-25fc-4948-bcba-03cfdf614a63"
+                      debtorId: "17becb1e-1fa3-4d9d-bd59-87d657698fab"
+                      state:
+                        status: "APPROVED"
+                        statusDate: "2025-11-05T10:13:40.612333"
+                        errors: []
+                        cqrsVersion: 1256544810
+              schema:
+                $ref: "#/components/schemas/DealConditionsListResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Ошибка"
+                  value:
+                  - code: "REST_ERROR_5001"
+                    message: "General service error"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение основных условий обслуживания поставщик-дебитор"
+      tags:
+      - "DealConditions"
+  /v1/debtors/{id}:
+    get:
+      description: "Метод получения дебитора по идентификатору"
+      operationId: "getDebtorById"
+      parameters:
+      - description: "Идентификатор дебитора"
+        in: "path"
+        name: "id"
+        required: true
+        schema:
+          example: "8867503f-10a5-4591-b739-78d75f3607c1"
+          format: "uuid"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Дебитор"
+                  value:
+                    id: "8867503f-10a5-4591-b739-78d75f3607c1"
+                    fullNameRus: "АО Ромашка"
+                    state:
+                      status: "ACTIVE"
+                      statusDate: "2025-10-21T15:25:12.391551"
+                      errors: []
+                      cqrsVersion: 2791332215
+              schema:
+                $ref: "#/components/schemas/Debtor"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Ошибка"
+                  value:
+                  - code: "REST_ERROR_5001"
+                    message: "General service error"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение дебитора по идентификатору"
+      tags:
+      - "Debtor"
+  /v1/financing-requests:
+    get:
+      description: "Метод получения запросов на финансирование по переданным парам\
+        етрам"
+      operationId: "getFinancingRequests"
+      parameters:
+      - description: "Идентификатор Договора Факторинга"
+        in: "query"
+        name: "agreementId"
+        required: false
+        schema:
+          example: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+          format: "uuid"
+          type: "string"
+      - description: "Список статусов запросов на финансирование"
+        in: "query"
+        name: "statuses"
+        required: false
+        schema:
+          example:
+          - "SENT_TO_CDC_SIGN"
+          - "REJECTED"
+          items:
+            example: "SENT_TO_CDC_SIGN"
+            type: "string"
+          type: "array"
+      - description: "Число записей для смещения для формирования страницы ответа"
+        in: "query"
+        name: "offset"
+        required: false
+        schema:
+          example: 10
+          type: "integer"
+      - description: "Ограничение количества элементов на странице ответа"
+        in: "query"
+        name: "limit"
+        required: false
+        schema:
+          example: 2
+          type: "integer"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Запросы на финансирование"
+                  value:
+                    financingRequests:
+                    - id: "e05f8afe-a72e-4a6f-8292-7edb51a724ec"
+                      creationDate: "2025-10-16"
+                      amount: 123456.78
+                      financedAmount: 0.0
+                      isPartiallyFinanceable: true
+                      financingAccount:
+                        cbaNumber: "40702810400000053038"
+                      comment: "Комментарий"
+                      suppliesQuantity: 145
+                      number: 1
+                      digest: "eyJjbnVtIjoiQ0FDSkVXIfQ=="
+                      debtor:
+                        fullNameRus: "АО Ромашка"
+                      supplier:
+                        cnum: "CACJEW"
+                        fullNameRus: "АО Ромашка"
+                      state:
+                        status: "SENT_TO_CDC_SIGN"
+                        statusDate: "2025-10-16T10:53:37.433531"
+                        errors: []
+                        cqrsVersion: -1628796591
+                    - id: "617edfe1-83a9-48b6-9cd8-10afb03a2181"
+                      creationDate: "2025-10-16"
+                      amount: 567890.12
+                      financedAmount: 0.0
+                      isPartiallyFinanceable: true
+                      financingAccount:
+                        cbaNumber: "40702810400000053038"
+                      comment: "Комментарий"
+                      suppliesQuantity: 31
+                      number: 1
+                      digest: "eyJjbnVtIjoiQ0FxxxTLDfQ=="
+                      debtor:
+                        fullNameRus: "АО Ромашка"
+                      supplier:
+                        cnum: "CACJEW"
+                        fullNameRus: "АО Ромашка"
+                      state:
+                        status: "REJECTED"
+                        statusDate: "2025-10-18T13:11:51.123581"
+                        errors: []
+                        cqrsVersion: 5732813345
+                    offset: 0
+                    limit: 2
+                    totalCount: 100
+              schema:
+                $ref: "#/components/schemas/FinancingRequestPageResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Ошибка"
+                  value:
+                  - code: "REST_ERROR_5001"
+                    message: "General service error"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение запросов на финансирование"
+      tags:
+      - "FinancingRequest"
+    post:
+      description: "Метод создания запроса на финансирование по переданным поставк\
+        ам"
+      operationId: "createFinancingRequest"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              simple:
+                summary: "Создание запроса на финансирование"
+                value:
+                  suppliesToInclude:
+                  - id: "5675c400-9835-491d-8489-d42ea7ed551c"
+                    cqrsVersion: -1628796591
+                  - id: "5d5417d0-edd5-4910-8ae4-43706287a203"
+                    cqrsVersion: 513571264
+                  isPartiallyFinanceable: true
+                  financingAccountId: "0a587aa4-bad9-47ea-beee-6e7775c879f0"
+            schema:
+              $ref: "#/components/schemas/FinancingRequestCreationRequest"
+        description: "Параметры для создания запроса на финансирование"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Запрос на финансирование"
+                  value:
+                    id: "e05f8afe-a72e-4a6f-8292-7edb51a724ec"
+                    creationDate: "2025-10-16"
+                    amount: 123456.78
+                    financedAmount: 0.0
+                    isPartiallyFinanceable: true
+                    financingAccount:
+                      cbaNumber: "40702810400000053038"
+                    suppliesQuantity: 145
+                    number: 1
+                    digest: "eyJjbnVtIjoiQ0FDSkVXIfQ=="
+                    debtor:
+                      fullNameRus: "АО Черемуха"
+                    supplier:
+                      cnum: "CACJEW"
+                      fullNameRus: "АО Ромашка"
+                    state:
+                      status: "SENT_TO_CDC_SIGN"
+                      statusDate: "2025-10-16T10:53:37.433531"
+                      errors: []
+                      cqrsVersion: -1628796591
+              schema:
+                $ref: "#/components/schemas/FinancingRequest"
+          description: "CREATED"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Ошибка"
+                  value:
+                  - code: "REST_ERROR_5027"
+                    message: "Supplies must be selected on only one deal condition"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Создание запроса на финансирование"
+      tags:
+      - "FinancingRequest"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/financing-requests/{id}:
+    delete:
+      description: "Перевод запроса на финансирование в архив (удаление запроса на\
+        \ финансирование)"
+      operationId: "deleteFinancingRequest"
+      parameters:
+      - description: "Идентификатор запроса на финансирование"
+        in: "path"
+        name: "id"
+        required: true
+        schema:
+          example: "e05f8afe-a72e-4a6f-8292-7edb51a724ec"
+          format: "uuid"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Ошибка"
+                  value:
+                  - code: "REST_ERROR_5001"
+                    message: "General service error"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Удаление запроса на финансирование"
+      tags:
+      - "FinancingRequest"
+    get:
+      description: "Метод получения запроса на финансирование по идентификатору"
+      operationId: "getFinancingRequestById"
+      parameters:
+      - description: "Идентификатор запроса на финансирование"
+        in: "path"
+        name: "id"
+        required: true
+        schema:
+          example: "e05f8afe-a72e-4a6f-8292-7edb51a724ec"
+          format: "uuid"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Запрос на финансирование"
+                  value:
+                    id: "e05f8afe-a72e-4a6f-8292-7edb51a724ec"
+                    creationDate: "2025-10-16"
+                    amount: 123456.78
+                    financedAmount: 0.0
+                    isPartiallyFinanceable: true
+                    financingAccount:
+                      cbaNumber: "40702810400000053038"
+                    comment: "Комментарий"
+                    suppliesQuantity: 145
+                    number: 1
+                    digest: "eyJjbnVtIjoiQ0FDSkVXIfQ=="
+                    debtor:
+                      fullNameRus: "АО Черемуха"
+                    supplier:
+                      fullNameRus: "АО Ромашка"
+                      cnum: "CACJEW"
+                    state:
+                      status: "SENT_TO_CDC_SIGN"
+                      statusDate: "2025-10-16T10:53:37.433531"
+                      errors: []
+                      cqrsVersion: -1628796591
+              schema:
+                $ref: "#/components/schemas/FinancingRequest"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Ошибка"
+                  value:
+                  - code: "REST_ERROR_5001"
+                    message: "General service error"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение запроса на финансирование по идентификатору"
+      tags:
+      - "FinancingRequest"
+  /v1/offers:
+    get:
+      description: "Метод получения eligibility, индикативных условий, списка дост\
+        упных дебиторов и summary последнего lead"
+      operationId: "getOffer"
+      parameters:
+      - description: "Клиентский номер выбранной организации"
+        in: "query"
+        name: "selectedCnum"
+        required: false
+        schema:
+          example: "405760"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                available:
+                  summary: "Доступный offer"
+                  value:
+                    availabilityStatus: "AVAILABLE"
+                    eligible: true
+                    datasetVersion: "mock-s1-2026-04-24"
+                    offer:
+                      factoringType: "WITHOUT_RECOURSE"
+                      rateText: "Индикативная ставка от 2.5%"
+                      defermentText: "Отсрочка до 120 дней"
+                      supportEmail: "factoring_sales@raiffeisen.ru"
+                    eligibleDebtors:
+                    - debtorCnum: "123456789"
+                      debtorName: "Ромашка"
+                      indicativeLimitAmount: 1000.0
+                    latestLead:
+                      leadId: "e05f8afe-a72e-4a6f-8292-7edb51a724ec"
+                      cnum: "405760"
+                      status: "DRAFT"
+                      updatedAt: "2026-04-22T12:00:00Z"
+                      selectedDebtors:
+                      - debtorCnum: "123456789"
+                        debtorName: "Ромашка"
+                unavailable:
+                  summary: "Нет доступных дебиторов для selectedCnum=RATP10"
+                  value:
+                    availabilityStatus: "EMPTY_DEBTOR_LIST"
+                    eligible: false
+                    unavailableReason: "NO_ELIGIBLE_DEBTORS"
+                    datasetVersion: "mock-s1-2026-04-24"
+                    offer: null
+                    eligibleDebtors: []
+                    latestLead: null
+                clientNotEligible:
+                  summary: "Offer недоступен для selectedCnum=AAABBB"
+                  value:
+                    availabilityStatus: "UNAVAILABLE"
+                    eligible: false
+                    unavailableReason: "CLIENT_NOT_ELIGIBLE"
+                    datasetVersion: "mock-s1-2026-04-24"
+                    offer: null
+                    eligibleDebtors: []
+                    latestLead: null
+              schema:
+                $ref: "#/components/schemas/OfferResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                selectedOrganizationRequired:
+                  summary: "Не выбрана организация"
+                  value:
+                  - code: "SELECTED_ORGANIZATION_REQUIRED"
+                    message: "selectedCnum is required when several organizations\
+                      \ are available"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "403":
+          content:
+            application/json:
+              examples:
+                selectedOrganizationNotAllowed:
+                  summary: "Организация недоступна пользователю"
+                  value:
+                  - code: "SELECTED_ORGANIZATION_NOT_ALLOWED"
+                    message: "selectedCnum is not included in allowed organizations"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "FORBIDDEN"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение контекста факторингового предложения"
+      tags:
+      - "Offer"
+  /v1/registry/parse:
+    post:
+      description: "Метод парсинга реестра поставок"
+      operationId: "parseRegistry"
+      requestBody:
+        content:
+          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            schema:
+              format: "binary"
+              type: "string"
+        description: "Файл Реестр поставок в формате xlsx"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                success:
+                  summary: "Успешный парсинг реестра"
+                  value:
+                    parsedPrimarySupplies:
+                    - rowNumber: 1
+                      supplyNumber: "26052021-51"
+                      invoiceNumber: null
+                      additionalDocumentNumber: null
+                      signDate: "2021-05-26"
+                      invoiceSignDate: null
+                      additionalDocumentSignDate: null
+                      amount: 100.0
+                      contractNumber: "11122019-1"
+                      deferralStartDate: "2021-05-26"
+                      debtorInn: "1121003135"
+                    - rowNumber: 2
+                      supplyNumber: "15062021-12"
+                      invoiceNumber: "456"
+                      additionalDocumentNumber: null
+                      signDate: "2021-06-15"
+                      invoiceSignDate: "2021-06-16"
+                      additionalDocumentSignDate: null
+                      amount: 250.5
+                      contractNumber: "22233020-2"
+                      deferralStartDate: "2021-06-15"
+                      debtorInn: "7701234567"
+              schema:
+                $ref: "#/components/schemas/ParsedPrimarySupplyListResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                validationError:
+                  summary: "Ошибка валидации"
+                  value:
+                    code: "REST_ERROR_5032"
+                    message: "Data validation failed"
+                    details:
+                    - param: "array[2].debtorInn"
+                      code: "VALIDATION_ERROR_1201"
+                      message: "Invalid INN format"
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Парсинг реестра поставок"
+      tags:
+      - "Registry"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/reports/registered-supplies:
+    get:
+      description: "Метод генерации и получения отчета о зарегистрированных постав\
+        ках"
+      operationId: "getRegisteredSuppliesReport"
+      parameters:
+      - description: "Допустимый MIME-тип ответа"
+        in: "header"
+        name: "Accept"
+        required: true
+        schema:
+          enum:
+          - "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          example: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          type: "string"
+      - description: "Идентификатор Договора Факторинга"
+        in: "query"
+        name: "agreementId"
+        required: true
+        schema:
+          example: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+          format: "uuid"
+          type: "string"
+      - description: "Начальная дата включения поставок в отчет (по дате регистрац\
+          ии в системе) включительно"
+        in: "query"
+        name: "startDate"
+        required: true
+        schema:
+          example: "2025-12-01"
+          format: "date"
+          type: "string"
+      - description: "Конечная дата включения поставок в отчет (по дате регистраци\
+          и в системе) включительно"
+        in: "query"
+        name: "endDate"
+        required: true
+        schema:
+          example: "2026-01-01"
+          format: "date"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                nullable: false
+                type: "object"
+          description: "Файл отчета в формате xlsx"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Ошибка"
+                  value:
+                  - code: "REST_ERROR_5001"
+                    message: "General service error"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Генерация и получение отчета о зарегистрированных поставках"
+      tags:
+      - "Report"
+  /v1/suppliers/{id}:
+    get:
+      description: "Метод получения поставщика по идентификатору "
+      operationId: "getSupplierById"
+      parameters:
+      - description: "Идентификатор поставщика"
+        in: "path"
+        name: "id"
+        required: true
+        schema:
+          example: "74f36f89-3e28-4291-896f-b76801238e89"
+          format: "uuid"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Поставщик"
+                  value:
+                    id: "74f36f89-3e28-4291-896f-b76801238e89"
+                    fullNameRus: "АО Ромашка"
+                    state:
+                      status: "ACTIVE"
+                      statusDate: "2025-10-11T13:06:24.761359"
+                      errors: []
+                      cqrsVersion: 5432123988
+              schema:
+                $ref: "#/components/schemas/Supplier"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Ошибка"
+                  value:
+                  - code: "REST_ERROR_5001"
+                    message: "General service error"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение поставщика по идентификатору"
+      tags:
+      - "Supplier"
+  /v1/supplies:
+    post:
+      description: "Метод для загрузки поставок вручную"
+      operationId: "uploadSupplies"
+      parameters:
+      - description: "Идентификатор Договора Факторинга"
+        in: "query"
+        name: "agreementId"
+        required: true
+        schema:
+          example: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+          format: "uuid"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              simple:
+                summary: "Ручная загрузка поставок"
+                value:
+                  supplies:
+                  - supplyNumber: "26052021-51"
+                    signDate: "2021-05-26"
+                    amount: 100.0
+                    contractNumber: "11122019-1"
+                    deferralStartDate: "2021-05-26"
+                    debtorInn: "1121003135"
+                  - supplyNumber: "27052021-10"
+                    invoiceNumber: "456"
+                    signDate: "2021-05-27"
+                    invoiceSignDate: "2021-05-28"
+                    amount: 250000.5
+                    contractNumber: "22032020-5"
+                    deferralStartDate: "2021-05-27"
+                    debtorInn: "7701234567"
+            schema:
+              $ref: "#/components/schemas/SupplyUploadListRequest"
+      responses:
+        "202":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Успешная загрузка"
+                  value:
+                    supplies:
+                    - id: "5675c400-9835-491d-8489-d42ea7ed551c"
+                    - id: "5d5417d0-edd5-4910-8ae4-43706287a203"
+              schema:
+                $ref: "#/components/schemas/SupplyUploadListResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                validationError:
+                  summary: "Ошибка валидации"
+                  value:
+                    code: "REST_ERROR_5032"
+                    message: "Data validation failed"
+                    details:
+                    - param: "array[2]"
+                      code: "VALIDATION_ERROR_1213"
+                      message: "Contract not found"
+                    - param: "array[3].signDate"
+                      code: "VALIDATION_ERROR_1211"
+                      message: "Invoice sign date does not equal sign date"
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Ручная загрузка поставок"
+      tags:
+      - "Supply"
+  /v1/supplies/{id}:
+    get:
+      description: "Метод получения поставки по идентификатору"
+      operationId: "getSupplyById"
+      parameters:
+      - description: "Идентификатор поставки"
+        in: "path"
+        name: "id"
+        required: true
+        schema:
+          example: "5675c400-9835-491d-8489-d42ea7ed551c"
+          format: "uuid"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Поставка"
+                  value:
+                    id: "5675c400-9835-491d-8489-d42ea7ed551c"
+                    amount: 123456.78
+                    availableFinancingAmount: 98765.42
+                    financedAmount: 25742.31
+                    number: "П-1234"
+                    deferralStartDate: "2025-10-13"
+                    waitingPeriodEndDate: "2025-10-20"
+                    debtor:
+                      fullNameRus: "АО Ромашка"
+                    state:
+                      status: "APPROVED"
+                      statusDate: "2025-10-13T10:53:37.433221"
+                      errors: []
+                      cqrsVersion: -1628796591
+              schema:
+                $ref: "#/components/schemas/Supply"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Ошибка"
+                  value:
+                  - code: "REST_ERROR_5001"
+                    message: "General service error"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение поставки по идентификатору"
+      tags:
+      - "Supply"
+  /v1/supplies/search:
+    post:
+      description: "Метод получения поставок по переданным параметрам"
+      operationId: "getSupplies"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              simple:
+                summary: "Поиск поставок по набору параметров"
+                value:
+                  agreementId: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+                  dealConditionsId: "b5c1e36d-bde1-42bf-8d72-9d0aa4504f73"
+                  financingRequestId: "e05f8afe-a72e-4a6f-8292-7edb51a724ec"
+                  waitingPeriodEndDateFrom: "2025-12-01"
+                  waitingPeriodEndDateTo: "2025-12-31"
+                  deferralStartDateFrom: "2025-12-01"
+                  deferralStartDateTo: "2025-12-31"
+                  deferralEndDateFrom: "2026-01-01"
+                  statuses:
+                  - "APPROVED"
+                  - "FINANCING_IN_PROGRESS"
+                  supplyIds:
+                  - "5675c400-9835-491d-8489-d42ea7ed551c"
+                  - "5d5417d0-edd5-4910-8ae4-43706287a203"
+                  offset: 10
+                  limit: 2
+            schema:
+              $ref: "#/components/schemas/SupplySearchRequest"
+        description: "Параметры для поиска поставок"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Поставки"
+                  value:
+                    supplies:
+                    - id: "5675c400-9835-491d-8489-d42ea7ed551c"
+                      amount: 123456.78
+                      availableFinancingAmount: 98765.42
+                      financedAmount: 25742.31
+                      number: "П-1234"
+                      deferralStartDate: "2025-10-13"
+                      waitingPeriodEndDate: "2025-10-20"
+                      debtor:
+                        fullNameRus: "АО Ромашка"
+                      state:
+                        status: "APPROVED"
+                        statusDate: "2025-10-13T10:53:37.433221"
+                        errors: []
+                        cqrsVersion: -1628796591
+                    - id: "5d5417d0-edd5-4910-8ae4-43706287a203"
+                      amount: 567890.12
+                      availableFinancingAmount: 397523.01
+                      financedAmount: 267752.2
+                      number: "П-7777"
+                      deferralStartDate: "2025-10-14"
+                      waitingPeriodEndDate: "2025-10-23"
+                      debtor:
+                        fullNameRus: "АО Ромашка"
+                      state:
+                        status: "FINANCING_IN_PROGRESS"
+                        statusDate: "2025-10-05T11:21:55.381531"
+                        errors: []
+                        cqrsVersion: 3473257012
+                    offset: 10
+                    limit: 2
+                    totalCount: 100
+              schema:
+                $ref: "#/components/schemas/SupplyPageResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Ошибка"
+                  value:
+                  - code: "REST_ERROR_5001"
+                    message: "General service error"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение поставок"
+      tags:
+      - "Supply"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/supplies/for-desired-financing-amount:
+    get:
+      description: "Метод получения списка поставок, сумма availableFinancingAmount\
+        \ которых меньше или равна желаемой сумме финансирования. Подобранные пост\
+        авки относятся к одному дебитору (сублимиту). Метод не гарантирует оптимал\
+        ьный подбор поставок - не гарантируется, что сумма availableFinancingAmount\
+        \ подобранных поставок максимальна для заданной границы в виде желаемой су\
+        ммы. Приоритетом для включения поставок в список является более ранняя deferralStartDate.\
+        \  Отсортированные по deferralStartDate поставки включаются в результирующ\
+        ий список до тех пора, пока сумма availableFinancingAmount <= желаемой сум\
+        ме. При isPartiallyFinanceable = true единожды может быть добавлена постав\
+        ка, нарушающая условие 'сумма availableFinancingAmount <= желаемой сумме'\n"
+      operationId: "getSuppliesForAmount"
+      parameters:
+      - description: "Идентификатор основных условий обслуживания Поставщик-Дебито\
+          р, по контрактам которых необходимо подобрать поставки"
+        example: "b5c1e36d-bde1-42bf-8d72-9d0aa4504f73"
+        in: "query"
+        name: "dealConditionsId"
+        required: true
+        schema:
+          example: "b5c1e36d-bde1-42bf-8d72-9d0aa4504f73"
+          format: "uuid"
+          type: "string"
+      - description: "Желаемая сумма финансирования - та сумма, меньше или равна к\
+          оторой должна быть сумма availableFinancingAmount поставок"
+        in: "query"
+        name: "desiredFinancingAmount"
+        required: true
+        schema:
+          example: 500000.0
+          type: "number"
+      - description: "Возможность частичного финансирования на заданную сумму. Есл\
+          и true - сумма availableFinancingAmount подобранных  поставок может быть\
+          \ больше desiredFinancingAmount за счет добавления одной поставки в резу\
+          льтирующий список\n"
+        in: "query"
+        name: "isPartiallyFinanceable"
+        required: true
+        schema:
+          example: false
+          type: "boolean"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Поставки"
+                  value:
+                    supplies:
+                    - id: "5675c400-9835-491d-8489-d42ea7ed551c"
+                      amount: 123456.78
+                      availableFinancingAmount: 98765.42
+                      financedAmount: 25742.31
+                      number: "П-1234"
+                      deferralStartDate: "2025-10-13"
+                      waitingPeriodEndDate: "2025-10-20"
+                      debtor:
+                        fullNameRus: "АО Ромашка"
+                      state:
+                        status: "APPROVED"
+                        statusDate: "2025-10-13T10:53:37.433221"
+                        errors: []
+                        cqrsVersion: -1628796591
+                    - id: "5d5417d0-edd5-4910-8ae4-43706287a203"
+                      amount: 567890.12
+                      availableFinancingAmount: 397523.01
+                      financedAmount: 267752.2
+                      number: "П-7777"
+                      deferralStartDate: "2025-10-14"
+                      waitingPeriodEndDate: "2025-10-23"
+                      debtor:
+                        fullNameRus: "АО Ромашка"
+                      state:
+                        status: "FINANCING_IN_PROGRESS"
+                        statusDate: "2025-10-05T11:21:55.381531"
+                        errors: []
+                        cqrsVersion: 3473257012
+              schema:
+                $ref: "#/components/schemas/SupplyListResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Ошибка"
+                  value:
+                  - code: "REST_ERROR_5001"
+                    message: "General service error"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение списка поставок под желаемую сумму финансирования"
+      tags:
+      - "Supply"
+  /v1/tariff-plans:
+    get:
+      description: "Метод получения тарифных планов по переданным параметрам"
+      operationId: "getTariffPlans"
+      parameters:
+      - description: "Идентификатор контракта"
+        in: "query"
+        name: "contractId"
+        required: false
+        schema:
+          example: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+          format: "uuid"
+          type: "string"
+      - description: "Число записей для смещения для формирования страницы ответа"
+        in: "query"
+        name: "offset"
+        required: false
+        schema:
+          example: 10
+          type: "integer"
+      - description: "Ограничение количества элементов на странице ответа"
+        in: "query"
+        name: "limit"
+        required: false
+        schema:
+          example: 2
+          type: "integer"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                multiple:
+                  description: "Несколько тарифных планов. Такой результат возможе\
+                    н без указания contractId"
+                  summary: "Тарифные планы"
+                  value:
+                    tariffPlans:
+                    - id: "87c4b6c5-4340-4b01-b910-8736420178d2"
+                      contractId: "4f7d974a-dd63-421b-ba2b-712da215b86b"
+                      financingTariffs:
+                      - id: "7591a148-5ccb-4b53-984d-1a6cb0f3c72c"
+                        type: "FOR_FINANCE_PERCENT"
+                        deferralFeeValue: 0.123
+                        additionalPeriodFeeValue: 0.234
+                        waitingPeriodFeeValue: 0.345
+                        startDate: "2025-05-01"
+                        state:
+                          status: "APPROVED"
+                          statusDate: "2025-10-16T12:00:01.024991"
+                          errors: []
+                          cqrsVersion: 1742767789
+                      - id: "aae70d79-6912-41d6-81db-b74a0fd5f1e2"
+                        type: "FOR_FINANCE_FLOAT_CBR"
+                        deferralFeeValue: 0.234
+                        additionalPeriodFeeValue: 0.345
+                        waitingPeriodFeeValue: 0.567
+                        startDate: "2026-01-12"
+                        state:
+                          status: "APPROVED"
+                          statusDate: "2025-10-16T12:00:01.024991"
+                          errors: []
+                          cqrsVersion: 1742767789
+                      financedSupplyTariffs:
+                      - id: "0cc43258-7c89-48c1-94ab-7c3885f97576"
+                        type: "FOR_FINANCED_SUPPLY_PERCENT"
+                        value: 0.123
+                        startDate: "2025-05-01"
+                        state:
+                          status: "APPROVED"
+                          statusDate: "2025-10-16T12:00:01.024991"
+                          errors: []
+                          cqrsVersion: 1742767789
+                      - id: "0cc43258-7c89-48c1-94ab-7c3885f97576"
+                        type: "FOR_FINANCED_SUPPLY_FIX"
+                        value: 500
+                        startDate: "2026-01-12"
+                        state:
+                          status: "APPROVED"
+                          statusDate: "2025-10-16T12:00:01.024991"
+                          errors: []
+                          cqrsVersion: 1742767789
+                      incomingPaymentOrderHandlingTariffs:
+                      - id: "01516372-4465-4b9e-9aa3-19f421849592"
+                        type: "FOR_PAYMENT_PERCENT"
+                        value: 0.123
+                        startDate: "2025-05-01"
+                        state:
+                          status: "APPROVED"
+                          statusDate: "2025-10-16T12:00:01.024991"
+                          errors: []
+                          cqrsVersion: 1742767789
+                      - id: "01516372-4465-4b9e-9aa3-19f421849592"
+                        type: "FOR_PAYMENT_FIX"
+                        value: 100
+                        startDate: "2026-01-13"
+                        state:
+                          status: "APPROVED"
+                          statusDate: "2025-10-16T12:00:01.024991"
+                          errors: []
+                          cqrsVersion: 1742767789
+                      state:
+                        status: "APPROVED"
+                        statusDate: "2025-10-16T12:00:01.024991"
+                        errors: []
+                        cqrsVersion: 1742767789
+                    - id: "e2430cd0-6a91-4fd7-92fa-191a0857cb72"
+                      contractId: "4d8c17f5-c954-499d-bb6c-15bd9518c457"
+                      financingTariffs:
+                      - id: "afc37b8f-f166-497c-a967-da7da7278c01"
+                        type: "FOR_FINANCE_PERCENT"
+                        deferralFeeValue: 0.9876
+                        additionalPeriodFeeValue: 0.8765
+                        waitingPeriodFeeValue: 0.7654
+                        startDate: "2025-10-12"
+                        state:
+                          status: "APPROVED"
+                          statusDate: "2025-11-23T15:13:21.156123"
+                          errors: []
+                          cqrsVersion: 5432102345
+                      financedSupplyTariffs: []
+                      incomingPaymentOrderHandlingTariffs: []
+                      state:
+                        status: "APPROVED"
+                        statusDate: "2025-11-23T15:13:21.156123"
+                        errors: []
+                        cqrsVersion: 5432102345
+                    offset: 0
+                    limit: 2
+                    totalCount: 3
+                one-with-all-tariffs:
+                  description: "Один тарифный план. У данного тарифа заданы все во\
+                    зможные типы тарифов. Такой результат возможен при указании contractId"
+                  summary: "Тарифный план со всеми доступными тарифами"
+                  value:
+                    tariffPlans:
+                    - id: "87c4b6c5-4340-4b01-b910-8736420178d2"
+                      contractId: "4f7d974a-dd63-421b-ba2b-712da215b86b"
+                      financingTariffs:
+                      - id: "7591a148-5ccb-4b53-984d-1a6cb0f3c72c"
+                        type: "FOR_FINANCE_PERCENT"
+                        deferralFeeValue: 0.123
+                        additionalPeriodFeeValue: 0.234
+                        waitingPeriodFeeValue: 0.345
+                        startDate: "2025-05-01"
+                        state:
+                          status: "APPROVED"
+                          statusDate: "2025-10-16T12:00:01.024991"
+                          errors: []
+                          cqrsVersion: 1742767789
+                      - id: "aae70d79-6912-41d6-81db-b74a0fd5f1e2"
+                        type: "FOR_FINANCE_FLOAT_CBR"
+                        deferralFeeValue: 0.234
+                        additionalPeriodFeeValue: 0.345
+                        waitingPeriodFeeValue: 0.567
+                        startDate: "2026-01-12"
+                        state:
+                          status: "APPROVED"
+                          statusDate: "2025-10-16T12:00:01.024991"
+                          errors: []
+                          cqrsVersion: 1742767789
+                      financedSupplyTariffs:
+                      - id: "0cc43258-7c89-48c1-94ab-7c3885f97576"
+                        type: "FOR_FINANCED_SUPPLY_PERCENT"
+                        value: 0.123
+                        startDate: "2025-05-01"
+                        state:
+                          status: "APPROVED"
+                          statusDate: "2025-10-16T12:00:01.024991"
+                          errors: []
+                          cqrsVersion: 1742767789
+                      - id: "0cc43258-7c89-48c1-94ab-7c3885f97576"
+                        type: "FOR_FINANCED_SUPPLY_FIX"
+                        value: 500
+                        startDate: "2026-01-12"
+                        state:
+                          status: "APPROVED"
+                          statusDate: "2025-10-16T12:00:01.024991"
+                          errors: []
+                          cqrsVersion: 1742767789
+                      incomingPaymentOrderHandlingTariffs:
+                      - id: "01516372-4465-4b9e-9aa3-19f421849592"
+                        type: "FOR_PAYMENT_PERCENT"
+                        value: 0.123
+                        startDate: "2025-05-01"
+                        state:
+                          status: "APPROVED"
+                          statusDate: "2025-10-16T12:00:01.024991"
+                          errors: []
+                          cqrsVersion: 1742767789
+                      - id: "01516372-4465-4b9e-9aa3-19f421849592"
+                        type: "FOR_PAYMENT_FIX"
+                        value: 100
+                        startDate: "2026-01-13"
+                        state:
+                          status: "APPROVED"
+                          statusDate: "2025-10-16T12:00:01.024991"
+                          errors: []
+                          cqrsVersion: 1742767789
+                      state:
+                        status: "APPROVED"
+                        statusDate: "2025-10-16T12:00:01.024991"
+                        errors: []
+                        cqrsVersion: 1742767789
+                    offset: 0
+                    limit: 1
+                    totalCount: 1
+                one-with-only-required-tariffs:
+                  description: "Один тарифный план. У данного тарифного плана зада\
+                    н только обязательный тип тарифов. Такой результат возможен пр\
+                    и указании contractId"
+                  summary: "Тарифный план с обязательными тарифами"
+                  value:
+                    tariffPlans:
+                    - id: "e2430cd0-6a91-4fd7-92fa-191a0857cb72"
+                      contractId: "4d8c17f5-c954-499d-bb6c-15bd9518c457"
+                      financingTariffs:
+                      - id: "afc37b8f-f166-497c-a967-da7da7278c01"
+                        type: "FOR_FINANCE_PERCENT"
+                        deferralFeeValue: 0.9876
+                        additionalPeriodFeeValue: 0.8765
+                        waitingPeriodFeeValue: 0.7654
+                        startDate: "2025-10-12"
+                        state:
+                          status: "APPROVED"
+                          statusDate: "2025-11-23T15:13:21.156123"
+                          errors: []
+                          cqrsVersion: 5432102345
+                      financedSupplyTariffs: []
+                      incomingPaymentOrderHandlingTariffs: []
+                      state:
+                        status: "APPROVED"
+                        statusDate: "2025-11-23T15:13:21.156123"
+                        errors: []
+                        cqrsVersion: 5432102345
+                    offset: 0
+                    limit: 1
+                    totalCount: 1
+              schema:
+                $ref: "#/components/schemas/TariffPlanPageResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: "Ошибка"
+                  value:
+                  - code: "REST_ERROR_5001"
+                    message: "General service error"
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение тарифных планов"
+      tags:
+      - "TariffPlan"
+components:
+  schemas:
+    AgreementListResponse:
+      allOf:
+      - properties:
+          agreements:
+            description: "Договоры"
+            items:
+              $ref: "#/components/schemas/Agreement"
+            type: "array"
+        type: "object"
+      example:
+        agreements:
+        - id: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+          supplierId: "74f36f89-3e28-4291-896f-b76801238e89"
+          number: "ДФ-1234"
+          startDate: "2025-05-01"
+          feeInvoiceCompensationPeriod: 10
+          isNonAcceptanceWithdrawalFee: false
+          internalAccounts:
+          - id: "0a587aa4-bad9-47ea-beee-6e7775c879f0"
+            cbaNumber: "40702810400000053038"
+            isForFinancing: true
+            state:
+              status: "ACTIVE"
+              statusDate: "2025-10-15T12:13:11.512123"
+              errors: []
+              cqrsVersion: -5471340216
+          - id: "96f88f49-09d4-4580-bb84-1a327e89dd3b"
+            cbaNumber: "40701610400000053040"
+            isForFinancing: true
+            state:
+              status: "BLOCKED"
+              statusDate: "2025-10-10T17:51:01.256712"
+              errors: []
+              cqrsVersion: -1237890432
+          externalAccounts:
+          - id: "dfbea6f1-309c-4c0e-815d-7d6527a234c8"
+            cbaNumber: "40702978200000023058"
+            bankFullNameRus: "ОАО КБ \"ЖИЛСТРОЙБАНК\""
+            isForFinancing: false
+            state:
+              status: "ACTIVE"
+              statusDate: "2025-10-01T08:05:51.024123"
+              errors: []
+              cqrsVersion: 1742767789
+          - id: "b2d62049-c229-4849-9234-6c5d9e9d1e80"
+            cbaNumber: "40702931700000023512"
+            bankFullNameRus: "АО \"РОССЕЛЬХОЗБАНК\""
+            isForFinancing: true
+            state:
+              status: "ACTIVE"
+              statusDate: "2025-09-25T14:31:20.0965678"
+              errors: []
+              cqrsVersion: 6298231120
+          state:
+            status: "APPROVED"
+            statusDate: "2025-10-16T12:00:01.024991"
+            errors: []
+            cqrsVersion: 1742767789
+        - id: "52d76346-1aa1-4268-ae14-fb6d8e048305"
+          supplierId: "74f36f89-3e28-4291-896f-b76801238e89"
+          number: "ДФ-9876"
+          startDate: "2025-07-15"
+          feeInvoiceCompensationPeriod: 20
+          isNonAcceptanceWithdrawalFee: true
+          internalAccounts:
+          - id: "05217cb1-8abe-4807-8843-5d54840aeed2"
+            cbaNumber: "40702810400000053038"
+            isForFinancing: true
+            state:
+              status: "ACTIVE"
+              statusDate: "2025-10-15T12:13:11.512312"
+              errors: []
+              cqrsVersion: -5471340216
+          - id: "93bf311e-ceb4-47ac-8e06-32d6ba64a297"
+            cbaNumber: "40701610400000053040"
+            isForFinancing: true
+            state:
+              status: "BLOCKED"
+              statusDate: "2025-10-10T17:51:01.256453"
+              errors: []
+              cqrsVersion: -1237890432
+          externalAccounts:
+          - id: "02882c49-6b3d-4e34-a76c-648e2fead85a"
+            cbaNumber: "40702978200000023058"
+            bankFullNameRus: "ОАО КБ \"ЖИЛСТРОЙБАНК\""
+            isForFinancing: false
+            state:
+              status: "ACTIVE"
+              statusDate: "2025-10-01T08:05:51.024112"
+              errors: []
+              cqrsVersion: 1742767789
+          - id: "83f89556-a9a0-4431-a5f5-56be6b414835"
+            cbaNumber: "40702931700000023512"
+            bankFullNameRus: "АО \"РОССЕЛЬХОЗБАНК\""
+            isForFinancing: true
+            state:
+              status: "ACTIVE"
+              statusDate: "2025-09-25T14:31:20.096345"
+              errors: []
+              cqrsVersion: 6298231120
+          state:
+            status: "APPROVED"
+            statusDate: "2025-10-16T12:00:01.024667"
+            errors: []
+            cqrsVersion: 1742767789
+      type: "object"
+    ErrorResponse:
+      example:
+      - code: "REST_ERROR_5001"
+        message: "General service error"
+      items:
+        $ref: "#/components/schemas/ErrorMessage"
+      type: "array"
+    AgreementSumListResponse:
+      allOf:
+      - properties:
+          agreementSums:
+            description: "Суммы договоров"
+            items:
+              $ref: "#/components/schemas/AgreementSum"
+            type: "array"
+        type: "object"
+      example:
+        agreementSums:
+        - id: "5d4ee077-09ad-4d60-953d-845055187941"
+          agreementId: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+          amount: 2000000.0
+          availableAmount: 500000.68
+          utilizedAmount: 1000000.53
+          state:
+            status: "ACTIVE"
+            statusDate: "2025-10-16T12:00:01.024991"
+            errors: []
+            cqrsVersion: 1742767789
+        - id: "35a20a89-decc-456c-a63b-a4dddda197ef"
+          agreementId: "033bbe3b-eb5e-4cd2-b8bd-4b42433e3d77"
+          amount: 1.23456789E8
+          availableAmount: 1.2345178888E8
+          utilizedAmount: 5000.12
+          state:
+            status: "ACTIVE"
+            statusDate: "2026-01-16T08:12:51.053201"
+            errors: []
+            cqrsVersion: 6123601121
+      type: "object"
+    SublimitListResponse:
+      allOf:
+      - properties:
+          sublimits:
+            description: "Сублимиты"
+            items:
+              $ref: "#/components/schemas/Sublimit"
+            type: "array"
+        type: "object"
+      example:
+        sublimits:
+        - id: "04ab216e-5626-4111-86d8-f606048fc000"
+          dealConditionsId: "b5c1e36d-bde1-42bf-8d72-9d0aa4504f73"
+          amount: 2000000.0
+          utilizedAmount: 987654.38
+          state:
+            status: "APPROVED"
+            statusDate: "2025-10-16T12:00:01.024001"
+            errors: []
+            cqrsVersion: 1742767789
+        - id: "b76ab99e-067c-4eea-ab51-2f759d6d0bbe"
+          dealConditionsId: "58a4683f-f1f6-41e8-9615-b1c8ea39523d"
+          amount: 1500000.0
+          utilizedAmount: 0.0
+          state:
+            status: "IN_PROCESSING"
+            statusDate: "2025-08-12T19:31:43.645387"
+            errors: []
+            cqrsVersion: 1742767789
+      type: "object"
+    ContractListResponse:
+      allOf:
+      - properties:
+          contracts:
+            description: "Контракты"
+            items:
+              $ref: "#/components/schemas/Contract"
+            type: "array"
+        type: "object"
+      example:
+        contracts:
+        - id: "4f7d974a-dd63-421b-ba2b-712da215b86b"
+          number: "A12345"
+          state:
+            status: "APPROVED"
+            statusDate: "2025-10-16T12:00:01.024991"
+            errors: []
+            cqrsVersion: 1742767789
+        - id: "0d8809f8-2c7f-4c62-8a51-2468906b7f1c"
+          number: "54321B"
+          state:
+            status: "IN_PROCESSING"
+            statusDate: "2025-10-16T18:48:15.032112"
+            errors: []
+            cqrsVersion: 5139236428
+      type: "object"
+    DealConditionsListResponse:
+      allOf:
+      - properties:
+          dealConditions:
+            description: "Основные условия обслуживания поставщик-дебитор"
+            items:
+              $ref: "#/components/schemas/DealConditions"
+            type: "array"
+        type: "object"
+      example:
+        dealConditions:
+        - id: "b5c1e36d-bde1-42bf-8d72-9d0aa4504f73"
+          agreementId: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+          debtorId: "8867503f-10a5-4591-b739-78d75f3607c1"
+          state:
+            status: "APPROVED"
+            statusDate: "2025-10-16T12:00:01.321458"
+            errors: []
+            cqrsVersion: 1742767789
+        - id: "b2a81463-24ea-4917-aaae-3c72170ec117"
+          agreementId: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+          debtorId: "fcad2408-4ebb-4cdc-a93d-577ec4528f54"
+          state:
+            status: "IN_PROCESSING"
+            statusDate: "2025-10-04T15:21:54.582162"
+            errors: []
+            cqrsVersion: 3816547290
+      type: "object"
+    Debtor:
+      description: "Дебитор"
+      example:
+        id: "8867503f-10a5-4591-b739-78d75f3607c1"
+        fullNameRus: "АО Ромашка"
+        state:
+          status: "ACTIVE"
+          statusDate: "2025-10-21T15:25:12.391551"
+          errors: []
+          cqrsVersion: 2791332215
+      properties:
+        id:
+          description: "Идентификатор дебитора"
+          example: "8867503f-10a5-4591-b739-78d75f3607c1"
+          format: "uuid"
+          type: "string"
+        fullNameRus:
+          description: "Полное наименование дебитора на русском языке"
+          example: "АО Ромашка"
+          type: "string"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/DebtorState"
+          description: "Состояние дебитора"
+          type: "object"
+      required:
+      - "fullNameRus"
+      - "id"
+      - "state"
+      type: "object"
+    FinancingRequestPageResponse:
+      allOf:
+      - properties:
+          financingRequests:
+            description: "Запросы на финансирование"
+            items:
+              $ref: "#/components/schemas/FinancingRequest"
+            type: "array"
+        type: "object"
+      - $ref: "#/components/schemas/PaginationResponse"
+      example:
+        financingRequests:
+        - id: "e05f8afe-a72e-4a6f-8292-7edb51a724ec"
+          creationDate: "2025-10-16"
+          amount: 123456.78
+          financedAmount: 0.0
+          isPartiallyFinanceable: true
+          financingAccount:
+            cbaNumber: "40702810400000053038"
+          comment: "Комментарий"
+          suppliesQuantity: 145
+          number: 1
+          digest: "eyJjbnVtIjoiQ0FDSkVXIfQ=="
+          debtor:
+            fullNameRus: "АО Черемуха"
+          supplier:
+            cnum: "CACJEW"
+            fullNameRus: "АО Ромашка"
+          state:
+            status: "SENT_TO_CDC_SIGN"
+            statusDate: "2025-10-16T10:53:37.433531"
+            errors: []
+            cqrsVersion: -1628796591
+        - id: "617edfe1-83a9-48b6-9cd8-10afb03a2181"
+          creationDate: "2025-10-16"
+          amount: 567890.12
+          financedAmount: 0.0
+          isPartiallyFinanceable: true
+          financingAccount:
+            cbaNumber: "40702810400000053038"
+          comment: "Комментарий"
+          suppliesQuantity: 31
+          number: 1
+          digest: "eyJjbnVtIjoiQ0FxxxTLDfQ=="
+          debtor:
+            fullNameRus: "АО Черемуха"
+          supplier:
+            cnum: "CACJEW"
+            fullNameRus: "АО Ромашка"
+          state:
+            status: "REJECTED"
+            statusDate: "2025-10-18T13:11:51.123581"
+            errors: []
+            cqrsVersion: 5732813345
+        offset: 0
+        limit: 2
+        totalCount: 100
+      type: "object"
+    FinancingRequestCreationRequest:
+      description: "Запрос на создание запроса на финансирование"
+      example:
+        suppliesToInclude:
+        - id: "5675c400-9835-491d-8489-d42ea7ed551c"
+          cqrsVersion: -1628796591
+        - id: "5d5417d0-edd5-4910-8ae4-43706287a203"
+          cqrsVersion: 513571264
+        isPartiallyFinanceable: true
+        financingAccountId: "0a587aa4-bad9-47ea-beee-6e7775c879f0"
+      properties:
+        suppliesToInclude:
+          description: "Список идентификаторов поставок для включения в запрос на\
+            \ финансирование"
+          example:
+          - id: "5675c400-9835-491d-8489-d42ea7ed551c"
+            cqrsVersion: -1628796591
+          - id: "5d5417d0-edd5-4910-8ae4-43706287a203"
+            cqrsVersion: 513571264
+          items:
+            $ref: "#/components/schemas/SupplyToIncludeInFinancingRequest"
+          minItems: 1
+          type: "array"
+        isPartiallyFinanceable:
+          description: "Допустимость частичного финансирования для создаваемого за\
+            проса - может ли финансирование быть выполнено не в полном объеме сумм\
+            ы переданных поставок\n"
+          example: true
+          type: "boolean"
+        financingAccountId:
+          description: "Идентификатор счета, на который необходимо зачислить денеж\
+            ные средства. Могут быть указаны как счета в Райффайзенбанке, так и сч\
+            ета во внешних банках  с признаком isForFinancing = true\n"
+          example: "0a587aa4-bad9-47ea-beee-6e7775c879f0"
+          format: "uuid"
+          type: "string"
+      required:
+      - "financingAccountId"
+      - "isPartiallyFinanceable"
+      - "suppliesToInclude"
+      type: "object"
+    FinancingRequest:
+      description: "Запрос на финансирование"
+      example:
+        id: "e05f8afe-a72e-4a6f-8292-7edb51a724ec"
+        creationDate: "2025-10-16"
+        amount: 123456.78
+        financedAmount: 0.0
+        isPartiallyFinanceable: true
+        financingAccount:
+          cbaNumber: "40702810400000053038"
+        comment: "Комментарий"
+        suppliesQuantity: 145
+        number: 1
+        digest: "eyJjbnVtIjoiQ0FDSkVXIfQ=="
+        debtor:
+          fullNameRus: "АО Черемуха"
+        supplier:
+          fullNameRus: "АО Ромашка"
+          cnum: "CACJEW"
+        state:
+          status: "SENT_TO_CDC_SIGN"
+          statusDate: "2025-10-16T10:53:37.433531"
+          errors: []
+          cqrsVersion: -1628796591
+      properties:
+        id:
+          description: "Идентификатор запроса на финансирование"
+          example: "e05f8afe-a72e-4a6f-8292-7edb51a724ec"
+          format: "uuid"
+          type: "string"
+        creationDate:
+          description: "Дата создания запроса на финансирование"
+          example: "2025-10-16"
+          format: "date"
+          type: "string"
+        amount:
+          description: "Сумма запроса на финансирование"
+          example: 123456.78
+          type: "number"
+        financedAmount:
+          description: "Профинансированная сумма"
+          example: 0.0
+          type: "number"
+        isPartiallyFinanceable:
+          description: "Допустимость частичного финансирования для создаваемого за\
+            проса - может ли финансирование быть выполнено не в полном объеме сумм\
+            ы переданных поставок\n"
+          example: true
+          type: "boolean"
+        financingAccount:
+          $ref: "#/components/schemas/FinancingRequestAccountProjection"
+        comment:
+          description: "Комментарий к запросу. Заполняется в случае отказа по запр\
+            осу"
+          example: "Запрос отклонен из-за стоп-фактора"
+          type: "string"
+        suppliesQuantity:
+          description: "Количество поставок в запросе"
+          example: 145
+          type: "number"
+        number:
+          description: "Номер запроса"
+          example: 1
+          type: "integer"
+        digest:
+          description: "Дайджест запроса на финансирование. Закодированный в base64\
+            \ json с ключевыми полями запроса на финансирование"
+          example: "eyJjbnVtIjoiQ0FDSkVXIfQ=="
+          type: "string"
+        debtor:
+          $ref: "#/components/schemas/DebtorFullNameRusProjection"
+        supplier:
+          $ref: "#/components/schemas/SupplierFinancingRequestProjection"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/FinancingRequestState"
+          description: "Состояние запроса на финансирование"
+          type: "object"
+      required:
+      - "amount"
+      - "creationDate"
+      - "debtor"
+      - "digest"
+      - "financedAmount"
+      - "financingAccount"
+      - "id"
+      - "isPartiallyFinanceable"
+      - "number"
+      - "state"
+      - "supplier"
+      - "suppliesQuantity"
+      type: "object"
+    OfferResponse:
+      description: "Контекст факторингового предложения.\nMapping: when availabilityStatus\
+        \ is AVAILABLE, unavailableReason is null and offer is present; otherwise\
+        \ unavailableReason explains why the offer is unavailable and offer is null.\n"
+      example:
+        availabilityStatus: "AVAILABLE"
+        eligible: true
+        datasetVersion: "mock-s1-2026-04-24"
+        offer:
+          factoringType: "WITHOUT_RECOURSE"
+          rateText: "Индикативная ставка от 2.5%"
+          defermentText: "Отсрочка до 120 дней"
+          supportEmail: "factoring_sales@raiffeisen.ru"
+        eligibleDebtors:
+        - debtorCnum: "123456789"
+          debtorName: "Ромашка"
+          indicativeLimitAmount: 1000.0
+        latestLead:
+          leadId: "e05f8afe-a72e-4a6f-8292-7edb51a724ec"
+          cnum: "405760"
+          status: "DRAFT"
+          updatedAt: "2026-04-22T12:00:00Z"
+          selectedDebtors:
+          - debtorCnum: "123456789"
+            debtorName: "Ромашка"
+      properties:
+        availabilityStatus:
+          $ref: "#/components/schemas/OfferAvailabilityStatus"
+        eligible:
+          deprecated: true
+          description: "Deprecated convenience flag; true only when availabilityStatus\
+            \ is AVAILABLE"
+          example: true
+          type: "boolean"
+        unavailableReason:
+          allOf:
+          - $ref: "#/components/schemas/OfferUnavailableReason"
+          description: "Причина недоступности offer; null, когда availabilityStatus\
+            \ равен AVAILABLE"
+          example: "CLIENT_NOT_ELIGIBLE"
+          nullable: true
+          type: "string"
+        datasetVersion:
+          description: "Версия approved debtor dataset, использованная для формиро\
+            вания ответа"
+          example: "mock-s1-2026-04-24"
+          type: "string"
+        offer:
+          allOf:
+          - $ref: "#/components/schemas/Offer"
+          description: "Индикативные условия факторингового предложения; null, ког\
+            да offer недоступен"
+          example:
+            factoringType: "WITHOUT_RECOURSE"
+            rateText: "Индикативная ставка от 2.5%"
+            defermentText: "Отсрочка до 120 дней"
+            supportEmail: "factoring_sales@raiffeisen.ru"
+          nullable: true
+          type: "object"
+        eligibleDebtors:
+          description: "Доступные дебиторы"
+          example:
+          - debtorCnum: "123456789"
+            debtorName: "Ромашка"
+            indicativeLimitAmount: 1000.0
+          items:
+            $ref: "#/components/schemas/EligibleDebtor"
+          type: "array"
+        latestLead:
+          allOf:
+          - $ref: "#/components/schemas/LeadSummary"
+          description: "Summary последнего lead по selectedCnum; null, если lead е\
+            щё не создавался"
+          example:
+            leadId: "e05f8afe-a72e-4a6f-8292-7edb51a724ec"
+            cnum: "405760"
+            status: "DRAFT"
+            updatedAt: "2026-04-22T12:00:00Z"
+            selectedDebtors:
+            - debtorCnum: "123456789"
+              debtorName: "Ромашка"
+          nullable: true
+          type: "object"
+      required:
+      - "availabilityStatus"
+      - "datasetVersion"
+      - "eligible"
+      - "eligibleDebtors"
+      - "latestLead"
+      - "offer"
+      type: "object"
+    ParsedPrimarySupplyListResponse:
+      allOf:
+      - properties:
+          parsedPrimarySupplies:
+            description: "Строки реестра поставок после парсинга"
+            items:
+              $ref: "#/components/schemas/ParsedPrimarySupplyResponse"
+            type: "array"
+        type: "object"
+      description: "Строки реестра поставок после парсинга"
+      example:
+        parsedPrimarySupplies:
+        - rowNumber: 1
+          supplyNumber: "26052021-51"
+          signDate: "2021-05-26"
+          amount: 100.0
+          contractNumber: "11122019-1"
+          deferralStartDate: "2021-05-26"
+          debtorInn: "1121003135"
+      type: "object"
+    ValidationErrorResponse:
+      description: "Тело расширенной ошибки"
+      example:
+        code: "REST_ERROR_5032"
+        message: "Data validation failed"
+        details:
+        - param: "array[2].debtorInn"
+          code: "VALIDATION_ERROR_1201"
+          message: "Invalid INN format"
+      properties:
+        code:
+          $ref: "#/components/schemas/RestErrorCodes"
+        message:
+          description: "Общее сообщение об ошибке"
+          example: "Переданы некорректные данные"
+          type: "string"
+        details:
+          description: "Список деталей ошибки"
+          example:
+          - param: "array[2].debtorInn"
+            code: "VALIDATION_ERROR_1201"
+            message: "Invalid INN format"
+          items:
+            $ref: "#/components/schemas/ValidationErrorDetail"
+          type: "array"
+      required:
+      - "code"
+      - "message"
+      type: "object"
+    Supplier:
+      description: "Поставщик"
+      example:
+        id: "74f36f89-3e28-4291-896f-b76801238e89"
+        fullNameRus: "АО Ромашка"
+        state:
+          status: "ACTIVE"
+          statusDate: "2025-10-11T13:06:24.761359"
+          errors: []
+          cqrsVersion: 5432123988
+      properties:
+        id:
+          description: "Идентификатор поставщика"
+          example: "74f36f89-3e28-4291-896f-b76801238e89"
+          format: "uuid"
+          type: "string"
+        fullNameRus:
+          description: "Полное наименование поставщика на русском языке"
+          example: "АО Ромашка"
+          type: "string"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/SupplierState"
+          description: "Состояние поставщика"
+          type: "object"
+      required:
+      - "fullNameRus"
+      - "id"
+      - "state"
+      type: "object"
+    SupplyUploadListRequest:
+      allOf:
+      - properties:
+          supplies:
+            description: "Данные об одной поставке в реестре"
+            items:
+              $ref: "#/components/schemas/SupplyUploadRequest"
+            type: "array"
+        type: "object"
+      description: "Строки реестра поставок"
+      example:
+        supplies:
+        - supplyNumber: "26052021-51"
+          signDate: "2021-05-26"
+          amount: 100.0
+          contractNumber: "11122019-1"
+          deferralStartDate: "2021-05-26"
+          debtorInn: "1121003135"
+      type: "object"
+    SupplyUploadListResponse:
+      allOf:
+      - properties:
+          supplies:
+            description: "Загруженные вручную поставки"
+            items:
+              $ref: "#/components/schemas/SupplyUploadResponse"
+            type: "array"
+        type: "object"
+      example:
+        supplies:
+        - id: "5675c400-9835-491d-8489-d42ea7ed551c"
+        - id: "5d5417d0-edd5-4910-8ae4-43706287a203"
+      type: "object"
+    Supply:
+      description: "Поставка"
+      example:
+        id: "5675c400-9835-491d-8489-d42ea7ed551c"
+        amount: 123456.78
+        availableFinancingAmount: 98765.42
+        financedAmount: 25742.31
+        number: "П-1234"
+        deferralStartDate: "2025-10-13"
+        waitingPeriodEndDate: "2025-10-20"
+        debtor:
+          fullNameRus: "АО Ромашка"
+        state:
+          status: "APPROVED"
+          statusDate: "2025-10-13T10:53:37.433221"
+          errors: []
+          cqrsVersion: -1628796591
+      properties:
+        id:
+          description: "Идентификатор поставки"
+          example: "5675c400-9835-491d-8489-d42ea7ed551c"
+          format: "uuid"
+          type: "string"
+        amount:
+          description: "Сумма поставки"
+          example: 123456.78
+          type: "number"
+        availableFinancingAmount:
+          description: "Доступная к финансированию сумма поставки"
+          example: 98765.42
+          type: "number"
+        financedAmount:
+          description: "Выплаченная сумма финансирования поставки"
+          example: 25742.31
+          type: "number"
+        number:
+          description: "Номер поставки"
+          example: "П-1234"
+          type: "string"
+        deferralStartDate:
+          description: "Дата начала отсрочки"
+          example: "2025-10-13"
+          format: "date"
+          type: "string"
+        waitingPeriodEndDate:
+          description: "Дата окончания периода ожидания"
+          example: "2025-10-20"
+          format: "date"
+          type: "string"
+        debtor:
+          $ref: "#/components/schemas/DebtorFullNameRusProjection"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/SupplyState"
+          description: "Состояние поставки"
+          type: "object"
+      required:
+      - "amount"
+      - "availableFinancingAmount"
+      - "debtor"
+      - "deferralStartDate"
+      - "financedAmount"
+      - "id"
+      - "number"
+      - "state"
+      - "waitingPeriodEndDate"
+      type: "object"
+    SupplySearchRequest:
+      example:
+        financingRequestId: "e05f8afe-a72e-4a6f-8292-7edb51a724ec"
+        waitingPeriodEndDateFrom: "2025-12-01"
+        deferralStartDateTo: "2025-12-01"
+        supplyIds:
+        - "5675c400-9835-491d-8489-d42ea7ed551c"
+        - "5d5417d0-edd5-4910-8ae4-43706287a203"
+        offset: 10
+        dealConditionsId: "b5c1e36d-bde1-42bf-8d72-9d0aa4504f73"
+        waitingPeriodEndDateTo: "2025-12-01"
+        agreementId: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+        limit: 2
+        statuses:
+        - "APPROVED"
+        - "FINANCING_IN_PROGRESS"
+        - "PARTIALLY_REPAID"
+        deferralEndDateFrom: "2026-01-27"
+        deferralStartDateFrom: "2025-12-01"
+      properties:
+        agreementId:
+          description: "Идентификатор Договора Факторинга"
+          example: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+          format: "uuid"
+          type: "string"
+        dealConditionsId:
+          description: "Идентификатор основных условий обслуживания поставщик-деби\
+            тор"
+          example: "b5c1e36d-bde1-42bf-8d72-9d0aa4504f73"
+          format: "uuid"
+          type: "string"
+        financingRequestId:
+          description: "Идентификатор запроса на финансирование - для поиска поста\
+            вок, включенных в запрос"
+          example: "e05f8afe-a72e-4a6f-8292-7edb51a724ec"
+          format: "uuid"
+          type: "string"
+        waitingPeriodEndDateFrom:
+          description: "Начало интервала для даты оплаты дебитором (периода ожидан\
+            ия) включительно"
+          example: "2025-12-01"
+          format: "date"
+          type: "string"
+        waitingPeriodEndDateTo:
+          description: "Конец интервала для даты оплаты дебитором (периода ожидани\
+            я) включительно"
+          example: "2025-12-01"
+          format: "date"
+          type: "string"
+        deferralStartDateFrom:
+          description: "Начало интервала для даты поставки (начала отсрочки) включ\
+            ительно"
+          example: "2025-12-01"
+          format: "date"
+          type: "string"
+        deferralStartDateTo:
+          description: "Конец интервала для даты поставки (начала отсрочки) включи\
+            тельно"
+          example: "2025-12-01"
+          format: "date"
+          type: "string"
+        deferralEndDateFrom:
+          description: "Начало интервала для даты окончания отсрочки поставки вклю\
+            чительно"
+          example: "2026-01-27"
+          format: "date"
+          type: "string"
+        statuses:
+          description: "Список статусов поставок"
+          example:
+          - "APPROVED"
+          - "FINANCING_IN_PROGRESS"
+          - "PARTIALLY_REPAID"
+          items:
+            example: "APPROVED"
+            type: "string"
+          type: "array"
+        offset:
+          description: "Число записей для смещения для формирования страницы ответ\
+            а"
+          example: 10
+          type: "integer"
+        limit:
+          description: "Ограничение количества элементов на странице ответа"
+          example: 2
+          type: "integer"
+        supplyIds:
+          description: "Список идентификаторов поставок"
+          example:
+          - "5675c400-9835-491d-8489-d42ea7ed551c"
+          - "5d5417d0-edd5-4910-8ae4-43706287a203"
+          items:
+            example: "5675c400-9835-491d-8489-d42ea7ed551c"
+            format: "uuid"
+            type: "string"
+          type: "array"
+      type: "object"
+    SupplyPageResponse:
+      allOf:
+      - properties:
+          supplies:
+            description: "Поставки"
+            items:
+              $ref: "#/components/schemas/Supply"
+            type: "array"
+        type: "object"
+      - $ref: "#/components/schemas/PaginationResponse"
+      example:
+        supplies:
+        - id: "5675c400-9835-491d-8489-d42ea7ed551c"
+          amount: 123456.78
+          availableFinancingAmount: 98765.42
+          financedAmount: 25742.31
+          number: "П-1234"
+          deferralStartDate: "2025-10-13"
+          waitingPeriodEndDate: "2025-10-20"
+          debtor:
+            fullNameRus: "АО Ромашка"
+          state:
+            status: "APPROVED"
+            statusDate: "2025-10-13T10:53:37.433221"
+            errors: []
+            cqrsVersion: -1628796591
+        - id: "5d5417d0-edd5-4910-8ae4-43706287a203"
+          amount: 567890.12
+          availableFinancingAmount: 397523.01
+          financedAmount: 267752.2
+          number: "П-7777"
+          deferralStartDate: "2025-10-14"
+          waitingPeriodEndDate: "2025-10-23"
+          debtor:
+            fullNameRus: "АО Ромашка"
+          state:
+            status: "FINANCING_IN_PROGRESS"
+            statusDate: "2025-10-05T11:21:55.381531"
+            errors: []
+            cqrsVersion: 3473257012
+        offset: 0
+        limit: 2
+        totalCount: 100
+      type: "object"
+    SupplyListResponse:
+      allOf:
+      - properties:
+          supplies:
+            description: "Поставки"
+            items:
+              $ref: "#/components/schemas/Supply"
+            type: "array"
+        type: "object"
+      example:
+        supplies:
+        - id: "5675c400-9835-491d-8489-d42ea7ed551c"
+          amount: 123456.78
+          availableFinancingAmount: 98765.42
+          financedAmount: 25742.31
+          number: "П-1234"
+          deferralStartDate: "2025-10-13"
+          waitingPeriodEndDate: "2025-10-20"
+          debtor:
+            fullNameRus: "АО Ромашка"
+          state:
+            status: "APPROVED"
+            statusDate: "2025-10-13T10:53:37.433221"
+            errors: []
+            cqrsVersion: -1628796591
+        - id: "5d5417d0-edd5-4910-8ae4-43706287a203"
+          amount: 567890.12
+          availableFinancingAmount: 397523.01
+          financedAmount: 267752.2
+          number: "П-7777"
+          deferralStartDate: "2025-10-14"
+          waitingPeriodEndDate: "2025-10-23"
+          debtor:
+            fullNameRus: "АО Ромашка"
+          state:
+            status: "FINANCING_IN_PROGRESS"
+            statusDate: "2025-10-05T11:21:55.381531"
+            errors: []
+            cqrsVersion: 3473257012
+      type: "object"
+    TariffPlanPageResponse:
+      allOf:
+      - properties:
+          tariffPlans:
+            description: "Тарифные планы"
+            items:
+              $ref: "#/components/schemas/TariffPlan"
+            type: "array"
+        type: "object"
+      - $ref: "#/components/schemas/PaginationResponse"
+      example:
+        tariffPlans:
+        - id: "87c4b6c5-4340-4b01-b910-8736420178d2"
+          contractId: "4f7d974a-dd63-421b-ba2b-712da215b86b"
+          financingTariffs:
+          - id: "7591a148-5ccb-4b53-984d-1a6cb0f3c72c"
+            type: "FOR_FINANCE_PERCENT"
+            deferralFeeValue: 0.123
+            additionalPeriodFeeValue: 0.234
+            waitingPeriodFeeValue: 0.345
+            startDate: "2025-05-01"
+            state:
+              status: "APPROVED"
+              statusDate: "2025-10-16T12:00:01.024991"
+              errors: []
+              cqrsVersion: 1742767789
+          - id: "aae70d79-6912-41d6-81db-b74a0fd5f1e2"
+            type: "FOR_FINANCE_FLOAT_CBR"
+            deferralFeeValue: 0.234
+            additionalPeriodFeeValue: 0.345
+            waitingPeriodFeeValue: 0.567
+            startDate: "2026-01-12"
+            state:
+              status: "APPROVED"
+              statusDate: "2025-10-16T12:00:01.024991"
+              errors: []
+              cqrsVersion: 1742767789
+          financedSupplyTariffs:
+          - id: "0cc43258-7c89-48c1-94ab-7c3885f97576"
+            type: "FOR_FINANCED_SUPPLY_PERCENT"
+            value: 0.123
+            startDate: "2025-05-01"
+            state:
+              status: "APPROVED"
+              statusDate: "2025-10-16T12:00:01.024991"
+              errors: []
+              cqrsVersion: 1742767789
+          - id: "0cc43258-7c89-48c1-94ab-7c3885f97576"
+            type: "FOR_FINANCED_SUPPLY_FIX"
+            value: 500
+            startDate: "2026-01-12"
+            state:
+              status: "APPROVED"
+              statusDate: "2025-10-16T12:00:01.024991"
+              errors: []
+              cqrsVersion: 1742767789
+          incomingPaymentOrderHandlingTariffs:
+          - id: "01516372-4465-4b9e-9aa3-19f421849592"
+            type: "FOR_PAYMENT_PERCENT"
+            value: 0.123
+            startDate: "2025-05-01"
+            state:
+              status: "APPROVED"
+              statusDate: "2025-10-16T12:00:01.024991"
+              errors: []
+              cqrsVersion: 1742767789
+          - id: "01516372-4465-4b9e-9aa3-19f421849592"
+            type: "FOR_PAYMENT_FIX"
+            value: 100
+            startDate: "2026-01-13"
+            state:
+              status: "APPROVED"
+              statusDate: "2025-10-16T12:00:01.024991"
+              errors: []
+              cqrsVersion: 1742767789
+          state:
+            status: "APPROVED"
+            statusDate: "2025-10-16T12:00:01.024991"
+            errors: []
+            cqrsVersion: 1742767789
+        - id: "e2430cd0-6a91-4fd7-92fa-191a0857cb72"
+          contractId: "4d8c17f5-c954-499d-bb6c-15bd9518c457"
+          financingTariffs:
+          - id: "afc37b8f-f166-497c-a967-da7da7278c01"
+            type: "FOR_FINANCE_PERCENT"
+            deferralFeeValue: 0.9876
+            additionalPeriodFeeValue: 0.8765
+            waitingPeriodFeeValue: 0.7654
+            startDate: "2025-10-12"
+            state:
+              status: "APPROVED"
+              statusDate: "2025-11-23T15:13:21.156123"
+              errors: []
+              cqrsVersion: 5432102345
+          financedSupplyTariffs: []
+          incomingPaymentOrderHandlingTariffs: []
+          state:
+            status: "APPROVED"
+            statusDate: "2025-11-23T15:13:21.156123"
+            errors: []
+            cqrsVersion: 5432102345
+        offset: 0
+        limit: 2
+        totalCount: 3
+      type: "object"
+    Agreement:
+      description: "Договор Факторинга"
+      example:
+        id: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+        supplierId: "74f36f89-3e28-4291-896f-b76801238e89"
+        number: "ДФ-1234"
+        startDate: "2025-05-01"
+        feeInvoiceCompensationPeriod: 10
+        isNonAcceptanceWithdrawalFee: false
+        internalAccounts:
+        - id: "0a587aa4-bad9-47ea-beee-6e7775c879f0"
+          cbaNumber: "40702810400000053038"
+          isForFinancing: true
+          state:
+            status: "ACTIVE"
+            statusDate: "2025-10-15T12:13:11.512123"
+            errors: []
+            cqrsVersion: -5471340216
+        - id: "96f88f49-09d4-4580-bb84-1a327e89dd3b"
+          cbaNumber: "40701610400000053040"
+          isForFinancing: true
+          state:
+            status: "BLOCKED"
+            statusDate: "2025-10-10T17:51:01.256712"
+            errors: []
+            cqrsVersion: -1237890432
+        externalAccounts:
+        - id: "dfbea6f1-309c-4c0e-815d-7d6527a234c8"
+          cbaNumber: "40702978200000023058"
+          bankFullNameRus: "ОАО КБ \"ЖИЛСТРОЙБАНК\""
+          isForFinancing: false
+          state:
+            status: "ACTIVE"
+            statusDate: "2025-10-01T08:05:51.024123"
+            errors: []
+            cqrsVersion: 1742767789
+        - id: "b2d62049-c229-4849-9234-6c5d9e9d1e80"
+          cbaNumber: "40702931700000023512"
+          bankFullNameRus: "АО \"РОССЕЛЬХОЗБАНК\""
+          isForFinancing: true
+          state:
+            status: "ACTIVE"
+            statusDate: "2025-09-25T14:31:20.0965678"
+            errors: []
+            cqrsVersion: 6298231120
+        state:
+          status: "APPROVED"
+          statusDate: "2025-10-16T12:00:01.024991"
+          errors: []
+          cqrsVersion: 1742767789
+      properties:
+        id:
+          description: "Идентификатор договора Факторинга"
+          example: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+          format: "uuid"
+          type: "string"
+        supplierId:
+          description: "Идентификатор поставщика"
+          example: "74f36f89-3e28-4291-896f-b76801238e89"
+          format: "uuid"
+          type: "string"
+        number:
+          description: "Номер договора Факторинга"
+          example: "ДФ-1234"
+          type: "string"
+        startDate:
+          description: "Дата начала договора"
+          example: "2025-05-01"
+          format: "date"
+          type: "string"
+        feeInvoiceCompensationPeriod:
+          description: "Срок для оплаты комиссий в рабочих днях"
+          example: 10
+          minimum: 0
+          type: "integer"
+        isNonAcceptanceWithdrawalFee:
+          description: "Признак безакцептного списания комиссии"
+          example: false
+          type: "boolean"
+        internalAccounts:
+          description: "Клиентские счета в Райффайзенбанке"
+          items:
+            $ref: "#/components/schemas/InternalAccount"
+          minItems: 0
+          type: "array"
+        externalAccounts:
+          description: "Клиентские счета во внешнем банке"
+          items:
+            $ref: "#/components/schemas/ExternalAccount"
+          minItems: 0
+          type: "array"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/AgreementState"
+          description: "Состояние договора Факторинга"
+          type: "object"
+      required:
+      - "externalAccounts"
+      - "feeInvoiceCompensationPeriod"
+      - "id"
+      - "internalAccounts"
+      - "isNonAcceptanceWithdrawalFee"
+      - "number"
+      - "startDate"
+      - "supplierId"
+      type: "object"
+    ErrorMessage:
+      properties:
+        code:
+          $ref: "#/components/schemas/RestErrorCodes"
+        message:
+          description: "Сообщение"
+          example: "General service error"
+          type: "string"
+      required:
+      - "code"
+      - "message"
+      type: "object"
+    AgreementSum:
+      description: "Сумма договора Факторинга"
+      example:
+        id: "5d4ee077-09ad-4d60-953d-845055187941"
+        agreementId: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+        amount: 2000000.0
+        availableAmount: 500000.68
+        utilizedAmount: 1000000.53
+        state:
+          status: "ACTIVE"
+          statusDate: "2025-10-16T12:00:01.024991"
+          errors: []
+          cqrsVersion: 1742767789
+      properties:
+        id:
+          description: "Идентификатор суммы договора Факторинга"
+          example: "5d4ee077-09ad-4d60-953d-845055187941"
+          format: "uuid"
+          type: "string"
+        agreementId:
+          description: "Идентификатор договора Факторинга"
+          example: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+          format: "uuid"
+          type: "string"
+        amount:
+          description: "Сумма всех сублимитов по договору Факторинга"
+          example: 2000000.0
+          type: "number"
+        availableAmount:
+          description: "Доступная сумма сублимитов по договору Факторинга"
+          example: 500000.68
+          type: "number"
+        utilizedAmount:
+          description: "Сумма утилизации всех сублимитов по договору Факторинга"
+          example: 1000000.53
+          type: "number"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/AgreementSumState"
+          description: "Состояние суммы договора Факторинга"
+          type: "object"
+      required:
+      - "agreementId"
+      - "amount"
+      - "availableAmount"
+      - "id"
+      - "state"
+      - "utilizedAmount"
+      type: "object"
+    Sublimit:
+      description: "Сублимит - лимит на дебитора в рамках конкретного договора Фак\
+        торинга"
+      example:
+        id: "04ab216e-5626-4111-86d8-f606048fc000"
+        dealConditionsId: "b5c1e36d-bde1-42bf-8d72-9d0aa4504f73"
+        amount: 2000000.0
+        utilizedAmount: 987654.38
+        state:
+          status: "APPROVED"
+          statusDate: "2025-10-25T16:05:48.531124"
+          errors: []
+          cqrsVersion: 8914661325
+      properties:
+        id:
+          description: "Идентификатор сублимита"
+          example: "04ab216e-5626-4111-86d8-f606048fc000"
+          format: "uuid"
+          type: "string"
+        dealConditionsId:
+          description: "Идентификатор основных условий обслуживания поставщик-деби\
+            тор"
+          example: "b5c1e36d-bde1-42bf-8d72-9d0aa4504f73"
+          format: "uuid"
+          type: "string"
+        amount:
+          description: "Сумма сублимита"
+          example: 2000000.0
+          type: "number"
+        utilizedAmount:
+          description: "Утилизированная сумма сублимита"
+          example: 987654.38
+          type: "number"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/SublimitState"
+          description: "Состояние сублимита"
+          type: "object"
+      required:
+      - "amount"
+      - "dealConditionsId"
+      - "id"
+      - "state"
+      - "utilizedAmount"
+      type: "object"
+    Contract:
+      description: "Контракт"
+      example:
+        id: "4f7d974a-dd63-421b-ba2b-712da215b86b"
+        number: "A12345"
+        state:
+          status: "APPROVED"
+          statusDate: "2025-10-16T12:00:01.024991"
+          errors: []
+          cqrsVersion: 1742767789
+      properties:
+        id:
+          description: "Идентификатор контракта"
+          example: "4f7d974a-dd63-421b-ba2b-712da215b86b"
+          format: "uuid"
+          type: "string"
+        number:
+          description: "Номер контракта"
+          example: "А12345"
+          type: "string"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/ContractState"
+          description: "Состояние контракта"
+          type: "object"
+      required:
+      - "id"
+      - "number"
+      - "state"
+      type: "object"
+    DealConditions:
+      description: "Основные условия обслуживания поставщик-дебитор"
+      example:
+        id: "b5c1e36d-bde1-42bf-8d72-9d0aa4504f73"
+        agreementId: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+        debtorId: "8867503f-10a5-4591-b739-78d75f3607c1"
+        state:
+          status: "APPROVED"
+          statusDate: "2025-11-05T06:13:15.115212"
+          errors: []
+          cqrsVersion: 3456120025
+      properties:
+        id:
+          description: "Идентификатор основных условий обслуживания поставщик-деби\
+            тор"
+          example: "b5c1e36d-bde1-42bf-8d72-9d0aa4504f73"
+          format: "uuid"
+          type: "string"
+        agreementId:
+          description: "Идентификатор договора Факторинга"
+          example: "ba705955-3e0f-4956-84e0-e12616e84e2b"
+          format: "uuid"
+          type: "string"
+        debtorId:
+          description: "Идентификатор дебитора"
+          example: "8867503f-10a5-4591-b739-78d75f3607c1"
+          format: "uuid"
+          type: "string"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/DealConditionsState"
+          description: "Состояние основных условий обслуживания поставщик-дебитор"
+          type: "object"
+      required:
+      - "agreementId"
+      - "debtorId"
+      - "id"
+      - "state"
+      type: "object"
+    DebtorState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/DebtorStatus"
+        required:
+        - "status"
+        type: "object"
+      description: "Состояние дебитора"
+      example:
+        status: "ACTIVE"
+        statusDate: "2025-10-21T15:25:12.391551"
+        errors: []
+        cqrsVersion: 2791332215
+      type: "object"
+    PaginationResponse:
+      example:
+        offset: 0
+        limit: 10
+        totalCount: 100
+      properties:
+        offset:
+          description: "Число записей для смещения для формирования страницы ответ\
+            а"
+          example: 1
+          type: "integer"
+        limit:
+          description: "Итоговое количество элементов на странице ответа"
+          example: 10
+          type: "integer"
+        totalCount:
+          description: "Общее количество элементов"
+          example: 100
+          type: "integer"
+      required:
+      - "limit"
+      - "offset"
+      - "totalCount"
+      type: "object"
+    SupplyToIncludeInFinancingRequest:
+      description: "Информация о поставке для включения в запрос на финансирование"
+      example:
+        id: "5675c400-9835-491d-8489-d42ea7ed551c"
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: "Идентификатор поставки"
+          example: "5675c400-9835-491d-8489-d42ea7ed551c"
+          format: "uuid"
+          type: "string"
+        cqrsVersion:
+          description: "cqrsVersion поставки"
+          example: -1628796591
+          type: "integer"
+      required:
+      - "cqrsVersion"
+      - "id"
+      type: "object"
+    FinancingRequestAccountProjection:
+      description: "Проекция счета с номером ЦБ"
+      example:
+        cbaNumber: "40702810400000053038"
+      properties:
+        cbaNumber:
+          description: "ЦБ номер счета"
+          example: "40702810400000053038"
+          maxLength: 20
+          minLength: 20
+          type: "string"
+      required:
+      - "cbaNumber"
+      type: "object"
+    DebtorFullNameRusProjection:
+      description: "Проекция дебитора с полным наименованием "
+      example:
+        fullNameRus: "АО Ромашка"
+      properties:
+        fullNameRus:
+          description: "Полное наименование дебитора на русском языке"
+          example: "АО Ромашка"
+          type: "string"
+      required:
+      - "fullNameRus"
+      type: "object"
+    SupplierFinancingRequestProjection:
+      description: "Проекция поставщика для запроса на финансирование"
+      example:
+        cnum: "CACJEW"
+        fullNameRus: "АО Ромашка"
+      properties:
+        cnum:
+          description: "Клиентский номер"
+          example: "CACJEW"
+          type: "string"
+        fullNameRus:
+          description: "Полное наименование поставщика на русском языке"
+          example: "АО Ромашка"
+          type: "string"
+      required:
+      - "cnum"
+      - "fullNameRus"
+      type: "object"
+    FinancingRequestState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/FinancingRequestStatus"
+        required:
+        - "status"
+        type: "object"
+      description: "Состояние запроса на финансирование"
+      example:
+        status: "SENT_TO_CDC_SIGN"
+        statusDate: "2025-05-05T12:13:40.433531"
+        errors: []
+        cqrsVersion: 5911126589
+      type: "object"
+    OfferAvailabilityStatus:
+      description: "Доступность факторингового предложения для текущего клиента и\
+        \ выбранной организации"
+      enum:
+      - "AVAILABLE"
+      - "UNAVAILABLE"
+      - "EMPTY_DEBTOR_LIST"
+      example: "AVAILABLE"
+      type: "string"
+    OfferUnavailableReason:
+      description: "Причина недоступности offer, если availabilityStatus не равен\
+        \ AVAILABLE"
+      enum:
+      - "CLIENT_NOT_ELIGIBLE"
+      - "NO_ELIGIBLE_DEBTORS"
+      example: "NO_ELIGIBLE_DEBTORS"
+      nullable: true
+      type: "string"
+    Offer:
+      description: "Индикативные условия факторингового предложения"
+      example:
+        factoringType: "WITHOUT_RECOURSE"
+        rateText: "Индикативная ставка от 2.5%"
+        defermentText: "Отсрочка до 120 дней"
+        supportEmail: "factoring_sales@raiffeisen.ru"
+      nullable: true
+      properties:
+        factoringType:
+          description: "Тип факторинга"
+          example: "WITHOUT_RECOURSE"
+          type: "string"
+        rateText:
+          description: "Текст ставки, отображаемый клиенту"
+          example: "Индикативная ставка от 2.5%"
+          type: "string"
+        defermentText:
+          description: "Текст отсрочки, отображаемый клиенту"
+          example: "Отсрочка до 120 дней"
+          type: "string"
+        supportEmail:
+          description: "Email поддержки по offer"
+          example: "factoring_sales@raiffeisen.ru"
+          format: "email"
+          type: "string"
+      required:
+      - "defermentText"
+      - "factoringType"
+      - "rateText"
+      - "supportEmail"
+      type: "object"
+    EligibleDebtor:
+      description: "Дебитор, доступный клиенту для факторингового предложения"
+      example:
+        debtorCnum: "123456789"
+        debtorName: "Ромашка"
+        inn: "7701234567"
+        kpp: "770101001"
+        indicativeLimitAmount: 1000.0
+      properties:
+        debtorCnum:
+          description: "Клиентский номер дебитора из approved debtor dataset"
+          example: "123456789"
+          type: "string"
+        debtorName:
+          description: "Отображаемое имя дебитора, сохраненное в approved debtor dataset\
+            \ при CSV import"
+          example: "Ромашка"
+          type: "string"
+        inn:
+          description: "ИНН дебитора. Может отсутствовать, если enrichment не выпо\
+            лнен"
+          example: "7701234567"
+          type: "string"
+        kpp:
+          description: "КПП дебитора. Может отсутствовать, если enrichment не выпо\
+            лнен"
+          example: "770101001"
+          type: "string"
+        indicativeLimitAmount:
+          description: "Индикативный лимит по дебитору"
+          example: 1000.0
+          type: "number"
+      required:
+      - "debtorCnum"
+      - "debtorName"
+      - "indicativeLimitAmount"
+      type: "object"
+    LeadSummary:
+      description: "Краткая информация о последнем lead клиента"
+      example:
+        leadId: "e05f8afe-a72e-4a6f-8292-7edb51a724ec"
+        cnum: "405760"
+        status: "DRAFT"
+        updatedAt: "2026-04-22T12:00:00Z"
+        selectedDebtors:
+        - debtorCnum: "123456789"
+          debtorName: "Ромашка"
+      nullable: true
+      properties:
+        leadId:
+          description: "Идентификатор lead"
+          example: "e05f8afe-a72e-4a6f-8292-7edb51a724ec"
+          format: "uuid"
+          type: "string"
+        cnum:
+          description: "Ключ владения и access scope для lead"
+          example: "405760"
+          type: "string"
+        status:
+          $ref: "#/components/schemas/LeadStatus"
+        updatedAt:
+          description: "Дата и время последнего обновления lead"
+          example: "2026-04-22T12:00:00Z"
+          format: "date-time"
+          type: "string"
+        selectedDebtors:
+          description: "Дебиторы, выбранные в lead"
+          items:
+            $ref: "#/components/schemas/LeadSummaryDebtor"
+          type: "array"
+      required:
+      - "cnum"
+      - "leadId"
+      - "status"
+      - "updatedAt"
+      type: "object"
+    ParsedPrimarySupplyResponse:
+      description: "Результат парсинга одной строки реестра поставок"
+      example:
+        rowNumber: 1
+        supplyNumber: "26052021-51"
+        signDate: "2021-05-26"
+        amount: 100.0
+        contractNumber: "11122019-1"
+        deferralStartDate: "2021-05-26"
+        debtorInn: "1121003135"
+      properties:
+        rowNumber:
+          description: "Номер строки в файле"
+          example: 1
+          type: "integer"
+        supplyNumber:
+          description: "Номер поставки (основного документа)"
+          example: "26052021-51"
+          type: "string"
+        invoiceNumber:
+          description: "Номер счета-фактуры"
+          example: "123"
+          nullable: true
+          type: "string"
+        additionalDocumentNumber:
+          description: "Номер доп. документа"
+          example: "456"
+          nullable: true
+          type: "string"
+        signDate:
+          description: "Дата поставки (основного документа)"
+          example: "2021-05-26"
+          format: "date"
+          type: "string"
+        invoiceSignDate:
+          description: "Дата счета-фактуры"
+          example: "2021-05-27"
+          format: "date"
+          nullable: true
+          type: "string"
+        additionalDocumentSignDate:
+          description: "Дата доп. документа"
+          example: "2021-05-28"
+          format: "date"
+          nullable: true
+          type: "string"
+        amount:
+          description: "Сумма поставки"
+          example: 100.0
+          format: "double"
+          type: "number"
+        contractNumber:
+          description: "Номер Контракта"
+          example: "11122019-1"
+          type: "string"
+        deferralStartDate:
+          description: "Дата начала отсрочки"
+          example: "2021-05-26"
+          format: "date"
+          type: "string"
+        debtorInn:
+          description: "ИНН дебитора"
+          example: "1121003135"
+          type: "string"
+      required:
+      - "amount"
+      - "contractNumber"
+      - "debtorInn"
+      - "deferralStartDate"
+      - "rowNumber"
+      - "signDate"
+      - "supplyNumber"
+      type: "object"
+    RestErrorCodes:
+      description: "| code            | description                              \
+        \            |\n|-----------------|------------------------------------------------------|\n\
+        | REST_ERROR_5001 | General service error                                |\n\
+        | REST_ERROR_5004 | Agreement does not exist                             |\n\
+        | REST_ERROR_5017 | DealConditions does not exist                        |\n\
+        | REST_ERROR_5024 | Action is available at working hour                  |\n\
+        | REST_ERROR_5025 | Supplies are not found                               |\n\
+        | REST_ERROR_5026 | Approved contract does not exist                     |\n\
+        | REST_ERROR_5027 | Supplies must be selected on only one deal condition |\n\
+        | REST_ERROR_5028 | Approved deal conditions do not exist                |\n\
+        | REST_ERROR_5029 | Approved agreement does not exist                    |\n\
+        | REST_ERROR_5031 | Account for financing cannot be empty                |\n\
+        | REST_ERROR_5032 | Data validation failed                               |\n\
+        | REST_ERROR_5033 | File is infected                                     |\n\
+        | REST_ERROR_5034 | Invalid type of file                                 |\n\
+        | REST_ERROR_5035 | File is empty                                        |\n\
+        | REST_ERROR_5036 | Failed to read file                                  |\n\
+        | REST_ERROR_5037 | Supplier are not found                               |\n\
+        | SELECTED_ORGANIZATION_REQUIRED | selectedCnum is required when several organizations\
+        \ are available |\n| SELECTED_ORGANIZATION_NOT_ALLOWED | selectedCnum is not\
+        \ included in allowed organizations |\n"
+      enum:
+      - "REST_ERROR_5001"
+      - "REST_ERROR_5004"
+      - "REST_ERROR_5017"
+      - "REST_ERROR_5024"
+      - "REST_ERROR_5025"
+      - "REST_ERROR_5026"
+      - "REST_ERROR_5027"
+      - "REST_ERROR_5028"
+      - "REST_ERROR_5029"
+      - "REST_ERROR_5031"
+      - "REST_ERROR_5032"
+      - "REST_ERROR_5033"
+      - "REST_ERROR_5034"
+      - "REST_ERROR_5035"
+      - "REST_ERROR_5036"
+      - "SELECTED_ORGANIZATION_REQUIRED"
+      - "SELECTED_ORGANIZATION_NOT_ALLOWED"
+      example: "REST_ERROR_5001"
+      type: "string"
+    ValidationErrorDetail:
+      description: "Детали ошибки валидации"
+      example:
+        param: "array[2].debtorInn"
+        code: "VALIDATION_ERROR_1201"
+        message: "Invalid INN format"
+      properties:
+        param:
+          description: "Путь к ошибке во входном файле (array[{elementNumber}].{columnName})"
+          example: "array[2].debtorInn"
+          type: "string"
+        code:
+          $ref: "#/components/schemas/ValidationErrorCodes"
+        message:
+          description: "Сообщение об ошибке"
+          example: "INN must contain 10 or 12 digits"
+          type: "string"
+      required:
+      - "code"
+      - "message"
+      - "param"
+      type: "object"
+    SupplierState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/SupplierStatus"
+        required:
+        - "status"
+        type: "object"
+      description: "Состояние поставщика"
+      example:
+        status: "ACTIVE"
+        statusDate: "2025-10-11T13:06:24.761359"
+        errors: []
+        cqrsVersion: 5432123988
+      type: "object"
+    SupplyUploadRequest:
+      description: "Данные об одной поставке в реестре"
+      example:
+        supplyNumber: "26052021-51"
+        signDate: "2021-05-26"
+        amount: 100.0
+        contractNumber: "11122019-1"
+        deferralStartDate: "2021-05-26"
+        debtorInn: "1121003135"
+      properties:
+        supplyNumber:
+          description: "Номер поставки (основного документа)"
+          example: "26052021-51"
+          type: "string"
+        invoiceNumber:
+          description: "Номер счета-фактуры"
+          example: "123"
+          nullable: true
+          type: "string"
+        additionalDocumentNumber:
+          description: "Номер доп. документа"
+          example: "456"
+          nullable: true
+          type: "string"
+        signDate:
+          description: "Дата поставки (основного документа)"
+          example: "2021-05-26"
+          format: "date"
+          type: "string"
+        invoiceSignDate:
+          description: "Дата счета-фактуры"
+          example: "2021-05-27"
+          format: "date"
+          nullable: true
+          type: "string"
+        additionalDocumentSignDate:
+          description: "Дата доп. документа"
+          example: "2021-05-28"
+          format: "date"
+          nullable: true
+          type: "string"
+        amount:
+          description: "Сумма поставки"
+          example: 100.0
+          format: "double"
+          type: "number"
+        contractNumber:
+          description: "Номер Контракта"
+          example: "11122019-1"
+          type: "string"
+        deferralStartDate:
+          description: "Дата начала отсрочки"
+          example: "2021-05-26"
+          format: "date"
+          type: "string"
+        debtorInn:
+          description: "ИНН дебитора"
+          example: "1121003135"
+          type: "string"
+      required:
+      - "amount"
+      - "contractNumber"
+      - "debtorInn"
+      - "deferralStartDate"
+      - "signDate"
+      - "supplyNumber"
+      type: "object"
+    SupplyUploadResponse:
+      description: "Загруженная поставка"
+      example:
+        id: "5675c400-9835-491d-8489-d42ea7ed551c"
+      properties:
+        id:
+          description: "Идентификатор поставки"
+          example: "5675c400-9835-491d-8489-d42ea7ed551c"
+          format: "uuid"
+          type: "string"
+      required:
+      - "id"
+      type: "object"
+    SupplyState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/SupplyStatus"
+        required:
+        - "status"
+        type: "object"
+      description: "Состояние поставки"
+      example:
+        status: "APPROVED"
+        statusDate: "2025-10-13T10:53:37.433221"
+        errors: []
+        cqrsVersion: -1628796591
+      type: "object"
+    TariffPlan:
+      description: "Тарифный план"
+      example:
+        id: "87c4b6c5-4340-4b01-b910-8736420178d2"
+        contractId: "4f7d974a-dd63-421b-ba2b-712da215b86b"
+        financingTariffs:
+        - id: "7591a148-5ccb-4b53-984d-1a6cb0f3c72c"
+          type: "FOR_FINANCE_PERCENT"
+          deferralFeeValue: 0.1234
+          additionalPeriodFeeValue: 0.2345
+          waitingPeriodFeeValue: 0.3456
+          startDate: "2025-05-01"
+          state:
+            status: "APPROVED"
+            statusDate: "2025-10-16T12:00:01.024991"
+            errors: []
+            cqrsVersion: 1742767789
+        - id: "aae70d79-6912-41d6-81db-b74a0fd5f1e2"
+          type: "FOR_FINANCE_FLOAT_CBR"
+          deferralFeeValue: 0.2345
+          additionalPeriodFeeValue: 0.3456
+          waitingPeriodFeeValue: 0.5678
+          startDate: "2026-01-12"
+          state:
+            status: "APPROVED"
+            statusDate: "2025-10-16T12:00:01.024991"
+            errors: []
+            cqrsVersion: 1742767789
+        financedSupplyTariffs:
+        - id: "0cc43258-7c89-48c1-94ab-7c3885f97576"
+          type: "FOR_FINANCED_SUPPLY_PERCENT"
+          value: 0.1234
+          startDate: "2025-05-01"
+          state:
+            status: "APPROVED"
+            statusDate: "2025-10-16T12:00:01.024991"
+            errors: []
+            cqrsVersion: 1742767789
+        - id: "0cc43258-7c89-48c1-94ab-7c3885f97576"
+          type: "FOR_FINANCED_SUPPLY_FIX"
+          value: 500.55
+          startDate: "2026-01-12"
+          state:
+            status: "APPROVED"
+            statusDate: "2025-10-16T12:00:01.024991"
+            errors: []
+            cqrsVersion: 1742767789
+        incomingPaymentOrderHandlingTariffs:
+        - id: "01516372-4465-4b9e-9aa3-19f421849592"
+          type: "FOR_PAYMENT_PERCENT"
+          value: 0.1234
+          startDate: "2025-05-01"
+          state:
+            status: "APPROVED"
+            statusDate: "2025-10-16T12:00:01.024991"
+            errors: []
+            cqrsVersion: 1742767789
+        - id: "01516372-4465-4b9e-9aa3-19f421849592"
+          type: "FOR_PAYMENT_FIX"
+          value: 100.11
+          startDate: "2026-01-13"
+          state:
+            status: "APPROVED"
+            statusDate: "2025-10-16T12:00:01.024991"
+            errors: []
+            cqrsVersion: 1742767789
+        state:
+          status: "APPROVED"
+          statusDate: "2025-10-16T12:00:01.024991"
+          errors: []
+          cqrsVersion: 1742767789
+      properties:
+        id:
+          description: "Идентификатор тарифного плана"
+          example: "87c4b6c5-4340-4b01-b910-8736420178d2"
+          format: "uuid"
+          type: "string"
+        contractId:
+          description: "Идентификатор контракта"
+          example: "4f7d974a-dd63-421b-ba2b-712da215b86b"
+          format: "uuid"
+          type: "string"
+        financingTariffs:
+          description: "Актуальные (текущий действующий и будущие) тарифы за финан\
+            сирование."
+          items:
+            $ref: "#/components/schemas/FinancingTariff"
+          minItems: 1
+          type: "array"
+        financedSupplyTariffs:
+          description: "Актуальные (текущий действующий и будущие) тарифы за профи\
+            нансированную поставку"
+          items:
+            $ref: "#/components/schemas/FinancedSupplyTariff"
+          minItems: 0
+          type: "array"
+        incomingPaymentOrderHandlingTariffs:
+          description: "Актуальные (текущий действующий и будущие) тарифы за обраб\
+            отанное входящее платежное поручение"
+          items:
+            $ref: "#/components/schemas/IncomingPaymentOrderHandlingTariff"
+          minItems: 0
+          type: "array"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/TariffPlanState"
+          description: "Состояние тарифного плана"
+          type: "object"
+      required:
+      - "contractId"
+      - "financedSupplyTariffs"
+      - "financingTariffs"
+      - "id"
+      - "incomingPaymentOrderHandlingTariffs"
+      - "state"
+      type: "object"
+    InternalAccount:
+      description: "Клиентский счет в Райффайзенбанке"
+      example:
+        id: "0a587aa4-bad9-47ea-beee-6e7775c879f0"
+        cbaNumber: "40702810400000053038"
+        isForFinancing: true
+        state:
+          status: "ACTIVE"
+          statusDate: "2025-10-15T12:13:11.512123"
+          errors: []
+          cqrsVersion: -5471340216
+      properties:
+        id:
+          description: "Идентификатор клиентского счета в Райффайзенбанке"
+          example: "0a587aa4-bad9-47ea-beee-6e7775c879f0"
+          format: "uuid"
+          type: "string"
+        cbaNumber:
+          description: "ЦБ номер счета"
+          example: "40702810400000053038"
+          maxLength: 20
+          minLength: 20
+          type: "string"
+        isForFinancing:
+          description: "Признак того, что счет может быть выбран для финансировани\
+            я"
+          example: true
+          type: "boolean"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/InternalAccountState"
+          description: "Состояние клиентского счета в Райффайзенбанке"
+          type: "object"
+      required:
+      - "cbaNumber"
+      - "id"
+      - "isForFinancing"
+      - "state"
+      type: "object"
+    ExternalAccount:
+      description: "Клиентский счет во внешнем банке"
+      example:
+        id: "dfbea6f1-309c-4c0e-815d-7d6527a234c8"
+        cbaNumber: "40702978200000023058"
+        bankFullNameRus: "ОАО КБ \"ЖИЛСТРОЙБАНК\""
+        isForFinancing: false
+        state:
+          status: "ACTIVE"
+          statusDate: "2025-10-01T08:05:51.024123"
+          errors: []
+          cqrsVersion: 1742767789
+      properties:
+        id:
+          description: "Идентификатор клиентского счета во внешнем банке"
+          example: "dfbea6f1-309c-4c0e-815d-7d6527a234c8"
+          format: "uuid"
+          type: "string"
+        cbaNumber:
+          description: "ЦБ номер счета"
+          example: "40702978200000023058"
+          maxLength: 20
+          minLength: 20
+          type: "string"
+        bankFullNameRus:
+          description: "Полное именование внешнего банка на русском языке"
+          example: "ПАО Сбербанк"
+          type: "string"
+        isForFinancing:
+          description: "Признак того, что счет может быть выбран для финансировани\
+            я"
+          example: true
+          type: "boolean"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/ExternalAccountState"
+          description: "Состояние клиентского счета во внешнем банке"
+          type: "object"
+      required:
+      - "bankFullNameRus"
+      - "cbaNumber"
+      - "id"
+      - "isForFinancing"
+      - "state"
+      type: "object"
+    AgreementState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/AgreementStatus"
+        required:
+        - "status"
+        type: "object"
+      description: "Состояние договора Факторинга"
+      example:
+        status: "APPROVED"
+        statusDate: "2025-10-16T12:00:01.024991"
+        errors: []
+        cqrsVersion: 1742767789
+      type: "object"
+    AgreementSumState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/AgreementSumStatus"
+        required:
+        - "status"
+        type: "object"
+      description: "Состояние суммы договора Факторинга"
+      example:
+        status: "ACTIVE"
+        statusDate: "2025-10-16T12:00:01.024991"
+        errors: []
+        cqrsVersion: 1742767789
+      type: "object"
+    SublimitState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/SublimitStatus"
+        required:
+        - "status"
+        type: "object"
+      description: "Состояние сублимита"
+      example:
+        status: "APPROVED"
+        statusDate: "2025-10-25T16:05:48.531124"
+        errors: []
+        cqrsVersion: 8914661325
+      type: "object"
+    ContractState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/ContractStatus"
+        required:
+        - "status"
+        type: "object"
+      description: "Состояние контракта"
+      example:
+        status: "APPROVED"
+        statusDate: "2025-10-16T12:00:01.024991"
+        errors: []
+        cqrsVersion: 1742767789
+      type: "object"
+    DealConditionsState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/DealConditionsStatus"
+        required:
+        - "status"
+        type: "object"
+      description: "Состояние основных условий обслуживания поставщик-дебитор"
+      example:
+        status: "APPROVED"
+        statusDate: "2025-11-05T06:13:15.115212"
+        errors: []
+        cqrsVersion: 3456120025
+      type: "object"
+    State:
+      description: "Состояние объекта"
+      properties:
+        statusDate:
+          description: "Дата последнего изменения состояния объекта yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+          format: "date-time"
+          pattern: "([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})"
+          type: "string"
+        errors:
+          description: "Список ошибок в объекте. Может быть пустым списком или null"
+          items:
+            $ref: "#/components/schemas/ErrorMessage"
+          type: "array"
+        cqrsVersion:
+          description: "hashCode от statusDate, status и errors"
+          example: -1628796591
+          type: "integer"
+      required:
+      - "cqrsVersion"
+      - "statusDate"
+      type: "object"
+    DebtorStatus:
+      description: "Статус дебитора"
+      enum:
+      - "ACTIVE"
+      example: "ACTIVE"
+      type: "string"
+    FinancingRequestStatus:
+      description: "Статус запроса на финансирование"
+      enum:
+      - "SENT_TO_CDC_SIGN"
+      - "PARTIALLY_SIGNED"
+      - "REJECTED"
+      - "SIGNED"
+      - "IN_PROGRESS"
+      - "FINANCED"
+      example: "IN_PROGRESS"
+      type: "string"
+    LeadStatus:
+      description: "Статус lead"
+      enum:
+      - "DRAFT"
+      - "SUBMITTED"
+      - "APPROVED"
+      - "REJECTED"
+      - "CANCELLED"
+      - "DELETED"
+      example: "DRAFT"
+      type: "string"
+    LeadSummaryDebtor:
+      description: "Дебитор, выбранный в lead"
+      example:
+        debtorCnum: "123456789"
+        debtorName: "Ромашка"
+      properties:
+        debtorCnum:
+          description: "Клиентский номер дебитора"
+          example: "123456789"
+          type: "string"
+        debtorName:
+          description: "Отображаемое имя дебитора"
+          example: "Ромашка"
+          type: "string"
+      required:
+      - "debtorCnum"
+      - "debtorName"
+      type: "object"
+    ValidationErrorCodes:
+      description: "| code                 | description                         \
+        \                 |\n|----------------------|------------------------------------------------------|\n\
+        | VALIDATION_ERROR_1201| Invalid INN format                              \
+        \     |\n| VALIDATION_ERROR_1202| Invalid date format                    \
+        \              |\n| VALIDATION_ERROR_1203| Invalid amount format         \
+        \                       |\n| VALIDATION_ERROR_1204| Invalid contract number\
+        \ format                       |\n| VALIDATION_ERROR_1205| Missing required\
+        \ field                               |\n| VALIDATION_ERROR_1206| Invalid\
+        \ column count in header                       |\n| VALIDATION_ERROR_1207|\
+        \ Invalid header name                                  |\n| VALIDATION_ERROR_1208|\
+        \ Supply amount is not positive                        |\n| VALIDATION_ERROR_1209|\
+        \ Duplicate row in file                                |\n| VALIDATION_ERROR_1210|\
+        \ Date in future                                       |\n| VALIDATION_ERROR_1211|\
+        \ Invoice sign date does not equal sign date           |\n| VALIDATION_ERROR_1212|\
+        \ Deferral start date is earlier than sign date        |\n| VALIDATION_ERROR_1213|\
+        \ Contract not found                                   |\n| VALIDATION_ERROR_1214|\
+        \ Document is duplicated                               |\n"
+      enum:
+      - "VALIDATION_ERROR_1201"
+      - "VALIDATION_ERROR_1202"
+      - "VALIDATION_ERROR_1203"
+      - "VALIDATION_ERROR_1204"
+      - "VALIDATION_ERROR_1205"
+      - "VALIDATION_ERROR_1206"
+      - "VALIDATION_ERROR_1207"
+      - "VALIDATION_ERROR_1208"
+      - "VALIDATION_ERROR_1209"
+      - "VALIDATION_ERROR_1210"
+      - "VALIDATION_ERROR_1211"
+      - "VALIDATION_ERROR_1212"
+      - "VALIDATION_ERROR_1213"
+      - "VALIDATION_ERROR_1214"
+      example: "VALIDATION_ERROR_1201"
+      type: "string"
+    SupplierStatus:
+      description: "Статус поставщика"
+      enum:
+      - "ACTIVE"
+      example: "ACTIVE"
+      type: "string"
+    SupplyStatus:
+      description: "Статус поставки"
+      enum:
+      - "APPROVED"
+      - "FINANCING_IN_PROGRESS"
+      - "AWAITING_REPAY"
+      - "REPAID"
+      - "PARTIALLY_REPAID"
+      - "FINANCED"
+      - "DATES_RECALCULATION_PROCESSING"
+      example: "APPROVED"
+      type: "string"
+    FinancingTariff:
+      description: "Тариф за финансирование"
+      example:
+        id: "7591a148-5ccb-4b53-984d-1a6cb0f3c72c"
+        type: "FOR_FINANCE_PERCENT"
+        deferralFeeValue: 0.1234
+        additionalPeriodFeeValue: 0.2345
+        waitingPeriodFeeValue: 0.3456
+        startDate: "2025-05-01"
+        state:
+          status: "APPROVED"
+          statusDate: "2025-10-16T12:00:01.024991"
+          errors: []
+          cqrsVersion: 1742767789
+      properties:
+        id:
+          description: "Идентификатор тарифа за финансирование"
+          example: "7591a148-5ccb-4b53-984d-1a6cb0f3c72c"
+          format: "uuid"
+          type: "string"
+        type:
+          $ref: "#/components/schemas/FinancingTariffType"
+        deferralFeeValue:
+          description: "Ставка за отсрочку"
+          example: 0.1234
+          type: "number"
+        additionalPeriodFeeValue:
+          description: "Ставка за дополнительный период"
+          example: 0.2345
+          type: "number"
+        waitingPeriodFeeValue:
+          description: "Ставка за период ожидания"
+          example: 0.3456
+          type: "number"
+        startDate:
+          description: "Дата начала действия тарифа"
+          example: "2025-05-01"
+          format: "date"
+          type: "string"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/FinancingTariffState"
+          description: "Состояние тарифа за финансирование"
+          type: "object"
+      required:
+      - "additionalPeriodFeeValue"
+      - "deferralFeeValue"
+      - "id"
+      - "startDate"
+      - "state"
+      - "type"
+      - "waitingPeriodFeeValue"
+      type: "object"
+    FinancedSupplyTariff:
+      description: "Тариф за профинансированную поставку"
+      example:
+        id: "0cc43258-7c89-48c1-94ab-7c3885f97576"
+        type: "FOR_FINANCED_SUPPLY_PERCENT"
+        value: 0.1234
+        startDate: "2025-05-01"
+        state:
+          status: "APPROVED"
+          statusDate: "2025-10-16T12:00:01.024991"
+          errors: []
+          cqrsVersion: 1742767789
+      properties:
+        id:
+          description: "Идентификатор тарифа за профинансированную поставку"
+          example: "0cc43258-7c89-48c1-94ab-7c3885f97576"
+          format: "uuid"
+          type: "string"
+        type:
+          $ref: "#/components/schemas/FinancedSupplyTariffType"
+        value:
+          description: "Ставка"
+          example: 0.1234
+          type: "number"
+        startDate:
+          description: "Дата начала действия тарифа"
+          example: "2025-05-01"
+          format: "date"
+          type: "string"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/FinancedSupplyTariffState"
+          description: "Состояние тарифа за профинансированную поставку"
+          type: "object"
+      required:
+      - "id"
+      - "startDate"
+      - "state"
+      - "type"
+      - "value"
+      type: "object"
+    IncomingPaymentOrderHandlingTariff:
+      description: "Тариф за обработанное входящее платежное поручение"
+      example:
+        id: "01516372-4465-4b9e-9aa3-19f421849592"
+        type: "FOR_PAYMENT_PERCENT"
+        value: 0.1234
+        startDate: "2025-05-01"
+        state:
+          status: "APPROVED"
+          statusDate: "2025-10-16T12:00:01.024991"
+          errors: []
+          cqrsVersion: 1742767789
+      properties:
+        id:
+          description: "Идентификатор тарифа за обработанное входящее платежное по\
+            ручение"
+          example: "01516372-4465-4b9e-9aa3-19f421849592"
+          format: "uuid"
+          type: "string"
+        type:
+          $ref: "#/components/schemas/IncomingPaymentOrderHandlingTariffType"
+        value:
+          description: "Ставка"
+          example: 0.1234
+          type: "number"
+        startDate:
+          description: "Дата начала действия тарифа"
+          example: "2025-05-01"
+          format: "date"
+          type: "string"
+        state:
+          allOf:
+          - $ref: "#/components/schemas/IncomingPaymentOrderHandlingTariffState"
+          description: "Состояние тарифа за обработанное входящее платежное поруче\
+            ние"
+          type: "object"
+      required:
+      - "id"
+      - "startDate"
+      - "state"
+      - "type"
+      - "value"
+      type: "object"
+    TariffPlanState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/TariffPlanStatus"
+        required:
+        - "status"
+        type: "object"
+      description: "Состояние тарифного плана"
+      example:
+        status: "APPROVED"
+        statusDate: "2025-10-16T12:00:01.024991"
+        errors: []
+        cqrsVersion: 1742767789
+      type: "object"
+    InternalAccountState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/InternalAccountStatus"
+        required:
+        - "status"
+        type: "object"
+      description: "Состояние клиентского счета в Райффайзенбанке"
+      example:
+        status: "ACTIVE"
+        statusDate: "2025-10-15T12:13:11.512123"
+        errors: []
+        cqrsVersion: -5471340216
+      type: "object"
+    ExternalAccountState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/ExternalAccountStatus"
+        required:
+        - "status"
+        type: "object"
+      description: "Состояние клиентского счета во внешнем банке"
+      example:
+        status: "ACTIVE"
+        statusDate: "2025-09-25T14:31:20.0965678"
+        errors: []
+        cqrsVersion: 6298231120
+      type: "object"
+    AgreementStatus:
+      description: "Статус договора Факторинга"
+      enum:
+      - "IN_PROCESSING"
+      - "APPROVED"
+      example: "APPROVED"
+      type: "string"
+    AgreementSumStatus:
+      description: "Статус суммы договора Факторинга"
+      enum:
+      - "ACTIVE"
+      example: "ACTIVE"
+      type: "string"
+    SublimitStatus:
+      description: "Статус сублимита"
+      enum:
+      - "IN_PROCESSING"
+      - "APPROVED"
+      example: "APPROVED"
+      type: "string"
+    ContractStatus:
+      description: "Статус контракта"
+      enum:
+      - "IN_PROCESSING"
+      - "APPROVED"
+      example: "APPROVED"
+      type: "string"
+    DealConditionsStatus:
+      description: "Статус основных условий обслуживания поставщик-дебитор"
+      enum:
+      - "IN_PROCESSING"
+      - "APPROVED"
+      example: "APPROVED"
+      type: "string"
+    FinancingTariffType:
+      description: "Тип тарифа за финансирование"
+      enum:
+      - "FOR_FINANCE_PERCENT"
+      - "FOR_FINANCE_FLOAT_CBR"
+      example: "FOR_FINANCE_PERCENT"
+      type: "string"
+    FinancingTariffState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/FinancingTariffStatus"
+        required:
+        - "status"
+        type: "object"
+      description: "Состояние тарифа за финансирование"
+      example:
+        status: "APPROVED"
+        statusDate: "2025-10-16T12:00:01.024991"
+        errors: []
+        cqrsVersion: 1742767789
+      type: "object"
+    FinancedSupplyTariffType:
+      description: "Тип тарифа за профинансированную поставку"
+      enum:
+      - "FOR_FINANCED_SUPPLY_FIX"
+      - "FOR_FINANCED_SUPPLY_PERCENT"
+      example: "FOR_FINANCED_SUPPLY_PERCENT"
+      type: "string"
+    FinancedSupplyTariffState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/FinancedSupplyTariffStatus"
+        required:
+        - "status"
+        type: "object"
+      description: "Состояние тарифа за профинансированную поставку"
+      example:
+        status: "APPROVED"
+        statusDate: "2025-10-16T12:00:01.024991"
+        errors: []
+        cqrsVersion: 1742767789
+      type: "object"
+    IncomingPaymentOrderHandlingTariffType:
+      description: "Тип тарифа за обработанное входящее платежное поручение"
+      enum:
+      - "FOR_PAYMENT_FIX"
+      - "FOR_PAYMENT_PERCENT"
+      example: "FOR_PAYMENT_PERCENT"
+      type: "string"
+    IncomingPaymentOrderHandlingTariffState:
+      allOf:
+      - $ref: "#/components/schemas/State"
+      - properties:
+          status:
+            $ref: "#/components/schemas/IncomingPaymentOrderHandlingTariffStatus"
+        required:
+        - "status"
+        type: "object"
+      description: "Состояние тарифа за обработанное входящее платежное поручение"
+      example:
+        status: "APPROVED"
+        statusDate: "2025-10-16T12:00:01.024991"
+        errors: []
+        cqrsVersion: 1742767789
+      type: "object"
+    TariffPlanStatus:
+      description: "Статус тарифного плана"
+      enum:
+      - "APPROVED"
+      example: "APPROVED"
+      type: "string"
+    InternalAccountStatus:
+      description: "Статус клиентского счета в Райффайзенбанке"
+      enum:
+      - "ACTIVE"
+      - "BLOCKED"
+      - "CLOSED"
+      example: "ACTIVE"
+      type: "string"
+    ExternalAccountStatus:
+      description: "Статус клиентского счета во внешнем банке"
+      enum:
+      - "ACTIVE"
+      example: "ACTIVE"
+      type: "string"
+    FinancingTariffStatus:
+      description: "Статус тарифа за финансирование"
+      enum:
+      - "APPROVED"
+      example: "APPROVED"
+      type: "string"
+    FinancedSupplyTariffStatus:
+      description: "Статус тарифа за профинансированную поставку"
+      enum:
+      - "APPROVED"
+      example: "APPROVED"
+      type: "string"
+    IncomingPaymentOrderHandlingTariffStatus:
+      description: "Статус тарифа за обработанное входящее платежное поручение"
+      enum:
+      - "APPROVED"
+      example: "APPROVED"
+      type: "string"
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="

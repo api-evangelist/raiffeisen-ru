@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-file-upload-request-schema.json",
+  "title": "FileUploadRequest",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-currency-control-documents-openapi.yml#/components/schemas/FileUploadRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "file"
+  ],
+  "properties": {
+    "file": {
+      "type": "string",
+      "format": "binary",
+      "description": "Ровно один непустой файл размером не более 20971520 байт, не массив и не Base64.\n\n- имя передаётся в `filename` части multipart, MIME-тип — в `Content-Type` части;\n- ограничения размера применяются к фактическим байтам файла на сервере.\n"
+    },
+    "category": {
+      "$ref": "#/$defs/FileCategory"
+    }
+  },
+  "$defs": {
+    "FileCategory": {
+      "type": "string",
+      "description": "Категория содержимого файла.\n\n**В запросе:**\n- при отсутствии `category` используется `OTHER`;\n- сервер проверяет значение по поддерживаемому справочнику;\n- неподдерживаемая категория — `400 VALIDATION_ERROR` по полю `category`;\n- пустая строка и `null` не допускаются;\n- неподдерживаемое значение не преобразуется в `OTHER` автоматически.\n\n**В ответе:**\n- набор известных значений может расширяться;\n- клиент должен принимать и сохранять неизвестные ему значения категории.\n\n**Известные значения:**\n- `CONTRACT` — Контракт\n- `LOAN_AGREEMENT` — Кредитный договор или договор займа\n- `SUPPLEMENTARY_AGREEMENT` — Дополнительное соглашение к контракту или кредитному договору\n- `SUPPORTING_DOCUMENT` — Обосновывающий или подтверждающий документ (счёт, акт, накладная и т. п.)\n- `REGISTERED_DEAL_PASSPORT_REPORT` — Ведомость банковского контроля (ВБК)\n- `CURRENCY_TRANSACTION_INFORMATION` — Сведения о валютных операциях\n- `SUPPORTING_DOCUMENT_CERTIFICATE` — Справка о подтверждающих документах\n- `OTHER` — Иное или категория не определена\n",
+      "default": "OTHER"
+    }
+  }
+}

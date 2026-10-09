@@ -1,0 +1,671 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Orders API
+  version: '1.0'
+  contact:
+    email: ecom@raiffeisen.ru
+    name: Support e-mail
+    x-team-id: 178
+    x-short-team-name: PAPAS
+  x-description-i18n:
+    eng: '# Connection to acquiring
+
+
+      To connect, fill out an application in [the online bank](https://www.rbo.raiffeisen.ru/sign-form/internet-acquiring) or [the mobile application.](https://rbo.page.link/internet)
+
+
+      For questions about working with the API, please contact Raiffeisenbank support service:
+
+      - email: ecom@raiffeisen.ru
+
+
+      ### Preparatory activities
+
+      To accept payments:
+
+      * Fill out the [application](https://www.rbo.raiffeisen.ru/sign-form/internet-acquiring) to connect acquiring
+
+      * Choose an integration method and implement it
+
+      * Make test payments
+
+
+      ### Payment page integration methods
+
+      To integrate the payment page, use:
+
+      * A ready-made library that allows you to open a popup for entering payment data and transfer a complex data structure
+
+      * Redirecting the client to the Raiffeisenbank payment page
+
+
+      # Operation scheme
+
+      ## Bank payment form
+
+      Demonstration of the payment form:
+
+
+      [Payment form](https://pay.raif.ru/pay/demo.html)
+
+
+      During the payment process, the user performs the following actions:
+
+      * The user adds goods/services to the store cart and clicks the "Pay" button
+
+      * The partner opens a payment form
+
+      * The user enters the bank card details on the payment form and confirms the payment
+
+
+      <a href=''images/payment_form_scheme_en.svg'' target=''_blank''><img src=''images/payment_form_scheme_en.svg''></a>
+
+
+      # API
+
+      Interaction is carried out via the HTTP protocol using the `POST` `GET` `PUT` `DELETE` methods.
+
+
+      When sending requests to open a payment form and create an order with opening a payment form, the API returns a response in the HTML document format, responses to other requests are returned in JSON format.
+
+
+      ## Authorization
+
+      To authorize requests, you need:
+
+      * `publicId` - The identifier that is used to open the payment form and is public.
+
+      * `secretKey` - A secret key that is used for inter-service interaction. It is private, must be stored in a secure place and must not be transferred to third parties.
+
+
+      | Circuit           | URL address       |
+
+      |------------------|-------------------------|
+
+      | Production       |https://pay.raif.ru      |
+
+      | Test             |https://pay-test.raif.ru |
+
+
+      Inter-service requests are authorized using the secret key `secretKey`. The authorization parameter is passed in the `Authorization` header, the value of which is formed as `Bearer + secretKey`
+
+
+      You can view the production `publicId` and generate a `secretKey` in the [Online Bank](https://www.rbo.raiffeisen.ru/acquiring/mcp#/), or [Personal Account](https://pay.raif.ru/account/#/auth).
+
+
+      Instructions for generating `secretKey` can be found in the Help Center:
+
+      * [Generate a secret key in Online Banking](https://help.pay.raif.ru/sbp/rbo/secretkey)
+
+      * [Generate a secret key in your Personal Account](https://help.pay.raif.ru/sbp/lk/secretkey)
+
+
+      To generate a `secretKey` in the test circuit, you must contact the support service ecom@raiffeisen.ru
+
+
+      # Testing
+
+      ## Acquiring
+
+      `Bank payment form`:
+
+      | PAN of a bank card| Card validity period| CVV | OTP code| Payment scenario   |
+
+      |-------------------|---------------------|-----|---------|--------------------|
+
+      | 4000001000000018  | 12/35               | 880 |   1234  | Successfull payment|
+
+      | 4000001000000018  | 12/35               | 880 |   1111  | Unsuccessful payment|
+
+
+      For a full payment testing cycle, you must specify a payment amount greater than 10 rubles.
+
+
+      ## SBP
+
+      For a full testing cycle, Raiffeisenbank provides the opportunity to use a demo application for QR code payment on behalf of the buyer:
+
+      [WEB application for payment by QR code](https://pay.raif.ru/pay/rfuture/)
+
+
+      The application can be opened in the browser of any device with a camera. After opening the application, you need to click on the "Scan QR" button (if necessary, allow the browser to access the camera) and scan the image of the test QR code.
+
+
+      **Bank apps won''t work for QR code payments in the test environment**
+
+
+      # SDK
+
+      Using JS SDK allows you to open a form from the frontend part in a pop-up window, or redirect the user to the Raiffeisenbank page, which provides a seamless payment scenario for the client.
+
+
+      Additionally, you can customize the payment form interface and transfer additional parameters for subsequent payment.
+
+      You can customize the visual part of the form (company name, logo, button color) in the [Payment Form Configurator](https://pay.raif.ru/pay/configurator/).
+
+
+      The payment form configurator also allows you to obtain code for embedding it into a JS library.
+
+      Available SDK:
+
+      * [JS SDK](https://github.com/Raiffeisen-DGTL/ecom-sdk-javascript)
+
+      * [PHP SDK](https://github.com/Raiffeisen-DGTL/ecom-sdk-php)
+
+      * [NODE SDK](https://github.com/Raiffeisen-DGTL/ecom-sdk-node)
+
+      * [JAVA SDK](https://github.com/Raiffeisen-DGTL/ecom-sdk-java)
+
+
+      JS SDK allows you to open a payment form from the frontend of your application. When using other SDKs to work with the payment form, you must either use the methods described in the [[Payment form]](#tag/payform) section yourself, or use the JS SDK additionally.
+
+
+      Plugins for various CMS can also be found on [GitHub](https://github.com/Raiffeisen-DGTL/).
+
+
+      Questions regarding solution support can be sent to technical support: ecom@raiffeisen.ru'
+  x-logo:
+    url: images/raifflogo.png
+    backgroundColor: '#FFFFFF'
+    altText: Raiff logo
+  description: 'Operations tagged orders across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-payment-form-openapi.json, raiffeisen-ru-raif-pay-payment-form-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://pay-test.raif.ru/api
+  description: Sandbox
+- url: https://pay.raif.ru/api
+  description: Production
+tags:
+- name: Orders
+  x-displayName: Работа с заказами
+  x-x-displayName-i18n:
+    eng: Order management
+  description: 'Методы для работы с заказами: создание, получение списка, получение информации о заказе.'
+  x-description-i18n:
+    eng: 'Methods for working with orders: creation, getting a list, getting order information.
+
+      '
+paths:
+  /v1/merchants/{publicId}/orders/{id}:
+    parameters:
+    - $ref: '#/components/parameters/publicId'
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Идентификатор заказа
+      x-description-i18n:
+        eng: Order ID
+    get:
+      summary: Получение заказа
+      x-summary-i18n:
+        eng: Getting order information
+      operationId: get-payments-v1-merchants-publicId-orders-id
+      responses:
+        '200':
+          $ref: '#/components/responses/GetOrderResponseV2'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralError'
+              examples:
+                Доступ запрещен:
+                  value:
+                    code: ERROR.FORBIDDEN
+                    message: Доступ запрещен
+                    traceId: abb066c61a7c8b74af83f245c7706813
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralError'
+              examples:
+                Мерчант не найден:
+                  value:
+                    code: ERROR.NOT_FOUND
+                    message: Мерчант с publicId = '%s' не зарегистрирован в сервисе
+                    traceId: abbasd2c61a7c8b74af83f245c7706813
+                Заказ не найден:
+                  value:
+                    code: ERROR.NOT_FOUND
+                    message: Заказ с id = '%s' не найден
+                    traceId: abbasd2c61a7c8b74af83f245c7706814
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralError'
+              examples:
+                Внутренняя ошибка сервиса:
+                  value:
+                    code: ERROR.INTERNAL_ERROR
+                    message: Внутренняя ошибка сервиса
+                    traceId: abb066c61a7c8b74af83f245c7706813
+      description: Метод позволяет получить информацию о заказе по его идентификатору.
+      x-description-i18n:
+        eng: The method allows you to get information about an order by its identifier.
+      x-internal: false
+      tags:
+      - Orders
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: Production
+  /payments/v2/merchants/{publicId}/orders/{orderId}/clear:
+    parameters:
+    - $ref: '#/components/parameters/orderId'
+    - $ref: '#/components/parameters/publicId'
+    post:
+      tags:
+      - Orders
+      summary: Проведение клиринга
+      operationId: post-payments-v2-orders-orderId-clear
+      deprecated: false
+      responses:
+        '200':
+          $ref: '#/components/responses/ClearCardPaymentResponse'
+        '400':
+          $ref: '#/components/responses/Error400Response'
+      description: 'Метод позволяет выполнить принудительный клиринг операций по интернет-эквайрингу с возможностью частичной отмены.
+
+        Поддерживает операции как со сплитованием платежей, так и без него.
+
+
+        При переданных `splits` будет произведена частичная отмена, равная сумме по заказу за вычетом итоговой суммы клиринга.
+
+        Сплиты, которые сохраняют ту же сумму, что и в оригинальном заказе, передавать не требуется.'
+      security:
+      - secretKey: []
+      requestBody:
+        $ref: '#/components/requestBodies/ClearEcomRequest'
+      x-summary-i18n:
+        eng: Clearing
+      x-description-i18n:
+        eng: 'This method enables forced clearing of internet acquiring operations with support for partial cancellation.
+
+          It supports both operations with payment splitting and without splitting.
+
+
+          When `splits` are provided, a partial cancellation is performed, where the cancellation amount equals the order amount minus the final clearing amount.
+
+          Splits that retain the same amount as in the original order do not need to be included.
+
+          '
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: Production
+components:
+  responses:
+    GetOrderResponseV2:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreatedOrder'
+    Error400Response:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error4xx'
+    ClearCardPaymentResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              reversalAmount:
+                type: number
+                description: Сумма отмененная в ходе клиринга
+                x-description-i18n:
+                  eng: Reversal amount in rubles
+                example: 1200
+  schemas:
+    OrderComment:
+      title: OrderComment
+      type: string
+      description: 'Комментарий. Доступен в реестрах и Онлайн-Банке. Не может быть пустым или содержать только пробелы. Может содержать:<br>
+
+        • Символы латиницы (A–Z и a–z) <br>
+
+        • Символы кириллицы (А-Я и а-я) <br>
+
+        • Цифры 0-9 <br>
+
+        • Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`<br>
+
+        • Спецсимвол `№`'
+      x-description-i18n:
+        eng: 'Comment. Cannot be empty or contain only spaces. May contain:<br>
+
+          • Latin symbols (A–Z и a–z); <br>
+
+          • Cyrillic symbols (А-Я и а-я); <br>
+
+          • Digits 0-9;<br>
+
+          • Special symbols: spaces and `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`<br>
+
+          • Special symbol №
+
+          '
+      maxLength: 140
+      pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
+      example: Тестовый комментарий
+    OrderStatus:
+      title: OrderStatus
+      type: object
+      description: Статус заказа
+      x-description-i18n:
+        eng: Order status
+      minProperties: 1
+      properties:
+        value:
+          $ref: '#/components/schemas/OrderStatusValue'
+        date:
+          type: string
+          description: Дата создания заказа
+          x-description-i18n:
+            eng: Order creation date
+          format: date-time
+          example: '2025-01-10T20:10:00+03:00'
+          minLength: 1
+    DigitalRubleOrder:
+      title: DigitalRubleOrder
+      allOf:
+      - $ref: '#/components/schemas/GetOrderResponseSchema'
+    UndefinedOrder:
+      title: UndefinedOrder
+      allOf:
+      - $ref: '#/components/schemas/GetOrderResponseSchema'
+    SbpOrder:
+      title: SbpOrder
+      allOf:
+      - $ref: '#/components/schemas/GetOrderResponseSchema'
+      - type: object
+        properties:
+          paymentParameters:
+            type: object
+            properties:
+              qrId:
+                type: string
+                description: Идентификатор QR-кода
+              sbpTransactionId:
+                type: string
+                description: Идентификатор операции в системе НСПК
+    AcquiringOrder:
+      title: AcquiringOrder
+      allOf:
+      - $ref: '#/components/schemas/GetOrderResponseSchema'
+      - type: object
+        properties:
+          paymentParameters:
+            type: object
+            properties:
+              rrn:
+                type: string
+                description: Идентификатор транзакции в системе Банка
+              authCode:
+                type: string
+                description: Код авторизации, полученный от Банка-эмитента
+              eci:
+                type: string
+                description: Уровень и тип риска операции в процессе обработки онлайн-платежа
+    Extra:
+      title: Extra
+      type: object
+      description: Дополнительные поля в формате key-value. Отображаются в реестрах.
+      x-description-i18n:
+        eng: Additional fields in key-value format. Displayed in registries
+      additionalProperties:
+        type: string
+    Error4xx:
+      title: Error4xx
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки
+          x-description-i18n:
+            eng: Error code
+        message:
+          type: string
+          description: Описание ошибки
+          x-description-i18n:
+            eng: Error description
+      required:
+      - code
+      - message
+    GetOrderResponseSchema:
+      title: GetOrderResponseSchema
+      type: object
+      description: Схема ответа информации о заказе
+      x-description-i18n:
+        eng: Order information response schema
+      properties:
+        id:
+          type: string
+          description: Идентификатор заказа в системе мерчанта
+          x-description-i18n:
+            eng: Order ID in the merchant system
+          example: order-test
+        amount:
+          type: number
+          description: Сумма заказа
+          x-description-i18n:
+            eng: Order amount
+          example: 1200
+        comment:
+          $ref: '#/components/schemas/OrderComment'
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        expirationDate:
+          type: string
+          description: Дата истечения срока заказа
+          x-description-i18n:
+            eng: Order expiration date
+          format: date-time
+          example: '2024-12-31T17:00:00+03:00'
+        payformUrl:
+          type: string
+          format: uri
+          description: Ссылка на оплату
+          x-description-i18n:
+            eng: Payment form URL for order payment
+          example: https://pay.raif.ru/pay?payformId=1238ana84
+        extra:
+          $ref: '#/components/schemas/Extra'
+        paymentMethod:
+          $ref: '#/components/schemas/OrderPaymentMethod'
+        created:
+          type: string
+          format: date-time
+          description: Дата создания заказа
+      required:
+      - id
+      - amount
+      - status
+      - expirationDate
+      - created
+    Split:
+      title: Split
+      type: array
+      description: 'Набор параметров для сплитования платежа.<br>
+
+        Сплитование позволяет ТСП передавать параметры распределения суммы платежа или возврата между контрагентами.<br>
+
+        Сумма всех объектов сплита должна быть равна сумме операции.<br>
+
+        При взаиморасчетах суммы платежей, указанные в сплите, увеличивают суммы к перечислению контрагентам, а суммы возвратов — уменьшают их.<br>
+
+        Сплитование доступно только при агрегированной схеме взаиморасчетов. Чтобы настроить агрегированную схему, обратитесь в техническую поддержку банка: ecom@raiffeisen.ru. Подробнее см. в разделе [Схема взаиморасчетов](#tag/SettlementSchemes).'
+      x-description-i18n:
+        eng: 'Set of parameters for payment splitting.<br>
+
+          Payment splitting allows the merchant to pass parameters for distributing a payment or refund amount among counterparties.<br>
+
+          The total amount of all split objects must be equal to the operation amount.<br>
+
+          In settlements, payment amounts specified in the split increase the amounts to be transferred to counterparties, while refund amounts decrease them.<br>
+
+          Payment splitting is available only with the aggregated settlement scheme. To set up the aggregated scheme, contact bank technical support: ecom@raiffeisen.ru. See [Settlement schemes](#tag/SettlementSchemes).'
+      items:
+        type: object
+        properties:
+          accountId:
+            type: string
+            description: "\t\nstring\nИдентификтор реквизитов, которые были получены от поддержки."
+            x-description-i18n:
+              eng: ID of the bank account details obtained from support
+          amount:
+            type: number
+            description: Сумма зачисления
+            x-description-i18n:
+              eng: Crediting amount
+            format: float
+            exclusiveMinimum: 0
+        required:
+        - accountId
+        - amount
+    CreatedOrder:
+      title: CreatedOrder
+      type: object
+      properties:
+        paymentMethod:
+          $ref: '#/components/schemas/OrderPaymentMethod'
+      oneOf:
+      - $ref: '#/components/schemas/SbpOrder'
+      - $ref: '#/components/schemas/AcquiringOrder'
+      - $ref: '#/components/schemas/DigitalRubleOrder'
+      - $ref: '#/components/schemas/UndefinedOrder'
+      discriminator:
+        propertyName: paymentMethod
+        mapping:
+          SBP: '#/components/schemas/SbpOrder'
+          ACQUIRING: '#/components/schemas/AcquiringOrder'
+          UNDEFINED: '#/components/schemas/UndefinedOrder'
+          DIGITAL_RUBLE: '#/components/schemas/DigitalRubleOrder'
+    OrderStatusValue:
+      title: OrderStatusValue
+      type: string
+      enum:
+      - NEW
+      - PAID
+      - EXPIRED
+      - CANCELLED
+    OrderPaymentMethod:
+      title: OrderPaymentMethod
+      type: string
+      enum:
+      - UNDEFINED
+      - ACQUIRING
+      - SBP
+      - DIGITAL_RUBLE
+      description: 'Способ оплаты заказа
+
+        - `UNDEFINED` - Способ оплаты не определен (заказ не оплачен)
+
+        - `SBP` - Оплата по СБП
+
+        - `ACQUIRING` - Оплата по карте
+
+        - `DIGITAL_RUBLE` - Оплата по цифровому рублю'
+      x-description-i18n:
+        eng: 'Order payment method
+
+          - `UNDEFINED` - Payment method not defined (order not paid)
+
+          - `SBP` - Payment via SBP
+
+          - `ACQUIRING` - Payment by card
+
+          - `DIGITAL_RUBLE` - Payment by digital ruble
+
+          '
+    GeneralError:
+      title: General Error
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки запроса
+          x-description-i18n:
+            eng: Request error code
+        message:
+          type: string
+          description: Описание ошибки
+          x-description-i18n:
+            eng: Error description
+        traceId:
+          type: string
+          description: Идентификатор выполнения запроса при наличии ошибки
+          x-description-i18n:
+            eng: Request ID if there is an error
+  parameters:
+    orderId:
+      name: orderId
+      in: path
+      required: true
+      schema:
+        type: string
+        maxLength: 40
+      description: Идентификатор заказа в системе мерчанта
+      x-description-i18n:
+        eng: Unique order ID in the merchant system
+    publicId:
+      name: publicId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Идентификатор мерчанта в системе Банка
+      x-description-i18n:
+        eng: Merchant ID in the Bank system
+  requestBodies:
+    ClearEcomRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Запрос на клиринг по операциям интернет эквайринга со сплитованием
+            x-description-i18n:
+              eng: Clearing request for Internet Acquiring operations with splitting
+            properties:
+              amount:
+                type: number
+                description: Итоговая сумма клиринга
+                x-description-i18n:
+                  eng: Final clearing amount
+                example: 1200
+              splits:
+                $ref: '#/components/schemas/Split'
+  securitySchemes:
+    secretKey:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Указывается в заголовке `Authorization` в формате `Bearer <secretKey>`.
+
+
+        Подробная информация содержится в разделе [Авторизация](#section/API/Avtorizaciya)'
+      x-description-i18n:
+        eng: 'Specified in the `Authorization` header in the format `Bearer <secretKey>`.
+
+
+          Detailed information is contained in the [Authorization] section (#section/API/Authorizaciya)
+
+          '
+x-refined-from:
+- raiffeisen-ru-raif-pay-payment-form-openapi.json
+- raiffeisen-ru-raif-pay-payment-form-openapi.yml

@@ -1,0 +1,301 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Funds Distribution Order API
+  version: 1.10.1
+  description: 'Operations tagged funds-distribution-order across 2 of this provider''s published API definitions: raiffeisen-ru-currency-proceeds-distribution-openapi.yml, raiffeisen-ru-currency-proceeds-distribution-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/foreign-trade
+tags:
+- name: funds-distribution-order
+  description: Операции с распоряжениями о распределении валютной выручки
+paths:
+  /v2/funds-distribution-orders/iso20022/unsigned:
+    post:
+      tags:
+      - funds-distribution-order
+      summary: Импорт неподписанного распоряжения о распределении валютной выручки в формате…
+      description: 'Отправка XML-файла с неподписанными распоряжениями о распределении валютной выручки.
+
+
+        XSD-схема для валидации (XSD validation scheme),
+
+
+        Документация API по ISO XML,
+
+
+        [[Документация по неподписанным распоряжениям о распределении валютной выручки]](https://cdn.rbo.raiffeisen.ru/fs/international_business/rbo-cc/ft-iso-adapter/unsigned-currency-distribution-order.pdf).'
+      operationId: unsignedFundsDistributionOrder
+      parameters:
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              type: string
+              description: INTR information in XML representation
+        required: true
+      responses:
+        '202':
+          description: INTR task has been accepted
+        '400':
+          description: Validation errors
+          content:
+            application/xml:
+              schema:
+                type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Access is denied
+        '409':
+          description: The message id or document id is duplicated
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+  /v2/funds-distribution-orders/iso20022/signed:
+    post:
+      tags:
+      - funds-distribution-order
+      summary: Импорт подписанного распоряжения о распределении валютной выручки в формате…
+      description: 'Отправка XML-файла с подписанными распоряжениями о распределении валютной выручки.
+
+
+        XSD-схема для валидации (XSD validation scheme),
+
+
+        Документация API по ISO XML,
+
+
+        [[Документация по подписанным распоряжениям о распределении валютной выручки]](https://cdn.rbo.raiffeisen.ru/fs/international_business/rbo-cc/ft-iso-adapter/signed-currency-distribution-order.pdf).'
+      operationId: signedFundsDistributionOrder
+      parameters:
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              type: string
+              description: Signed INTR information in XML representation
+        required: true
+      responses:
+        '202':
+          description: Signed INTR task has been accepted
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/DuplicateMessage'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+  /v2/funds-distribution-orders/iso20022/{msgId}/status:
+    get:
+      tags:
+      - funds-distribution-order
+      summary: Получение статуса группового сообщения с распоряжением о распределении валютной…
+      description: 'Получение статуса группового сообщения с распоряжением о распределении валютной выручки.
+
+        XSD-схема для валидации (XSD validation scheme).
+
+        Документация API по ISO XML.'
+      operationId: fundsDistributionOrderStatus
+      parameters:
+      - name: msgId
+        in: path
+        required: true
+        schema:
+          type: string
+        example: INTR-NO-SALE-001
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Статус успешно получен
+          content:
+            application/xml:
+              schema:
+                type: string
+              examples:
+                ACSC:
+                  summary: ACSC - Все документы исполнены
+                  description: ACSC
+                  value: <Document>...<OrgnlGrpInfAndSts><GrpSts>ACSC</GrpSts></OrgnlGrpInfAndSts>...</Document>
+                PDNG:
+                  summary: PDNG - Документы обрабатываются
+                  description: PDNG
+                  value: <Document>...<OrgnlGrpInfAndSts><GrpSts>PDNG</GrpSts></OrgnlGrpInfAndSts>...</Document>
+                RJCT:
+                  summary: RJCT - Все документы отклонены
+                  description: RJCT
+                  value: <Document>...<OrgnlGrpInfAndSts><GrpSts>RJCT</GrpSts></OrgnlGrpInfAndSts>...</Document>
+                CANC:
+                  summary: CANC - Все документы отозваны
+                  description: CANC
+                  value: <Document>...<OrgnlGrpInfAndSts><GrpSts>CANC</GrpSts></OrgnlGrpInfAndSts>...</Document>
+                ACWC:
+                  summary: ACWC - Документы содержат ошибки
+                  description: ACWC
+                  value: <Document>...<OrgnlGrpInfAndSts><GrpSts>ACWC</GrpSts></OrgnlGrpInfAndSts>...</Document>
+                PART:
+                  summary: PART - Часть документов исполнена
+                  description: PART
+                  value: <Document>...<OrgnlGrpInfAndSts><GrpSts>PART</GrpSts></OrgnlGrpInfAndSts>...</Document>
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/DocumentNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+  /v2/funds-distribution-orders/iso20022/{msgId}/documents/{pmtInfId}/status:
+    get:
+      tags:
+      - funds-distribution-order
+      summary: Получение статуса отдельного распоряжения о распределении валютной выручки
+      description: 'Получение статуса отдельного распоряжения о распределении валютной выручки.
+
+        XSD-схема для валидации (XSD validation scheme).
+
+        Документация API по ISO XML.'
+      operationId: fundsDistributionOrderDocumentStatus
+      parameters:
+      - name: msgId
+        in: path
+        required: true
+        schema:
+          type: string
+        example: INTR-NO-SALE-001
+      - name: pmtInfId
+        in: path
+        required: true
+        schema:
+          type: string
+        example: PMT-NO-SALE-001
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Статус успешно получен
+          content:
+            application/xml:
+              schema:
+                type: string
+              examples:
+                PDNG:
+                  summary: PDNG - Документ обрабатывается
+                  description: PDNG
+                  value: <Document>...<TxInfAndSts><TxSts>PDNG</TxSts></TxInfAndSts>...</Document>
+                ACCP:
+                  summary: ACCP - Документ создан, ожидает подписи
+                  description: ACCP
+                  value: <Document>...<TxInfAndSts><TxSts>ACCP</TxSts></TxInfAndSts>...</Document>
+                PERR:
+                  summary: PERR - Ошибка ожидания по документу
+                  description: PERR
+                  value: <Document>...<TxInfAndSts><TxSts>PERR</TxSts></TxInfAndSts>...</Document>
+                ACWC:
+                  summary: ACWC - Документ неприемлем по результатам проверки
+                  description: ACWC
+                  value: <Document>...<TxInfAndSts><TxSts>ACWC</TxSts></TxInfAndSts>...</Document>
+                ACSP:
+                  summary: ACSP - Документ в работе у банка
+                  description: ACSP
+                  value: <Document>...<TxInfAndSts><TxSts>ACSP</TxSts></TxInfAndSts>...</Document>
+                FSGN:
+                  summary: FSGN - Документ ожидает отправки
+                  description: FSGN
+                  value: <Document>...<TxInfAndSts><TxSts>FSGN</TxSts></TxInfAndSts>...</Document>
+                PSGN:
+                  summary: PSGN - Документ ожидает дополнительной подписи
+                  description: PSGN
+                  value: <Document>...<TxInfAndSts><TxSts>PSGN</TxSts></TxInfAndSts>...</Document>
+                ACSC:
+                  summary: ACSC - Документ исполнен
+                  description: ACSC
+                  value: <Document>...<TxInfAndSts><TxSts>ACSC</TxSts></TxInfAndSts>...</Document>
+                RJCT:
+                  summary: RJCT - Документ отклонён
+                  description: RJCT
+                  value: <Document>...<TxInfAndSts><TxSts>RJCT</TxSts></TxInfAndSts>...</Document>
+                CANC:
+                  summary: CANC - Документ отозван
+                  description: CANC
+                  value: <Document>...<TxInfAndSts><TxSts>CANC</TxSts></TxInfAndSts>...</Document>
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/DocumentNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    DuplicateMessage:
+      description: Дубликат сообщения
+      content:
+        text/plain:
+          schema:
+            type: string
+            description: Сообщение об ошибке
+          example: Duplicate message id or payment id
+    Forbidden:
+      description: Доступ запрещён
+    ValidationError:
+      description: Ошибки валидации
+      content:
+        text/plain:
+          schema:
+            type: string
+            description: Сообщение об ошибке
+          example: XML validation error
+    DocumentNotFound:
+      description: Документ не найден
+      content:
+        text/plain:
+          schema:
+            type: string
+            description: Сообщение об ошибке
+          example: Message not found with id = ... for current user
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-currency-proceeds-distribution-openapi.yml
+- raiffeisen-ru-currency-proceeds-distribution-openapi.yml

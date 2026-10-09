@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-guarantee-beneficiary-filter-request-schema.json",
+  "title": "GuaranteeBeneficiaryFilterRequest",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml#/components/schemas/GuaranteeBeneficiaryFilterRequest",
+  "type": "object",
+  "properties": {
+    "filter": {
+      "$ref": "#/$defs/GuaranteeFilterDto"
+    },
+    "paging": {
+      "$ref": "#/$defs/Paging"
+    },
+    "order": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Order"
+      }
+    }
+  },
+  "$defs": {
+    "GuaranteeFilterDto": {
+      "type": "object",
+      "properties": {
+        "beneficiaryCnum": {
+          "type": "array",
+          "description": "CNUM бенефициара",
+          "items": {
+            "type": "string",
+            "description": "CNUM бенефициара"
+          }
+        },
+        "guaranteeNumber": {
+          "type": "string",
+          "description": "Номер гарантии"
+        },
+        "statusTFO": {
+          "type": "array",
+          "description": "Статус гарантии",
+          "items": {
+            "type": "string",
+            "description": "Статус гарантии"
+          }
+        },
+        "issueDate": {
+          "$ref": "#/$defs/RangeDtoLocalDate"
+        },
+        "expiryDate": {
+          "$ref": "#/$defs/RangeDtoLocalDate"
+        },
+        "amount": {
+          "$ref": "#/$defs/RangeDtoBigDecimal"
+        },
+        "currency": {
+          "type": "array",
+          "description": "Код валюты",
+          "items": {
+            "type": "string",
+            "description": "Код валюты"
+          }
+        },
+        "guaranteeType": {
+          "type": "array",
+          "description": "Код типа гарантии",
+          "items": {
+            "type": "string",
+            "description": "Код типа гарантии"
+          }
+        },
+        "principal": {
+          "$ref": "#/$defs/Principal"
+        }
+      }
+    },
+    "Order": {
+      "required": [
+        "sortBy"
+      ],
+      "properties": {
+        "priority": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "sortBy": {
+          "type": "string"
+        },
+        "orderBy": {
+          "$ref": "#/$defs/SortDirection"
+        }
+      }
+    },
+    "Paging": {
+      "required": [
+        "limit",
+        "offset"
+      ],
+      "properties": {
+        "offset": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "Principal": {
+      "type": "object",
+      "properties": {
+        "shortName": {
+          "type": "string",
+          "description": "Наименование принципала"
+        },
+        "cnum": {
+          "type": "string",
+          "description": "CNUM принципала"
+        },
+        "inn": {
+          "type": "string",
+          "description": "ИНН принципала"
+        }
+      },
+      "description": "CNUM принципала"
+    },
+    "RangeDtoBigDecimal": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": "number",
+          "description": "Начальное значение интервала"
+        },
+        "to": {
+          "type": "number",
+          "description": "Конечное значение интервала"
+        }
+      },
+      "description": "Сумма гарантии, интервал"
+    },
+    "RangeDtoLocalDate": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": "string",
+          "format": "date"
+        },
+        "to": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "description": "Дата окончания действия гарантии"
+    },
+    "SortDirection": {
+      "type": "string",
+      "enum": [
+        "ASC",
+        "DESC"
+      ]
+    }
+  }
+}

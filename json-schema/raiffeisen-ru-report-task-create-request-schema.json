@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-report-task-create-request-schema.json",
+  "title": "ReportTaskCreateRequest",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-brokerage-reports-openapi.yml#/components/schemas/ReportTaskCreateRequest",
+  "required": [
+    "reportType",
+    "agreementNumber",
+    "fromDate",
+    "toDate"
+  ],
+  "type": "object",
+  "properties": {
+    "reportType": {
+      "$ref": "#/$defs/ReportType"
+    },
+    "agreementNumber": {
+      "type": "string",
+      "description": "Номер брокерского договора"
+    },
+    "account": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Номер счёта, если он требуется для выбранного типа отчёта"
+    },
+    "fromDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Начало периода отчёта"
+    },
+    "toDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Окончание периода отчёта"
+    },
+    "handleIfExists": {
+      "type": "boolean",
+      "description": "Признак повторного формирования, если отчёт за тот же период уже был сформирован: false — новый отчёт не формируется, возвращается ранее сформированный результат; true — отчёт формируется заново",
+      "default": false
+    },
+    "fileTypes": {
+      "type": "array",
+      "description": "Коды типов файлов из allowedFileTypes; если поле не задано или список пуст, используются defaultFileTypes",
+      "items": {
+        "$ref": "#/$defs/ReportFileTypeCode"
+      }
+    }
+  },
+  "$defs": {
+    "ReportFileTypeCode": {
+      "type": "string",
+      "description": "Код типа файла отчёта",
+      "enum": [
+        "SIMPLE_DOCUMENTARY",
+        "PRINTED_FORM",
+        "QES",
+        "FACSIMILE"
+      ]
+    },
+    "ReportType": {
+      "type": "string",
+      "description": "Тип отчёта",
+      "enum": [
+        "STATEMENT_FOR_1C",
+        "BROKERAGE_REPORT"
+      ]
+    }
+  }
+}

@@ -1,0 +1,343 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Report V2 API
+  version: 1.0.0
+  description: 'Operations tagged Report V2 across 2 of this provider''s published API definitions: raiffeisen-ru-bank-statements-openapi.yml, raiffeisen-ru-bank-statements-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/bank-statements
+tags:
+- name: Report V2
+paths:
+  /v2/reports/1c:
+    post:
+      tags:
+      - Report V2
+      summary: Генерация выписки в формате 1С
+      description: Генерация 1C отчета по переданным параметрам запроса. В ответе возвращается идентификатор генерации отчета.
+      operationId: oneCRequestV2
+      parameters:
+      - $ref: '#/components/parameters/dryRun'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Create1CReportRequestV2'
+            examples:
+              oneCRequestV2OnlyRequired:
+                $ref: '#/components/examples/oneCRequestV2OnlyRequired'
+              oneCRequestV2AllFields:
+                $ref: '#/components/examples/oneCRequestV2AllFields'
+        required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/dryRunCheckSuccess'
+        '202':
+          $ref: '#/components/responses/reportRequestGenerationAccepted'
+        '400':
+          $ref: '#/components/responses/requestValidationErrorReportRequest'
+        '404':
+          $ref: '#/components/responses/noStatementsErrorReportRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/bank-statements
+components:
+  schemas:
+    ErrorMessage:
+      type: string
+      description: Сообщение об ошибке
+      example: Too many transactions for print
+    RequestIntervalFrom:
+      type: string
+      format: date
+      description: Дата выписки с
+      example: '2023-10-06'
+    ErrorType:
+      type: string
+      enum:
+      - BAD_REQUEST
+      - STATEMENT_KEY_PARSE_ERROR
+      - ACCOUNT_KEY_PARSE_ERROR
+      - TRANSACTION_KEY_PARSE_ERROR
+      - STMT_FILE_NAME_PARSE_ERROR
+      - REPLACEMENTS_PARSE_ERROR
+      - TOO_MANY_TRANSACTIONS_ERROR
+      - NO_STATEMENTS
+      - NO_TRANSACTIONS
+      - STATEMENTS_PERIOD_BEFORE_OPEN_ERROR
+      - STATEMENTS_PERIOD_NOT_READY_ERROR
+      - STATEMENTS_PERIOD_NO_COB_ERROR
+      - STATEMENTS_SIGN_NOT_READY_ERROR
+      - STATEMENTS_SIGN_PERIOD_ERROR
+      - STATEMENTS_SIGN_PARAMS_ERROR
+      - REPORT_FILE_IS_NOT_READY
+    ErrorResponse:
+      type: object
+      required:
+      - code
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorType'
+        message:
+          $ref: '#/components/schemas/ErrorMessage'
+      example:
+        code: too-many-transactions-error
+        message: Too many transactions for print
+    Intraday:
+      type: boolean
+      description: 'Включать внутридневные выписки: true - включать, false - не включать'
+      default: false
+      example: true
+    AccountKeys:
+      type: array
+      description: 'Бизнес-ключ счета. Формат: `<20-значный номер счета>` или `<20-значный номер счета>:<CNUM>`'
+      example:
+      - 40701978200000000001:401867
+      - '40702810500001306832'
+      items:
+        type: string
+    DebitCreditFilter:
+      type: string
+      enum:
+      - DEBIT
+      - CREDIT
+      - ALL
+      description: 'Фильтр дебетовых/кредитовых операций: DEBIT - только дебетовые операции, CREDIT - только кредитовые операции, ALL - все операции'
+      default: ALL
+      example: DEBIT
+    ReportSort:
+      type: array
+      items:
+        $ref: '#/components/schemas/ServiceSortReportSortFields'
+    ReportGenerationRequestResponse:
+      type: object
+      properties:
+        reportId:
+          $ref: '#/components/schemas/ReportId'
+      example:
+        reportId: 4c8d9891-4ee9-4ac8-ae2d-e41ad9f5ee10
+    Zero:
+      type: boolean
+      description: Включать нулевые выписки, true - все выписки (с движениями по счету и без), false - только выписки с движениями по счету (ненулевые)
+      default: false
+      example: true
+    SplitByAccountDate:
+      type: string
+      enum:
+      - ACCOUNT_DATE
+      description: Разделить выписки на отдельные файлы и генерировать zip архив. ACCOUNT_DATE - разделить по счетам за день (в архиве каждый файл будет содержать выписки за один день по одному счету), null - генерируется один файл. По умолчанию генерируется один файл.
+      example: ACCOUNT_DATE
+    OrderBy:
+      type: string
+      enum:
+      - ASC
+      - DESC
+      description: Направление сортировки
+      example: ASC
+    FileName:
+      type: string
+      description: Имя сгенерированного файла
+      example: qwerty
+    Create1CReportRequestV2:
+      type: object
+      properties:
+        accountKeys:
+          $ref: '#/components/schemas/AccountKeys'
+        from:
+          $ref: '#/components/schemas/RequestIntervalFrom'
+        to:
+          $ref: '#/components/schemas/RequestIntervalTo'
+        zero:
+          $ref: '#/components/schemas/Zero'
+        zeroIfNoStatementExpected:
+          $ref: '#/components/schemas/ZeroIfNoStatementExpected'
+        fileName:
+          $ref: '#/components/schemas/FileName'
+        sort:
+          $ref: '#/components/schemas/ReportSort'
+        intraday:
+          $ref: '#/components/schemas/Intraday'
+        debitCreditFilter:
+          $ref: '#/components/schemas/DebitCreditFilter'
+        excludedOperations:
+          $ref: '#/components/schemas/ExcludedOperations'
+        encoding:
+          $ref: '#/components/schemas/Encoding1C'
+        splitBy:
+          $ref: '#/components/schemas/SplitByAccountDate'
+      required:
+      - accountKeys
+      - from
+      - to
+    SortBy:
+      type: string
+      enum:
+      - DEBIT
+      - CREDIT
+      description: Поле сортировки
+      example: CREDIT
+    ZeroIfNoStatementExpected:
+      type: boolean
+      description: Генерировать синтетическую нулевую итоговую выписку, когда обычная выписка не будет генерироваться.
+      example: true
+      default: false
+    RequestIntervalTo:
+      type: string
+      format: date
+      description: Дата выписки по
+      example: '2023-10-06'
+    ReportId:
+      type: string
+      format: uuid
+      description: Идентификатор отчета
+      example: 4c8d9891-4ee9-4ac8-ae2d-e41ad9f5ee10
+    Encoding1C:
+      type: string
+      enum:
+      - WINDOWS
+      - DOS
+      description: 'Кодировка файла: WINDOWS - cp1251, DOS - cp866'
+      default: WINDOWS
+      example: DOS
+    ServiceSortReportSortFields:
+      type: object
+      properties:
+        sortBy:
+          $ref: '#/components/schemas/SortBy'
+        orderBy:
+          $ref: '#/components/schemas/OrderBy'
+      required:
+      - sortBy
+      - orderBy
+      example:
+        sortBy: DEBIT
+        orderBy: ASC
+    ExcludedOperations:
+      type: string
+      enum:
+      - NOT_PROCESSED_AND_HOLDS
+      - NOT_PROCESSED
+      - HOLDS
+      - NONE
+      description: 'Фильтр исключаемых операций: NOT_PROCESSED_AND_HOLDS - исключить необработанные операции и холды, NOT_PROCESSED - исключить необработанные операции, HOLDS - исключить холды, NONE - не исключать операции'
+      default: NONE
+      example: NONE
+  responses:
+    requestValidationErrorReportRequest:
+      description: Ошибка валидации запроса
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            tooManyTransactionsError:
+              $ref: '#/components/examples/tooManyTransactionsError'
+            accountKeyValidationError:
+              $ref: '#/components/examples/accountKeyValidationError'
+    reportRequestGenerationAccepted:
+      description: Запрос на генерацию принят
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ReportGenerationRequestResponse'
+          examples:
+            reportRequestGenerationAcceptedResponse:
+              $ref: '#/components/examples/reportRequestGenerationAccepted'
+    InternalError:
+      description: Внутренняя ошибка
+    noStatementsErrorReportRequest:
+      description: Нет выписок по указанным параметрам
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            noStatements:
+              $ref: '#/components/examples/noStatements'
+    Unauthorized:
+      description: Аутентификация не пройдена
+    dryRunCheckSuccess:
+      description: Проверка возможности генерации выполнена успешно
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    dryRun:
+      name: dryRun
+      in: query
+      description: "Параметр позволяет выполнить проверку необходимых условий для формирования отчета без запуска генерации. \ntrue - будут выполнены все необходимые проверки перед формированием отчета без запуска генерации. В случае невозможности сгенерировать отчет будет возвращаться ошибка.  \nfalse - проверка необходимых условий для формирования отчета будет выполнена и затем запущена генерация."
+      schema:
+        type: boolean
+        default: false
+      example: true
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  examples:
+    noStatements:
+      summary: Выписок не найдено
+      value:
+        code: no-statements
+        message: No statements were found that match the request parameters
+    oneCRequestV2OnlyRequired:
+      summary: Запрос 1C V2 только обязательные поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - 40701978200000000001:401867
+        from: '2023-10-06'
+        to: '2023-10-06'
+    tooManyTransactionsError:
+      summary: Превышено допустимое количество операций для генерации
+      value:
+        code: too-many-transactions-error
+        message: Too many transactions for generation
+    reportRequestGenerationAccepted:
+      summary: Запрос на генерацию отчета был принят
+      value:
+        reportId: 819e5e3c-07f8-4dda-a640-9d6d47bd9344
+    oneCRequestV2AllFields:
+      summary: Запрос 1C V2 все поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - 40701978200000000001:401867
+        from: '2023-10-06'
+        to: '2023-10-06'
+        zero: true
+        zeroIfNoStatementExpected: true
+        fileName: file
+        sort:
+        - sortBy: DEBIT
+          orderBy: ASC
+        - sortBy: CREDIT
+          orderBy: ASC
+        intraday: true
+        debitCreditFilter: DEBIT
+        excludedOperations: HOLDS
+        encoding: WINDOWS
+        splitBy: ACCOUNT_DATE
+    accountKeyValidationError:
+      summary: Ошибка валидации AccountKey
+      value:
+        code: account-key-parse-error
+        message: 'Failed to read request JSON parse error: Wrong accountKey format [4070103610000000060867:::321312]'
+x-refined-from:
+- raiffeisen-ru-bank-statements-openapi.yml
+- raiffeisen-ru-bank-statements-openapi.yml

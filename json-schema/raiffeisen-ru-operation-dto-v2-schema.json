@@ -1,0 +1,314 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-operation-dto-v2-schema.json",
+  "title": "OperationDtoV2",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-corporate-cards-openapi.yml#/components/schemas/OperationDtoV2",
+  "type": "object",
+  "required": [
+    "offset",
+    "limit",
+    "totalCount",
+    "data"
+  ],
+  "properties": {
+    "offset": {
+      "type": "integer",
+      "description": "Смещение для пагинации"
+    },
+    "limit": {
+      "type": "integer",
+      "description": "Кол-во возвращаемых элементов"
+    },
+    "totalCount": {
+      "type": "integer",
+      "description": "Общее количество доступных операций, без учёта offset и limit"
+    },
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "accountMovementType",
+          "extendedNarrative",
+          "authorization",
+          "status",
+          "transaction",
+          "card",
+          "merchant"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Порядковый номер"
+          },
+          "accountMovementType": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/AccountMovementType"
+              }
+            ]
+          },
+          "extendedNarrative": {
+            "type": "string",
+            "description": "Описание операции (назначение платежа)"
+          },
+          "authorization": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/AuthorizationDto"
+              }
+            ]
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/StatusDto"
+              }
+            ]
+          },
+          "transaction": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/TransactionDto"
+              }
+            ]
+          },
+          "card": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/TransactionsCardDto"
+              }
+            ]
+          },
+          "merchant": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/MerchantDto"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "AccountMovementType": {
+      "type": "string",
+      "enum": [
+        "DEBIT",
+        "CREDIT"
+      ]
+    },
+    "Amount": {
+      "type": "string",
+      "description": "Сумма операции в рублях"
+    },
+    "AuthorizationDto": {
+      "type": "object",
+      "description": "Данные о предварительной авторизации операции",
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "properties": {
+        "amount": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/Amount"
+            }
+          ]
+        },
+        "currency": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/Currency"
+            }
+          ]
+        }
+      }
+    },
+    "CaptureDateTime": {
+      "type": "string",
+      "description": "Дата и время фиксации транзакции",
+      "format": "date-time"
+    },
+    "Currency": {
+      "type": "string",
+      "description": "Валюта карты"
+    },
+    "DateTime": {
+      "type": "string",
+      "description": "Дата и время обновления",
+      "format": "date-time"
+    },
+    "Label": {
+      "type": "string",
+      "description": "Расшифровка MCC."
+    },
+    "MCC": {
+      "type": "string",
+      "description": "Код категории товара или услуги (MCC)"
+    },
+    "MerchantCity": {
+      "type": "string",
+      "description": "Город, в котором находится торговая точка"
+    },
+    "MerchantCountry": {
+      "type": "string",
+      "description": "Страна торговой точки."
+    },
+    "MerchantDto": {
+      "type": "object",
+      "description": "Данные торговой точки",
+      "required": [
+        "mcc",
+        "label",
+        "name",
+        "city",
+        "country"
+      ],
+      "properties": {
+        "mcc": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/MCC"
+            }
+          ]
+        },
+        "label": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/Label"
+            }
+          ]
+        },
+        "name": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/MerchantName"
+            }
+          ]
+        },
+        "city": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/MerchantCity"
+            }
+          ]
+        },
+        "country": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/MerchantCountry"
+            }
+          ]
+        }
+      }
+    },
+    "MerchantName": {
+      "type": "string",
+      "description": "Название торговой точки"
+    },
+    "OperationStatus": {
+      "type": "string",
+      "description": "Статус операции",
+      "enum": [
+        "HOLD",
+        "CANCEL",
+        "CAPTURE"
+      ]
+    },
+    "StatusDto": {
+      "type": "object",
+      "description": "Данные о совершенной операции",
+      "required": [
+        "value",
+        "dateTime"
+      ],
+      "properties": {
+        "value": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/OperationStatus"
+            }
+          ]
+        },
+        "dateTime": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/DateTime"
+            }
+          ]
+        },
+        "captureDateTime": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/CaptureDateTime"
+            }
+          ]
+        }
+      }
+    },
+    "TransactionDto": {
+      "type": "object",
+      "description": "Данные о финальной транзакции (проведённой сумме)",
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "properties": {
+        "amount": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/Amount"
+            }
+          ]
+        },
+        "currency": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/Currency"
+            }
+          ],
+          "description": "Валюта"
+        }
+      }
+    },
+    "TransactionsCardDto": {
+      "type": "object",
+      "description": "Данные карты, по который была совершена транзакция",
+      "required": [
+        "id",
+        "maskedNumber"
+      ],
+      "properties": {
+        "id": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/TransactionsCardDtoId"
+            }
+          ]
+        },
+        "maskedNumber": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/TransactionsCardDtoMaskedNumber"
+            }
+          ]
+        }
+      }
+    },
+    "TransactionsCardDtoId": {
+      "type": "string",
+      "description": "Уникальный банковский идентификатор карты"
+    },
+    "TransactionsCardDtoMaskedNumber": {
+      "type": "string",
+      "description": "Маскированный номер карты. Формат: первые 6 и последние 4 цифры, середина скрыта символами \"*\".\n"
+    }
+  }
+}

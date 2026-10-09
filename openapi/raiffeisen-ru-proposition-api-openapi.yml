@@ -1,0 +1,1061 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Proposition API
+  version: 1.0.0
+  description: 'Operations tagged Proposition across 2 of this provider''s published API definitions: raiffeisen-ru-agency-factoring-openapi.yml, raiffeisen-ru-agency-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/payables-financing
+tags:
+- description: Заявление на досрочное погашение основного долга
+  name: Proposition
+paths:
+  /v1/propositions/search:
+    post:
+      operationId: propositionsSearch
+      requestBody:
+        content:
+          application/json:
+            examples:
+              full:
+                summary: Запрос на поиск заявлений на досрочное погашение основного долга
+                value:
+                  agreementNumber: АФ-1111
+                  propositionIds:
+                  - bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                  - bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                  statuses:
+                  - UNSIGNED
+                  - PARTLY_SIGNED
+                  paging:
+                    offset: 1
+                    limit: 10
+            schema:
+              $ref: '#/components/schemas/SearchPropositionRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Несколько заявлений
+                  value:
+                    propositions:
+                    - agreementNumber: АФ-1111
+                      orderId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      cqrsVersion: -1628796591
+                      number: 1
+                      accountId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      amount: 10000
+                      isFull: false
+                      creationDate: '2025-01-01'
+                      maturityDate: '2025-01-01'
+                      id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      referenceId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      state:
+                        statusDate: '2021-07-10T06:53:37.433111Z'
+                        errors:
+                        - traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+                          code: ERR_0001
+                          message: Error
+                        status: REJECTED
+                    - agreementNumber: АФ-1111
+                      orderId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      cqrsVersion: -1628796591
+                      number: 1
+                      accountId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      amount: 10000
+                      isFull: false
+                      creationDate: '2025-01-01'
+                      maturityDate: '2025-01-01'
+                      id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      referenceId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      state:
+                        statusDate: '2021-07-10T06:53:37.433111Z'
+                        errors: []
+                        status: UNSIGNED
+                    limit: 1
+                    offset: 2
+                    totalCount: 10
+              schema:
+                $ref: '#/components/schemas/PropositionPageResponse'
+          description: OK
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ERROR
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ERROR
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Метод поиска заявления на досрочное погашение основного долга
+      tags:
+      - Proposition
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/payables-financing
+  /v1/propositions:
+    post:
+      operationId: createPropositions
+      requestBody:
+        content:
+          application/json:
+            examples:
+              full:
+                summary: Запрос на создание заявлений на досрочное погашение
+                value:
+                  repaidOrdersMetaData:
+                  - id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                    referenceId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                    amount: 100000
+                  - id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                    referenceId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                    amount: 10000
+                  creationDate: '2025-01-01'
+                  paymentDate: '2025-01-01'
+                  accountNumber: '40916819105000006497'
+                  agreementNumber: АФ-1111
+            schema:
+              $ref: '#/components/schemas/CreatePropositionRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Несколько заявлений
+                  value:
+                    propositions:
+                    - agreementNumber: АФ-1111
+                      orderId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      cqrsVersion: -1628796591
+                      number: 1
+                      accountId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      amount: 10000
+                      isFull: false
+                      creationDate: '2025-01-01'
+                      maturityDate: '2025-01-01'
+                      id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      referenceId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      state:
+                        statusDate: '2021-07-10T06:53:37.433111Z'
+                        errors:
+                        - traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+                          code: ERR_0001
+                          message: Error
+                        status: REJECTED
+                    - agreementNumber: АФ-1111
+                      orderId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      cqrsVersion: -1628796591
+                      number: 1
+                      accountId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      amount: 10000
+                      isFull: false
+                      creationDate: '2025-01-01'
+                      maturityDate: '2025-01-01'
+                      id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      referenceId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      state:
+                        statusDate: '2021-07-10T06:53:37.433111Z'
+                        errors: []
+                        status: UNSIGNED
+                    limit: 1
+                    offset: 2
+                    totalCount: 10
+              schema:
+                $ref: '#/components/schemas/PropositionPageResponse'
+          description: OK
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ERROR
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ERROR
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Создание заявлений на досрочное погашение
+      tags:
+      - Proposition
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/payables-financing
+  /v1/propositions/{id}/change-status-to-retired:
+    post:
+      description: Перевод заявления на досрочное погашение в архив (удаление заявлений)
+      operationId: changePropositionStatusToRetired
+      parameters:
+      - description: Идентификатор заявления
+        in: path
+        name: id
+        required: true
+        schema:
+          example: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+          format: uuid
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              full:
+                summary: Запрос на архивацию заявления на досрочное погашение
+                value:
+                  param: null
+                  id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                  cqrsVersion: -1628796591
+            schema:
+              $ref: '#/components/schemas/ChangePropositionStatusRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ERROR
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ERROR
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Архивация заявлений на досрочное погашение
+      tags:
+      - Proposition
+    servers:
+    - url: https://api.raiffeisen.ru/payables-financing
+  /v1/propositions/digests:
+    post:
+      description: Метод получение digest-ов заявлений
+      operationId: getPropositionsDigests
+      requestBody:
+        content:
+          application/json:
+            examples:
+              full:
+                summary: Запрос на получение digest-ов заявлений
+                value:
+                  agreementNumber: АФ-1111
+                  ids:
+                  - 2c44306f-fc96-4780-9b37-6447273b190e
+                  - bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                  statuses: []
+                  paging:
+                    offset: 1
+                    limit: 10
+            schema:
+              $ref: '#/components/schemas/PropositionsDigestRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Несколько digest-ов
+                  value:
+                    digests:
+                    - id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      digest: 0L/RgNC40LzQtdGAIGRpZ2VzdC3QsA==
+                    - id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      digest: 0L/RgNC40LzQtdGAIGRpZ2VzdC3QsA==
+                    limit: 1
+                    offset: 2
+                    totalCount: 10
+              schema:
+                $ref: '#/components/schemas/PropositionDigestPageResponse'
+          description: OK
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ERROR
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ERROR
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Получение digest-ов заявлений
+      tags:
+      - Proposition
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/payables-financing
+  /v1/propositions/{id}/sign:
+    post:
+      description: Метод передача подписи заявления на верификацию
+      operationId: propositionsSign
+      parameters:
+      - description: Идентификатор заявления
+        in: path
+        name: id
+        required: true
+        schema:
+          example: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+          format: uuid
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              full:
+                summary: Запрос на передачу подписи заявления на верификацию
+                value:
+                  id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                  sign: c2lnbiBzYW1wbGUgc2FtcGxl
+            schema:
+              $ref: '#/components/schemas/PropositionSignRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ERROR
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ERROR
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Передача подписи заявления на верификацию
+      tags:
+      - Proposition
+    servers:
+    - url: https://api.raiffeisen.ru/payables-financing
+components:
+  schemas:
+    RestErrorCodes:
+      description: '| code            | description                                |
+
+        |-----------------|--------------------------------------------|
+
+        | REST_ERR_5001   | General service error                       |
+
+        | REST_ERR_5040   | Tax is not available                        |
+
+        | REST_ERR_5041   | Incorrect format of taxpayer status         |
+
+        | REST_ERR_5042   | Incorrect format of KPP payer''s             |
+
+        | REST_ERR_5043   | Incorrect format of UIN                     |
+
+        | REST_ERR_5044   | Incorrect format of CBC                     |
+
+        | REST_ERR_5045   | Incorrect format of OKTMO                   |
+
+        | REST_ERR_5046   | Incorrect format of payment reason          |
+
+        | REST_ERR_5047   | Incorrect format of tax period              |
+
+        | REST_ERR_5048   | Incorrect format of the payment reason document number |
+
+        | REST_ERR_5049   | Incorrect format of the payment reason document date   |
+
+        | REST_ERR_5050   | Incorrect format of receiver name           |
+
+        | REST_ERR_5051   | Incorrect format of purpose                 |
+
+        '
+      enum:
+      - REST_ERR_5001
+      - REST_ERR_5040
+      - REST_ERR_5041
+      - REST_ERR_5042
+      - REST_ERR_5043
+      - REST_ERR_5044
+      - REST_ERR_5045
+      - REST_ERR_5046
+      - REST_ERR_5047
+      - REST_ERR_5048
+      - REST_ERR_5049
+      - REST_ERR_5050
+      - REST_ERR_5051
+      example: REST_ERR_5001
+      type: string
+    ErrorMessage:
+      example:
+        code: REST_ERR_5001
+        message: General service error
+        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+        traceId:
+          description: traceId
+          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
+          type: string
+      required:
+      - code
+      - message
+      - traceId
+      type: object
+    SearchPropositionRequest:
+      example:
+        agreementNumber: АФ-1111
+        propositionIds:
+        - 2c44306f-fc96-4780-9b37-6447273b190e
+        - bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+        statuses:
+        - UNSIGNED
+        - DONE
+        paging:
+          offset: 0
+          limit: 10
+        sorting:
+        - sortBy: CREATION_DATE
+          orderBy: DESC
+      properties:
+        agreementNumber:
+          description: Номер договора
+          example: АФ-1111
+          type: string
+        propositionIds:
+          description: Идентификаторы заявлений
+          example:
+          - 2c44306f-fc96-4780-9b37-6447273b190e
+          - bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+          items:
+            example: 2c44306f-fc96-4780-9b37-6447273b190e
+            format: uuid
+            type: string
+          type: array
+        statuses:
+          description: Статусы заявлений
+          example:
+          - UNSIGNED
+          - DONE
+          items:
+            $ref: '#/components/schemas/PropositionStatus'
+          type: array
+        paging:
+          $ref: '#/components/schemas/PaginationRequest'
+        sorting:
+          description: Сортировки
+          example:
+          - sortBy: CREATION_DATE
+            orderBy: DESC
+          items:
+            $ref: '#/components/schemas/PropositionSortingRequest'
+          type: array
+      required:
+      - agreementNumber
+      - paging
+      type: object
+    PropositionsDigestRequest:
+      example:
+        ids:
+        - 2c44306f-fc96-4780-9b37-6447273b190e
+        - bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+        paging:
+          offset: 0
+          limit: 10
+        sorting:
+        - sortBy: CREATION_DATE
+          orderBy: DESC
+      properties:
+        ids:
+          description: Идентификаторы заявлений
+          example:
+          - 2c44306f-fc96-4780-9b37-6447273b190e
+          - bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+          items:
+            example: 2c44306f-fc96-4780-9b37-6447273b190e
+            format: uuid
+            type: string
+          type: array
+        paging:
+          $ref: '#/components/schemas/PaginationRequest'
+        sorting:
+          description: Сортировки
+          example:
+          - sortBy: CREATION_DATE
+            orderBy: DESC
+          items:
+            $ref: '#/components/schemas/PropositionSortingRequest'
+          type: array
+      required:
+      - ids
+      type: object
+    PropositionDigestResponse:
+      example:
+        id: 2c44306f-fc96-4780-9b37-6447273b190e
+        digest: 0L/RgNC40LzQtdGAIGRpZ2VzdC3QsA==
+      properties:
+        id:
+          description: Идентификатор заявления
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        digest:
+          description: Дайджест заявления
+          example: 0L/RgNC40LzQtdGAIGRpZ2VzdC3QsA==
+          type: string
+      type: object
+    ErrorResponse:
+      description: Список ошибок
+      example:
+      - code: REST_ERR_5001
+        message: General service error
+        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+      items:
+        $ref: '#/components/schemas/ErrorMessage'
+      type: array
+    Error:
+      example:
+        code: ERR_1001
+        message: General service error
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+        traceId:
+          description: traceId
+          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    PropositionOrderMetaData:
+      description: Данные по поручениям необходимые для создания заявления на досрочное погашение
+      example:
+        id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+        referenceId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+        amount: 10000
+      properties:
+        id:
+          description: Идентификатор поручения
+          example: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+          format: uuid
+          type: string
+        referenceId:
+          description: Идентификатор заявления, если создание заявления происходит через API
+          example: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+          format: uuid
+          type: string
+        amount:
+          description: Сумма погашения
+          example: 10000
+          type: number
+      required:
+      - id
+      type: object
+    Proposition:
+      example:
+        id: 2c44306f-fc96-4780-9b37-6447273b190e
+        agreementNumber: АФ-1111
+        orderId: 2c44306f-fc96-4780-9b37-6447273b190e
+        accountId: 2c44306f-fc96-4780-9b37-6447273b190e
+        referenceId: 2c44306f-fc96-4780-9b37-6447273b190e
+        number: 1
+        creationDate: '2025-01-01'
+        maturityDate: '2025-01-01'
+        amount: 10000
+        isFull: false
+        state:
+          statusDate: '2025-07-10T06:53:37.433211'
+          errors: []
+          status: DONE
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: Идентификатор заявления
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        agreementNumber:
+          description: Номер договора
+          example: АФ-1111
+          type: string
+        orderId:
+          description: Идентификатор поручения
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        accountId:
+          description: Идентификатор счета
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        referenceId:
+          description: Идентификатор заявления клиента, если создание заявления происходит через API
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        number:
+          description: Номер заявления
+          example: 1
+          type: integer
+        creationDate:
+          description: Дата создания заявления
+          example: '2025-01-01'
+          format: date
+          type: string
+        maturityDate:
+          description: Плановая дата погашения поручения
+          example: '2025-01-01'
+          format: date
+          type: string
+        amount:
+          description: Сумма погашения. Допускается не более 2 знаков после запятой
+          example: 10000
+          type: number
+        isFull:
+          description: Тип погашения. Полное или частичное
+          example: false
+          type: boolean
+        state:
+          allOf:
+          - $ref: '#/components/schemas/PropositionState'
+          description: Состояние заявления
+          type: object
+        cqrsVersion:
+          description: hashCode от state - состояния реестра
+          example: -1628796591
+          type: integer
+      required:
+      - accountId
+      - agreementNumber
+      - amount
+      - cqrsVersion
+      - creationDate
+      - id
+      - maturityDate
+      - number
+      - orderId
+      - referenceId
+      - state
+      type: object
+    PropositionStatus:
+      description: Статус заявления
+      enum:
+      - UNSIGNED
+      - AWAITS_SIGN_CHECK
+      - PARTLY_SIGNED
+      - IN_QUEUE
+      - PROCESSING
+      - DONE
+      - REJECTED
+      example: DONE
+      type: string
+    PropositionPageResponse:
+      allOf:
+      - properties:
+          propositions:
+            description: Заявления
+            items:
+              $ref: '#/components/schemas/Proposition'
+            type: array
+        type: object
+      - $ref: '#/components/schemas/PaginationResponse'
+      example:
+        propositions:
+        - id: 2c44306f-fc96-4780-9b37-6447273b190e
+          agreementNumber: АФ-1111
+          orderId: 2c44306f-fc96-4780-9b37-6447273b190e
+          accountId: 2c44306f-fc96-4780-9b37-6447273b190e
+          referenceId: 2c44306f-fc96-4780-9b37-6447273b190e
+          number: 1
+          creationDate: '2025-01-01'
+          maturityDate: '2025-01-01'
+          amount: 10000
+          isFull: false
+          state:
+            statusDate: '2025-07-10T06:53:37.433211'
+            errors: []
+            status: DONE
+          cqrsVersion: -1628796591
+        offset: 0
+        limit: 10
+        totalCount: 100
+      type: object
+    PaginationResponse:
+      example:
+        offset: 0
+        limit: 10
+        totalCount: 100
+      properties:
+        offset:
+          description: Количество элементов для сдвига
+          example: 1
+          type: integer
+        limit:
+          description: Итоговое количество элементов
+          example: 10
+          type: integer
+        totalCount:
+          description: Общее количество элементов
+          example: 100
+          type: integer
+      required:
+      - limit
+      - offset
+      - totalCount
+      type: object
+    Direction:
+      description: Направление сортировки
+      enum:
+      - DESC
+      - ASC
+      example: DESC
+      type: string
+    ChangePropositionStatusRequest:
+      description: Запрос на изменение статуса заявления (архивация)
+      example:
+        id: 2c44306f-fc96-4780-9b37-6447273b190e
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: Идентификатор заявления
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        cqrsVersion:
+          allOf:
+          - $ref: '#/components/schemas/CqrsVersion'
+          description: hashCode от state - состояния заявления
+          example: '-1628796591'
+      required:
+      - cqrsVersion
+      - id
+      type: object
+    PropositionSignRequest:
+      example:
+        id: 2c44306f-fc96-4780-9b37-6447273b190e
+        sign: signature
+      properties:
+        id:
+          description: Идентификатор заявления
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        sign:
+          description: Подпись заявления
+          example: signature
+          type: string
+      required:
+      - id
+      - sign
+      type: object
+    PropositionState:
+      allOf:
+      - $ref: '#/components/schemas/State'
+      - properties:
+          status:
+            $ref: '#/components/schemas/PropositionStatus'
+        type: object
+      description: Состояние заявления
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: DONE
+      type: object
+    ErrorCodes:
+      description: '| code       | description                        |
+
+        |------------|------------------------------------|
+
+        | ERR_0000   | Unexpected error                   |
+
+        | ERR_0001   | Creditor not valid                 |
+
+        | ERR_0002   | Error getting okved from DaData    |
+
+        | ERR_0003   | Affiliation check not valid        |
+
+        | ERR_0004   | Affiliation check nof found        |
+
+        | ERR_1001   | Requisites not valid               |
+
+        | ERR_1002   | Creditor not valid                 |
+
+        | ERR_1003   | The financing period is longer than the maximum |
+
+        | ERR_1004   | Exceeded daily limit               |
+
+        | ERR_1005   | Creditor not found                 |
+
+        | ERR_1006   | Exceed maximum limit               |
+
+        | ERR_1007   | Date is not found in calendar      |
+
+        | ERR_1008   | Agreement not found                |
+
+        | ERR_1009   | Agreement not valid                |
+
+        | ERR_1010   | Agreement is blocked               |
+
+        | ERR_1011   | Order date invalid                 |
+
+        | ERR_1012   | Maturity date invalid              |
+
+        | ERR_1013   | Limit not valid                    |
+
+        | ERR_1014   | Due date is unavailable            |
+
+        | ERR_1015   | Tariff plan not found              |
+
+        | ERR_1016   | Order date is not working day      |
+
+        | ERR_1017   | Tariff plan not approved           |
+
+        | ERR_2000   | General service error              |
+
+        | ERR_4001   | Requisites not valid               |
+
+        | ERR_4002   | Payment rejected by operator       |
+
+        | ERR_4003   | Payment rejected by CBR            |
+
+        | ERR_6000   | Entry rejected by CIG              |
+
+        | ERR_9001   | Value date is over                 |
+
+        | ERR_9002   | First financing date is over       |
+
+        | ERR_11001  | Minimum Margin check failed        |
+
+        | ERR_12001  | Account is blocked                 |
+
+        '
+      enum:
+      - ERR_0000
+      - ERR_0001
+      - ERR_0002
+      - ERR_0003
+      - ERR_0004
+      - ERR_1001
+      - ERR_1002
+      - ERR_1003
+      - ERR_1004
+      - ERR_1005
+      - ERR_1006
+      - ERR_1007
+      - ERR_1008
+      - ERR_1009
+      - ERR_1010
+      - ERR_1011
+      - ERR_1012
+      - ERR_1013
+      - ERR_1014
+      - ERR_1015
+      - ERR_1016
+      - ERR_1017
+      - ERR_2000
+      - ERR_4001
+      - ERR_4002
+      - ERR_4003
+      - ERR_6000
+      - ERR_9001
+      - ERR_9002
+      - ERR_11001
+      - ERR_12001
+      example: ERR_2000
+      type: string
+    PropositionSortingRequest:
+      description: Запрос сортировки предложений
+      example:
+        sortBy: CREATION_DATE
+        orderBy: DESC
+      properties:
+        sortBy:
+          $ref: '#/components/schemas/PropositionSortFields'
+        orderBy:
+          $ref: '#/components/schemas/Direction'
+      required:
+      - orderBy
+      - sortBy
+      type: object
+    CreatePropositionRequest:
+      description: Создание заявления на досрочное погашение
+      example:
+        repaidOrdersMetaData:
+        - id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+          referenceId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+          amount: 100000
+        creationDate: '2025-01-01'
+        paymentDate: '2025-01-01'
+        accountNumber: '40916819105000006497'
+        agreementNumber: АФ-1111
+      properties:
+        repaidOrdersMetaData:
+          description: Данные по поручениям необходимые для создания заявления на досрочное погашение
+          example:
+          - id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+            referenceId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+            amount: 100000
+          items:
+            $ref: '#/components/schemas/PropositionOrderMetaData'
+          type: array
+        paymentDate:
+          description: Дата погашения заявления на досрочное погашение
+          example: '2025-01-01'
+          format: date
+          type: string
+        creationDate:
+          description: Дата создания заявления на досрочное погашение
+          example: '2025-01-01'
+          format: date
+          type: string
+        accountNumber:
+          description: 20-значный номер счета ЦБ для списания средств
+          example: '40916819105000006497'
+          type: string
+        agreementNumber:
+          description: Номер договора
+          example: АФ-1111
+          type: string
+      required:
+      - accountNumber
+      - agreementNumber
+      - creationDate
+      - paymentDate
+      - repaidOrdersMetaData
+      type: object
+    PropositionDigestPageResponse:
+      allOf:
+      - properties:
+          digests:
+            description: Подписи
+            items:
+              $ref: '#/components/schemas/PropositionDigestResponse'
+            type: array
+        type: object
+      - $ref: '#/components/schemas/PaginationResponse'
+      example:
+        digests:
+        - id: 2c44306f-fc96-4780-9b37-6447273b190e
+          digest: 0L/RgNC40LzQtdGAIGRpZ2VzdC3QsA==
+        offset: 0
+        limit: 10
+        totalCount: 100
+      type: object
+    PropositionSortFields:
+      description: Поле для сортировки заявления
+      enum:
+      - CREATION_DATE
+      - MATURITY_DATE
+      - NUMBER
+      example: CREATION_DATE
+      type: string
+    CqrsVersion:
+      description: hashCode от state - состояния реестра
+      example: -1628796591
+      type: integer
+    PaginationRequest:
+      description: Параметры пагинации
+      example:
+        offset: 0
+        limit: 10
+      properties:
+        offset:
+          description: Количество элементов для сдвига
+          example: 1
+          type: integer
+        limit:
+          description: Ограничение элементов
+          example: 10
+          type: integer
+      required:
+      - limit
+      - offset
+      type: object
+    State:
+      description: Состояние объекта
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+      properties:
+        statusDate:
+          description: yyyy-MM-dd'T'HH:mm:ss.SSSSSS
+          format: date-time
+          pattern: ([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})
+          type: string
+        errors:
+          description: Ошибки
+          items:
+            $ref: '#/components/schemas/Error'
+          type: array
+      required:
+      - statusDate
+      type: object
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена
+x-refined-from:
+- raiffeisen-ru-agency-factoring-openapi.yml
+- raiffeisen-ru-agency-factoring-openapi.yml

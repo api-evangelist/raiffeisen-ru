@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-page-response-client-tariff-plan-change-request-list-view-schema.json",
+  "title": "PageResponseClientTariffPlanChangeRequestListView",
+  "description": "Страница результатов",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-tariff-change-requests-openapi.yml#/components/schemas/PageResponseClientTariffPlanChangeRequestListView",
+  "type": "object",
+  "properties": {
+    "content": {
+      "type": "array",
+      "description": "Содержимое страницы",
+      "items": {
+        "$ref": "#/$defs/ClientTariffPlanChangeRequestListView"
+      }
+    },
+    "size": {
+      "type": "integer",
+      "description": "Размер страницы",
+      "format": "int32"
+    },
+    "number": {
+      "type": "integer",
+      "description": "Номер страницы",
+      "format": "int32"
+    },
+    "hasNext": {
+      "type": "boolean",
+      "description": "Признак наличия следующей страницы"
+    },
+    "hasPrevious": {
+      "type": "boolean",
+      "description": "Признак наличия предыдущей страницы"
+    }
+  },
+  "$defs": {
+    "ClientTariffPlanChangeRequestListView": {
+      "required": [
+        "documentType",
+        "id",
+        "state"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Уникальный идентификатор",
+          "format": "int64"
+        },
+        "documentType": {
+          "type": "string",
+          "description": "Тип заявления",
+          "enum": [
+            "CLIENT_TARIFF_PLAN_CHANGE_REQUEST",
+            "FUTURE_CLIENT_TARIFF_PLAN_CANCEL_REQUEST"
+          ]
+        },
+        "state": {
+          "type": "string",
+          "description": "Статус заявления",
+          "enum": [
+            "UNSIGNED",
+            "PARTIALLY_SIGNED",
+            "SIGNED",
+            "PROCESSING",
+            "DECLINED",
+            "DONE",
+            "CANCELLED"
+          ]
+        },
+        "targetTariffPlanName": {
+          "type": "string",
+          "description": "Наименование тарифного плана"
+        },
+        "targetTariffPlanPublicName": {
+          "type": "string",
+          "description": "Публичное наименование тарифного плана"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Дата создания записи",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Дата обновления записи",
+          "format": "date-time"
+        }
+      },
+      "description": "Общее представление заявки на смену тарифного плана"
+    }
+  }
+}

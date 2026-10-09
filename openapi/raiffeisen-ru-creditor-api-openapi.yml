@@ -1,0 +1,665 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Creditor API
+  version: 1.0.0
+  description: 'Operations tagged Creditor across 2 of this provider''s published API definitions: raiffeisen-ru-agency-factoring-openapi.yml, raiffeisen-ru-agency-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/payables-financing
+tags:
+- description: Кредитор
+  name: Creditor
+paths:
+  /v1/creditors/organization-requisites:
+    get:
+      description: Метод поиска организации по ИНН для создания кредитора
+      operationId: findOrganizations
+      parameters:
+      - description: ИНН организации
+        in: query
+        name: inn
+        required: true
+        schema:
+          example: '7777225556'
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                one:
+                  summary: Одна организация
+                  value:
+                  - ogrn: '123456789012345'
+                    inn: '1234567890'
+                    kpp: '123456789'
+                    fullNameRus: АО Ромашка
+              schema:
+                $ref: '#/components/schemas/CreditorRequisitesListResponse'
+          description: OK
+        '400':
+          content:
+            application/json:
+              example:
+              - code: REST_ERR_5001
+                message: General service error
+                traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Поиск организации по ИНН
+      tags:
+      - Creditor
+    servers:
+    - url: https://api.raiffeisen.ru/payables-financing
+  /v1/creditors:
+    get:
+      description: Метод получение списка кредиторов по фильтрам
+      operationId: getCreditors
+      parameters:
+      - description: Номер договора
+        in: query
+        name: agreementNumber
+        required: true
+        schema:
+          example: АФ-1
+          type: string
+      - description: Наименование или ИНН кредитора
+        in: query
+        name: search
+        required: false
+        schema:
+          example: '7777225556'
+          type: string
+      - description: Статус кредитора
+        examples:
+          oneStatus:
+            summary: Пример с одним статусом
+            value:
+            - APPROVED
+          multipleStatuses:
+            summary: Пример с несколькими статусами
+            value:
+            - APPROVED
+            - REJECTED
+        in: query
+        name: statuses
+        required: false
+        schema:
+          example:
+          - APPROVED
+          items:
+            $ref: '#/components/schemas/CreditorStatus'
+          type: array
+      - description: Количество элементов для сдвига
+        in: query
+        name: offset
+        required: true
+        schema:
+          example: 0
+          type: integer
+      - description: Ограничение элементов
+        in: query
+        name: limit
+        required: true
+        schema:
+          example: 10
+          type: integer
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Несколько кредиторов
+                  value:
+                    creditors:
+                    - fullNameRus: АО Ромашка
+                      ogrn: '123456789012345'
+                      cqrsVersion: -1628796591
+                      inn: '1234567890'
+                      kpp: '123456789'
+                      id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                      state:
+                        statusDate: '2021-07-10T06:53:37.433111Z'
+                        errors:
+                        - traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+                          code: ERR_0001
+                          message: Creditor not valid
+                        status: REJECTED
+                    - fullNameRus: АО Лютик
+                      ogrn: '123456789012349'
+                      cqrsVersion: -1628796592
+                      inn: '1234567891'
+                      kpp: '123456789'
+                      id: bf1d1868-a98e-4ae5-976f-0c4e21e0d517
+                      state:
+                        statusDate: '2021-07-10T06:53:37.433111Z'
+                        errors: []
+                        status: APPROVED
+                    limit: 1
+                    offset: 2
+                    totalCount: 10
+              schema:
+                $ref: '#/components/schemas/CreditorPageResponse'
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: REST_ERR_5001
+                    message: General service error
+                    traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Получение списка кредиторов по фильтрам
+      tags:
+      - Creditor
+    post:
+      description: Для осуществления финансирования по агентскому договору потребуется заведение кредиторов в системе
+      operationId: createCreditor
+      requestBody:
+        content:
+          application/json:
+            examples:
+              full:
+                summary: Запрос на создание кредитора
+                value:
+                  fullNameRus: АО Ромашка
+                  inn: '1234567890'
+                  ogrn: '123456789012345'
+                  kpp: '123456789'
+                  agreementNumber: АФ-1
+            schema:
+              $ref: '#/components/schemas/CreateCreditorRequest'
+        description: Параметры для создания кредитора
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Успешно создан
+                  value:
+                  - ogrn: '123456789012345'
+                    cqrsVersion: -1628796591
+                    inn: '1234567890'
+                    kpp: '123456789'
+                    id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                    state:
+                      statusDate: '2021-07-10T06:53:37.433211'
+                      errors: []
+                      status: FETCHED
+                    fullNameRus: АО Ромашка
+              schema:
+                $ref: '#/components/schemas/CreditorListResponse'
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: REST_ERR_5001
+                    message: General service error
+                    traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Создание кредитора
+      tags:
+      - Creditor
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/payables-financing
+components:
+  schemas:
+    RestErrorCodes:
+      description: '| code            | description                                |
+
+        |-----------------|--------------------------------------------|
+
+        | REST_ERR_5001   | General service error                       |
+
+        | REST_ERR_5040   | Tax is not available                        |
+
+        | REST_ERR_5041   | Incorrect format of taxpayer status         |
+
+        | REST_ERR_5042   | Incorrect format of KPP payer''s             |
+
+        | REST_ERR_5043   | Incorrect format of UIN                     |
+
+        | REST_ERR_5044   | Incorrect format of CBC                     |
+
+        | REST_ERR_5045   | Incorrect format of OKTMO                   |
+
+        | REST_ERR_5046   | Incorrect format of payment reason          |
+
+        | REST_ERR_5047   | Incorrect format of tax period              |
+
+        | REST_ERR_5048   | Incorrect format of the payment reason document number |
+
+        | REST_ERR_5049   | Incorrect format of the payment reason document date   |
+
+        | REST_ERR_5050   | Incorrect format of receiver name           |
+
+        | REST_ERR_5051   | Incorrect format of purpose                 |
+
+        '
+      enum:
+      - REST_ERR_5001
+      - REST_ERR_5040
+      - REST_ERR_5041
+      - REST_ERR_5042
+      - REST_ERR_5043
+      - REST_ERR_5044
+      - REST_ERR_5045
+      - REST_ERR_5046
+      - REST_ERR_5047
+      - REST_ERR_5048
+      - REST_ERR_5049
+      - REST_ERR_5050
+      - REST_ERR_5051
+      example: REST_ERR_5001
+      type: string
+    ErrorMessage:
+      example:
+        code: REST_ERR_5001
+        message: General service error
+        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+        traceId:
+          description: traceId
+          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
+          type: string
+      required:
+      - code
+      - message
+      - traceId
+      type: object
+    CreditorStatus:
+      description: Статус кредитора
+      enum:
+      - FETCHED
+      - SENT_TO_CHECK
+      - APPROVED
+      - REJECTED
+      example: APPROVED
+      type: string
+    CreditorRequisitesListResponse:
+      description: Список реквизитов кредитора
+      example:
+      - ogrn: '123456789012345'
+        inn: '1234567890'
+        kpp: '123456789'
+        fullNameRus: АО Ромашка
+      items:
+        $ref: '#/components/schemas/CreditorRequisites'
+      type: array
+    CreateCreditorRequest:
+      allOf:
+      - $ref: '#/components/schemas/CreditorRequisites'
+      - properties:
+          agreementNumber:
+            description: Номер агентского договора
+            example: АФ-1
+            type: string
+        required:
+        - agreementNumber
+        type: object
+      example:
+        ogrn: '123456789012345'
+        inn: '1234567890'
+        kpp: '123456789'
+        fullNameRus: АО Ромашка
+        agreementNumber: АФ-1
+    ErrorResponse:
+      description: Список ошибок
+      example:
+      - code: REST_ERR_5001
+        message: General service error
+        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+      items:
+        $ref: '#/components/schemas/ErrorMessage'
+      type: array
+    Error:
+      example:
+        code: ERR_1001
+        message: General service error
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+        traceId:
+          description: traceId
+          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    CreditorRequisites:
+      description: Реквизиты кредитора
+      example:
+        fullNameRus: АО Ромашка
+        inn: '1234567890'
+        ogrn: '123456789012345'
+        kpp: '123456789'
+      properties:
+        fullNameRus:
+          description: Полное наименование кредитора
+          example: АО Ромашка
+          type: string
+        inn:
+          description: ИНН кредитора
+          example: '1234567890'
+          maxLength: 12
+          minLength: 10
+          type: string
+        ogrn:
+          description: ОГРН кредитора
+          example: '123456789012345'
+          maxLength: 15
+          minLength: 13
+          type: string
+        kpp:
+          description: КПП кредитора
+          example: '123456789'
+          maxLength: 9
+          minLength: 9
+          type: string
+      required:
+      - fullNameRus
+      - inn
+      - ogrn
+      type: object
+    CreditorPageResponse:
+      allOf:
+      - properties:
+          creditors:
+            description: Кредиторы
+            items:
+              $ref: '#/components/schemas/CreditorResponse'
+            type: array
+        type: object
+      - $ref: '#/components/schemas/PaginationResponse'
+      example:
+        creditors:
+        - ogrn: '123456789012345'
+          inn: '1234567890'
+          kpp: '123456789'
+          fullNameRus: АО Ромашка
+          id: 2c44306f-fc96-4780-9b37-6447273b190e
+          state:
+            statusDate: '2025-07-10T06:53:37.433211'
+            errors: []
+            status: APPROVED
+          cqrsVersion: -1628796591
+        offset: 0
+        limit: 10
+        totalCount: 100
+      type: object
+    CreditorListResponse:
+      description: Список кредиторов
+      example:
+      - ogrn: '123456789012345'
+        cqrsVersion: -1628796591
+        inn: '1234567890'
+        kpp: '123456789'
+        id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+        state:
+          statusDate: '2021-07-10T06:53:37.433211'
+          errors: []
+          status: FETCHED
+        fullNameRus: АО Ромашка
+      items:
+        $ref: '#/components/schemas/CreditorResponse'
+      type: array
+    PaginationResponse:
+      example:
+        offset: 0
+        limit: 10
+        totalCount: 100
+      properties:
+        offset:
+          description: Количество элементов для сдвига
+          example: 1
+          type: integer
+        limit:
+          description: Итоговое количество элементов
+          example: 10
+          type: integer
+        totalCount:
+          description: Общее количество элементов
+          example: 100
+          type: integer
+      required:
+      - limit
+      - offset
+      - totalCount
+      type: object
+    CreditorResponse:
+      allOf:
+      - $ref: '#/components/schemas/CreditorRequisites'
+      - properties:
+          id:
+            description: Идентификатор кредитора
+            example: 2c44306f-fc96-4780-9b37-6447273b190e
+            format: uuid
+            type: string
+          state:
+            $ref: '#/components/schemas/CreditorState'
+          cqrsVersion:
+            $ref: '#/components/schemas/CqrsVersion'
+        required:
+        - cqrsVersion
+        - id
+        - state
+        type: object
+      description: Кредитор
+      example:
+        ogrn: '123456789012345'
+        inn: '1234567890'
+        kpp: '123456789'
+        fullNameRus: АО Ромашка
+        id: 2c44306f-fc96-4780-9b37-6447273b190e
+        state:
+          statusDate: '2025-07-10T06:53:37.433211'
+          errors: []
+          status: APPROVED
+        cqrsVersion: -1628796591
+    CreditorState:
+      allOf:
+      - $ref: '#/components/schemas/State'
+      - properties:
+          status:
+            $ref: '#/components/schemas/CreditorStatus'
+        type: object
+      description: Состояние кредитора
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: APPROVED
+      type: object
+    ErrorCodes:
+      description: '| code       | description                        |
+
+        |------------|------------------------------------|
+
+        | ERR_0000   | Unexpected error                   |
+
+        | ERR_0001   | Creditor not valid                 |
+
+        | ERR_0002   | Error getting okved from DaData    |
+
+        | ERR_0003   | Affiliation check not valid        |
+
+        | ERR_0004   | Affiliation check nof found        |
+
+        | ERR_1001   | Requisites not valid               |
+
+        | ERR_1002   | Creditor not valid                 |
+
+        | ERR_1003   | The financing period is longer than the maximum |
+
+        | ERR_1004   | Exceeded daily limit               |
+
+        | ERR_1005   | Creditor not found                 |
+
+        | ERR_1006   | Exceed maximum limit               |
+
+        | ERR_1007   | Date is not found in calendar      |
+
+        | ERR_1008   | Agreement not found                |
+
+        | ERR_1009   | Agreement not valid                |
+
+        | ERR_1010   | Agreement is blocked               |
+
+        | ERR_1011   | Order date invalid                 |
+
+        | ERR_1012   | Maturity date invalid              |
+
+        | ERR_1013   | Limit not valid                    |
+
+        | ERR_1014   | Due date is unavailable            |
+
+        | ERR_1015   | Tariff plan not found              |
+
+        | ERR_1016   | Order date is not working day      |
+
+        | ERR_1017   | Tariff plan not approved           |
+
+        | ERR_2000   | General service error              |
+
+        | ERR_4001   | Requisites not valid               |
+
+        | ERR_4002   | Payment rejected by operator       |
+
+        | ERR_4003   | Payment rejected by CBR            |
+
+        | ERR_6000   | Entry rejected by CIG              |
+
+        | ERR_9001   | Value date is over                 |
+
+        | ERR_9002   | First financing date is over       |
+
+        | ERR_11001  | Minimum Margin check failed        |
+
+        | ERR_12001  | Account is blocked                 |
+
+        '
+      enum:
+      - ERR_0000
+      - ERR_0001
+      - ERR_0002
+      - ERR_0003
+      - ERR_0004
+      - ERR_1001
+      - ERR_1002
+      - ERR_1003
+      - ERR_1004
+      - ERR_1005
+      - ERR_1006
+      - ERR_1007
+      - ERR_1008
+      - ERR_1009
+      - ERR_1010
+      - ERR_1011
+      - ERR_1012
+      - ERR_1013
+      - ERR_1014
+      - ERR_1015
+      - ERR_1016
+      - ERR_1017
+      - ERR_2000
+      - ERR_4001
+      - ERR_4002
+      - ERR_4003
+      - ERR_6000
+      - ERR_9001
+      - ERR_9002
+      - ERR_11001
+      - ERR_12001
+      example: ERR_2000
+      type: string
+    CqrsVersion:
+      description: hashCode от state - состояния реестра
+      example: -1628796591
+      type: integer
+    State:
+      description: Состояние объекта
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+      properties:
+        statusDate:
+          description: yyyy-MM-dd'T'HH:mm:ss.SSSSSS
+          format: date-time
+          pattern: ([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})
+          type: string
+        errors:
+          description: Ошибки
+          items:
+            $ref: '#/components/schemas/Error'
+          type: array
+      required:
+      - statusDate
+      type: object
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена
+x-refined-from:
+- raiffeisen-ru-agency-factoring-openapi.yml
+- raiffeisen-ru-agency-factoring-openapi.yml

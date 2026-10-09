@@ -1,0 +1,325 @@
+# x-archived-from: raiffeisen-ru-treasury-digital-connection-openapi.yml
+# x-archived-on: 2026-10-09
+---
+openapi: "3.0.3"
+info:
+  version: "0.0.8"
+  title: "Единое казначейство. Цифровое подключение"
+  description: "Цифровое подключение компаний к Единому Казначейству."
+paths:
+  /v1/connections/users/eligible-companies:
+    get:
+      summary: "Получить список компаний доступных пользователю, которые могут быт\
+        ь включены в Единое Казначейство"
+      description: "Возвращает список компаний с их реквизитами, а также правом по\
+        льзователя подписывать документ создания Единого Казначейства с компанией\
+        \ в качестве головной"
+      operationId: "getUserEligibleCompanies"
+      parameters:
+      - name: "limit"
+        in: "query"
+        required: false
+        schema:
+          default: 100
+          format: "int32"
+          type: "integer"
+        description: "Максимальное количество возвращаемых записей"
+      - name: "offset"
+        in: "query"
+        required: false
+        schema:
+          default: 0
+          format: "int32"
+          type: "integer"
+        description: "Смещение относительно начала списка"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserEligibleCompaniesResponse"
+              examples:
+                simple:
+                  $ref: "#/components/examples/UserEligibleCompaniesResponseExample"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                simple:
+                  $ref: "#/components/examples/BadRequestErrorResponseExample"
+          description: "Bad request"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      tags:
+      - "connection"
+  /v1/connections/eligible-companies:
+    get:
+      summary: "Получить список компаний по ИНН, для подключения Единого Казначейс\
+        тва"
+      description: "Возвращает список компаний, доступных для подключения Единого\
+        \ Казначейства, по указанному ИНН"
+      operationId: "getEligibleCompanies"
+      parameters:
+      - name: "inn"
+        in: "query"
+        description: "ИНН компании (10 или 12 цифр)"
+        required: true
+        schema:
+          type: "string"
+          pattern: "^\\d{10}$|^\\d{12}$"
+      - name: "limit"
+        in: "query"
+        required: false
+        schema:
+          default: 100
+          format: "int32"
+          type: "integer"
+        description: "Максимальное количество возвращаемых записей"
+      - name: "offset"
+        in: "query"
+        required: false
+        schema:
+          default: 0
+          format: "int32"
+          type: "integer"
+        description: "Смещение относительно начала списка"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EligibleCompaniesResponse"
+              examples:
+                simple:
+                  $ref: "#/components/examples/EligibleCompaniesResponseExample"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                simple:
+                  $ref: "#/components/examples/BadRequestErrorResponseExample"
+          description: "Bad request"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      tags:
+      - "connection"
+components:
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+  schemas:
+    UserCompany:
+      type: "object"
+      required:
+      - "cnum"
+      - "companyName"
+      - "inn"
+      - "canSignTreasuryAgreementDocument"
+      properties:
+        cnum:
+          type: "string"
+          description: "Уникальный идентификатор клиента"
+          example: 408943
+        companyName:
+          type: "string"
+          description: "Наименование компании"
+          example: "ТАЙФУН ООО"
+        inn:
+          type: "string"
+          description: "ИНН компании"
+          example: 5753074600
+        kpp:
+          type: "string"
+          description: "КПП компании"
+          example: 990050001
+        canSignTreasuryAgreementDocument:
+          type: "boolean"
+          description: "Может ли пользователь подписать документ"
+          example: true
+    UserEligibleCompaniesResponse:
+      type: "object"
+      required:
+      - "companies"
+      - "offset"
+      - "limit"
+      - "totalCount"
+      properties:
+        companies:
+          items:
+            $ref: "#/components/schemas/UserCompany"
+          type: "array"
+          description: "Компании"
+        offset:
+          type: "integer"
+          format: "int32"
+          description: "Смещение, с которого взяты элементы"
+          example: 0
+        limit:
+          type: "integer"
+          format: "int32"
+          description: "Количество переданных элементов"
+          example: 100
+        totalCount:
+          type: "integer"
+          format: "int32"
+          description: "Общее количество элементов"
+          example: 100
+      description: "Список компаний"
+    Company:
+      type: "object"
+      required:
+      - "cnum"
+      - "companyName"
+      - "inn"
+      properties:
+        cnum:
+          type: "string"
+          description: "Уникальный идентификатор клиента"
+          example: 408943
+        companyName:
+          type: "string"
+          description: "Наименование компании"
+          example: "ТАЙФУН ООО"
+        inn:
+          type: "string"
+          description: "ИНН компании"
+          example: 5753074600
+        kpp:
+          type: "string"
+          description: "КПП компании"
+          example: 990050001
+    EligibleCompaniesResponse:
+      type: "object"
+      required:
+      - "companies"
+      - "offset"
+      - "limit"
+      - "totalCount"
+      properties:
+        companies:
+          items:
+            $ref: "#/components/schemas/Company"
+          type: "array"
+          description: "Компании"
+        offset:
+          type: "integer"
+          format: "int32"
+          description: "Смещение, с которого взяты элементы"
+          example: 0
+        limit:
+          type: "integer"
+          format: "int32"
+          description: "Количество переданных элементов"
+          example: 100
+        totalCount:
+          type: "integer"
+          format: "int32"
+          description: "Общее количество элементов"
+          example: 100
+      description: "Список компаний"
+    ErrorResponse:
+      type: "object"
+      required:
+      - "code"
+      properties:
+        code:
+          $ref: "#/components/schemas/ErrorType"
+        message:
+          $ref: "#/components/schemas/ErrorMessage"
+    ErrorType:
+      type: "string"
+      enum:
+      - "BAD_REQUEST"
+      - "UNAUTHORIZED_ERROR"
+      - "INTERNAL_SERVER_ERROR"
+    ErrorMessage:
+      type: "string"
+      description: "Сообщение об ошибке"
+      example: "Invalid request data"
+  examples:
+    UserEligibleCompaniesResponseExample:
+      summary: "Пример ответа получения списка компаний доступных пользователю, ко\
+        торые могут быть включены в Единое Казначейство"
+      value:
+        companies:
+        - cnum: "408943"
+          companyName: "ТАЙФУН ООО"
+          inn: "5753074600"
+          kpp: "990050001"
+          canSignTreasuryAgreementDocument: true
+        - cnum: "123456"
+          companyName: "АО АВТОБАЗА"
+          inn: "1234567890"
+          kpp: "123456789"
+          canSignTreasuryAgreementDocument: false
+        offset: 0
+        limit: 100
+        totalCount: 2
+    EligibleCompaniesResponseExample:
+      summary: "Пример ответа получения списка компаний, которые могут быть включе\
+        ны в Единое Казначейство"
+      value:
+        companies:
+        - cnum: "408943"
+          companyName: "ТАЙФУН ООО"
+          inn: "5753074600"
+          kpp: "990050001"
+        - cnum: "123456"
+          companyName: "АО АВТОБАЗА"
+          inn: "5753074600"
+          kpp: "123456789"
+        offset: 0
+        limit: 100
+        totalCount: 2
+    BadRequestErrorResponseExample:
+      summary: "Пример ответа при возникновении ошибки 400"
+      value:
+        code: "BAD_REQUEST"
+        message: "Invalid request data"
+    UnauthorizedErrorResponseExample:
+      summary: "Пример ответа при возникновении ошибки 401"
+      value:
+        code: "UNAUTHORIZED_ERROR"
+        message: "Unauthorized access"
+    InternalServerErrorResponseExample:
+      summary: "Пример ответа при возникновении ошибки 500"
+      value:
+        code: "INTERNAL_SERVER_ERROR"
+        message: "Internal Server Error"
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+servers:
+- url: "https://api.raiffeisen.ru/treasury"

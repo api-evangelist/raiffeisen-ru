@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-tariff-plan-document-public-view-schema.json",
+  "title": "TariffPlanDocumentPublicView",
+  "description": "Информация о документе тарифного плана",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-client-tariffs-openapi.yml#/components/schemas/TariffPlanDocumentPublicView",
+  "required": [
+    "attachment",
+    "id",
+    "name",
+    "tariffPlan"
+  ],
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "Уникальный идентификатор документа",
+      "format": "int64"
+    },
+    "tariffPlan": {
+      "type": "string",
+      "description": "Код тарифного плана"
+    },
+    "name": {
+      "type": "string",
+      "description": "Отображаемое название документа"
+    },
+    "attachment": {
+      "$ref": "#/$defs/TariffPlanDocumentAttachmentPublicView"
+    }
+  },
+  "$defs": {
+    "TariffPlanDocumentAttachmentPublicView": {
+      "required": [
+        "name",
+        "size",
+        "type"
+      ],
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Имя файла"
+        },
+        "size": {
+          "type": "integer",
+          "description": "Размер файла в байтах",
+          "format": "int64"
+        },
+        "type": {
+          "type": "string",
+          "description": "Тип содержимого файла",
+          "enum": [
+            "PDF"
+          ]
+        }
+      },
+      "description": "Метаданные файла с тарифным планом"
+    }
+  }
+}

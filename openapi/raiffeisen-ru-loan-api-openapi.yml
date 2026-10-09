@@ -1,0 +1,335 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Loan API
+  version: 1.0.0
+  description: 'Operations tagged Loan across 2 of this provider''s published API definitions: raiffeisen-ru-loans-openapi.yml, raiffeisen-ru-loans-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/loans-financing
+tags:
+- description: Транш
+  name: Loan
+paths:
+  /v1/loans:
+    get:
+      operationId: getLoans
+      parameters:
+      - description: Идентификатор фасилити
+        in: query
+        name: facilityId
+        required: true
+        schema:
+          example: AAABBB12345
+          type: string
+      - description: Фильтровать неактивные кредитные линии
+        in: query
+        name: activeOnly
+        required: false
+        schema:
+          example: true
+          type: boolean
+      - description: Лимит
+        in: query
+        name: limit
+        required: false
+        schema:
+          example: 10
+          format: int32
+          type: integer
+      - description: Список клиентских номеров (список CNUM)
+        in: query
+        name: cnumList
+        required: true
+        schema:
+          example:
+          - AAABBB
+          - BBBAAA
+          items:
+            example: AAABBB
+            type: string
+          type: array
+          uniqueItems: true
+      - description: ISO код валюты
+        in: query
+        name: currency
+        required: false
+        schema:
+          example: RUB
+          type: string
+      - description: Только подходящие для досрочных погашений
+        in: query
+        name: onlyValidForEarlyRepayment
+        required: false
+        schema:
+          example: true
+          type: boolean
+      - description: Плановая дата досрочного погашения
+        in: query
+        name: plannedRepaymentDate
+        required: false
+        schema:
+          example: '2020-01-01'
+          format: date
+          type: string
+      - description: Язык
+        in: query
+        name: acceptLanguage
+        required: false
+        schema:
+          example: ru
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoanResponse'
+          description: OK
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseErrorResponse'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Метод для получения списка кредитных линий по идентификатору фасилити и статусу
+      tags:
+      - Loan
+    servers:
+    - url: https://api.raiffeisen.ru/loans-financing
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  schemas:
+    BaseLoan:
+      description: Основная информация по траншу
+      example:
+        loanId: ABCDEF
+        organizationCnum: AAABBB
+        status: ACTIVE
+        amount: 10000.12
+        currency: RUB
+        interestRate: 10.23
+        drawdownDate: '2020-01-01'
+        scheduleType: ANNUITY
+        facilityId: AAABBB12345
+        originalAmount: 1000000.12
+        maturityDate: '2030-01-01'
+        valueDate: '2020-01-02'
+        nextPrincipalDate: '2025-01-01'
+        nextPrincipalPayment: 10.23
+        nextInterestDate: '2025-01-02'
+        nextInterestPayment: 1.23
+        baseRate: FIXED
+        disabledNextInterestPayment: false
+        rolloverDate: '2025-03-01'
+        baseRateChangeIndicator: daily
+        baseRateDescription: Fixed rate
+      properties:
+        loanId:
+          description: Идентификатор транша
+          type: string
+        organizationCnum:
+          description: Клиентский номер (CNUM)
+          type: string
+        status:
+          $ref: '#/components/schemas/LoanStatus'
+        amount:
+          description: Сумма транша
+          type: number
+        currency:
+          description: Валюта транша
+          type: string
+        interestRate:
+          description: Ставка
+          type: number
+        drawdownDate:
+          description: Дата выдачи транша
+          format: date
+          type: string
+        scheduleType:
+          $ref: '#/components/schemas/ScheduleType'
+        facilityId:
+          description: Идентификатор фасилити
+          type: string
+        originalAmount:
+          description: Начальная сумма транша
+          type: number
+        maturityDate:
+          description: Дата погашения транша
+          format: date
+          type: string
+        valueDate:
+          description: Дата совершения операции (даты выдачи)
+          format: date
+          type: string
+        nextPrincipalDate:
+          description: Дата следующего погашения основного долга транша
+          format: date
+          type: string
+        nextPrincipalPayment:
+          description: Сумма следующего погашения основного долга транша
+          type: number
+        nextInterestDate:
+          description: Дата следующего погашения процентов по траншу
+          format: date
+          type: string
+        nextInterestPayment:
+          description: Сумма следующего погашения процентов по траншу
+          type: number
+        baseRate:
+          description: Код ставки
+          type: string
+        disabledNextInterestPayment:
+          description: Отображать ли сумму следующего погашения процентов по траншу
+          type: boolean
+        rolloverDate:
+          description: Дата следующей смены ставки
+          format: date
+          type: string
+        baseRateChangeIndicator:
+          description: Индикатор, определяющий периодичность смены процентной ставки
+          type: string
+        baseRateDescription:
+          description: Наименование ставки на локальном языке пользователя
+          type: string
+      type: object
+    BaseErrorResponse:
+      description: Данные об ошибке
+      example:
+        timestamp: '2000-01-23T04:56:07.000+00:00'
+        message: Error message
+      properties:
+        timestamp:
+          description: Дата и время возникновения ошибки
+          example: '2000-01-23T04:56:07Z'
+          format: date-time
+          type: string
+        message:
+          description: Сообщение об ошибке
+          example: Error message
+          type: string
+      type: object
+    LoanResponse:
+      example:
+      - loanId: ABCDEF
+        organizationCnum: AAABBB
+        status: ACTIVE
+        amount: 10000.12
+        currency: RUB
+        interestRate: 10.23
+        drawdownDate: '2020-01-01'
+        scheduleType: ANNUITY
+        facilityId: AAABBB12345
+        originalAmount: 1000000.12
+        maturityDate: '2030-01-01'
+        valueDate: '2020-01-02'
+        nextPrincipalDate: '2025-01-01'
+        nextPrincipalPayment: 10.23
+        nextInterestDate: '2025-01-02'
+        nextInterestPayment: 1.23
+        baseRate: FIXED
+        disabledNextInterestPayment: false
+        rolloverDate: '2025-03-01'
+        baseRateChangeIndicator: daily
+        baseRateDescription: Fixed rate
+        principalAmount: 10000.23
+        interestRateType: VAR
+        loanType: HT
+        loanInterestForCurrentOperday: 1.23
+      items:
+        $ref: '#/components/schemas/Loan'
+      type: array
+    ScheduleType:
+      description: Тип погашения транша
+      enum:
+      - ANNUITY
+      - FREE_SCHEDULE
+      - BY_EQUAL_PARTS
+      - BULLET_PAYMENT
+      - BY_EQUAL_PARTS_WITH_BULLET
+      - NO_SCHEDULE
+      example: ANNUITY
+      type: string
+    LoanStatus:
+      description: Статус транша
+      enum:
+      - ACTIVE
+      - INACTIVE
+      - REMOVED
+      - N_A
+      example: ACTIVE
+      type: string
+    Loan:
+      allOf:
+      - $ref: '#/components/schemas/BaseLoan'
+      - properties:
+          principalAmount:
+            description: Сумма основного долга транша
+            type: number
+          interestRateType:
+            description: Тип процентной ставки
+            type: string
+          loanType:
+            description: Тип транша
+            type: string
+          loanInterestForCurrentOperday:
+            description: Сумма начисленных процентов по траншу на момент открытия операционного дня
+            type: number
+      description: Информация по траншу
+      example:
+        loanId: ABCDEF
+        organizationCnum: AAABBB
+        status: ACTIVE
+        amount: 10000.12
+        currency: RUB
+        interestRate: 10.23
+        drawdownDate: '2020-01-01'
+        scheduleType: ANNUITY
+        facilityId: AAABBB12345
+        originalAmount: 1000000.12
+        maturityDate: '2030-01-01'
+        valueDate: '2020-01-02'
+        nextPrincipalDate: '2025-01-01'
+        nextPrincipalPayment: 10.23
+        nextInterestDate: '2025-01-02'
+        nextInterestPayment: 1.23
+        baseRate: FIXED
+        disabledNextInterestPayment: false
+        rolloverDate: '2025-03-01'
+        baseRateChangeIndicator: daily
+        baseRateDescription: Fixed rate
+        principalAmount: 10000.23
+        interestRateType: VAR
+        loanType: HT
+        loanInterestForCurrentOperday: 1.23
+      type: object
+x-refined-from:
+- raiffeisen-ru-loans-openapi.yml
+- raiffeisen-ru-loans-openapi.yml

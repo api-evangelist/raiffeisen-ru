@@ -1,0 +1,817 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-supply-list-schema.json",
+  "title": "SupplyList",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-payment-control-openapi.yml#/components/schemas/SupplyList",
+  "items": {
+    "$ref": "#/$defs/Supply"
+  },
+  "type": "array",
+  "$defs": {
+    "Action": {
+      "description": "Действие над поставками",
+      "properties": {
+        "id": {
+          "description": "Идентификатор действия",
+          "format": "uuid",
+          "type": "string"
+        },
+        "comment": {
+          "description": "Комментарий",
+          "type": "string"
+        },
+        "createdAt": {
+          "description": "Дата и время создания",
+          "pattern": "([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})",
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/ActionState"
+        },
+        "cqrsVersion": {
+          "description": "hashCode от state - состояния объекта",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "cqrsVersion",
+        "createdAt",
+        "id",
+        "state"
+      ],
+      "type": "object"
+    },
+    "ActionState": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/State"
+        },
+        {
+          "properties": {
+            "status": {
+              "$ref": "#/$defs/ActionStatus"
+            }
+          },
+          "type": "object"
+        }
+      ],
+      "description": "Состояние действия",
+      "type": "object"
+    },
+    "ActionStatus": {
+      "description": "Статус действия",
+      "enum": [
+        "CREATED"
+      ],
+      "type": "string"
+    },
+    "Buyer": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/BuyerRequisites"
+        },
+        {
+          "properties": {
+            "id": {
+              "description": "Идентификатор покупателя",
+              "format": "uuid",
+              "type": "string"
+            },
+            "createdAt": {
+              "description": "Дата и время создания",
+              "pattern": "([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})",
+              "type": "string"
+            },
+            "clients": {
+              "description": "Клиенты связанные с покупателем",
+              "items": {
+                "$ref": "#/$defs/Client"
+              },
+              "type": "array"
+            },
+            "state": {
+              "$ref": "#/$defs/BuyerState"
+            },
+            "cqrsVersion": {
+              "$ref": "#/$defs/CqrsVersion"
+            }
+          },
+          "required": [
+            "cqrsVersion",
+            "id",
+            "state"
+          ],
+          "type": "object"
+        }
+      ],
+      "description": "Покупатель"
+    },
+    "BuyerRequisites": {
+      "description": "Реквизиты покупателя",
+      "properties": {
+        "fullName": {
+          "description": "Полное наименование",
+          "type": "string"
+        },
+        "shortName": {
+          "description": "Краткое наименование",
+          "type": "string"
+        },
+        "inn": {
+          "description": "ИНН",
+          "maxLength": 12,
+          "minLength": 10,
+          "type": "string"
+        },
+        "ogrn": {
+          "description": "ОГРН",
+          "maxLength": 15,
+          "minLength": 13,
+          "type": "string"
+        },
+        "kpp": {
+          "description": "КПП",
+          "maxLength": 9,
+          "minLength": 9,
+          "type": "string"
+        }
+      },
+      "required": [
+        "fullName",
+        "inn",
+        "ogrn"
+      ],
+      "type": "object"
+    },
+    "BuyerState": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/State"
+        },
+        {
+          "properties": {
+            "status": {
+              "$ref": "#/$defs/BuyerStatus"
+            }
+          },
+          "type": "object"
+        }
+      ],
+      "description": "Состояние покупателя",
+      "type": "object"
+    },
+    "BuyerStatus": {
+      "description": "Статус покупателя",
+      "enum": [
+        "SENT_TO_CHECK",
+        "APPROVED",
+        "REJECTED"
+      ],
+      "type": "string"
+    },
+    "Client": {
+      "description": "Клиент",
+      "properties": {
+        "id": {
+          "description": "Идентификатор клиента",
+          "format": "uuid",
+          "type": "string"
+        },
+        "createdAt": {
+          "description": "Дата и время создания",
+          "pattern": "([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})",
+          "type": "string"
+        },
+        "contacts": {
+          "description": "Контакты",
+          "items": {
+            "$ref": "#/$defs/Contact"
+          },
+          "type": "array"
+        },
+        "requisites": {
+          "$ref": "#/$defs/OrganizationRequisites"
+        },
+        "state": {
+          "$ref": "#/$defs/ClientState"
+        },
+        "cqrsVersion": {
+          "description": "hashCode от state - состояния объекта",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "contacts",
+        "cqrsVersion",
+        "createdAt",
+        "id",
+        "requisites",
+        "state"
+      ],
+      "type": "object"
+    },
+    "ClientState": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/State"
+        },
+        {
+          "properties": {
+            "status": {
+              "$ref": "#/$defs/ClientStatus"
+            }
+          }
+        }
+      ],
+      "description": "Состояние клиента",
+      "type": "object"
+    },
+    "ClientStatus": {
+      "description": "Статус клиента",
+      "enum": [
+        "SENT_TO_CHECK",
+        "APPROVED",
+        "REJECTED"
+      ],
+      "type": "string"
+    },
+    "Condition": {
+      "description": "Условия обслуживания",
+      "properties": {
+        "id": {
+          "description": "Идентификатор условий",
+          "format": "uuid",
+          "type": "string"
+        },
+        "createdAt": {
+          "description": "Дата и время создания",
+          "pattern": "([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})",
+          "type": "string"
+        },
+        "contractNumber": {
+          "description": "Номер контракта",
+          "type": "string"
+        },
+        "contractDate": {
+          "description": "Дата контракта",
+          "format": "date",
+          "type": "string"
+        },
+        "client": {
+          "$ref": "#/$defs/Client"
+        },
+        "buyer": {
+          "$ref": "#/$defs/Buyer"
+        },
+        "contacts": {
+          "description": "Контакты",
+          "items": {
+            "$ref": "#/$defs/ConditionContact"
+          },
+          "type": "array"
+        },
+        "tariffs": {
+          "description": "Тарифы",
+          "items": {
+            "$ref": "#/$defs/Tariff"
+          },
+          "type": "array"
+        },
+        "wasApproved": {
+          "description": "Признак, что ранее был подписан",
+          "type": "boolean"
+        },
+        "cdcDocumentId": {
+          "description": "Идентификатор документа в сервисе подписи",
+          "format": "uuid",
+          "type": "string"
+        },
+        "comment": {
+          "description": "Комментарий",
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/ConditionState"
+        },
+        "cqrsVersion": {
+          "description": "hashCode от state - состояния объекта",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "buyer",
+        "client",
+        "contacts",
+        "cqrsVersion",
+        "createdAt",
+        "id",
+        "state",
+        "tariffs",
+        "wasApproved"
+      ],
+      "type": "object"
+    },
+    "ConditionContact": {
+      "description": "Контакты условий обслуживания",
+      "properties": {
+        "id": {
+          "description": "Идентификатор контакта",
+          "format": "uuid",
+          "type": "string"
+        },
+        "fullName": {
+          "description": "Имя",
+          "type": "string"
+        },
+        "email": {
+          "description": "email",
+          "type": "string"
+        },
+        "phoneNumber": {
+          "description": "Номер телефона",
+          "type": "string"
+        },
+        "additionalNumber": {
+          "description": "Добавочный номер",
+          "type": "string"
+        },
+        "workPosition": {
+          "description": "Должность",
+          "type": "string"
+        },
+        "comment": {
+          "description": "Комментарий",
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/ConditionContactState"
+        },
+        "cqrsVersion": {
+          "description": "hashCode от state - состояния объекта",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "cqrsVersion",
+        "email",
+        "id",
+        "state"
+      ],
+      "type": "object"
+    },
+    "ConditionContactState": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/State"
+        },
+        {
+          "properties": {
+            "status": {
+              "$ref": "#/$defs/ConditionContactStatus"
+            }
+          },
+          "type": "object"
+        }
+      ],
+      "description": "Состояние контакта условий обслуживания",
+      "type": "object"
+    },
+    "ConditionContactStatus": {
+      "description": "Статус контакта условий обслуживания",
+      "enum": [
+        "CREATED"
+      ],
+      "type": "string"
+    },
+    "ConditionState": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/State"
+        },
+        {
+          "properties": {
+            "status": {
+              "$ref": "#/$defs/ConditionStatus"
+            }
+          },
+          "type": "object"
+        }
+      ],
+      "description": "Состояние условий обслуживания",
+      "type": "object"
+    },
+    "ConditionStatus": {
+      "description": "Статус условий обслуживания",
+      "enum": [
+        "DRAFT",
+        "SENT_TO_SIGN",
+        "PARTLY_SIGN",
+        "APPROVED"
+      ],
+      "type": "string"
+    },
+    "Contact": {
+      "description": "Контакт",
+      "properties": {
+        "id": {
+          "description": "Идентификатор контакта",
+          "format": "uuid",
+          "type": "string"
+        },
+        "createdAt": {
+          "description": "Дата и время создания",
+          "pattern": "([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})",
+          "type": "string"
+        },
+        "email": {
+          "description": "Email",
+          "format": "email",
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/ContactState"
+        },
+        "cqrsVersion": {
+          "description": "hashCode от state - состояния объекта",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "cqrsVersion",
+        "createdAt",
+        "email",
+        "id",
+        "state"
+      ],
+      "type": "object"
+    },
+    "ContactState": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/State"
+        },
+        {
+          "properties": {
+            "status": {
+              "$ref": "#/$defs/ContactStatus"
+            }
+          }
+        }
+      ],
+      "description": "Состояние контакта",
+      "type": "object"
+    },
+    "ContactStatus": {
+      "description": "Статус контакта",
+      "enum": [
+        "CREATED"
+      ],
+      "type": "string"
+    },
+    "CqrsVersion": {
+      "description": "hashCode от state - состояния объекта",
+      "type": "integer"
+    },
+    "Error": {
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ErrorCodes"
+        },
+        "description": {
+          "description": "Сообщение",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "description"
+      ],
+      "type": "object"
+    },
+    "ErrorCodes": {
+      "description": "| code       | description                                                  |\n|------------|--------------------------------------------------------------|\n| ERROR_2000 | General service error                                        |\n| ERROR_2001 | Buyer not found                                              |\n| ERROR_2002 | Condition not found                                          |\n| ERROR_2003 | Duplicate supply                                             |\n| ERROR_2004 | Payment date must be after then current date                 |\n| ERROR_2005 | Main document date must be after or equal then contract date |\n| ERROR_2006 | Buyer not valid                                              |\n| ERROR_2007 | Additional document date must be after or equal then contract date                                              |\n",
+      "enum": [
+        "ERROR_2000",
+        "ERROR_2001",
+        "ERROR_2002",
+        "ERROR_2003",
+        "ERROR_2004",
+        "ERROR_2005",
+        "ERROR_2006",
+        "ERROR_2007"
+      ],
+      "type": "string"
+    },
+    "OrganizationRequisites": {
+      "description": "Реквизиты организации",
+      "properties": {
+        "fullNameRus": {
+          "description": "Полное наименование",
+          "type": "string"
+        },
+        "shortNameRus": {
+          "description": "Краткое наименование",
+          "type": "string"
+        },
+        "fullNameEn": {
+          "description": "Полное наименование на английском языке",
+          "type": "string"
+        },
+        "shortNameEn": {
+          "description": "Краткое наименование на английском языке",
+          "type": "string"
+        },
+        "inn": {
+          "description": "ИНН",
+          "maxLength": 12,
+          "minLength": 10,
+          "type": "string"
+        },
+        "ogrn": {
+          "description": "ОГРН",
+          "maxLength": 15,
+          "minLength": 13,
+          "type": "string"
+        },
+        "kpp": {
+          "description": "КПП",
+          "maxLength": 9,
+          "minLength": 9,
+          "type": "string"
+        },
+        "okved": {
+          "description": "ОКВЭД",
+          "type": "string"
+        },
+        "cnum": {
+          "description": "Клиентский номер",
+          "maxLength": 6,
+          "minLength": 6,
+          "type": "string"
+        },
+        "opf": {
+          "description": "Организационно правовая форма",
+          "type": "string"
+        },
+        "address": {
+          "description": "Адрес",
+          "type": "string"
+        }
+      },
+      "required": [
+        "address",
+        "cnum",
+        "fullNameEn",
+        "fullNameRus",
+        "inn",
+        "ogrn",
+        "okved",
+        "opf",
+        "shortNameEn",
+        "shortNameRus"
+      ],
+      "type": "object"
+    },
+    "State": {
+      "description": "Состояние объекта",
+      "properties": {
+        "statusDate": {
+          "description": "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",
+          "format": "date-time",
+          "pattern": "([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})",
+          "type": "string"
+        },
+        "errors": {
+          "description": "Ошибки",
+          "items": {
+            "$ref": "#/$defs/Error"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "statusDate"
+      ],
+      "type": "object"
+    },
+    "Supply": {
+      "description": "Поставка",
+      "properties": {
+        "id": {
+          "description": "Идентификатор поставки",
+          "format": "uuid",
+          "type": "string"
+        },
+        "condition": {
+          "$ref": "#/$defs/Condition"
+        },
+        "createdAt": {
+          "description": "Дата и время создания",
+          "pattern": "([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})",
+          "type": "string"
+        },
+        "mainDocumentNumber": {
+          "description": "Номер основного документа",
+          "type": "string"
+        },
+        "mainDocumentDate": {
+          "description": "Дата основного документа",
+          "format": "date",
+          "type": "string"
+        },
+        "additionalDocumentNumber": {
+          "description": "Номер дополнительного документа",
+          "type": "string"
+        },
+        "additionalDocumentDate": {
+          "description": "Дата дополнительного документа",
+          "format": "date",
+          "type": "string"
+        },
+        "amount": {
+          "description": "Сумма требований",
+          "type": "number"
+        },
+        "debtSum": {
+          "description": "Сумма долга",
+          "type": "number"
+        },
+        "paymentDate": {
+          "description": "Дата оплаты требований",
+          "format": "date",
+          "type": "string"
+        },
+        "controlEndDate": {
+          "description": "Дата истечения контроля",
+          "format": "date",
+          "type": "string"
+        },
+        "fullPaymentDate": {
+          "description": "Фактическая дата оплата",
+          "format": "date",
+          "type": "string"
+        },
+        "actions": {
+          "description": "Действия по поставке",
+          "items": {
+            "$ref": "#/$defs/Action"
+          },
+          "type": "array"
+        },
+        "registry": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/SupplyRegistryDigest"
+            }
+          ],
+          "description": "Дайджест реестра поставки. Возвращается только при получении поставки по идентификатору"
+        },
+        "state": {
+          "$ref": "#/$defs/SupplyState"
+        },
+        "cqrsVersion": {
+          "description": "hashCode от state - состояния объекта",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "amount",
+        "cqrsVersion",
+        "createdAt",
+        "debtSum",
+        "id",
+        "mainDocumentDate",
+        "mainDocumentNumber",
+        "state"
+      ],
+      "type": "object"
+    },
+    "SupplyRegistryDigest": {
+      "description": "Дайджест реестра поставок",
+      "properties": {
+        "id": {
+          "description": "Идентификатор реестра",
+          "format": "uuid",
+          "type": "string"
+        },
+        "digest": {
+          "description": "Контент для подписи в формате base64",
+          "type": "string"
+        }
+      },
+      "required": [
+        "digest",
+        "id"
+      ],
+      "type": "object"
+    },
+    "SupplyState": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/State"
+        },
+        {
+          "properties": {
+            "status": {
+              "$ref": "#/$defs/SupplyStatus"
+            }
+          },
+          "type": "object"
+        }
+      ],
+      "description": "Состояние поставки",
+      "type": "object"
+    },
+    "SupplyStatus": {
+      "description": "Статус поставки",
+      "enum": [
+        "SENT_TO_CHECK",
+        "REJECTED",
+        "WAITING_FOR_SIGN",
+        "WAITING_FOR_REGISTRY_SIGN",
+        "WAITING_SIGN_CHECK",
+        "PARTLY_SIGNED",
+        "ON_CONTROL",
+        "PAID",
+        "PARTLY_PAID",
+        "REMOVED_FROM_CONTROL"
+      ],
+      "type": "string"
+    },
+    "Tariff": {
+      "description": "Контакты условий обслуживания",
+      "properties": {
+        "id": {
+          "description": "Идентификатор контакта",
+          "format": "uuid",
+          "type": "string"
+        },
+        "tariffType": {
+          "$ref": "#/$defs/TariffType"
+        },
+        "paymentPeriod": {
+          "description": "Период оплаты",
+          "type": "integer"
+        },
+        "startDate": {
+          "description": "Дата начала действия",
+          "format": "date",
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/TariffState"
+        },
+        "cqrsVersion": {
+          "description": "hashCode от state - состояния объекта",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "cqrsVersion",
+        "id",
+        "paymentPeriod",
+        "startDate",
+        "state",
+        "tariffType"
+      ],
+      "type": "object"
+    },
+    "TariffState": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/State"
+        },
+        {
+          "properties": {
+            "status": {
+              "$ref": "#/$defs/TariffStatus"
+            }
+          },
+          "type": "object"
+        }
+      ],
+      "description": "Состояние тарифа условий обслуживания",
+      "type": "object"
+    },
+    "TariffStatus": {
+      "description": "Статус тарифа условий обслуживания",
+      "enum": [
+        "CREATED",
+        "APPROVED"
+      ],
+      "type": "string"
+    },
+    "TariffType": {
+      "description": "Тип тарифа",
+      "enum": [
+        "LITE",
+        "STANDARD",
+        "PRO"
+      ],
+      "type": "string"
+    }
+  }
+}

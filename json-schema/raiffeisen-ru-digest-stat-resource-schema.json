@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-digest-stat-resource-schema.json",
+  "title": "DigestStatResource",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-content-macroeconomic-reviews-openapi.yml#/components/schemas/DigestStatResource",
+  "type": "object",
+  "properties": {
+    "read": {
+      "type": "boolean",
+      "description": "Статус прочитанности"
+    },
+    "rating": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Оценка контента"
+    }
+  }
+}

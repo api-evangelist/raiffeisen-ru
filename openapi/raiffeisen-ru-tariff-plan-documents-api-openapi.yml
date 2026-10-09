@@ -1,0 +1,225 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Tariff plan documents API
+  version: 1.0.0
+  description: 'Operations tagged Tariff plan documents across 2 of this provider''s published API definitions: raiffeisen-ru-client-tariffs-openapi.yml, raiffeisen-ru-client-tariffs-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/client-tariffs
+tags:
+- name: Tariff plan documents
+  description: Операции с документами тарифных планов
+paths:
+  /v1/tariff-plan/documents/download/record/{id}:
+    get:
+      tags:
+      - Tariff plan documents
+      summary: downloadTariffPlanDocumentContent
+      description: Скачивание документа тарифного плана по его идентификатору. Возвращает файл (например, PDF) потоком с указанием MIME-типа, размера и названия файла в заголовках
+      operationId: downloadTariffPlanDocumentContent
+      parameters:
+      - name: id
+        in: path
+        description: Уникальный идентификатор документа с тарифным планом
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 1
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/StreamingResponseBody'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError4xx'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/client-tariffs
+  /v1/tariff-plan/client/{cnum}/documents/record:
+    get:
+      tags:
+      - Tariff plan documents
+      summary: getTariffPlanDocumentByClient
+      description: Возвращает информацию о документе тарифного плана по коду клиента cnum
+      operationId: getTariffPlanDocumentByClient
+      parameters:
+      - name: cnum
+        in: path
+        description: Код клиента cnum
+        required: true
+        schema:
+          type: string
+          example: Z53819
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/TariffPlanDocumentPublicView'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError4xx'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/client-tariffs
+components:
+  schemas:
+    TariffPlanDocumentPublicView:
+      required:
+      - attachment
+      - id
+      - name
+      - tariffPlan
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Уникальный идентификатор документа
+          format: int64
+          example: 1
+        tariffPlan:
+          type: string
+          description: Код тарифного плана
+          example: SPKG
+        name:
+          type: string
+          description: Отображаемое название документа
+          example: Тарифный план SPKG
+        attachment:
+          $ref: '#/components/schemas/TariffPlanDocumentAttachmentPublicView'
+      description: Информация о документе тарифного плана
+    TariffPlanDocumentAttachmentPublicView:
+      required:
+      - name
+      - size
+      - type
+      type: object
+      properties:
+        name:
+          type: string
+          description: Имя файла
+          example: SPKG_tariff_plan.pdf
+        size:
+          type: integer
+          description: Размер файла в байтах
+          format: int64
+          example: 245761
+        type:
+          type: string
+          description: Тип содержимого файла
+          example: PDF
+          enum:
+          - PDF
+      description: Метаданные файла с тарифным планом
+    ApiError4xx:
+      required:
+      - code
+      - data
+      - message
+      - status
+      - traceId
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки для обработки на клиенте
+          example: oct.not-found
+        traceId:
+          type: string
+          description: Идентификатор трассировки в распределенной системе
+          example: cf9924bed9c41f689f97728a50dbc035
+        message:
+          type: string
+          description: Сообщение об ошибке
+          example: Record not found
+        data:
+          type: object
+          description: Дополнительные данные об ошибке (например, список нарушенных полей валидации)
+          example:
+            key: value
+        status:
+          type: string
+          description: HTTP-статус, соответствующий ошибке
+          example: 400 BAD_REQUEST
+          enum:
+          - 400 BAD_REQUEST
+          - 401 UNAUTHORIZED
+          - 402 PAYMENT_REQUIRED
+          - 403 FORBIDDEN
+          - 404 NOT_FOUND
+          - 405 METHOD_NOT_ALLOWED
+          - 406 NOT_ACCEPTABLE
+          - 407 PROXY_AUTHENTICATION_REQUIRED
+          - 408 REQUEST_TIMEOUT
+          - 409 CONFLICT
+          - 410 GONE
+          - 411 LENGTH_REQUIRED
+          - 412 PRECONDITION_FAILED
+          - 413 CONTENT_TOO_LARGE
+          - 413 PAYLOAD_TOO_LARGE
+          - 414 URI_TOO_LONG
+          - 415 UNSUPPORTED_MEDIA_TYPE
+          - 416 REQUESTED_RANGE_NOT_SATISFIABLE
+          - 417 EXPECTATION_FAILED
+          - 418 I_AM_A_TEAPOT
+          - 421 MISDIRECTED_REQUEST
+          - 422 UNPROCESSABLE_CONTENT
+          - 422 UNPROCESSABLE_ENTITY
+          - 423 LOCKED
+          - 424 FAILED_DEPENDENCY
+          - 425 TOO_EARLY
+          - 426 UPGRADE_REQUIRED
+          - 428 PRECONDITION_REQUIRED
+          - 429 TOO_MANY_REQUESTS
+          - 431 REQUEST_HEADER_FIELDS_TOO_LARGE
+          - 451 UNAVAILABLE_FOR_LEGAL_REASONS
+      description: Модель ошибки API
+    StreamingResponseBody:
+      type: object
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-client-tariffs-openapi.yml
+- raiffeisen-ru-client-tariffs-openapi.yml

@@ -1,0 +1,280 @@
+---
+openapi: "3.0.3"
+info:
+  title: "Сведения о валютных операциях"
+  description: "Спецификация API, разработанная для импорта сведений о валютных оп\
+    ерациях в соответствии с международным стандартом ISO 20022."
+  version: "1.10.0"
+servers:
+- url: "https://api.raiffeisen.ru/foreign-trade"
+tags:
+- name: "currency-transaction-certificate"
+  description: "Сведения о валютных операциях"
+paths:
+  /v2/currency-transaction-certificate/iso20022/unsigned:
+    post:
+      tags:
+      - "currency-transaction-certificate"
+      summary: "Импорт неподписанных сведений о валютной операции"
+      description: "Отправка XML-файла с неподписанными сведениями о валютных опер\
+        ациях. \n\n[Документация по неподписанным сведениям о валютных операциях](https://cdn.rbo.raiffeisen.ru/fs/international_business/rbo-cc/ft-iso-adapter/unsigned-currency-transaction-certificates.pdf),\
+        \ \n\n[XSD-схема для валидации (XSD validation scheme)](https://cdn.rbo.raiffeisen.ru/fs/international_business/rbo-cc/ft-iso-adapter/auth.024.001.03.raifsig.xsd),\
+        \ \n\n[Документация API по ISO XML](https://cdn.rbo.raiffeisen.ru/fs/international_business/rbo-cc/ft-iso-adapter/auth.024.001.03.raifsig.xlsx).\n"
+      operationId: "unsignedCurrencyTransactionCertificate"
+      parameters:
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Информация с сведениями о валютной операции в XML-формате"
+        content:
+          application/xml:
+            schema:
+              type: "string"
+        required: true
+      responses:
+        "202":
+          description: "Задача импорта сведений о валютной операции успешно создан\
+            а"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/DuplicateMessage"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/currency-transaction-certificate/iso20022/signed:
+    post:
+      tags:
+      - "currency-transaction-certificate"
+      summary: "Отправка подписанных сведений о валютной операции"
+      description: "Отправка XML-файла с подписанными сведениями о валютных операц\
+        иях. \n\n [Документация по подписанным сведениям о валютных операциях](https://cdn.rbo.raiffeisen.ru/fs/international_business/rbo-cc/ft-iso-adapter/signed-currency-transaction-certificates.pdf),\n\
+        \n [XSD-схема для валидации (XSD validation scheme)](https://cdn.rbo.raiffeisen.ru/fs/international_business/rbo-cc/ft-iso-adapter/auth.024.001.03.raifsig.xsd),\
+        \ \n\n[Документация API по ISO XML](https://cdn.rbo.raiffeisen.ru/fs/international_business/rbo-cc/ft-iso-adapter/auth.024.001.03.raifsig.xlsx).\n"
+      operationId: "signedCurrencyTransactionCertificate"
+      parameters:
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Информация о сведениях о валютной операции в XML-формате"
+        content:
+          application/xml:
+            schema:
+              type: "string"
+        required: true
+      responses:
+        "202":
+          description: "Задача импорта сведений о валютной операции успешно создан\
+            а"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/DuplicateMessage"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/currency-transaction-certificate/iso20022/{msgId}/status:
+    get:
+      tags:
+      - "currency-transaction-certificate"
+      summary: "Получение статуса группового сообщения со сведениями о валютных оп\
+        ерациях"
+      description: "Получение статуса группового сообщения со сведениями о валютны\
+        х операциях.\n[XSD-схема для валидации (XSD validation scheme)](https://cdn.rbo.raiffeisen.ru/fs/international_business/rbo-cc/ft-iso-adapter/auth.027.001.04.xsd),\n\
+        [Документация API по ISO XML](https://cdn.rbo.raiffeisen.ru/fs/international_business/rbo-cc/ft-iso-adapter/auth.027.001.04.spec.xlsx).\n"
+      operationId: "currencyTransactionCertificateStatus"
+      parameters:
+      - name: "msgId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+        example: "ORCRUWIRE0170202229000030"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Статус успешно получен"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+              examples:
+                ACSC:
+                  summary: "ACSC - Все сведения исполнены"
+                  description: "ACSC"
+                  value: "<Document>...<GrpSts><Sts>ACSC</Sts></GrpSts>...</Document>"
+                PDNG:
+                  summary: "PDNG - Сведения обрабатываются"
+                  description: "PDNG"
+                  value: "<Document>...<GrpSts><Sts>PDNG</Sts></GrpSts>...</Document>"
+                RJCT:
+                  summary: "RJCT - Все сведения отклонены"
+                  description: "RJCT"
+                  value: "<Document>...<GrpSts><Sts>RJCT</Sts></GrpSts>...</Document>"
+                CANC:
+                  summary: "CANC - Все сведения отозваны"
+                  description: "CANC"
+                  value: "<Document>...<GrpSts><Sts>CANC</Sts></GrpSts>...</Document>"
+                DELT:
+                  summary: "DELT - Все сведения помечены к удалению"
+                  description: "DELT"
+                  value: "<Document>...<GrpSts><Sts>DELT</Sts></GrpSts>...</Document>"
+                ACWC:
+                  summary: "ACWC - Сведения содержат ошибки"
+                  description: "ACWC"
+                  value: "<Document>...<GrpSts><Sts>ACWC</Sts></GrpSts>...</Document>"
+                PART:
+                  summary: "PART - Часть сведений исполнена"
+                  description: "PART"
+                  value: "<Document>...<GrpSts><Sts>PART</Sts></GrpSts>...</Document>"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/DocumentNotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/currency-transaction-certificate/iso20022/{msgId}/certificate/{txId}/status:
+    get:
+      tags:
+      - "currency-transaction-certificate"
+      summary: "Получение статуса сведений о валютной операции в формате ISO20022"
+      description: "Получение статуса сведений о валютной операции.\n[XSD-схема дл\
+        я валидации (XSD validation scheme)](https://cdn.rbo.raiffeisen.ru/fs/international_business/rbo-cc/ft-iso-adapter/auth.027.001.04.xsd),\n\
+        [Документация API по ISO XML](https://cdn.rbo.raiffeisen.ru/fs/international_business/rbo-cc/ft-iso-adapter/auth.027.001.04.spec.xlsx).\n"
+      operationId: "currencyTransactionCertificatePaymentStatus"
+      parameters:
+      - name: "msgId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+        example: "ORCRUWIRE0170202229000030"
+      - name: "txId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+        example: "ORCRUWIRE0040203219700010"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Статус успешно получен"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+              examples:
+                ACWC:
+                  summary: "ACWC - Документ создан, найдены ошибки"
+                  description: "ACWC"
+                  value: "<Document> ... <PackgSts><Sts>ACWC</Sts></PackgSts> ...\
+                    \ </Document>"
+                ACCP:
+                  summary: "ACCP - Документ ждет подписи"
+                  description: "ACCP"
+                  value: "<Document>...<PackgSts><Sts>ACCP</Sts></PackgSts>...</Document>"
+                PSGN:
+                  summary: "PSGN - Документ ждет доп. подписи"
+                  description: "PSGN"
+                  value: "<Document> ... <PackgSts><Sts>PSGN</Sts></PackgSts> ...\
+                    \ </Document>"
+                FSGN:
+                  summary: "FSGN - Документ ждет отправки"
+                  description: "FSGN"
+                  value: "<Document> ... <PackgSts><Sts>FSGN</Sts></PackgSts> ...\
+                    \ </Document>"
+                ACSP:
+                  summary: "ACSP - Документ в работе у банка"
+                  description: "ACSP"
+                  value: "<Document> ... <PackgSts><Sts>ACSP</Sts></PackgSts> ...\
+                    \ </Document>"
+                ACSC:
+                  summary: "ACSC - Документ исполнен"
+                  description: "ACSC"
+                  value: "<Document> ... <PackgSts><Sts>ACSC</Sts></PackgSts> ...\
+                    \ </Document>"
+                CANC:
+                  summary: "CANC - Документ отклонен"
+                  description: "CANC"
+                  value: "<Document> ... <PackgSts><Sts>CANC</Sts></PackgSts> ...\
+                    \ </Document>"
+                RJCT:
+                  summary: "RJCT - Документ отклонен"
+                  description: "RJCT"
+                  value: "<Document> ... <PackgSts><Sts>RJCT</Sts></PackgSts> ...\
+                    \ </Document>"
+                PDNG:
+                  summary: "PDNG - Документ обрабатывается"
+                  description: "PDNG"
+                  value: "<Document> ... <PackgSts><Sts>PDNG</Sts></PackgSts> ...\
+                    \ </Document>"
+                PERR:
+                  summary: "PERR - Документ имеет ошибку ожидания"
+                  description: "PERR"
+                  value: "<Document> ... <PackgSts><Sts>PERR</Sts></PackgSts> ...\
+                    \ </Document>"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/DocumentNotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  responses:
+    ValidationError:
+      description: "Ошибки валидации"
+      content:
+        text/plain:
+          schema:
+            type: "string"
+            description: "Сообщение об ошибке"
+          example: "XML validation error"
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    Forbidden:
+      description: "Доступ запрещён"
+    DuplicateMessage:
+      description: "Дубликат сообщения"
+      content:
+        text/plain:
+          schema:
+            type: "string"
+            description: "Сообщение об ошибке"
+          example: "Duplicate message id or payment id"
+    InternalError:
+      description: "Внутренняя ошибка"
+    DocumentNotFound:
+      description: "Документ не найден"
+      content:
+        text/plain:
+          schema:
+            type: "string"
+            description: "Сообщение об ошибке"
+          example: "Message not found with id = ... for current user"
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="

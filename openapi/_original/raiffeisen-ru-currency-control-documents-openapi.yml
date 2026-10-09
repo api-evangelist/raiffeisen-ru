@@ -1,0 +1,1309 @@
+---
+openapi: "3.1.0"
+info:
+  title: "(Черновик) API документов валютного контроля"
+  version: "0.0.1"
+  description: "API для интеграции клиента с системой валютного контроля банка.\n\n\
+    Позволяет создавать и направлять в банк следующие документы:\n- Сведения о кон\
+    тракте\n"
+servers:
+- url: "https://api.raiffeisen.ru/foreign-trade"
+tags:
+- name: "Contract Details"
+  description: "Сведения о контракте"
+- name: "Files"
+  description: "Загрузка, проверка и скачивание вложений"
+paths:
+  /currency-control/contract-details:
+    post:
+      operationId: "createCurrencyContract"
+      summary: "Создание сведений о контракте"
+      description: "Создание сведений о контракте с нерезидентом для постановки на\
+        \ учет.\n\nБез подписей (поле <code>signatures</code> отсутствует или пуст\
+        ое) документ создаётся как черновик <code>DRAFT</code>. С действительными\
+        \ подписями документ направляется в банк и получает статус <code>SUBMITTED</code>.\
+        \ Ниже приведены правила формирования подписываемого текста для этой опера\
+        ции.\n\n<details>\n<summary>1. Подготовка документа и версия дайджеста</summary>\n\
+        \n<p>Дайджест здесь — каноническое текстовое представление запроса <code>CurrencyContractRequest</code>.\
+        \ Клиент и банк должны получить одинаковые байты из одних данных. Подписыв\
+        айте этот текст, а не исходный JSON.</p>\n<ol>\n<li>Подготовьте окончатель\
+        ные данные запроса по схеме <code>CurrencyContractRequest</code>. Если нуж\
+        ны вложения, предварительно загрузите их через <code>POST /currency-control/files</code>\
+        \ и включите полученные метаданные в запрос.</li>\n<li>Используйте актуаль\
+        ные правила версии <code>1</code>. Сформируйте текст по правилам ниже и по\
+        дпишите его UTF-8-байты.</li>\n<li>Добавьте подпись в <code>signatures</code>:\
+        \ идентификатор зарегистрированного в банке сертификата <code>certificateId</code>,\
+        \ версию <code>digestVersion: 1</code> и значение подписи в Base64 в поле\
+        \ <code>signature</code>. Затем отправьте запрос. Подписанные поля и поряд\
+        ок элементов массивов после подписания не меняйте.</li>\n</ol>\n<p>Массив\
+        \ <code>signatures</code> со всеми дочерними полями исключается из обхода\
+        \ документа. Версия каждой подписи всё равно включается в служебную строку\
+        \ дайджеста. Для нескольких подписей сформируйте текст по версии каждой из\
+        \ них; при одинаковой версии подписываемые байты совпадают.</p>\n<p><code>digestVersion</code>\
+        \ необязательна: при отсутствии банк выбирает актуальную версию на начало\
+        \ обработки нового документа. Клиент должен заранее подписать текст по той\
+        \ же версии. Рекомендуется явно передавать <code>1</code>, чтобы изменение\
+        \ актуальной версии между подписанием и обработкой не привело к ошибке <code>INVALID_SIGNATURE</code>.\
+        \ Банк не подбирает версию по подписи.</p>\n<p>Версия правил относится к т\
+        ипу документа и не связана с версией URL или OpenAPI. Опубликованные прави\
+        ла версии неизменны; неизвестные для этой версии поля отклоняются, а не мо\
+        лча исключаются. В ответе <code>SignatureResponse.digestVersion</code> все\
+        гда возвращается фактически использованная версия. Неизвестная или не прин\
+        имаемая версия даёт <code>400 UNSUPPORTED_DIGEST_VERSION</code> с указание\
+        м <code>signatures[N].digestVersion</code>.</p>\n\n</details>\n\n<details>\n\
+        <summary>2. Кодировка, поля и экранирование — версия 1</summary>\n\n<ol>\n\
+        <li>Используйте <strong>UTF-8 без BOM</strong>. Разделитель строк — один б\
+        айт <code>LF</code> (<code>0A</code>), а не <code>CRLF</code>. После после\
+        дней строки также должен быть один <code>LF</code>. Не добавляйте отступы\
+        \ или пустые строки между записями.</li>\n<li>Первая строка — <code>[CurrencyContractRequest]</code>,\
+        \ вторая — <code>digestVersion=1</code>. Они всегда идут первыми и не учас\
+        твуют в сортировке.</li>\n<li>Обойдите все переданные поля документа, кром\
+        е <code>signatures</code>. Скалярные значения записывайте как <code>путь=з\
+        начение</code>, вложенные объекты раскрывайте через точку: <code>resident.address.city=М\
+        осква</code>. Используйте точные camelCase-имена из схемы.</li>\n<li>Снача\
+        ла выведите все скалярные поля, включая находящиеся во вложенных объектах\
+        . Отсортируйте их по полному пути от корня: по возрастанию Unicode code point\
+        \ после нормализации NFC, с учётом регистра, без локализованной сортировки\
+        . Массивы обрабатываются отдельно после этих полей.</li>\n<li>Отсутствующи\
+        е необязательные поля не выводятся. Не подставляйте значения по умолчанию\
+        \ и поля ответа. <code>null</code> недопустим. Переданная пустая строка, е\
+        сли разрешена схемой, записывается как <code>путь=</code>; пустой объект н\
+        е содержит скалярных записей.</li>\n<li>Строковые значения берите после ра\
+        збора JSON и нормализации Unicode NFC. Сохраняйте пробелы, регистр и исход\
+        ное содержание. Не добавляйте JSON-кавычки. Экранируйте каждый исходный си\
+        мвол по таблице ниже за один проход (либо сначала обратную косую черту, за\
+        тем остальные символы).</li>\n<li>Логические значения — <code>true</code>\
+        \ и <code>false</code>. Числа — в десятичной форме без экспоненты; целое п\
+        оле <code>number</code> — без ведущих нулей. Суммы являются строками: <code>3500000.00</code>\
+        \ нельзя заменять на <code>3500000</code>. Строковые коды с ведущими нулям\
+        и также сохраняются.</li>\n</ol>\n<table>\n<thead><tr><th>Исходный символ\
+        \ в значении</th><th>Запись в дайджесте</th></tr></thead>\n<tbody>\n<tr><td>О\
+        братная косая черта <code>\\</code></td><td><code>\\\\</code></td></tr>\n\
+        <tr><td>Перевод строки LF</td><td><code>\\n</code></td></tr>\n<tr><td>Возв\
+        рат каретки CR</td><td><code>\\r</code></td></tr>\n<tr><td>Знак равенства\
+        \ <code>=</code></td><td><code>\\=</code></td></tr>\n</tbody>\n</table>\n\
+        <p>Внутри экранированного значения <code>\\n</code> — два символа (обратна\
+        я косая черта и буква <code>n</code>), а не разделитель строк. Двойная кав\
+        ычка, в отличие от JSON, не экранируется. Знак <code>=</code> между путём\
+        \ и значением тоже не экранируется.</p>\n\n</details>\n\n<details>\n<summary>3.\
+        \ Массивы и вложенные объекты</summary>\n\n<p>После скалярных полей выведи\
+        те массивы, отсортированные по полному пути от корня документа по тому же\
+        \ правилу Unicode NFC. Для этой схемы возможны <code>attachments</code>, <code>counterparties</code>,\
+        \ <code>dealSubject.cnFea</code> и <code>dealSubject.recipients</code>; ис\
+        ключённый <code>signatures</code> не выводится даже как пустая таблица.</p>\n\
+        <ol>\n<li>Начните массив строкой <code>Table=&lt;полный путь массива&gt;</code>,\
+        \ например <code>Table=dealSubject.cnFea</code>.</li>\n<li>Сохраните поряд\
+        ок элементов из JSON. Перед каждым элементом добавьте <code>Row1</code>, <code>Row2</code>\
+        \ и так далее. В каждом массиве нумерация начинается с 1; не сортируйте ст\
+        роки по идентификатору, имени или коду.</li>\n<li>Поля элемента запишите к\
+        ак <code>путь=значение</code>, отсортировав пути относительно этого элемен\
+        та. Префикс массива и номер строки не добавляются: для товара выводится <code>code=9403609009</code>,\
+        \ а не <code>dealSubject.cnFea[0].code=9403609009</code>.</li>\n<li>Для от\
+        сутствующего массива не выводите ничего. Для переданного пустого массива в\
+        ыводите только <code>Table=&lt;полный путь&gt;</code>, без <code>Row1</code>.\
+        \ Закрывающих маркеров и пустых строк после таблиц нет.</li>\n</ol>\n<p>По\
+        ля вложенных объектов, не являющиеся массивами (например, <code>dealSubject.goodsRoute</code>),\
+        \ входят в общий блок скалярных полей. Любое переданное допустимое поле, в\
+        ключая <code>clientComment</code> и <code>rightsTransfer</code>, участвует\
+        \ в канонизации по этим правилам.</p>\n\n</details>\n\n<details>\n<summary>4.\
+        \ Вложения и создание электронной подписи</summary>\n\n<p>Каждый элемент <code>attachments</code>\
+        \ содержит только <code>fileId</code>, <code>fileName</code> и <code>contentHash</code>\
+        \ из успешного ответа загрузки файла. <code>contentHash</code> — SHA-256 и\
+        сходных байтов файла в lowercase hex (64 символа), без Base64 и без преобр\
+        азования содержимого файла. До подписания сверяйте его с локально вычислен\
+        ным хэшем.</p>\n<p>В строке вложения порядок полей: <code>contentHash</code>,\
+        \ <code>fileId</code>, <code>fileName</code>. Не переносите в запрос докум\
+        ента <code>fileSize</code>, <code>contentType</code>, <code>category</code>\
+        \ или <code>uploadedAt</code>. Банк сверяет имя и хэш с сохранённым файлом\
+        ; несоответствие даёт <code>400 VALIDATION_ERROR</code>. После выдачи <code>fileId</code>\
+        \ содержимое файла неизменно.</p>\n<p>Подпишите канонический текст средств\
+        ами электронной подписи: формат CMS (PKCS#7) / CAdES, хэширование ГОСТ Р 34.11-2012\
+        \ (256 бит), алгоритм подписи ГОСТ Р 34.10-2012, ключ 256 бит, сертификат\
+        \ X.509 v3. Результат закодируйте в Base64 и передайте в <code>signatures[].signature</code>.\
+        \ Используйте <code>certificateId</code>, присвоенный банком зарегистриров\
+        анному сертификату.</p>\n<p>SHA-256 применяется к содержимому вложения. Дл\
+        я электронной подписи текста используется ГОСТ; значение <code>contentHash</code>\
+        \ не заменяет подпись документа. При несовпадении подписи с подписываемым\
+        \ текстом документ не создаётся (<code>400 INVALID_SIGNATURE</code>).</p>\n\
+        \n</details>\n\n<details>\n<summary>5. Полный пример исходного запроса</summary>\n\
+        \n<p>Пример соответствует <code>CurrencyContractRequest</code>. Значение <code>signature</code>\
+        \ — демонстрационная заглушка, а не действительная электронная подпись; ид\
+        ентификаторы файла и сертификата также иллюстративные. Для отправки исполь\
+        зуйте свои метаданные и настоящую подпись. В этом примере версия в JSON от\
+        сутствует, но для расчёта принята актуальная версия <code>1</code>; явное\
+        \ добавление <code>digestVersion: 1</code> в подпись не изменит текст ниже\
+        .</p>\n<pre><code>{\n  \"clientComment\": \"Просим связаться с контактным\
+        \ лицом, если потребуются дополнительные сведения.\",\n  \"externalId\": \"\
+        550e8400-e29b-41d4-a716-446655440000\",\n  \"date\": \"2025-06-01\",\n  \"\
+        number\": 1,\n  \"resident\": {\n    \"name\": \"ООО \\\"Ромашка\\\"\",\n\
+        \    \"inn\": \"7701234567\",\n    \"kpp\": \"770101001\",\n    \"ogrn\":\
+        \ \"1027700123456\",\n    \"ogrnDate\": \"2002-11-15\",\n    \"address\":\
+        \ {\n      \"region\": \"г. Москва\",\n      \"city\": \"Москва\",\n     \
+        \ \"street\": \"ул. Ленина\",\n      \"house\": \"10\",\n      \"block\":\
+        \ \"1\",\n      \"office\": \"100\"\n    }\n  },\n  \"contactPerson\": {\n\
+        \    \"name\": \"Иванов Иван Иванович\",\n    \"phone\": \"+7 495 123-45-67\"\
+        \n  },\n  \"contract\": {\n    \"type\": \"IMPORT\",\n    \"number\": \"123-А\
+        \",\n    \"withoutNumber\": false,\n    \"date\": \"2025-05-01\",\n    \"\
+        amount\": \"3500000.00\",\n    \"withoutAmount\": false,\n    \"currencyCode\"\
+        : \"643\",\n    \"currencyName\": \"Российский рубль\",\n    \"finishDate\"\
+        : \"2025-12-31\"\n  },\n  \"dealSubject\": {\n    \"cnFea\": [\n      {\n\
+        \        \"code\": \"9403609009\",\n        \"name\": \"Деревянная мебель\"\
+        ,\n        \"scope\": \"Обустройство жилых помещений\"\n      }\n    ],\n\
+        \    \"recipients\": [\n      {\n        \"name\": \"ООО «Мебель»\"\n    \
+        \  }\n    ],\n    \"finalDeliveryAddress\": \"Россия, г. Москва, ул. Склад\
+        ская, д. 10\",\n    \"goodsRoute\": \"Шанхай — Владивосток — Москва\"\n  },\n\
+        \  \"counterparties\": [\n    {\n      \"name\": \"ABC Corp Ltd\",\n     \
+        \ \"countryCode\": \"840\",\n      \"countryName\": \"США\",\n      \"affiliatedPerson\"\
+        : false\n    }\n  ],\n  \"registrationReason\": \"NO_CONDITIONS\",\n  \"attachments\"\
+        : [\n    {\n      \"fileId\": \"550e8400-e29b-41d4-a716-446655440010\",\n\
+        \      \"fileName\": \"contract.pdf\",\n      \"contentHash\": \"ae5555eadcc27795e54c6a268684e9457539b07d4e13763fe391d53a6605f887\"\
+        \n    }\n  ],\n  \"signatures\": [\n    {\n      \"certificateId\": \"cert-67890\"\
+        ,\n      \"signature\": \"base64encodedsignature==\"\n    }\n  ]\n}</code></pre>\n\
+        \n</details>\n\n<details>\n<summary>6. Ожидаемый канонический текст для пр\
+        имера</summary>\n\n<p>Ниже приведён полный текст без сокращений. После пос\
+        ледней строки <code>name=ООО «Мебель»</code> обязательно добавляется <code>LF</code>.\
+        \ Копируйте содержимое блока, без HTML-разметки, в UTF-8 без BOM. Экраниро\
+        вание HTML в исходном описании не является частью дайджеста.</p>\n<pre><code>[CurrencyContractRequest]\n\
+        digestVersion=1\nclientComment=Просим связаться с контактным лицом, если п\
+        отребуются дополнительные сведения.\ncontactPerson.name=Иванов Иван Иванов\
+        ич\ncontactPerson.phone=+7 495 123-45-67\ncontract.amount=3500000.00\ncontract.currencyCode=643\n\
+        contract.currencyName=Российский рубль\ncontract.date=2025-05-01\ncontract.finishDate=2025-12-31\n\
+        contract.number=123-А\ncontract.type=IMPORT\ncontract.withoutAmount=false\n\
+        contract.withoutNumber=false\ndate=2025-06-01\ndealSubject.finalDeliveryAddress=Р\
+        оссия, г. Москва, ул. Складская, д. 10\ndealSubject.goodsRoute=Шанхай — Вл\
+        адивосток — Москва\nexternalId=550e8400-e29b-41d4-a716-446655440000\nnumber=1\n\
+        registrationReason=NO_CONDITIONS\nresident.address.block=1\nresident.address.city=М\
+        осква\nresident.address.house=10\nresident.address.office=100\nresident.address.region=г\
+        . Москва\nresident.address.street=ул. Ленина\nresident.inn=7701234567\nresident.kpp=770101001\n\
+        resident.name=ООО \"Ромашка\"\nresident.ogrn=1027700123456\nresident.ogrnDate=2002-11-15\n\
+        Table=attachments\nRow1\ncontentHash=ae5555eadcc27795e54c6a268684e9457539b07d4e13763fe391d53a6605f887\n\
+        fileId=550e8400-e29b-41d4-a716-446655440010\nfileName=contract.pdf\nTable=counterparties\n\
+        Row1\naffiliatedPerson=false\ncountryCode=840\ncountryName=США\nname=ABC Corp\
+        \ Ltd\nTable=dealSubject.cnFea\nRow1\ncode=9403609009\nname=Деревянная меб\
+        ель\nscope=Обустройство жилых помещений\nTable=dealSubject.recipients\nRow1\n\
+        name=ООО «Мебель»\n</code></pre>\n\n</details>\n"
+      tags:
+      - "Contract Details"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CurrencyContractRequest"
+      responses:
+        "201":
+          description: "Контракт успешно создан"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrencyContractResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "409":
+          $ref: "#/components/responses/ConflictError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /currency-control/contract-details/{externalId}:
+    get:
+      operationId: "getCurrencyContract"
+      summary: "Получение сведений о контракте"
+      description: "Получение данных сведений о контракте с нерезидентом"
+      tags:
+      - "Contract Details"
+      parameters:
+      - $ref: "#/components/parameters/ExternalId"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Успешное получение контракта"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrencyContractResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /currency-control/contract-details/{externalId}/status:
+    get:
+      operationId: "getCurrencyContractStatus"
+      summary: "Получение статуса контракта"
+      description: "Получение статуса обработки сведений о контракте"
+      tags:
+      - "Contract Details"
+      parameters:
+      - $ref: "#/components/parameters/ExternalId"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Успешное получение статуса"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentStatusResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /currency-control/files:
+    post:
+      operationId: "uploadFile"
+      summary: "Загрузка одного файла"
+      description: "Загрузка ровно одного файла через `multipart/form-data` с необ\
+        язательной категорией.\n\n**Формат:**\n- имя и MIME-тип передаются в части\
+        \ `file`, размер определяется сервером;\n- при отсутствии `category` испол\
+        ьзуется `OTHER`;\n- повторный POST может создать новый файл;\n- повторные\
+        \ части `file`/`category`, неизвестные поля и неизвестная категория отклон\
+        яются.\n\n**Ограничения:**\n- файл должен быть непустым, размером не более\
+        \ 20971520 байт;\n- имя обязательно; разрешены расширения `pdf`, `tif`, `tiff`,\
+        \ `jpeg`, `jpg`, `gif`, `bmp`, `png` в нижнем регистре;\n- символы `< > :\
+        \ ? \\ \" * | /` в имени запрещены;\n- расширение, MIME-тип и фактический\
+        \ формат должны соответствовать друг другу.\n\n**После загрузки:**\n- отве\
+        т `201` возвращается после сохранения, валидации и антивирусной проверки;\n\
+        - ответ содержит `fileId`, `fileName`, `fileSize`, `contentType`, `category`,\
+        \ `uploadedAt`, `contentHash` и `expiresAt`;\n- SHA-256 вычисляется сервер\
+        ом по сохранённым исходным байтам файла без преобразований;\n- метаданные\
+        \ `fileId`, `fileName` и `contentHash` сразу пригодны для `attachments`; с\
+        одержимое файла после выдачи ID неизменно.\n\n> **Внимание:** `expiresAt`\
+        \ назначается политикой банка; конкретная длительность в API не фиксируетс\
+        я.\n> Срок не сокращается для выданного `fileId`. При наступлении срока не\
+        востребованный файл становится\n> недоступен и подлежит удалению. GET-запр\
+        осы срок не продлевают.\n"
+      tags:
+      - "Files"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/FileUploadRequest"
+            encoding:
+              file:
+                contentType: "application/pdf, image/tiff, image/jpeg, image/gif,\
+                  \ image/bmp, image/png"
+      responses:
+        "201":
+          description: "Файл сохранён, проверен и готов к прикреплению"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileUploadResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: "- `FORBIDDEN` — недостаточно прав;\n- `VIRUS_DETECTED` — в\
+            \ файле обнаружен вирус.\n"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "413":
+          description: "`FILE_TOO_LARGE` — размер файла превышает 20971520 байт"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "415":
+          description: "`UNSUPPORTED_FORMAT` — неподдерживаемый Content-Type запро\
+            са или формат файла"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /currency-control/files/{fileId}:
+    get:
+      operationId: "getFileMetadata"
+      summary: "Получение метаданных файла"
+      description: "Актуальные метаданные файла владельца, включая `contentHash` и\
+        \ `expiresAt`.\n\n- `expiresAt` — срок доступности невостребованного файла\
+        ; после успешного прикрепления к документу, включая черновик, поле отсутст\
+        вует;\n- GET не продлевает срок хранения;\n- после истечения срока возвращ\
+        ается `410`, если запись уже не сохранена — `404`.\n"
+      tags:
+      - "Files"
+      parameters:
+      - name: "fileId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+          format: "uuid"
+        description: "Уникальный идентификатор файла"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Актуальные метаданные файла"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileMetadata"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "410":
+          $ref: "#/components/responses/FileGoneError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /currency-control/files/{fileId}/content:
+    get:
+      operationId: "downloadFile"
+      summary: "Скачивание файла"
+      description: "Возвращает исходные байты файла напрямую.\n\n- путь стабилен д\
+        ля `fileId`, каждый запрос требует авторизации владельца;\n- файл сохраняе\
+        т доступность после проведения документа на срок хранения всех связанных д\
+        окументов;\n- чтение не продлевает `expiresAt` невостребованного файла;\n\
+        - истёкший или удалённый файл — `410`, при отсутствии записи — `404`;\n- з\
+        аблокированное содержимое — `403 FILE_BLOCKED`.\n"
+      tags:
+      - "Files"
+      parameters:
+      - name: "fileId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+          format: "uuid"
+        description: "Уникальный идентификатор файла"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Исходное бинарное содержимое файла"
+          headers:
+            Content-Disposition:
+              required: true
+              description: "Имя файла; для не-ASCII используется filename* с кодир\
+                ованием UTF-8"
+              schema:
+                type: "string"
+                example: "attachment; filename=\"files-content-sample.pdf\""
+            Content-Length:
+              description: "Размер содержимого в байтах, если заголовок присутству\
+                ет"
+              schema:
+                type: "integer"
+                minimum: 1
+                example: 1457
+          content:
+            application/pdf:
+              schema:
+                type: "string"
+                format: "binary"
+                example: "<binary file content>"
+            image/tiff:
+              schema:
+                type: "string"
+                format: "binary"
+                example: "<binary file content>"
+            image/jpeg:
+              schema:
+                type: "string"
+                format: "binary"
+                example: "<binary file content>"
+            image/gif:
+              schema:
+                type: "string"
+                format: "binary"
+                example: "<binary file content>"
+            image/bmp:
+              schema:
+                type: "string"
+                format: "binary"
+                example: "<binary file content>"
+            image/png:
+              schema:
+                type: "string"
+                format: "binary"
+                example: "<binary file content>"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "410":
+          $ref: "#/components/responses/FileGoneError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  schemas:
+    DocumentStatus:
+      type: "string"
+      enum:
+      - "DRAFT"
+      - "SUBMITTED"
+      - "NEEDS_ANSWER"
+      - "ACCEPTED"
+      - "MODIFIED"
+      - "REJECTED"
+      description: "Статус документа валютного контроля.\n\n`ACCEPTED`, `MODIFIED`\
+        \ и `REJECTED` являются финальными статусами.\n`MODIFIED` означает, что до\
+        кумент принят Банком с замечаниями и учтён с корректировками или условиями\
+        \ Банка.\n`NEEDS_ANSWER` означает, что Банк запросил у клиента дополнитель\
+        ную информацию; содержание запроса передаётся в `bankMessage` полного отве\
+        та документа.\n"
+    DocumentIdentifier:
+      type: "object"
+      required:
+      - "externalId"
+      - "date"
+      properties:
+        externalId:
+          type: "string"
+          format: "uuid"
+          description: "Уникальный идентификатор во внешней системе"
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        date:
+          type: "string"
+          format: "date"
+          description: "Дата составления документа"
+          example: "2025-06-01"
+        number:
+          type: "integer"
+          format: "int32"
+          minimum: 1
+          maximum: 9999999
+          description: "Номер документа"
+          example: 1
+    ContactPerson:
+      type: "object"
+      required:
+      - "name"
+      - "phone"
+      properties:
+        name:
+          type: "string"
+          description: "ФИО контактного лица"
+          example: "Иванов Иван Иванович"
+        phone:
+          type: "string"
+          description: "Телефон контактного лица"
+          example: "+7 495 123-45-67"
+    FileContentHash:
+      type: "string"
+      pattern: "^[0-9a-f]{64}$"
+      description: "SHA-256 исходных байтов файла без multipart-обрамления и преоб\
+        разований, в шестнадцатеричном виде, нижний регистр.\n\nАлгоритм фиксирова\
+        н: SHA-256, отдельное поле не передаётся.\n"
+      example: "ae5555eadcc27795e54c6a268684e9457539b07d4e13763fe391d53a6605f887"
+    Attachment:
+      type: "object"
+      description: "Вложение к документу; поля переносятся из ответа загрузки.\n\n\
+        - в digest входят `fileId`, `fileName` и `contentHash`; алгоритм SHA-256 ф\
+        иксирован правилами;\n- банк сверяет имя и хэш с сохранённым файлом; несов\
+        падение — `400 VALIDATION_ERROR`;\n- переданные значения не заменяются сер\
+        верными перед проверкой подписи.\n"
+      required:
+      - "fileId"
+      - "fileName"
+      - "contentHash"
+      properties:
+        fileId:
+          type: "string"
+          format: "uuid"
+          description: "ID загруженного файла"
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        fileName:
+          type: "string"
+          description: "Имя из ответа загрузки"
+          example: "files-content-sample.pdf"
+        contentHash:
+          $ref: "#/components/schemas/FileContentHash"
+      example:
+        fileId: "550e8400-e29b-41d4-a716-446655440000"
+        fileName: "files-content-sample.pdf"
+        contentHash: "ae5555eadcc27795e54c6a268684e9457539b07d4e13763fe391d53a6605f887"
+    WithAttachments:
+      type: "object"
+      properties:
+        attachments:
+          type: "array"
+          maxItems: 20
+          items:
+            $ref: "#/components/schemas/Attachment"
+          description: "Вложения: `fileId`, `fileName` и `contentHash` из успешног\
+            о ответа `POST /currency-control/files`.\n\n**Проверки сервера:**\n- п\
+            ринадлежность файлов клиенту, срок доступности и ограничения документа\
+            ;\n- недоступное вложение — `400 VALIDATION_ERROR` по `attachments[N].fileId`;\n\
+            - для справки о подтверждающих документах размер каждого вложения не д\
+            олжен превышать 10485760 байт.\n\n**Жизненный цикл:**\n- при успешном\
+            \ сохранении документа (включая `DRAFT`) связь и отмена удаления невос\
+            требованного файла фиксируются атомарно; из метаданных исчезает поле `expiresAt`;\n\
+            - использованный файл не возвращается в режим невостребованного после\
+            \ удаления ссылки;\n- хранение и доступ сохраняются до окончания срока\
+            \ хранения всех связанных документов.\n\n> **Внимание:** при гонке с о\
+            чисткой либо сохраняется документ с защищённым файлом, либо запрос отк\
+            лоняется.\n> Ошибка или откат не отменяют срок.\n"
+    DigestVersion:
+      type: "integer"
+      minimum: 1
+      description: "Версия правил формирования дайджеста для типа документа из это\
+        го запроса.\n\n- правила данной версии фиксируют канонизацию, состав допус\
+        тимых полей, исключения, порядок массивов и алгоритм хэша вложений;\n- вер\
+        сии разных типов документов продвигаются независимо: изменение состава пол\
+        ей одного типа не повышает версию остальных;\n- если не передана, backend\
+        \ выбирает актуальную версию на начало обработки нового документа и сохран\
+        яет её вместе с подписью;\n- клиент вычисляет подпись до отправки запроса\
+        \ и должен использовать актуальную публикованную версию правил, даже если\
+        \ поле не передано;\n- выбранная или переданная версия включается в подпис\
+        ываемый текст; правила и формат дайджеста описаны в документации «Подпись\
+        \ документов — формирование дайджеста»;\n- неизвестная или не принимаемая\
+        \ версия — `400 UNSUPPORTED_DIGEST_VERSION`.\n"
+      example: 1
+    Signature:
+      type: "object"
+      description: "Электронная подпись документа; версия в запросе необязательна"
+      required:
+      - "certificateId"
+      - "signature"
+      properties:
+        digestVersion:
+          $ref: "#/components/schemas/DigestVersion"
+        certificateId:
+          type: "string"
+          description: "ID сертификата ЭП"
+          example: "cert-67890"
+        signature:
+          type: "string"
+          contentEncoding: "base64"
+          description: "Значение подписи (Base64)"
+          example: "YmFzZTY0ZW5jb2RlZA=="
+      example:
+        certificateId: "cert-67890"
+        digestVersion: 1
+        signature: "YmFzZTY0ZW5jb2RlZA=="
+    SignatureResponse:
+      description: "Принятая подпись; фактически использованная версия всегда возв\
+        ращается явно"
+      allOf:
+      - $ref: "#/components/schemas/Signature"
+      - type: "object"
+        required:
+        - "digestVersion"
+      example:
+        certificateId: "cert-67890"
+        digestVersion: 1
+        signature: "YmFzZTY0ZW5jb2RlZA=="
+    WithSignatures:
+      type: "object"
+      properties:
+        signatures:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Signature"
+          description: "Электронные подписи"
+    ResidentAddress:
+      type: "object"
+      properties:
+        region:
+          type: "string"
+          description: "Субъект Российской Федерации"
+          example: "г. Москва"
+        area:
+          type: "string"
+          description: "Район в регионе"
+          example: "Центральный"
+        city:
+          type: "string"
+          description: "Город"
+          example: "Москва"
+        settlement:
+          type: "string"
+          description: "Населенный пункт"
+          example: "п. Коммунарка"
+        street:
+          type: "string"
+          description: "Улица (проспект, переулок и т.д.)"
+          example: "ул. Ленина"
+        house:
+          type: "string"
+          description: "Номер дома (владение)"
+          example: "10"
+        block:
+          type: "string"
+          description: "Корпус (строение)"
+          example: "1"
+        office:
+          type: "string"
+          description: "Офис (квартира)"
+          example: "100"
+    Resident:
+      type: "object"
+      required:
+      - "name"
+      - "inn"
+      properties:
+        name:
+          type: "string"
+          description: "Наименование резидента"
+          example: "ООО \"Ромашка\""
+        inn:
+          type: "string"
+          pattern: "^[0-9]{10,12}$"
+          description: "ИНН резидента (10 цифр для организаций, 12 для ИП)"
+          example: "7701234567"
+        address:
+          $ref: "#/components/schemas/ResidentAddress"
+        kpp:
+          type: "string"
+          pattern: "^[0-9]{9}$"
+          description: "КПП резидента"
+          example: "770101001"
+        ogrn:
+          type: "string"
+          pattern: "^[0-9]{13}$"
+          description: "ОГРН"
+          example: "1027700123456"
+        ogrnDate:
+          type: "string"
+          format: "date"
+          description: "Дата внесения в госреестр"
+          example: "2002-11-15"
+    ResidentForRegistration:
+      type: "object"
+      allOf:
+      - $ref: "#/components/schemas/Resident"
+      - type: "object"
+        required:
+        - "address"
+        - "kpp"
+    ContractType:
+      type: "string"
+      enum:
+      - "IMPORT"
+      - "EXPORT"
+      - "MIX_TRADE"
+      description: "Тип контракта"
+    CurrencyContract:
+      type: "object"
+      required:
+      - "type"
+      - "date"
+      - "currencyCode"
+      - "currencyName"
+      properties:
+        type:
+          $ref: "#/components/schemas/ContractType"
+        number:
+          type: "string"
+          description: "Номер контракта"
+          example: "123-А"
+        withoutNumber:
+          type: "boolean"
+          description: "Признак «Без номера»"
+          example: false
+        date:
+          type: "string"
+          format: "date"
+          description: "Дата контракта"
+          example: "2025-05-01"
+        amount:
+          type: "string"
+          description: "Сумма контракта в валюте контракта"
+          example: "1000000.00"
+        withoutAmount:
+          type: "boolean"
+          description: "Признак «Без суммы»"
+          example: false
+        currencyCode:
+          type: "string"
+          description: "Код валюты контракта (ОКВ, 3 символа)"
+          example: "840"
+        currencyName:
+          type: "string"
+          description: "Наименование валюты контракта"
+          example: "Доллар США"
+        finishDate:
+          type: "string"
+          format: "date"
+          description: "Дата завершения исполнения обязательств"
+          example: "2025-12-31"
+        previousPassportNumber:
+          type: "string"
+          maxLength: 22
+          description: "Ранее присвоенный уникальный номер контракта при переводе\
+            \ из другого банка"
+          example: "24010001/0001/0000/2/1"
+    RegistrationReason:
+      type: "string"
+      enum:
+      - "NO_CONDITIONS"
+      - "PRELIMINARY_AGREEMENT"
+      - "EXPORT_CONTRACT_LATER"
+      description: "Основание постановки на учет контракта"
+    RightsTransferType:
+      type: "string"
+      enum:
+      - "RESIDENT_LEGAL_OR_ENTREPRENEUR"
+      - "INDIVIDUAL"
+      - "NON_RESIDENT"
+      description: "Тип лица в переходе прав"
+      example: "RESIDENT_LEGAL_OR_ENTREPRENEUR"
+    Counterparty:
+      type: "object"
+      required:
+      - "name"
+      - "countryCode"
+      - "countryName"
+      properties:
+        name:
+          type: "string"
+          description: "Наименование нерезидента"
+          example: "ABC Corp Ltd"
+        countryCode:
+          type: "string"
+          description: "Код страны (ОКСМ, 3 цифры)"
+          example: "840"
+        countryName:
+          type: "string"
+          description: "Наименование страны"
+          example: "США"
+        affiliatedPerson:
+          type: "boolean"
+          description: "Признак аффилированного лица. true = аффилированное лицо (в\
+            \ форме \"*\")"
+          example: false
+    RightsTransfer:
+      type: "object"
+      required:
+      - "type"
+      - "name"
+      - "documentNumber"
+      - "documentDate"
+      properties:
+        type:
+          $ref: "#/components/schemas/RightsTransferType"
+        name:
+          type: "string"
+          description: "Наименование (ФИО для физического лица)"
+          example: "ООО \"Цессия\""
+        address:
+          $ref: "#/components/schemas/RightsTransferAddress"
+        ogrn:
+          type: "string"
+          pattern: "^[0-9]{13}$"
+          description: "ОГРН (для юридического лица)"
+          example: "1027700234567"
+        ogrnDate:
+          type: "string"
+          format: "date"
+          description: "Дата внесения ОГРН в госреестр"
+          example: "2003-05-20"
+        inn:
+          type: "string"
+          pattern: "^[0-9]{10,12}$"
+          description: "ИНН"
+          example: "7702345678"
+        kpp:
+          type: "string"
+          pattern: "^[0-9]{9}$"
+          description: "КПП (для юридического лица)"
+          example: "770201001"
+        documentNumber:
+          type: "string"
+          description: "Номер документа о переходе прав"
+          example: "ДС-1"
+        documentDate:
+          type: "string"
+          format: "date"
+          description: "Дата документа о переходе прав"
+          example: "2025-06-01"
+        countryCode:
+          type: "string"
+          description: "Код страны (для нерезидента, ОКСМ)"
+          example: "840"
+    RightsTransferAddress:
+      type: "object"
+      properties:
+        region:
+          type: "string"
+          description: "Субъект Российской Федерации"
+          example: "г. Москва"
+        area:
+          type: "string"
+          description: "Район в регионе"
+          example: "Центральный"
+        city:
+          type: "string"
+          description: "Город"
+          example: "Москва"
+        settlement:
+          type: "string"
+          description: "Населенный пункт"
+          example: "п. Коммунарка"
+        street:
+          type: "string"
+          description: "Улица (проспект, переулок и т.д.)"
+          example: "ул. Тверская"
+        house:
+          type: "string"
+          description: "Номер дома (владение)"
+          example: "1"
+        block:
+          type: "string"
+          description: "Корпус (строение)"
+          example: "1"
+        office:
+          type: "string"
+          description: "Офис (квартира)"
+          example: "10"
+    DocumentStatusResponse:
+      type: "object"
+      required:
+      - "status"
+      properties:
+        status:
+          $ref: "#/components/schemas/DocumentStatus"
+        statusComment:
+          type: "string"
+          description: "Комментарий к статусу"
+          example: "Документ принят в обработку"
+    DocumentRequestBase:
+      type: "object"
+      allOf:
+      - $ref: "#/components/schemas/DocumentIdentifier"
+      - $ref: "#/components/schemas/WithAttachments"
+      - $ref: "#/components/schemas/WithSignatures"
+      - type: "object"
+        required:
+        - "resident"
+        - "contactPerson"
+        properties:
+          resident:
+            $ref: "#/components/schemas/Resident"
+          contactPerson:
+            $ref: "#/components/schemas/ContactPerson"
+          clientComment:
+            type: "string"
+            maxLength: 2000
+            description: "Произвольный комментарий клиента для сотрудника банка, о\
+              брабатывающего документ."
+            example: "Просим связаться с контактным лицом, если потребуются дополн\
+              ительные сведения."
+    DocumentResponseBase:
+      type: "object"
+      required:
+      - "status"
+      properties:
+        signatures:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/SignatureResponse"
+          description: "Применённые подписи с сохранённой версией digest, включая\
+            \ выбранную backend"
+        status:
+          $ref: "#/components/schemas/DocumentStatus"
+        statusComment:
+          type: "string"
+          description: "Комментарий к статусу"
+          example: "Документ принят в обработку"
+        submittedDate:
+          type: "string"
+          format: "date"
+          description: "Дата отправки в Банк"
+          example: "2025-06-02"
+        acceptanceDate:
+          type: "string"
+          format: "date"
+          description: "Дата принятия/возврата Банком"
+          example: "2025-06-03"
+        officerName:
+          type: "string"
+          description: "Исполнитель в Банке"
+          example: "Петров Петр Петрович"
+        bankMessage:
+          type: "string"
+          description: "Сообщение Банка с причиной отказа, запросом дополнительной\
+            \ информации или замечаниями к документу"
+          example: "Предоставьте документ, подтверждающий изменение суммы контракт\
+            а"
+    CnFeaItem:
+      type: "object"
+      description: "Сведения о товаре с кодом Товарной номенклатуры внешнеэкономич\
+        еской деятельности (ТН ВЭД)."
+      required:
+      - "code"
+      properties:
+        code:
+          type: "string"
+          minLength: 8
+          maxLength: 10
+          pattern: "^[0-9]{8,10}(?![\\s\\S])"
+          description: "Код ТН ВЭД"
+          example: "9403609009"
+        name:
+          type: "string"
+          maxLength: 400
+          description: "Наименование товара"
+          example: "Деревянная мебель"
+        scope:
+          type: "string"
+          maxLength: 240
+          description: "Сфера применения товара"
+          example: "Обустройство жилых помещений"
+      example:
+        code: "9403609009"
+        name: "Деревянная мебель"
+        scope: "Обустройство жилых помещений"
+    GoodsRecipient:
+      type: "object"
+      description: "Получатель товаров."
+      required:
+      - "name"
+      properties:
+        name:
+          type: "string"
+          maxLength: 400
+          description: "Наименование получателя"
+          example: "ООО «Мебель»"
+      example:
+        name: "ООО «Мебель»"
+    DealSubject:
+      type: "object"
+      description: "Предмет сделки: товары, получатели и сведения о поставке для к\
+        омплаенс-проверки.\n"
+      properties:
+        cnFea:
+          type: "array"
+          description: "Товары с кодами ТН ВЭД (Commodity Nomenclature of Foreign\
+            \ Economic Activity). Допускается пустой массив."
+          items:
+            $ref: "#/components/schemas/CnFeaItem"
+        recipients:
+          type: "array"
+          description: "Получатели товаров. Допускается пустой массив."
+          items:
+            $ref: "#/components/schemas/GoodsRecipient"
+        finalDeliveryAddress:
+          type: "string"
+          maxLength: 200
+          description: "Адрес или место конечной поставки товаров"
+          example: "Россия, г. Москва, ул. Складская, д. 10"
+        goodsRoute:
+          type: "string"
+          maxLength: 200
+          description: "Маршрут следования товаров"
+          example: "Шанхай — Владивосток — Москва"
+      example:
+        cnFea:
+        - code: "9403609009"
+          name: "Деревянная мебель"
+          scope: "Обустройство жилых помещений"
+        recipients:
+        - name: "ООО «Мебель»"
+        finalDeliveryAddress: "Россия, г. Москва, ул. Складская, д. 10"
+        goodsRoute: "Шанхай — Владивосток — Москва"
+    CurrencyContractRequest:
+      type: "object"
+      allOf:
+      - $ref: "#/components/schemas/DocumentRequestBase"
+      - type: "object"
+        required:
+        - "contract"
+        - "counterparties"
+        - "registrationReason"
+        properties:
+          resident:
+            $ref: "#/components/schemas/ResidentForRegistration"
+          contract:
+            $ref: "#/components/schemas/CurrencyContract"
+          dealSubject:
+            $ref: "#/components/schemas/DealSubject"
+          counterparties:
+            type: "array"
+            minItems: 1
+            items:
+              $ref: "#/components/schemas/Counterparty"
+          registrationReason:
+            $ref: "#/components/schemas/RegistrationReason"
+          rightsTransfer:
+            $ref: "#/components/schemas/RightsTransfer"
+    CurrencyContractResponse:
+      type: "object"
+      allOf:
+      - $ref: "#/components/schemas/CurrencyContractRequest"
+      - $ref: "#/components/schemas/DocumentResponseBase"
+      - type: "object"
+        properties:
+          passportNumber:
+            type: "string"
+            description: "Уникальный номер контракта, присвоенный банком"
+            example: "25062025/0001/0000/2/1"
+    FileCategory:
+      type: "string"
+      description: "Категория содержимого файла.\n\n**В запросе:**\n- при отсутств\
+        ии `category` используется `OTHER`;\n- сервер проверяет значение по поддер\
+        живаемому справочнику;\n- неподдерживаемая категория — `400 VALIDATION_ERROR`\
+        \ по полю `category`;\n- пустая строка и `null` не допускаются;\n- неподде\
+        рживаемое значение не преобразуется в `OTHER` автоматически.\n\n**В ответе\
+        :**\n- набор известных значений может расширяться;\n- клиент должен приним\
+        ать и сохранять неизвестные ему значения категории.\n\n**Известные значени\
+        я:**\n- `CONTRACT` — Контракт\n- `LOAN_AGREEMENT` — Кредитный договор или\
+        \ договор займа\n- `SUPPLEMENTARY_AGREEMENT` — Дополнительное соглашение к\
+        \ контракту или кредитному договору\n- `SUPPORTING_DOCUMENT` — Обосновываю\
+        щий или подтверждающий документ (счёт, акт, накладная и т. п.)\n- `REGISTERED_DEAL_PASSPORT_REPORT`\
+        \ — Ведомость банковского контроля (ВБК)\n- `CURRENCY_TRANSACTION_INFORMATION`\
+        \ — Сведения о валютных операциях\n- `SUPPORTING_DOCUMENT_CERTIFICATE` — С\
+        правка о подтверждающих документах\n- `OTHER` — Иное или категория не опре\
+        делена\n"
+      default: "OTHER"
+      example: "CONTRACT"
+    FileUploadRequest:
+      type: "object"
+      additionalProperties: false
+      required:
+      - "file"
+      properties:
+        file:
+          type: "string"
+          format: "binary"
+          description: "Ровно один непустой файл размером не более 20971520 байт,\
+            \ не массив и не Base64.\n\n- имя передаётся в `filename` части multipart,\
+            \ MIME-тип — в `Content-Type` части;\n- ограничения размера применяютс\
+            я к фактическим байтам файла на сервере.\n"
+          example: "<binary file content>"
+        category:
+          $ref: "#/components/schemas/FileCategory"
+      example:
+        file: "<binary file content>"
+        category: "CONTRACT"
+    FileMetadata:
+      type: "object"
+      description: "Метаданные файла; срок expiresAt применяется только к невостре\
+        бованному файлу"
+      required:
+      - "fileId"
+      - "fileName"
+      - "fileSize"
+      - "contentType"
+      - "category"
+      - "uploadedAt"
+      - "contentHash"
+      properties:
+        fileId:
+          type: "string"
+          format: "uuid"
+          description: "ID сохранённого и проверенного файла"
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        fileName:
+          type: "string"
+          description: "Исходное имя файла из multipart-части file"
+          example: "files-content-sample.pdf"
+        fileSize:
+          type: "integer"
+          minimum: 1
+          maximum: 20971520
+          description: "Фактический размер содержимого в байтах"
+          example: 1457
+        contentType:
+          type: "string"
+          enum:
+          - "application/pdf"
+          - "image/tiff"
+          - "image/jpeg"
+          - "image/gif"
+          - "image/bmp"
+          - "image/png"
+          description: "MIME-тип файла"
+          example: "application/pdf"
+        category:
+          $ref: "#/components/schemas/FileCategory"
+          description: "Переданная категория или OTHER"
+        uploadedAt:
+          type: "string"
+          format: "date-time"
+          description: "Время завершения сохранения и проверок в UTC"
+          example: "2025-06-15T10:15:00Z"
+        expiresAt:
+          type: "string"
+          format: "date-time"
+          description: "Время окончания доступности невостребованного файла в UTC.\n\
+            \nПоле присутствует только для файла, который ещё не прикреплён к доку\
+            менту. После успешного прикрепления, включая черновик, поле отсутствуе\
+            т в ответе: файл хранится вместе с документами, включая их финальные с\
+            татусы.\n\n> **Примечание:** отсутствие поля не означает бессрочное хр\
+            анение.\n"
+          example: "2025-07-15T10:15:00Z"
+        contentHash:
+          $ref: "#/components/schemas/FileContentHash"
+      example:
+        fileId: "550e8400-e29b-41d4-a716-446655440000"
+        fileName: "files-content-sample.pdf"
+        fileSize: 1457
+        contentType: "application/pdf"
+        category: "CONTRACT"
+        uploadedAt: "2025-06-15T10:15:00Z"
+        expiresAt: "2025-07-15T10:15:00Z"
+        contentHash: "ae5555eadcc27795e54c6a268684e9457539b07d4e13763fe391d53a6605f887"
+    FileUploadResponse:
+      description: "При загрузке срок expiresAt всегда задан, файл ещё не использо\
+        ван в документе"
+      allOf:
+      - $ref: "#/components/schemas/FileMetadata"
+      - type: "object"
+        required:
+        - "expiresAt"
+      example:
+        fileId: "550e8400-e29b-41d4-a716-446655440000"
+        fileName: "files-content-sample.pdf"
+        fileSize: 1457
+        contentType: "application/pdf"
+        category: "CONTRACT"
+        uploadedAt: "2025-06-15T10:15:00Z"
+        contentHash: "ae5555eadcc27795e54c6a268684e9457539b07d4e13763fe391d53a6605f887"
+        expiresAt: "2025-07-15T10:15:00Z"
+    Error:
+      type: "object"
+      required:
+      - "code"
+      - "message"
+      properties:
+        code:
+          type: "string"
+          description: "Код ошибки.\n\nИзвестные значения:\n- `VALIDATION_ERROR` -\
+            \ Ошибка валидации данных запроса\n- `UNAUTHORIZED` - Токен доступа от\
+            сутствует или недействителен\n- `FORBIDDEN` - Недостаточно прав для вы\
+            полнения операции\n- `NOT_FOUND` - Запрашиваемый объект не найден\n- `CONFLICT`\
+            \ - Конфликт текущего состояния объекта\n- `UNSUPPORTED_DIGEST_VERSION`\
+            \ - Версия дайджеста неизвестна или не поддерживается для новых подпис\
+            ей\n- `INVALID_SIGNATURE` - Подпись не соответствует содержимому докум\
+            ента\n- `CERTIFICATE_EXPIRED` - Срок действия сертификата истёк\n- `CERTIFICATE_REVOKED`\
+            \ - Сертификат отозван удостоверяющим центром\n- `CERTIFICATE_NOT_FOUND`\
+            \ - Сертификат с указанным идентификатором не найден\n- `UNSUPPORTED_SIGNATURE_FORMAT`\
+            \ - Формат подписи не поддерживается\n- `INVALID_CERTIFICATE_ALGORITHM`\
+            \ - Алгоритм сертификата не соответствует требованиям\n- `FILE_TOO_LARGE`\
+            \ - Размер файла превышает максимально допустимый\n- `UNSUPPORTED_FORMAT`\
+            \ - Формат файла не поддерживается\n- `INVALID_FILE_NAME` - Имя файла\
+            \ содержит недопустимые символы\n- `VIRUS_DETECTED` - В файле обнаруже\
+            н вирус\n- `STORAGE_ERROR` - Ошибка файлового хранилища\n- `FILE_NOT_FOUND`\
+            \ - Файл с указанным идентификатором не найден\n- `ACCESS_DENIED` - До\
+            ступ к файлу запрещён\n- `FILE_BLOCKED` - Файл заблокирован\n- `FILE_EXPIRED`\
+            \ - Истёк срок доступности невостребованного файла\n- `FILE_DELETED` -\
+            \ Файл удалён по истечении срока хранения\n- `INTERNAL_ERROR` - Внутре\
+            нняя ошибка сервера\n\nСписок не является закрытым и может расширяться\
+            \ без изменения версии API.\n"
+          example: "VALIDATION_ERROR"
+        message:
+          type: "string"
+          description: "Описание ошибки"
+          example: "Ошибка валидации данных"
+        details:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              field:
+                type: "string"
+                description: "Имя поля"
+                example: "externalId"
+              message:
+                type: "string"
+                description: "Описание ошибки поля"
+                example: "Некорректный формат UUID"
+          description: "Детали по полям"
+  responses:
+    FileGoneError:
+      description: "Истёк срок доступности невостребованного файла (FILE_EXPIRED)\
+        \ или файл удалён (FILE_DELETED)"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            code: "FILE_EXPIRED"
+            message: "Истёк срок доступности невостребованного файла"
+    NotFoundError:
+      description: "Запрашиваемый объект не найден"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    InternalServerError:
+      description: "Внутренняя ошибка сервера"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    ValidationError:
+      description: "Ошибка валидации данных"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    UnauthorizedError:
+      description: "Токен доступа отсутствует или недействителен"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    ForbiddenError:
+      description: "Недостаточно прав для выполнения операции"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    ConflictError:
+      description: "Конфликт с текущим состоянием ресурса"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+  parameters:
+    ExternalId:
+      name: "externalId"
+      in: "path"
+      required: true
+      schema:
+        type: "string"
+        format: "uuid"
+      description: "Уникальный идентификатор во внешней системе"
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="

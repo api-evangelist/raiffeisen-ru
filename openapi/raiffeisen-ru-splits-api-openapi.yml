@@ -1,0 +1,3303 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Splits API
+  x-refined-note:
+  - x-description-i18n differs across the merged source definitions and was not carried
+  x-logo:
+    url: images/raifflogo.png
+    backgroundColor: '#FFFFFF'
+    altText: Raiff logo
+  version: '1.0'
+  description: 'Operations tagged splits across 4 of this provider''s published API definitions: raiffeisen-ru-raif-pay-sbp-b2b-openapi.json, raiffeisen-ru-raif-pay-sbp-openapi.json, raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml, raiffeisen-ru-raif-pay-sbp-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://pay-test.raif.ru
+  description: Sandbox
+- url: https://pay.raif.ru
+  description: Production
+- url: https://pay.raif.ru/api
+  description: Production
+- url: https://pay-test.raif.ru/api
+  description: Sandbox
+tags:
+- name: Splits
+  x-displayName: Разделение платежа (Сплитование)
+  description: Этот раздел позволяет вам удобно управлять распределением денег при получении денежных средств через СБП B2B.
+paths:
+  /api/v1/b2b/split-orders:
+    post:
+      tags:
+      - Splits
+      summary: Создание заказа со сплитованием
+      operationId: createPaymentLinkSplits
+      security:
+      - BearerAuth: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderSplitsRequestDto'
+            examples:
+              splits_count_of_minutes:
+                $ref: '#/components/examples/CreateOrderSplitsRequestDtoCountOfMinutes'
+              splits_without_restriction:
+                $ref: '#/components/examples/CreateOrderSplitsRequestDtoWithoutRestriction'
+              splits_with_restriction:
+                $ref: '#/components/examples/CreateOrderSplitsRequestDtoWithRestriction'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateOrderSplitsResponseDto'
+              examples:
+                splits_without_restrictions:
+                  $ref: '#/components/examples/CreateOrderSplitsResponseDtoWithOutRestrictions'
+                splits_with_restrictions:
+                  $ref: '#/components/examples/CreateOrderSplitsResponseDtoWithRestrictions'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+  /api/b2b/sbp/v1/qrs/{qrId}/image:
+    parameters:
+    - $ref: '#/components/parameters/QrId'
+    get:
+      tags:
+      - Splits
+      summary: Генерация изображения платёжной ссылки
+      operationId: getQrImage
+      parameters:
+      - $ref: '#/components/parameters/QrId'
+      - $ref: '#/components/parameters/Format'
+      - $ref: '#/components/parameters/WithLogo'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/xml:
+              schema:
+                type: string
+                format: byte
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+  /api/v1/b2b/split-orders/{id}:
+    get:
+      tags:
+      - Splits
+      summary: Получение данных заказа со сплитованием
+      operationId: getOrderSplitsPaymentLinkInfo
+      security:
+      - BearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/OrderIdWithoutGenerating'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderInfoSplitsResponseDto'
+              examples:
+                splits_without_restrictions:
+                  $ref: '#/components/examples/OrderInfoSplitsResponseDtoWithoutRestrictions'
+                splits_active:
+                  $ref: '#/components/examples/OrderInfoSplitsResponseDtoActive'
+                splits_paid:
+                  $ref: '#/components/examples/OrderInfoSplitsResponseDtoPaid'
+                splits_expired:
+                  $ref: '#/components/examples/OrderInfoSplitsResponseDtoExpired'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      tags:
+      - Splits
+      summary: Отмена заказа со сплитованием
+      operationId: deleteOrderSplits
+      security:
+      - BearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/OrderIdWithoutGenerating'
+      description: Метод позволяет отменить неоплаченный заказ со сплитованием. После отмены оплата заказа с текущим id будет недоступна. Но вы можете переиспользовать этот id для создания нового заказа
+      responses:
+        '204':
+          description: No Content
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+  /payments/v2/merchants/{publicId}/orders:
+    parameters:
+    - $ref: '#/components/parameters/publicId'
+    post:
+      summary: Запрос создания заказа
+      operationId: createOrder
+      responses:
+        '200':
+          $ref: '#/components/responses/CreateOrderResponse'
+        '400':
+          $ref: '#/components/responses/GeneralErrorResponse'
+      requestBody:
+        $ref: '#/components/requestBodies/CreateOrderRequest'
+      tags:
+      - Splits
+      description: 'Метод позволяет создать заказ с привязкой к существующему кассовой ссылке `QRVariable` или с созданием нового динамического QR-кода `QRDynamic`.
+
+        Также с помощью данного метода вы можете сгенерировать QR код для оплаты с подпиской.'
+      parameters: []
+      security:
+      - secretKey: []
+    servers:
+    - url: https://pay.raif.ru/api
+      description: Production
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+  /payments/v2/merchants/{publicId}/orders/{orderId}:
+    parameters:
+    - $ref: '#/components/parameters/publicId'
+    - $ref: '#/components/parameters/orderId'
+    put:
+      summary: Создание и изменение заказа
+      tags:
+      - Splits
+      responses:
+        '200':
+          $ref: '#/components/responses/CreateOrderResponse'
+        '400':
+          $ref: '#/components/responses/GeneralErrorResponse'
+      requestBody:
+        $ref: '#/components/requestBodies/ChangeOrderRequest'
+      operationId: putOrder
+      security:
+      - secretKey: []
+      description: Метод позволяет создать или изменить заказ.
+    get:
+      summary: Получения статуса заказа
+      tags:
+      - Splits
+      responses:
+        '200':
+          $ref: '#/components/responses/CreateOrderResponse'
+        '400':
+          $ref: '#/components/responses/GeneralErrorResponse'
+      operationId: getOrder
+      security:
+      - secretKey: []
+      description: Метод позволяет получить статус заказа по его номеру. Опрос статуса заказа рекомендуется проводить раз в 2 секунды. При работе в штатном режиме заказ переводится в статус оплаченного в течение 15 секунд с момента оплаты.
+    delete:
+      summary: Отмена заказа
+      operationId: cancelOrder
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/GeneralErrorResponse'
+        '404':
+          $ref: '#/components/responses/GeneralErrorResponse'
+      tags:
+      - Splits
+      description: Данный метод позволяет отменить заказ, если он не был оплачен. После отмены заказ будет недоступен для оплаты.
+      security:
+      - secretKey: []
+    servers:
+    - url: https://pay.raif.ru/api
+      description: Production
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+  /payments/v2/merchants/{publicId}/orders/{orderId}/refunds:
+    parameters:
+    - $ref: '#/components/parameters/parameters-orderId'
+    - $ref: '#/components/parameters/parameters-publicId'
+    post:
+      summary: Оформление возврата
+      operationId: createRefund
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundWithSplits'
+        '400':
+          $ref: '#/components/responses/Error400Response'
+      tags:
+      - Splits
+      requestBody:
+        $ref: '#/components/requestBodies/CreateRefundRequestV2'
+      description: 'Метод позволяет выполнить возврат по заказу.
+
+        Метод также позволяет провести возврат плательщику в другой банк. Поддерживаются как полный, так и частичный возвраты.'
+      parameters: []
+      security:
+      - secretKey: []
+    servers:
+    - url: https://pay.raif.ru/api
+      description: Production
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+  /payments/v2/merchants/{publicId}/orders/{orderId}/refunds/{refundId}:
+    parameters:
+    - $ref: '#/components/parameters/parameters-publicId'
+    - $ref: '#/components/parameters/parameters-orderId'
+    - schema:
+        type: string
+      name: refundId
+      in: path
+      required: true
+      description: Идентификатор возврата
+    get:
+      summary: Получение статуса возврата по заказу
+      tags:
+      - Splits
+      responses:
+        '200':
+          $ref: '#/components/responses/RefundStatusResponseV2'
+        '404':
+          $ref: '#/components/responses/Error404Response'
+      operationId: getRefund
+      description: Метод позволяет получить статус по возврату.
+      parameters: []
+      security:
+      - secretKey: []
+    servers:
+    - url: https://pay.raif.ru/api
+      description: Production
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+  /payments/v2/banks:
+    parameters: []
+    get:
+      summary: Получение списка банков для возвратов
+      tags:
+      - Splits
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankListResponse'
+              examples:
+                Payload:
+                  value:
+                  - alias: RAIFFEISEN
+                    name: Райффайзенбанк
+                  - alias: TINKOFF
+                    name: Тинькофф
+                  - alias: VTB
+                    name: ВТБ
+      operationId: getBanksForRefunds
+      description: Получение списка банков, принимающих возвраты по СБП.
+      parameters: []
+      x-summary-i18n:
+        eng: Get list of banks
+      x-description-i18n:
+        eng: Get a list of banks accepting SBP payments
+      security:
+      - secretKey: []
+    servers:
+    - url: https://pay.raif.ru/api
+      description: Production
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+webhooks:
+  IncomingPayment:
+    post:
+      summary: Уведомление о входящем платеже заказа
+      operationId: sendIncomingPaymentCallback
+      tags:
+      - Splits
+      responses:
+        '200':
+          description: Вернуть статус 200, чтобы указать, что данные были успешно получены
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncomingPaymentCallbackDto'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+components:
+  examples:
+    OrderInfoSplitsResponseDtoActive:
+      summary: Активный заказ со сплитованием
+      description: Ответ на запрос статуса, когда платежа по заказу еще не было — **status = ACTIVE**
+      value:
+        id: 281000670LSS7DN18SJQDNP4B05KLJL2
+        amount: 8573.79
+        totalTaxAmount: 2.41
+        creationDate: '2024-06-12T19:35:55+03:00'
+        expirationDate: '2024-08-12T20:35:55+03:00'
+        status: ACTIVE
+        receiverPaymentPurpose: Какое-то назначение платежа
+        senderPaymentPurpose: Какое-то назначение платежа
+        redirectUrl: https://exampletsp.io/qwertyui
+        splits:
+        - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
+          amount: 1000
+        - accountId: asdrfw1a-asdd-qwx2-1a3s-qwezc13sft91
+          amount: 7573.79
+        extra:
+          additionalInfo: testing operation
+        restrictions:
+          senderInn: '123456789012'
+        qr:
+          id: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+          name: QR на оплату 25.09.2024 в 15:12
+          type: DYNAMIC
+          payload: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+          imageUrl: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
+    CreateOrderSplitsRequestDtoWithoutRestriction:
+      summary: Заказ cо сплитованием без ограничений
+      description: Запрос на создание заказа без указания ограничений **Отсутствует блок restrictions**
+      value:
+        id: 281000670LSS7DN18SJQDNP4B05KLJL2
+        name: QR на оплату 25.09.2024 в 15:12
+        amount: 7.45
+        totalTaxAmount: 1.25
+        expirationDate: '2024-08-12T20:35:55+03:00'
+        receiverPaymentPurpose: Какое-то назначение платежа
+        senderPaymentPurpose: Какое-то назначение платежа
+        redirectUrl: https://example.ru
+        splits:
+        - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
+          amount: 1
+        - accountId: asdrfw1a-asdd-qwx2-1a3s-qwezc13sft91
+          amount: 6.45
+        extra:
+          additionalInfo: testing operation
+    CreateOrderSplitsResponseDtoWithOutRestrictions:
+      summary: Заказ cо сплитованием без ограничений
+      description: Ответ на создание заказа без указания ограничений **Отсутствует блок restrictions**
+      value:
+        id: 281000670LSS7DN18SJQDNP4B05KLJL2
+        account: '40817810601002630000'
+        amount: 8573.79
+        totalTaxAmount: 2.41
+        creationDate: '2024-06-12T19:35:55+03:00'
+        expirationDate: '2024-08-12T20:35:55+03:00'
+        status: ACTIVE
+        receiverPaymentPurpose: Какое-то назначение платежа
+        senderPaymentPurpose: Какое-то назначение платежа
+        redirectUrl: https://exampletsp.io/qwertyui
+        splits:
+        - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
+          amount: 1
+        - accountId: asdrfw1a-asdd-qwx2-1a3s-qwezc13sft91
+          amount: 6.45
+        extra:
+          additionalInfo: testing operation
+        qr:
+          id: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+          name: QR на оплату 25.09.2024 в 15:12
+          type: DYNAMIC
+          payload: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+          imageUrl: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
+    OrderInfoSplitsResponseDtoExpired:
+      summary: Просроченный заказ со сплитованием
+      description: Ответ на запрос статуса, когда время жизни заказа истекло — **status = EXPIRED**
+      value:
+        id: 281000670LSS7DN18SJQDNP4B05KLJL2
+        amount: 8573.79
+        totalTaxAmount: 2.41
+        creationDate: '2024-06-12T19:35:55+03:00'
+        expirationDate: '2024-08-12T20:35:55+03:00'
+        status: EXPIRED
+        receiverPaymentPurpose: Какое-то назначение платежа
+        senderPaymentPurpose: Какое-то назначение платежа
+        redirectUrl: https://exampletsp.io/qwertyui
+        splits:
+        - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
+          amount: 1000
+        - accountId: asdrfw1a-asdd-qwx2-1a3s-qwezc13sft91
+          amount: 7573.79
+        extra:
+          additionalInfo: testing operation
+        restrictions:
+          senderInn: '123456789012'
+        qr:
+          id: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+          name: QR на оплату 25.09.2024 в 15:12
+          type: DYNAMIC
+          payload: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+          imageUrl: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
+    CreateOrderSplitsRequestDtoWithRestriction:
+      summary: Заказ cо сплитованием c ограничениями
+      description: Запрос на создание заказа с указанием ограничений **Присутствует блок restrictions**
+      value:
+        id: 281000670LSS7DN18SJQDNP4B05KLJL2
+        name: QR на оплату 25.09.2024 в 15:12
+        amount: 7.45
+        totalTaxAmount: 1.25
+        expirationDate: '2024-08-12T20:35:55+03:00'
+        receiverPaymentPurpose: Какое-то назначение платежа
+        senderPaymentPurpose: Какое-то назначение платежа
+        redirectUrl: https://example.ru
+        splits:
+        - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
+          amount: 1
+        - accountId: asdrfw1a-asdd-qwx2-1a3s-qwezc13sft91
+          amount: 6.45
+        extra:
+          additionalInfo: testing operation
+        restrictions:
+          senderInn: '1234567890'
+    CreateOrderSplitsRequestDtoCountOfMinutes:
+      summary: Заказ cо сплитованием c указанием количества минут жизни
+      description: Запрос на создание заказа c указанием количества минут жизни
+      value:
+        id: 281000670LSS7DN18SJQDNP4B05KLJL2
+        name: QR на оплату 25.09.2024 в 15:12
+        amount: 7.45
+        totalTaxAmount: 1.25
+        expirationDate: +60m
+        receiverPaymentPurpose: Какое-то назначение платежа
+        senderPaymentPurpose: Какое-то назначение платежа
+        redirectUrl: https://example.ru
+        splits:
+        - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
+          amount: 1
+        - accountId: asdrfw1a-asdd-qwx2-1a3s-qwezc13sft91
+          amount: 6.45
+        extra:
+          additionalInfo: testing operation
+    OrderInfoSplitsResponseDtoPaid:
+      summary: Успешно оплаченный заказ со сплитованием
+      description: Ответ на запрос статуса, когда заказ был оплачен — **status = PAID**
+      value:
+        id: 281000670LSS7DN18SJQDNP4B05KLJL2
+        amount: 8573.79
+        totalTaxAmount: 2.41
+        creationDate: '2024-06-12T19:35:55+03:00'
+        expirationDate: '2024-08-12T20:35:55+03:00'
+        status: PAID
+        receiverPaymentPurpose: Какое-то назначение платежа
+        senderPaymentPurpose: Какое-то назначение платежа
+        redirectUrl: https://exampletsp.io/qwertyui
+        splits:
+        - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
+          amount: 1000
+        - accountId: asdrfw1a-asdd-qwx2-1a3s-qwezc13sft91
+          amount: 7573.79
+        extra:
+          additionalInfo: testing operation
+        restrictions:
+          senderInn: '123456789012'
+        qr:
+          id: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+          name: QR на оплату 25.09.2024 в 15:12
+          type: DYNAMIC
+          payload: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+          imageUrl: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
+        payment:
+          id: '123456789012345678'
+          sbpTransactionId: PMSHT0BYVSYE7LDXMCXJSGIUHJLQWZXY
+          status:
+            value: SUCCESS
+            date: '2024-06-12T19:36:55+03:00'
+          amount: 8573.79
+          totalTaxAmount: 2.41
+          sender:
+            legalName: ООО Ромашка
+            inn: '123456789012'
+            account: '40817810601002630012'
+            bank:
+              id: '100000000007'
+              name: Райффайзенбанк
+              bic: '44525700'
+    OrderInfoSplitsResponseDtoWithoutRestrictions:
+      summary: Активный заказ со сплитованием без ограничений
+      description: Ответ на создание заказа без указаниям ограничений **Отсутствует блок restrictions**
+      value:
+        id: 281000670LSS7DN18SJQDNP4B05KLJL2
+        amount: 8573.79
+        totalTaxAmount: 2.41
+        creationDate: '2024-06-12T19:35:55+03:00'
+        expirationDate: '2024-08-12T20:35:55+03:00'
+        status: ACTIVE
+        receiverPaymentPurpose: Какое-то назначение платежа
+        senderPaymentPurpose: Какое-то назначение платежа
+        redirectUrl: https://exampletsp.io/qwertyui
+        splits:
+        - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
+          amount: 1000
+        - accountId: asdrfw1a-asdd-qwx2-1a3s-qwezc13sft91
+          amount: 7573.79
+        extra:
+          additionalInfo: testing operation
+        qr:
+          id: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+          name: QR на оплату 25.09.2024 в 15:12
+          type: DYNAMIC
+          payload: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+          imageUrl: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
+    CreateOrderSplitsResponseDtoWithRestrictions:
+      summary: Заказ cо сплитованием с ограничениями
+      description: Ответ на создание заказа с указанием ограничений **Присутствует блок restrictions**
+      value:
+        id: 281000670LSS7DN18SJQDNP4B05KLJL2
+        account: '40817810601002630000'
+        amount: 8573.79
+        totalTaxAmount: 2.41
+        creationDate: '2024-06-12T19:35:55+03:00'
+        expirationDate: '2024-08-12T20:35:55+03:00'
+        status: ACTIVE
+        receiverPaymentPurpose: Какое-то назначение платежа
+        senderPaymentPurpose: Какое-то назначение платежа
+        redirectUrl: https://exampletsp.io/qwertyui
+        splits:
+        - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
+          amount: 1
+        - accountId: asdrfw1a-asdd-qwx2-1a3s-qwezc13sft91
+          amount: 6.45
+        extra:
+          additionalInfo: testing operation
+        restrictions:
+          senderInn: '1234567890'
+        qr:
+          id: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+          name: QR на оплату 25.09.2024 в 15:12
+          type: DYNAMIC
+          payload: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+          imageUrl: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
+  schemas:
+    ImageUrl:
+      type: string
+      description: URL с изображением зарегистрированного QR-кода в СБП
+      example: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
+    Qr:
+      type: object
+      description: Информация о платёжной ссылке по заказу
+      required:
+      - id
+      - name
+      - type
+      - payload
+      - imageUrl
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/PaymentLinkId'
+        name:
+          allOf:
+          - $ref: '#/components/schemas/PaymentLinkName'
+        type:
+          allOf:
+          - $ref: '#/components/schemas/QrType'
+        payload:
+          allOf:
+          - $ref: '#/components/schemas/Payload'
+        imageUrl:
+          allOf:
+          - $ref: '#/components/schemas/ImageUrl'
+    PaymentSender:
+      type: object
+      description: Информация о плательщике
+      required:
+      - legalName
+      - inn
+      - account
+      - bank
+      properties:
+        legalName:
+          $ref: '#/components/schemas/LegalName'
+        inn:
+          $ref: '#/components/schemas/Inn'
+        account:
+          allOf:
+          - $ref: '#/components/schemas/Account'
+          description: Банковский счёт ЮЛ или ИП, с которого списаны средства
+        bank:
+          allOf:
+          - $ref: '#/components/schemas/BankInfo'
+          description: Информация о банке плательщика
+    QrType:
+      type: string
+      enum:
+      - DYNAMIC
+      - STATIC
+      description: Тип платёжной ссылки
+    Restrictions:
+      type: object
+      description: Ограничения к заказу
+      properties:
+        senderInn:
+          type: string
+          minLength: 10
+          maxLength: 12
+          description: ИНН ЮЛ или ИП, которое может оплатить заказ
+          example: '123456789012'
+    Status:
+      type: string
+      description: 'Статус заказа:
+
+        <br>• ACTIVE – активен, можно проводить оплату
+
+        <br>• EXPIRED - срок действия истёк, нельзя провести оплату
+
+        <br>• PAID - оплачен, есть успешный платеж, новые платежи сделать не получится
+
+        <br>• CANCELLED - отменен, нельзя провести оплату
+
+        '
+      enum:
+      - ACTIVE
+      - EXPIRED
+      - PAID
+      - CANCELLED
+      example: ACTIVE
+    ExpirationDate:
+      type: string
+      format: date-time
+      description: Срок жизни
+      example: '2024-08-12T20:35:55+03:00'
+    OrderIdNoRestrictions:
+      type: string
+      description: Идентификатор заказа. Если не передан будет сформирован Банком.
+      maxLength: 35
+      pattern: ^[A-z0-9-_.]+$
+      example: order-63853012
+    PaymentLinkName:
+      type: string
+      description: Наименование платёжной ссылки
+      example: QR на оплату 14.10.2024 в 15:12
+    BankName:
+      type: string
+      description: Наименование банка
+      example: Райффайзенбанк
+    OrderInfoSplitsResponseDto:
+      type: object
+      title: Контракт информации о заказе со сплитованием
+      required:
+      - id
+      - amount
+      - creationDate
+      - expirationDate
+      - status
+      - senderPaymentPurpose
+      - splits
+      - qr
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/OrderIdNoRestrictions'
+        amount:
+          allOf:
+          - $ref: '#/components/schemas/Amount'
+        totalTaxAmount:
+          allOf:
+          - $ref: '#/components/schemas/TotalTaxAmount'
+        creationDate:
+          allOf:
+          - $ref: '#/components/schemas/CreationDate'
+        expirationDate:
+          allOf:
+          - $ref: '#/components/schemas/ExpirationDate'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status'
+        receiverPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/ReceiverPaymentPurpose'
+        senderPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/SenderPaymentPurpose'
+        redirectUrl:
+          allOf:
+          - $ref: '#/components/schemas/RedirectUrl'
+        splits:
+          allOf:
+          - $ref: '#/components/schemas/Splits'
+        extra:
+          allOf:
+          - $ref: '#/components/schemas/Extra'
+        restrictions:
+          allOf:
+          - $ref: '#/components/schemas/Restrictions'
+        qr:
+          allOf:
+          - $ref: '#/components/schemas/Qr'
+        payment:
+          allOf:
+          - $ref: '#/components/schemas/Payment'
+    TotalTaxAmount:
+      type: number
+      format: float
+      maximum: 1000000
+      description: Сумма НДС в рублях
+      example: 2.41
+    ReceiverPaymentPurpose:
+      type: string
+      maxLength: 150
+      description: 'Назначение платежа, которое увидит получатель в выписке в поле «Основание операции» вместе с инн плательщика.
+
+        <br>Например, "ИНН плательщика: 231150869432. Какое-то ваше назначение"
+
+        <br>Если поле не заполнено, то поле «Основание операции» заполнится по шаблону, в который будет передан идентификатор заказа, наименование плательщика и инн плательщика.
+
+        <br>Например, «Перевод по идентификатору nM43NFfqiaAh04QdSmCoI5u4S2YrWU2ikHJ. Плательщик: ООО Ромашка, ИНН: 231150869432. Осуществлен через СБП B2В».
+
+        <br>Может содержать:
+
+        <br>• Символы латиницы (A–Z и a–z)
+
+        <br>• Символы кириллицы (А-Я и а-я)
+
+        <br>• Цифры 0-9
+
+        <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
+
+        '
+      example: Какое-то назначение платежа
+    OrderId:
+      type: string
+      description: Идентификатор заказа, переданный клиентом или сгенерированный банком
+      maxLength: 35
+      example: '100001'
+    PaymentId:
+      type: string
+      description: Идентификатор платежа
+      example: '123456789012345678'
+    LegalName:
+      type: string
+      maxLength: 512
+      description: Сокращённое наименование ЮЛ или ИП Плательщика
+      example: ООО Ромашка
+    Extra:
+      type: object
+      description: Дополнительные поля
+      additionalProperties:
+        type: string
+      example:
+        additionalInfo: testing operation
+    PaymentStatus:
+      type: object
+      description: Статус входящего платежа
+      required:
+      - value
+      - date
+      properties:
+        value:
+          type: string
+          description: Статус платежа, возможен только "SUCCESS"
+          enum:
+          - SUCCESS
+          example: SUCCESS
+        date:
+          type: string
+          format: date-time
+          description: Время проведения платежа
+          example: '2024-06-12T19:36:55+03:00'
+    Splits:
+      type: array
+      description: Блок данных для работы со сплитованием
+      items:
+        type: object
+        properties:
+          accountId:
+            type: string
+            description: Идентификтор реквизитов
+            example: ea6f870f-debd-48cc-a83f-b87e7cee8582
+          amount:
+            type: number
+            format: float
+            example: 10.23
+            description: Сумма зачисления
+            exclusiveMinimum: 0
+    CreateOrderSplitsResponseDto:
+      type: object
+      title: Контракт ответа создания заказа со сплитованием
+      required:
+      - id
+      - amount
+      - creationDate
+      - expirationDate
+      - status
+      - senderPaymentPurpose
+      - splits
+      - qr
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/OrderId'
+        amount:
+          allOf:
+          - $ref: '#/components/schemas/Amount'
+        totalTaxAmount:
+          allOf:
+          - $ref: '#/components/schemas/TotalTaxAmount'
+        creationDate:
+          allOf:
+          - $ref: '#/components/schemas/CreationDate'
+        expirationDate:
+          allOf:
+          - $ref: '#/components/schemas/ExpirationDate'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status'
+        receiverPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/ReceiverPaymentPurpose'
+          description: 'Назначение платежа, которое будет отражено в реестре.
+
+            <br>Может содержать:
+
+            <br>• Символы латиницы (A–Z и a–z)
+
+            <br>• Символы кириллицы (А-Я и а-я)
+
+            <br>• Цифры 0-9
+
+            <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
+
+            '
+        senderPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/SenderPaymentPurpose'
+          description: "Назначение платежа, которое увидит плательщик при оплате\n      <br>Может содержать:\n      <br>• Символы латиницы (A–Z и a–z)\n      <br>• Символы кириллицы (А-Я и а-я)\n      <br>• Цифры 0-9\n      <br>• Спецсимволы: пробел и `!`, `\"`, `#`, `$`, `%`, `'`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`\n"
+        redirectUrl:
+          allOf:
+          - $ref: '#/components/schemas/RedirectUrl'
+        splits:
+          allOf:
+          - $ref: '#/components/schemas/Splits'
+        extra:
+          allOf:
+          - $ref: '#/components/schemas/Extra'
+        restrictions:
+          allOf:
+          - $ref: '#/components/schemas/Restrictions'
+        qr:
+          allOf:
+          - $ref: '#/components/schemas/Qr'
+    SenderPaymentPurpose:
+      type: string
+      maxLength: 210
+      description: 'Назначение платежа, которое увидит плательщик при оплате. Поле обязательное.
+
+        <br>Может содержать:
+
+        <br>• Символы латиницы (A–Z и a–z)
+
+        <br>• Символы кириллицы (А-Я и а-я)
+
+        <br>• Цифры 0-9
+
+        <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
+
+        '
+      example: Какое-то назначение платежа
+    Payload:
+      type: string
+      maxLength: 999
+      description: Функциональная ссылка
+      example: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+    IncomingPaymentCallbackDto:
+      type: object
+      required:
+      - event
+      - data
+      properties:
+        event:
+          type: string
+          description: Тип операции
+          example: B2B_PAYMENT
+          enum:
+          - B2B_PAYMENT
+        data:
+          type: object
+          required:
+          - id
+          - account
+          - amount
+          - createdDate
+          - expirationDate
+          - status
+          - senderPaymentPurpose
+          - payment
+          - qr
+          properties:
+            id:
+              allOf:
+              - $ref: '#/components/schemas/OrderId'
+            account:
+              allOf:
+              - $ref: '#/components/schemas/Account'
+            amount:
+              allOf:
+              - $ref: '#/components/schemas/Amount'
+            totalTaxAmount:
+              allOf:
+              - $ref: '#/components/schemas/TotalTaxAmount'
+            createdDate:
+              allOf:
+              - $ref: '#/components/schemas/CreationDate'
+            expirationDate:
+              allOf:
+              - $ref: '#/components/schemas/ExpirationDate'
+            status:
+              allOf:
+              - $ref: '#/components/schemas/Status'
+            receiverPaymentPurpose:
+              allOf:
+              - $ref: '#/components/schemas/ReceiverPaymentPurpose'
+              description: 'Назначение платежа, которое увидит получатель в выписке в поле «Основание операции» вместе с инн плательщика.
+
+                <br>Например, "ИНН плательщика: 231150869432. Какое-то ваше назначение"
+
+                <br>Если поле не заполнено, то поле «Основание операции» заполнится по шаблону, в который будет передан идентификатор заказа, наименование плательщика и инн плательщика.
+
+                <br>Например, «Перевод по идентификатору nM43NFfqiaAh04QdSmCoI5u4S2YrWU2ikHJ. Плательщик: ООО Ромашка, ИНН: 231150869432. Осуществлен через СБП B2В».
+
+                <br>Может содержать:
+
+                <br>• Символы латинского алфавита (A–Z и a–z) с десятичными кодами из диапазонов [065-090] и [097-122] в кодировке UTF-8;
+
+                <br>• Символы русского алфавита (А-Я и а-я) с десятичными кодами из диапазона [1040-1103] в кодировке UTF-8;
+
+                <br>• Цифры 0-9 с десятичными кодами из диапазона [048-057] в кодировке UTF-8;
+
+                <br>• Специальные символы с десятичными кодами из диапазонов [032-047], [058-064], [091-096], [123-126] в кодировке UTF-8;
+
+                <br>• Символ «№» под номером 8470 в кодировке UTF-8
+
+                '
+            senderPaymentPurpose:
+              allOf:
+              - $ref: '#/components/schemas/SenderPaymentPurpose'
+            redirectUrl:
+              allOf:
+              - $ref: '#/components/schemas/RedirectUrl'
+            extra:
+              allOf:
+              - $ref: '#/components/schemas/Extra'
+            qr:
+              allOf:
+              - $ref: '#/components/schemas/Qr'
+            payment:
+              allOf:
+              - $ref: '#/components/schemas/Payment'
+    PaymentLinkId:
+      type: string
+      maxLength: 32
+      description: Уникальный идентификатор платёжной ссылки
+      example: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+    Inn:
+      type: string
+      minLength: 10
+      maxLength: 12
+      description: ИНН ЮЛ или ИП Плательщика
+      example: '123456789012'
+    BankId:
+      type: string
+      description: Идентификатор банка
+      example: '100000000007'
+    BankInfo:
+      type: object
+      description: Информация о банке
+      required:
+      - id
+      - name
+      - bic
+      properties:
+        id:
+          $ref: '#/components/schemas/BankId'
+        name:
+          $ref: '#/components/schemas/BankName'
+        bic:
+          $ref: '#/components/schemas/BankBic'
+    Account:
+      type: string
+      minLength: 20
+      maxLength: 20
+      description: Банковский счёт ЮЛ или ИП для зачисления средств
+      example: '40817810601002630020'
+    ErrorResponseDto:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки запроса.
+        message:
+          type: string
+          description: Описание ошибки
+    SbpTransactionId:
+      type: string
+      minLength: 32
+      maxLength: 32
+      description: Уникальный идентификатор операции на уровне всей системы СБП
+      example: PMSHT0BYVSYE7LDXMCXJSGIUHJLQWZXY
+    BankBic:
+      type: string
+      description: БИК банка
+      example: '044525700'
+    Amount:
+      type: number
+      format: float
+      maximum: 1000000
+      description: Сумма операции в рублях
+      example: 8573.79
+    Payment:
+      description: Информация об успешном платеже. Поле заполняется только в случае, если по заказу была проведена успешная оплата
+      type:
+      - object
+      - 'null'
+      required:
+      - id
+      - sbpTransactionId
+      - status
+      - amount
+      - totalTaxAmount
+      - sender
+      properties:
+        id:
+          $ref: '#/components/schemas/PaymentId'
+        sbpTransactionId:
+          $ref: '#/components/schemas/SbpTransactionId'
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        amount:
+          $ref: '#/components/schemas/Amount'
+        totalTaxAmount:
+          $ref: '#/components/schemas/TotalTaxAmount'
+        sender:
+          $ref: '#/components/schemas/PaymentSender'
+    CreationDate:
+      type: string
+      format: date-time
+      description: Дата создания
+      example: '2024-06-12T19:35:55+03:00'
+    RedirectUrl:
+      type: string
+      maxLength: 1024
+      description: Ссылка для автоматического возврата плательщика из приложения банка в приложение или на сайт ТСП
+      example: https://exampletsp.io/qwertyui
+    CreateOrderSplitsRequestDto:
+      required:
+      - senderPaymentPurpose
+      - amount
+      - splits
+      type: object
+      title: Контракт создания заказа со сплитованием
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/OrderId'
+        name:
+          allOf:
+          - $ref: '#/components/schemas/PaymentLinkName'
+        amount:
+          allOf:
+          - $ref: '#/components/schemas/Amount'
+        totalTaxAmount:
+          allOf:
+          - $ref: '#/components/schemas/TotalTaxAmount'
+        expirationDate:
+          type: string
+          format: yyyy-MM-ddTHH:mm:ss±HH:mm / +nM / +nm
+          description: 'Срок жизни заказа
+
+            <br>Может содержать точную дату и время или количество минут. Передача срока в минутах удобна для торговых точек, которые не привязываются к точному времени или часовому поясу
+
+            <br>Параметр не может быть меньше текущей даты и времени. Если указывается в минутах, то не может быть меньше 1 минуты. Максимальное значение — 129600 минут (90 суток). Если параметр не передан, то по умолчанию QR будет действителен 4320 минут (3 суток)
+
+            <br>После истечения срока действия заказа оплату по нему провести нельзя
+
+            <br>При передачи количества минут указываете в таком виде (например, + 60 минут): "expirationDate": "+60m"
+
+            '
+          example: '2024-08-12T20:35:55+03:00'
+        receiverPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/ReceiverPaymentPurpose'
+          description: 'Назначение платежа, которое будет отражено в реестре.
+
+            <br>Может содержать:
+
+            <br>• Символы латиницы (A–Z и a–z)
+
+            <br>• Символы кириллицы (А-Я и а-я)
+
+            <br>• Цифры 0-9
+
+            <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
+
+            '
+        senderPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/SenderPaymentPurpose'
+          description: 'Назначение платежа, которое увидит плательщик при оплате
+
+            <br>Может содержать:
+
+            <br>• Символы латиницы (A–Z и a–z)
+
+            <br>• Символы кириллицы (А-Я и а-я)
+
+            <br>• Цифры 0-9
+
+            <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
+
+            '
+        redirectUrl:
+          allOf:
+          - $ref: '#/components/schemas/RedirectUrl'
+        splits:
+          allOf:
+          - $ref: '#/components/schemas/Splits'
+        extra:
+          allOf:
+          - $ref: '#/components/schemas/Extra'
+        restrictions:
+          allOf:
+          - $ref: '#/components/schemas/Restrictions'
+    SubscriptionAutoCharge:
+      type: object
+      description: Данные автоматического списания по подписке. Объект передается, если по подписке необходимо взимать деньги на регуряной основе. Используется как альтернатива [методу списания по запросу](#operation/post-sbp-v1-subscriptions-subscriptionId-orders)
+      x-description-i18n:
+        eng: Automatic recurring charges. Required if subscription has to be paid on regular basis. Used as alternative to the [method of payment on request](#operation/post-sbp-v1-subscriptions-subscriptionId-orders)
+      properties:
+        frequency:
+          type: string
+          enum:
+          - MONTHLY
+          description: Периодичность списания по подписке<br>Если параметр передан, то банк будет автоматически проводить ежемесячное списание средств с клиента.
+          x-description-i18n:
+            eng: Frequency of recurring charges. If passed, the bank will automatically charge customer once a month. As of now, only monthly frequency is supported
+        firstChargeDate:
+          type: string
+          description: 'Дата первого списания по подписке<br>
+
+            Списание в указанную дату произойдет автоматически, далее – с заданной периодичностью начиная с этой даты. Переданное значение должно быть не меньше 7 дней от текущей даты. Например, при создании подписки 1 января firstChargeDate может быть 8 января или позже.<br>
+
+            Если параметр не передан, то при `frequency` равен `MONTHLY` первое списание по подписке произойдет через месяц после привязки счета клиентом.'
+          x-description-i18n:
+            eng: 'Date of first subscription charge<br>
+
+              The debit will be automatically debited on the specified date. Then, it will be debited at the specified frequency starting from that date. The value passed must be at least 7 days old. For example, if you create a subscription on January 1st, firstChargeDate could be January 8th or later.
+
+              If the parameter is not passed, then if `frequency` is equal to `MONTHLY`, the first subscription charge will occur one month after the client links the account.'
+          example: '2024-01-25'
+          format: date
+        amount:
+          type: number
+          description: Сумма ежемесячного списания в рублях. Для копеек доступно два знака после точки.
+          x-description-i18n:
+            eng: Amount of automatic recurring charges in rubles
+          example: 103.32
+          exclusiveMinimum: 1
+      required:
+      - frequency
+      - amount
+    CreateOrderQRVariableRequest:
+      title: CreateOrderQRVariableRequest
+      type: object
+      properties:
+        id:
+          type: string
+          description: Уникальный идентификатор QR-кода<br>Параметр должен быть заполнен идентификатором QR, который был получен в ответе на [запрос создания QR-кода](#operation/post-sbp-v2-qrs)
+          example: AD100004BAL7227F9BNP6KNE007J9B3K
+        type:
+          type: string
+          description: Тип QR кода
+          default: QRVariable
+        paymentDetails:
+          $ref: '#/components/schemas/PaymentDetails'
+      required:
+      - id
+      - type
+    OrderComment:
+      title: OrderComment
+      type: string
+      description: 'Комментарий. Доступен в реестрах и Онлайн-Банке. Не может быть пустым или содержать только пробелы. Может содержать:<br>
+
+        • Символы латиницы (A–Z и a–z) <br>
+
+        • Символы кириллицы (А-Я и а-я) <br>
+
+        • Цифры 0-9 <br>
+
+        • Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`<br>
+
+        • Спецсимвол `№`'
+      x-description-i18n:
+        eng: 'Comment. Cannot be empty or contain only spaces. May contain:<br>
+
+          • Latin symbols (A–Z и a–z); <br>
+
+          • Cyrillic symbols (А-Я и а-я); <br>
+
+          • Digits 0-9;<br>
+
+          • Special symbols: spaces and `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`<br>
+
+          • Special symbol №
+
+          '
+      maxLength: 140
+      pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
+      example: Тестовый комментарий
+    CreateOrderQrResponse:
+      title: CreateOrderQrResponse
+      type: object
+      properties:
+        id:
+          type: string
+          description: Уникальный идентификатор QR-кода<br>Параметр должен быть заполнен идентификатором QR, который был получен в ответе на [запрос создания QR-кода](#operation/post-sbp-v2-qrs)
+          example: AD100004BAL7227F9BNP6KNE007J9B3K
+        account:
+          type: string
+          example: '40702810500000000045'
+          description: Счёт для зачисления
+        paymentDetails:
+          $ref: '#/components/schemas/PaymentDetails'
+        type:
+          type: string
+          enum:
+          - QRDynamic
+          - QRVariable
+          description: Тип QR кода
+        redirectUrl:
+          $ref: '#/components/schemas/RedirectUrl_2'
+        description:
+          type: string
+          description: 'Описание QR-кода
+
+            Может содержать любую информацию для удобства идентификации конкретного QR-кода. Например, его местоположение или расположение в магазине. Отображается в ЛК и RBO как название QR. Не отображается покупателю и в выписке'
+          maxLength: 32
+          example: QR для главной страницы
+        subscription:
+          $ref: '#/components/schemas/CreateOrderQrSubscriptionResponse'
+        url:
+          type: string
+          example: https://pay-test.raif.ru/api/sbp/v1/qr/AD100004BAL7227F9BNP6KNE007J9B3K/image
+        payload:
+          type: string
+          example: https://qr.nspk.ru/AD100004BAL7227F9BNP6KNE007J9B3K
+      required:
+      - type
+    OrderStatus:
+      title: OrderStatus
+      type: object
+      description: Статус заказа
+      x-description-i18n:
+        eng: Order status
+      minProperties: 1
+      properties:
+        value:
+          $ref: '#/components/schemas/OrderStatusValue'
+        date:
+          type: string
+          description: Дата создания заказа
+          x-description-i18n:
+            eng: Order creation date
+          format: date-time
+          example: '2025-01-10T20:10:00+03:00'
+          minLength: 1
+    FiscalReceiptBasic:
+      title: Receipt
+      type: object
+      x-description-i18n:
+        eng: Receipt data
+      description: Данные чека. Объект должен быть передан, если подключена фискализация чеков. При отсутствии объекта receipt чек не будет создан. Если объект receipt был передан, но заполнен некорректно, сервис вернет ошибку.
+      properties:
+        customer:
+          type: object
+          description: Данные покупателя
+          x-description-i18n:
+            eng: Buyer details
+          properties:
+            email:
+              type: string
+              description: '`Тег ФФД — 1008` <br>
+
+                E-mail покупателя для отправки чека. Если объект customer не передан, то чек отправляется на электронную почту мерчанта'
+              x-description-i18n:
+                eng: '`Tag FFD - 1008` <br>
+
+                  Buyer''s email for sending a receipt. If the customer object is not passed, the receipt is sent to the merchant''s email
+
+                  '
+              example: customer@test.ru
+              maxLength: 64
+              format: email
+            name:
+              type: string
+              description: '`Тег ФФД — 1227` <br>
+
+                ФИО покупателя (ФФД 1.05)'
+              x-description-i18n:
+                eng: '`Tag FFD - 1227` <br>
+
+                  Full name of the buyer (FFD 1.05)
+
+                  '
+              example: Иванов Иван Иванович
+              maxLength: 256
+            inn:
+              type: string
+              description: '`Тег ФФД — 1228` <br>
+
+                ИНН покупателя. Может содержать только 10 или 12 цифр'
+              x-description-i18n:
+                eng: '`Tag FFD - 1228` <br>
+
+                  Buyer''s tax identification number of 10 or 12 digits'
+              pattern: ^(?:[0-9]{10}|[0-9]{12})$
+              example: '7707083893'
+            extra:
+              type: object
+              description: Дополнительная информация о покупателе (ФФД 1.2)<br>Объект свободного наполнения, передается в ОФД без изменений. Если Вам необходимо передать доп. данные покупателя в extra, то сверьтесь с протоколом Вашего ОФД
+              x-description-i18n:
+                eng: Additional information about the buyer (FFD 1.2)<br>An object of free filling, transferred to the OFD without changes. If you need to transfer additional buyer data to extra, then check with the protocol of your OFD
+              additionalProperties:
+                type: string
+          required:
+          - email
+        timezone:
+          type: string
+          description: '`Тег ФФД — 1011` <br/>
+
+            Часовая зона (+02:00, +03:00... +11:00). Только для ФФД 1.2'
+          x-description-i18n:
+            eng: '`Tag FFD - 1011` <br>
+
+              Time zone (+02:00, +03:00... +11:00). Only for FFD 1.2
+
+              '
+        onlinePayment:
+          type: boolean
+          description: '`Тег ФФД — 1125` <br/>
+
+            Признак расчета в Интернете'
+          x-description-i18n:
+            eng: '`Tag FFD - 1125` <br>
+
+              Internet settlement flag
+
+              '
+        items:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          maxItems: 100
+          description: Позиции чека
+          x-description-i18n:
+            eng: Receipt items
+          items:
+            $ref: '#/components/schemas/receiptItem'
+        payments:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          description: Данные об оплате<br>Объект заполняется только для чеков с зачетом аванса или частичной предоплаты. Если чек содержит только безналичный вид оплаты (без зачета аванса/частичной предоплаты), то объект payments не заполняется.<br>Если payments не передан, то по умолчанию заполняется безналичным видом оплаты и ее суммой, которая равна сумме чека
+          x-description-i18n:
+            eng: Payment types info. Object must be passed only for receipts that include prepaid amount (either advance or partial prepayment receipts)<br> If null, then value E_PAYMENT is set by default, with the total receipt amount
+          items:
+            $ref: '#/components/schemas/payments'
+        additionalUserProperty:
+          $ref: '#/components/schemas/additionalUserProperty'
+      required:
+      - items
+    RefundWithSplits:
+      title: RefundWithSplits
+      type: object
+      properties:
+        id:
+          type: string
+          example: 348230ad-2a8d-4976-af4f-8603d11cba8c
+          description: Идентификатор возврата
+          x-description-i18n:
+            eng: Refund ID
+        amount:
+          type: number
+          description: Сумма возврата в рублях
+          x-description-i18n:
+            eng: Refund amount in rubles
+          format: float
+          example: 432.21
+        paymentDetails:
+          $ref: '#/components/schemas/schemas-PaymentDetails'
+        customer:
+          type: object
+          description: Объект данных получателя, будет заполнен при отправке возврата в другой банк. **Заполняется только для возвратов по СБП**
+          x-description-i18n:
+            eng: Recipient data object, populated when sending a refund to another bank
+          properties:
+            bankAlias:
+              type: string
+              description: Код банка плательщика. Коды банков можно получить выполнив [[Запрос на получение списка банков]](#tag/QR/operation/getBanksForRefunds).
+              x-description-i18n:
+                eng: Recipient bank code from the bank list request
+            phone:
+              type: string
+              description: Номер телефона плательщика
+              x-description-i18n:
+                eng: Recipient's phone number
+        splits:
+          $ref: '#/components/schemas/Split'
+        status:
+          type: object
+          properties:
+            value:
+              type: string
+              description: Код состояния запроса на возврат
+              x-description-i18n:
+                eng: Refund status code
+              enum:
+              - IN_PROGRESS
+              - COMPLETED
+              - DECLINED
+            date:
+              type: string
+              description: Дата и время состояния
+              x-description-i18n:
+                eng: Status date and time
+              format: date-time
+              example: '2024-12-31T17:00:00+03:00'
+        receipt:
+          $ref: '#/components/schemas/FiscalReceiptBasic'
+    CreateRefundRequestV2:
+      title: CreateRefundRequestV2
+      type: object
+      properties:
+        id:
+          type: string
+          example: 348230ad-2a8d-4976-af4f-8603d11cba8c
+          pattern: ^[A-Za-z0-9-_.]+$
+          description: Идентификатор возврата
+          x-description-i18n:
+            eng: Refund ID
+          maxLength: 40
+        amount:
+          type: number
+          description: Сумма возврата
+          x-description-i18n:
+            eng: Refund amount
+          example: 432.21
+          format: float
+        paymentDetails:
+          $ref: '#/components/schemas/schemas-PaymentDetails'
+        splits:
+          $ref: '#/components/schemas/Split'
+        customer:
+          type: object
+          description: Объект передается, если требуется сделать возврат в другой банк или на другой номер. **Заполняется только при проведении возвратов по СБП.**
+          x-description-i18n:
+            eng: The object is transferred if you need to make a return to another bank or to another number
+          properties:
+            bankAlias:
+              type: string
+              description: Код банка плательщика. Коды банков можно получить выполнив [[Запрос на получение списка банков]](#tag/QR/operation/getBanksForRefunds).
+              x-description-i18n:
+                eng: Recipient bank code from the bank list request
+            phone:
+              type: string
+              description: Номер телефона плательщика
+              x-description-i18n:
+                eng: Recipient's phone number
+          required:
+          - bankAlias
+          - phone
+        receipt:
+          $ref: '#/components/schemas/FiscalReceiptBasic'
+      required:
+      - id
+      - amount
+    ExpirationDate_2:
+      title: ExpirationDate
+      type: string
+      description: 'Срок действия<br>
+
+        Может содержать точную дату и время, например `2025-01-10T20:10:00+03:00` или количество минут в формате `+nM`, где n - количество минут. Например, для формирования QR на 2 минуты можно передать: `''+2M''`.<br>
+
+        Параметр не может быть меньше текущей даты и времени.
+
+        Не может быть меньше 1 минуты. Максимальное значение - 90 суток. Если параметр не передан, то по умолчанию QR будет действителен 3 суток<br>
+
+        '
+      format: date-time
+    schemas-PaymentDetails:
+      title: PaymentDetails
+      type: string
+      description: 'Назначение платежа. Отображается в выписке. Может содержать:<br>
+
+        - Символы латиницы (A–Z и a–z)
+
+        - Символы кириллицы (А-Я и а-я)
+
+        - Цифры 0-9
+
+        - Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`
+
+        - Спецсимвол `№`'
+      x-description-i18n:
+        eng: 'Payment details. Displayed in the statement. May contain:<br>
+
+          - Latin characters (A–Z and a–z)
+
+          - Cyrillic characters (А-Я and а-я)
+
+          - Digits 0-9
+
+          - Special characters: space and `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`
+
+          - Special character `№`'
+      pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
+    OrderId_2:
+      title: OrderId
+      type: string
+      pattern: ^[A-Za-z0-9-_.]+$
+      description: Идентификатор заказа. Рекомендуем использовать длинный формат без возможности перебора, например, использовать формат [UUID v4](https://ru.wikipedia.org/wiki/UUID)
+    Extra_2:
+      title: Extra
+      type: object
+      additionalProperties:
+        type: string
+      description: Дополнительные поля для свободного заполнения по принципу key-value<br> В extra рекомендуется передавать параметры `apiClient` и `apiClientVersion`. Данная информация позволит Банку определять клиентское ПО, исправлять ошибки и улучшать сервис
+    Error4xx:
+      title: Error4xx
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки
+          x-description-i18n:
+            eng: Error code
+        message:
+          type: string
+          description: Описание ошибки
+          x-description-i18n:
+            eng: Error description
+      required:
+      - code
+      - message
+    CreateOrderQrSubscriptionRequest:
+      title: CreateOrderQrSubscriptionRequest
+      type: object
+      description: Используется для оплаты с последующей подпиской
+      properties:
+        id:
+          type: string
+          description: Идентификатор подписки. Рекомендуем использовать длинный формат без возможности перебора, например, использовать формат [UUID v4](https://ru.wikipedia.org/wiki/UUID)
+          example: 09d2efa6-74b1-4086-b7c7-5022b33dd913
+          pattern: ^[A-Za-z0-9-_.]+$
+          maxLength: 40
+        subscriptionPurpose:
+          type: string
+          description: 'Описание подписки<br>
+
+            Может содержать:<br>
+
+            * Символы латиницы (A-Z и a-z)
+
+            * Символы кириллицы (А-Я и а-я)
+
+            * Цифры 0-9
+
+            * Спецсимволы: `(`, `)`, `!`, `@`, `[`, `]`, `#`, `+`, `=`, `-`, `|`, `.`, `,`'
+          example: Подписка на регулярные благотворительные пожертвования
+          pattern: ^[A-Za-zА-Яа-я0-9 ()!@\[\]#+=_\|.,-]+$
+        autoCharge:
+          $ref: '#/components/schemas/SubscriptionAutoCharge'
+        extra:
+          type: object
+          description: Дополнительные поля для свободного заполнения по принципу key-value<br> Если передан объект autoCharge, то в extra необходимо передать ключ, который вернется в теле [callback-уведомления](#operation/сallbackPay). Это позволит соотнести подписку и автоматические платежи по ней
+      required:
+      - subscriptionPurpose
+    Split:
+      title: Split
+      type: array
+      description: 'Набор параметров для сплитования платежа.<br>
+
+        Сплитование позволяет ТСП передавать параметры распределения суммы платежа или возврата между контрагентами.<br>
+
+        Сумма всех объектов сплита должна быть равна сумме операции.<br>
+
+        При взаиморасчетах суммы платежей, указанные в сплите, увеличивают суммы к перечислению контрагентам, а суммы возвратов — уменьшают их.<br>
+
+        Сплитование доступно только при агрегированной схеме взаиморасчетов. Чтобы настроить агрегированную схему, обратитесь в техническую поддержку банка: ecom@raiffeisen.ru. Подробнее см. в разделе [Схема взаиморасчетов](#tag/SettlementSchemes).'
+      x-description-i18n:
+        eng: 'Set of parameters for payment splitting.<br>
+
+          Payment splitting allows the merchant to pass parameters for distributing a payment or refund amount among counterparties.<br>
+
+          The total amount of all split objects must be equal to the operation amount.<br>
+
+          In settlements, payment amounts specified in the split increase the amounts to be transferred to counterparties, while refund amounts decrease them.<br>
+
+          Payment splitting is available only with the aggregated settlement scheme. To set up the aggregated scheme, contact bank technical support: ecom@raiffeisen.ru. See [Settlement schemes](#tag/SettlementSchemes).'
+      items:
+        type: object
+        properties:
+          accountId:
+            type: string
+            description: "\t\nstring\nИдентификтор реквизитов, которые были получены от поддержки."
+            x-description-i18n:
+              eng: ID of the bank account details obtained from support
+          amount:
+            type: number
+            description: Сумма зачисления
+            x-description-i18n:
+              eng: Crediting amount
+            format: float
+            exclusiveMinimum: 0
+        required:
+        - accountId
+        - amount
+    payments:
+      type: object
+      title: платежи
+      x-title-i18n:
+        eng: payments
+      required:
+      - type
+      - amount
+      description: Данные об оплате и ее видах
+      x-description-i18n:
+        eng: Info on payment and its types
+      properties:
+        type:
+          type: string
+          description: Вид оплаты. Возможные значения:<br/>• E_PAYMENT – безналичная оплата<br/>• PREPAID – предварительная оплата (зачет аванса и/или предыдущих платежей)
+          x-description-i18n:
+            eng: Payment type. Valid values:<br/>• E_PAYMENT – electronic payment<br/>• PREPAID – prepaid amount (advance payment and/or previous payments)
+          example: PREPAID
+          enum:
+          - E_PAYMENT
+          - PREPAID
+        amount:
+          type: number
+          description: '`Тег ФФД — 1081. Сумма по чеку безналичными` <br/>
+
+            `Тег ФФД — 1251. Сумма по чеку предоплатой (зачетом аванса и(или) предыдущих платежей)` <br/>
+
+            Сумма оплаты<br/>Сумма всех переданных amount должна равняться итоговой сумме чека'
+          x-description-i18n:
+            eng: '`The tag FDF — 1081. Receipt amount non-cash payment` <br/>
+
+              `The tag FDF — 1251. Receipt amount prepayment (advance payment and(or) previous payment)` <br/>
+
+              Amount paid'
+          example: 1200
+    receiptItem:
+      type: object
+      title: ФФД 1.05 | ФФД 1.2
+      properties:
+        name:
+          type: string
+          maxLength: 128
+          description: '`Тег ФФД — 1030` <br/>
+
+            Наименование товара, работы, услуги, иного предмета расчета'
+          x-description-i18n:
+            eng: '`The tag FDF — 1030` <br/>
+
+              Name of goods, work, service, other payment objects'
+          example: Шоколадный торт
+        price:
+          type: number
+          description: '`Тег ФФД — 1079` <br/>
+
+            Цена за единицу товара, работы, услуги, иного предмета расчета в рублях (8 символов на целую часть, 2 на дробную)'
+          x-description-i18n:
+            eng: '`The tag FDF — 1079` <br/>
+
+              Price per unit of goods, work, services, other payment objects in rubles (8 characters for a whole part, 2 for a fractional part)'
+          example: 1200
+        quantity:
+          type: number
+          description: '`Тег ФФД — 1023` <br/>
+
+            Количество/вес (5 символов на целую часть, 3 на дробную)'
+          x-description-i18n:
+            eng: '`The tag FDF — 1023` <br/>
+
+              Quantity / weight (5 characters for a whole part, 3 for a fractional part)'
+          example: 1
+        amount:
+          type: number
+          description: '`Тег ФФД — 1043` <br/>
+
+            Сумма в рублях. Должна равняться произведению цены на количество (price * quantity). 8 символов на целую часть, 2 на дробную'
+          x-description-i18n:
+            eng: '`The tag FDF — 1023` <br/>
+
+              Amount in rubles. Must be equal to price * quantity (8 characters for a whole part, 2 for a fractional part)'
+          example: 1200
+        paymentObject:
+          type: string
+          description: '`Тег ФФД — 1212` <br/>
+
+            Признак предмета расчёта. Возможные значения:
+
+            <br/>• COMMODITY – товар, который не является подакцизным и не подлежит маркировке (ФФД 1.05 и ФФД 1.2)
+
+            <br/>• EXCISE – подакцизный товар, который не подлежит маркировке (ФФД 1.05 и ФФД 1.2)
+
+            <br/>• JOB – работа (ФФД 1.05 и ФФД 1.2)
+
+            <br/>• SERVICE – услуга (ФФД 1.05 и ФФД 1.2)
+
+            <br/>• PAYMENT – платеж (ФФД 1.05 и ФФД 1.2)
+
+            <br/>• ANOTHER – иной предмет расчета (ФФД 1.05 и ФФД 1.2)<br/>
+
+            <br/>• COMMODITY_MARKING_NO_CODE – товар, который не является подакцизным, подлежит маркировке, но не имеет кода маркировки (ФФД 1.2)
+
+            <br/>• COMMODITY_MARKING_WITH_CODE – товар, который не является подакцизным, подлежит маркировке и имеет код маркировки (ФФД 1.2)
+
+            <br/>• EXCISE_MARKING_NO_CODE – подакцизный товар, который подлежит маркировке, но не имеет кода маркировки (ФФД 1.2)
+
+            <br/>• EXCISE_MARKING_WITH_CODE – подакцизный товар, который подлежит маркировке и имеет код маркировки (ФФД 1.2)<br/>
+
+            <br/>Для авансовых чеков и чеков частичной предоплаты должен заполняться значением PAYMENT. Если параметр не передан, то заполняется значением COMMODITY по умолчанию'
+          x-description-i18n:
+            eng: '`The tag FDF — 1212` <br/>
+
+              Payment object type. Valid values:
+
+              <br/>• COMMODITY – good (FFD 1.05 and FFD 1.2)
+
+              <br/>• EXCISE – excisable good (FFD 1.05 and FFD 1.2)
+
+              <br/>• JOB – job (FFD 1.05 and FFD 1.2)
+
+              <br/>• SERVICE – service (FFD 1.05 and FFD 1.2)
+
+              <br/>• PAYMENT – payment (FFD 1.05 and FFD 1.2)
+
+              <br/>• ANOTHER – another payment object (FFD 1.05 and FFD 1.2)
+
+              <br/>• COMMODITY_MARKING_NO_CODE – marked good that has no marking code (FFD 1.2)
+
+              <br/>• COMMODITY_MARKING_WITH_CODE – marked good that has a marking code (FFD 1.2)
+
+              <br/>• EXCISE_MARKING_NO_CODE – excisable good that has no marking code (FFD 1.2)
+
+              <br/>• EXCISE_MARKING_WITH_CODE – excisable good that has a marking code (FFD 1.2)<br/>
+
+              <br/>For advance payments and prepayments value PAYMENT must be passed. If null, value COMMODITY will be set by default'
+          enum:
+          - COMMODITY
+          - EXCISE
+          - JOB
+          - SERVICE
+          - PAYMENT
+          - ANOTHER
+          - COMMODITY_MARKING_NO_CODE
+          - COMMODITY_MARKING_WITH_CODE
+          - EXCISE_MARKING_NO_CODE
+          - EXCISE_MARKING_WITH_CODE
+          example: COMMODITY_MARKING_WITH_CODE
+        paymentMode:
+          type: string
+          description: '`Тег ФФД — 1214` <br/>
+
+            Способ расчета. Возможные значения:<br/>
+
+            • FULL_PREPAYMENT – 100% предоплата до момента передачи предмета расчета<br/>
+
+            • FULL_PAYMENT – полная оплата в момент передачи предмета расчета<br/>
+
+            • ADVANCE – аванс<br/>
+
+            • PREPAYMENT – частичная предоплата до момента передачи предмета расчета<br/>
+
+            • CREDIT – Передача в кредит<br/>
+
+            • CREDIT_PAYMENT – Оплата кредита<br/>
+
+            Если параметр не передан, по умолчанию устанавливается значение FULL_PREPAYMENT'
+          x-description-i18n:
+            eng: '`The tag FDF — 1214` <br/>
+
+              Payment mode. Valid values:<br/>
+
+              • FULL_PREPAYMENT – 100% prepayment<br/>
+
+              • FULL_PAYMENT – full payment<br/>
+
+              • ADVANCE – advance payment<br/>
+
+              • PREPAYMENT – partial prepayment<br/>
+
+              • CREDIT – credit<br/>
+
+              • CREDIT_PAYMENT – credit payment<br/>
+
+              If null, the value FULL_PREPAYMENT is set dy default'
+          enum:
+          - FULL_PREPAYMENT
+          - FULL_PAYMENT
+          - ADVANCE
+          - PREPAYMENT
+          - CREDIT
+          - CREDIT_PAYMENT
+          example: FULL_PREPAYMENT
+        measurementUnit:
+          type: string
+          description: '`Тег ФФД — 2108` <br/>
+
+            Единица измерения товара, работы, услуги, иного предмета расчета.
+
+            <br/> Для ФФД 1.05 передавать строковое значение до 16 символов включительно.
+
+            <br/> Для ФФД 1.2 передавать значения из списка:
+
+            <br/>• PIECE – штука/единица/дробный товар
+
+            <br/>• GRAM – грамм
+
+            <br/>• KILOGRAM – килограмм
+
+            <br/>• TON – тонна
+
+            <br/>• CENTIMETER – сантиметр
+
+            <br/>• DECIMETER – дециметр
+
+            <br/>• METER – метр
+
+            <br/>• SQUARE_CENTIMETER – кв. сантиметр
+
+            <br/>• SQUARE_DECIMETER – кв. дециметр
+
+            <br/>• SQUARE_METER – кв. метр
+
+            <br/>• MILLILITER – миллилитр
+
+            <br/>• LITER – литр
+
+            <br/>• CUBIC_METER – куб. метр
+
+            <br/>• KILOWATT_HOUR – киловатт-час
+
+            <br/>• GIGACALORIE – гигакалория
+
+            <br/>• DAY – сутки/день
+
+            <br/>• HOUR – час
+
+            <br/>• MINUTE – минута
+
+            <br/>• SECOND – секунда
+
+            <br/>• KILOBYTE – килобайт
+
+            <br/>• MEGABYTE – мегабайт
+
+            <br/>• GIGABYTE – гигабайт
+
+            <br/>• TERABYTE – терабайт
+
+            <br/>• OTHER – иное
+
+            <br/>Если передано значение не из списка выше, то в ОФД автоматически будет передано OTHER
+
+            '
+          x-description-i18n:
+            eng: '`The tag FDF — 2108` <br/>
+
+              Unit of measurement of goods, work, services, other payment objects
+
+              <br/> If FFD 1.05, string value up to 16 symbols has to be passed.
+
+              <br/> If FFD 1.2, value from the list is accepted:
+
+              <br/>• PIECE – a piece
+
+              <br/>• GRAM – gram
+
+              <br/>• KILOGRAM – kilogram
+
+              <br/>• TON – ton
+
+              <br/>• CENTIMETER – centimeter
+
+              <br/>• DECIMETER – decimeter
+
+              <br/>• METER – meter
+
+              <br/>• SQUARE_CENTIMETER – sq. centimeter
+
+              <br/>• SQUARE_DECIMETER – sq. decimeter
+
+              <br/>• SQUARE_METER – sq. meter
+
+              <br/>• MILLILITER – milliliter
+
+              <br/>• LITER – liter
+
+              <br/>• CUBIC_METER – c. meter
+
+              <br/>• KILOWATT_HOUR – kilowatt-hour
+
+              <br/>• GIGACALORIE – gigacalorie
+
+              <br/>• DAY – day or 24 hours
+
+              <br/>• HOUR – an hour
+
+              <br/>• MINUTE – a minute
+
+              <br/>• SECOND – a second
+
+              <br/>• KILOBYTE – a kilobyte
+
+              <br/>• MEGABYTE – a megabyte
+
+              <br/>• GIGABYTE – a gigabyte
+
+              <br/>• TERABYTE – a terabyte
+
+              <br/>• OTHER – other
+
+              <br/>If passed value in off the list, value OTHER will passed automatically to OFD'''
+          example: PIECE
+        nomenclatureCode:
+          type: string
+          description: '`Тег ФФД — 1162` <br/>
+
+            Номенклатурный код товара в 16-ричном представлении с пробелами или в формате GS1 DataMatrix. Только для ФФД 1.05.
+
+            <br/>Примеры: ''''00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00'''' или ''''010463003407001221CMK45BrhN0WLf''''
+
+            <br/>Если вы используете БИФИТ или Чек-Онлайн, номенклатурный код должен быть передан строго в 16-ричном представлении с пробелами. Если LIFE PAY или Эвотор – строго в формате GS1 DataMatrix'
+          x-description-i18n:
+            eng: '`The tag FDF — 1162` <br/>
+
+              Product code in hexadecimal divided by spaces or in GS1 DataMatrix format. For FFD 1.05 only.
+
+              <br/>For example, "00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00" or "010463003407001221CMK45BrhN0WLf"
+
+              <br/>If you use BIFIT or Chekonline, the nomenclature code must be passed strictly in hexadecimal (hex) notation with spaces.
+
+              <br/>If you use LIFE PAY or Evotor, the nomenclature code must be passed strictly in GS1 DataMatrix format'
+          pattern: ^([a-fA-F0-9]{2}$)|(^([a-fA-F0-9]{2}\s){1,31}[a-fA-F0-9]{2}|01(?<gtin>\d{14})21(?<serial>[a-zA-Z0-9!" % &'()*+\/\-.,:;=<>?_]{13})([a-zA-Z0-9!" % &'()*+\/\- .,:;=<>?_]{1,119})?|(?<gtin1>\d{14})(?<serial1>[a-zA-Z0-9!" %&'()*+\/\-.,:;=<>?_]{11})[a-zA-Z0-9!" %&'()*+\/\-.,:;=<>?_]{4})$
+          maxLength: 150
+          example: 00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00
+        vatType:
+          type: string
+          description: '`Тег ФФД — 1199` <br/>
+
+            Ставка НДС на позицию чека. Возможные значения:<br/>
+
+            • NONE – без НДС<br/>• VAT0 – НДС по ставке 0%<br/>
+
+            • VAT10 – НДС чека по ставке 10%<br/>
+
+            • VAT110 – НДС чека по расчетной ставке 10/110<br/>
+
+            • VAT20 – НДС чека по ставке 20%<br/>
+
+            • VAT120 – НДС чека по расчетной ставке 20/120<br/>
+
+            • VAT5 – НДС чека по ставке 5%<br/>
+
+            • VAT105 – НДС чека по расчетной ставке 5/105<br/>
+
+            • VAT7 – НДС чека по ставке 7%<br/>
+
+            • VAT107 – НДС чека по расчетной ставке 7/107<br/>
+
+            • VAT22 – НДС чека по ставке 22%<br/>
+
+            • VAT122 – НДС чека по расчетной ставке 22/122'
+          x-description-i18n:
+            eng: '`The tag FDF — 1199` <br/>
+
+              VAT rate on each receipt item. Valid values:<br/>
+
+              • NONE – no VAT<br/>
+
+              • VAT0 – 0% VAT<br/>
+
+              • VAT10 – 10% VAT<br/>
+
+              • VAT110 – 10/110 VAT<br/>
+
+              • VAT20 – 20% VAT<br/>
+
+              • VAT120 – 20/120 VAT<br/>
+
+              • VAT5  – 5% VAT<br/>
+
+              • VAT105 – 5/105 VAT<br/>
+
+              • VAT7 – 7% VAT<br/>
+
+              • VAT107 – 7/107 VAT<br/>
+
+              • VAT22 – 22% VAT<br/>
+
+              • VAT122 – 22/122 VAT'
+          enum:
+          - NONE
+          - VAT0
+          - VAT10
+          - VAT110
+          - VAT20
+          - VAT120
+          - VAT5
+          - VAT105
+          - VAT7
+          - VAT107
+          - VAT22
+          - VAT122
+          example: VAT20
+        agentType:
+          type: string
+          description: '`Тег ФФД — 1222` <br/>
+
+            Признак агента по предмету расчета. Опциональный параметр, который заполняется только для операций через агента. Возможные значения:<br/>
+
+            • BANK_PAYING_AGENT – банковский платежный агент<br/>
+
+            • BANK_PAYING_SUBAGENT – банковский платежный субагент<br/>
+
+            • PAYING_AGENT – платежный агент<br/>
+
+            • PAYING_SUBAGENT – платежный субагент<br/>
+
+            • ATTORNEY – поверенный<br/>
+
+            • COMMISSION_AGENT – комиссионер<br/>
+
+            • ANOTHER – другой тип агента'
+          x-description-i18n:
+            eng: '`The tag FDF — 1222` <br/>
+
+              Agent type. Optional parameter which is required for agent operations only.<br/>
+
+              Valid values:<br/>• BANK_PAYING_AGENT – bank paying agent<br/>
+
+              • BANK_PAYING_SUBAGENT – bank paying subagent<br/>
+
+              • PAYING_AGENT – paying agent<br/>
+
+              • PAYING_SUBAGENT – paying subagent<br/>
+
+              • ATTORNEY – attorney<br/>
+
+              • COMMISSION_AGENT – commission agent<br/>
+
+              • «ANOTHER» – another agent type'
+          enum:
+          - BANK_PAYING_AGENT
+          - BANK_PAYING_SUBAGENT
+          - PAYING_AGENT
+          - PAYING_SUBAGENT
+          - ATTORNEY
+          - COMMISSION_AGENT
+          - ANOTHER
+          example: ANOTHER
+        supplierInfo:
+          type: object
+          description: Данные о поставщике. Обязательно к заполнению, если заполнен параметр agentType
+          x-description-i18n:
+            eng: Supplier information. Required if agentType is filled in
+          properties:
+            phone:
+              type: string
+              description: '`Тег ФФД — 1171` <br/>
+
+                Телефон поставщика. Заполняется по формату "+79991234567", после кода +7 должно быть указано 10 цифр'
+              x-description-i18n:
+                eng: '`The tag FDF — 1171` <br/>
+
+                  Supplier phone number. Filled in with Russian country code in format "+79991234567". The country code +7 must be followed by 10 digits'
+              format: +7XXXXXXXXXX
+              example: '+79991234567'
+            name:
+              type: string
+              description: '`Тег ФФД — 1225` <br/>
+
+                Наименование поставщика'
+              x-description-i18n:
+                eng: '`The tag FDF — 1225` <br/>
+
+                  Supplier name'
+              example: ООО «Ромашка»
+            inn:
+              type: string
+              description: '`Тег ФФД — 1226` <br/>
+
+                ИНН поставщика. Может содержать только цифры в количестве 10 или 12 символов'
+              x-description-i18n:
+                eng: '`The tag FDF — 1226` <br/>
+
+                  Supplier tax code of 10 or 12 digits'
+              maxLength: 12
+              example: '287381373424'
+          required:
+          - inn
+        marking:
+          type: object
+          description: 'Данные маркировки. Только для ФФД 1.2
+
+            <br/>Обязательно к заполнению, если предметом расчета является маркированный товар, который имеет код маркировки''
+
+            '
+          x-description-i18n:
+            eng: 'Marking data. Relevant for FFD 1.2 only
+
+              <br/>Must be passed for marked goods that have marking codes
+
+              '
+          properties:
+            quantity:
+              type: object
+              description: '`Тег ФФД — 1291` <br/>
+
+                Дробное количество маркированного товара
+
+                <br/>Обязательно к заполнению, если предметом расчета является дробный маркированный товар, который имеет код маркировки.
+
+                В таком случае параметр measurementUnit должен иметь значение PIECE
+
+                '
+              x-description-i18n:
+                eng: '`The tag FDF — 1291` <br/>
+
+                  Fractional amount of marking goods
+
+                  <br/>Must be passed for marked goods that have marking codes. If so, value PIECE must be passed in measurementUnit
+
+                  '
+              properties:
+                numerator:
+                  type: integer
+                  description: '`Тег ФФД — 1293` <br/>
+
+                    Числитель дробной части'
+                  x-description-i18n:
+                    eng: '`The tag FDF — 1293` <br/>
+
+                      Fraction numerator'
+                  example: 1
+                denominator:
+                  type: integer
+                  description: '`Тег ФФД — 1294` <br/>
+
+                    Знаменатель дробной части'
+                  x-description-i18n:
+                    eng: '`The tag FDF — 1294` <br/>
+
+                      Fraction denominator'
+                  example: 3
+              required:
+              - numerator
+              - denominator
+            code:
+              type: object
+              description: Код маркировки
+              x-description-i18n:
+                eng: Marking code data
+              required:
+              - format
+              - value
+              properties:
+                format:
+                  type: string
+                  description: Формат кода маркировки
+                  x-description-i18n:
+                    eng: Marking code format
+                  enum:
+                  - UNKNOWN
+                  - EAN8
+                  - EAN13
+                  - ITF14
+                  - GS1M
+                  - SHORT
+                  - FUR
+                  - EGAIS20
+                  - EGAIS30
+                  example: GS1M
+                value:
+                  type: string
+                  description: '`Тег ФФД — 1300. Нераспознанный код товара` <br/>
+
+                    `Тег ФФД — 1301. КТ EAN-8` <br/>
+
+                    `Тег ФФД — 1302. КТ EAN-13` <br/>
+
+                    `Тег ФФД — 1303. КТ ITF-14` <br/>
+
+                    `Тег ФФД — 1305. КТ GS1.М` <br/>
+
+                    `Тег ФФД — 1306. КТ КМК, (SHORT)` <br/>
+
+                    `Тег ФФД — 1307. КТ Меховые изделия, (FUR)` <br/>
+
+                    `Тег ФФД — 1308. КТ ЕГАИС-3.0, (EGAIS20)` <br/>
+
+                    `Тег ФФД — 1309. КТ ЕГАИС-3.0, (EGAIS30)` <br/>
+
+                    Код маркировки. Должен соответствовать формату, переданному в параметре format'
+                  x-description-i18n:
+                    eng: '`The tag FDF — 1300. Undefined item code` <br/>
+
+                      `The tag FDF — 1301. Item code EAN-8` <br/>
+
+                      `The tag FDF — 1302. Item code EAN-13` <br/>
+
+                      `The tag FDF — 1303. Item code ITF-14` <br/>
+
+                      `The tag FDF — 1305. Item code GS1.М` <br/>
+
+                      `The tag FDF — 1306. Item code SHORT` <br/>
+
+                      `The tag FDF — 1307. Item code FUR` <br/>
+
+                      `The tag FDF — 1308. Item code EGAIS20` <br/>
+
+                      `The tag FDF — 1309. Item code EGAIS30` <br/>
+
+                      Marking code. Value must match the format'
+                  example: MDEwNDYwNzQyODY3OTA5MDIxNmVKSWpvV0g1NERkVSA5MWZmZDAgOTJzejZrU1BpckFwZk1CZnR2TGJvRTFkbFdDLzU4aEV4UVVxdjdCQmtabWs0PQ==
+                plannedStatus:
+                  type: integer
+                  minimum: 1
+                  maximum: 6
+                  description: '`Тег 2003 — планируемый статус маркированного торвара` <br/>
+
+                    Только маркировок вида GS1M и SHORT<br/>
+
+                    1 - Штучный товар, подлежащий обязательной маркировке
+
+                    средством идентификации, реализован<br/>
+
+                    2 - Мерный товар, подлежащий обязательной маркировке
+
+                    средством идентификации, в стадии реализации<br/>
+
+                    3 - Штучный товар, подлежащий обязательной маркировке
+
+                    средством идентификации, возвращен<br/>
+
+                    4 - Часть товара, подлежащего обязательной маркировке
+
+                    средством идентификации, возвращена<br/>
+
+                    5 - Штучный товар, подлежащий обязательной маркировке
+
+                    средством идентификации, в стадии реализации<br/>
+
+                    6 - Мерный товар, подлежащий обязательной маркировке
+
+                    средством идентификации, реализован<br/>'
+          required:
+          - code
+        sectoralProperties:
+          type: array
+          minItems: 1
+          maxItems: 5
+          description: '`Тег ФФД — 1260` <br/>
+
+            Отраслевые реквизиты предмета расчета. Только для ФФД 1.2 <br/>
+
+            Большинство ОФД поддерживают обработку только 1 элемента в массиве. Если Вам необходимо передавать более 1 элемента в массиве, то сверьтесь с протоколом Вашего ОФД
+
+            '
+          x-description-i18n:
+            eng: '`The tag FDF — 1260` <br/>
+
+              Sectoral properties. Relevant for FFD 1.2 only <br/>
+
+              Most OFD support processing of only 1 element in an array. If you need to transfer more than 1 element in an array, then check with the protocol of your OFD
+
+              '
+          items:
+            type: object
+            properties:
+              federalId:
+                type: string
+                description: '`Тег ФФД — 1262` <br/>
+
+                  Идентификатор Федерального органа исполнительной власти. Должно принимать одно из значений справочника в соответствии с [приказом ФНС России](https://www.nalog.gov.ru/rn77/about_fts/docs/10020801/)'
+                x-description-i18n:
+                  eng: '`The tag FDF — 1262` <br/>
+
+                    Identifier of the Federal Executive Authority. Must take one of the directory values in accordance with [the order of the Federal Tax Service of Russia](https://www.nalog.gov.ru/rn77/about_fts/docs/10020801/)'
+                example: '030'
+              documentDate:
+                type: string
+                format: date
+                description: '`Тег ФФД — 1263` <br/>
+
+                  Дата нормативного акта федерального органа исполнительной власти, регламентирующего порядок заполнения поля «значение отраслевого реквизита»'
+                x-description-i18n:
+                  eng: '`The tag FDF — 1263` <br/>
+
+                    Date of the normative act of the federal executive body regulating the procedure for filling in the field "value of the sectoral property"'
+                example: '2023-11-21'
+              documentNumber:
+                type: string
+                description: '`Тег ФФД — 1264` <br/>
+
+                  Номер нормативного акта федерального органа исполнительной власти, регламентирующего порядок заполнения поля «значение отраслевого реквизита»'
+                x-description-i18n:
+                  eng: '`The tag FDF — 1264` <br/>
+
+                    Number of the normative act of the federal executive body, regulating the procedure for filling in the field "value of the sectoral property"'
+                example: '1944'
+              value:
+                type: string
+                description: '`Тег ФФД — 1265` <br/>
+
+                  Значение отраслевого реквизита. Заполнение регламентируется нормативным актом федерального органа исполнительной власти'
+                x-description-i18n:
+                  eng: '`The tag FDF — 1265` <br/>
+
+                    The value of the sectoral property. Filling is regulated by the normative act of the federal executive authority'
+                example: UUID=2ce10bdb-6515-4d37-be04-dd475b98c728&Time=1692691702067
+            required:
+            - federalId
+            - documentDate
+            - documentNumber
+            - value
+      required:
+      - name
+      - price
+      - quantity
+      - amount
+      - vatType
+    CreateOrderQrSubscriptionResponse:
+      title: CreateOrderQrSubscriptionResponse
+      type: object
+      description: Используется для оплаты с последующей подпиской
+      properties:
+        id:
+          type: string
+          maxLength: 40
+          description: Идентификатор подписки. Рекомендуем использовать длинный формат без возможности перебора, например, использовать формат [UUID v4](https://ru.wikipedia.org/wiki/UUID)
+          pattern: ^[A-Za-z0-9-_.]+$
+        subscriptionPurpose:
+          type: string
+          description: Описание подписки, которое клиент увидит в приложении банка. Обязателен для подписки
+        autoCharge:
+          $ref: '#/components/schemas/SubscriptionAutoCharge'
+        extra:
+          type: object
+          description: Дополнительные поля для свободного заполнения по принципу key-value<br> Если передан объект autoCharge, то в extra необходимо передать ключ, который вернется в теле [callback-уведомления](#operation/сallbackPay). Это позволит соотнести подписку и автоматические платежи по ней
+        bank:
+          type: string
+          description: Идентификатор банка в котором осуществленна подписка. Будет заполнен в случае успешной подписки.
+        status:
+          type: string
+          enum:
+          - INACTIVE
+          - SUBSCRIBED
+          - UNSUBSCRIBED
+          - CANCELLED
+          description: Статус подписки
+          minLength: 1
+        createDate:
+          type: string
+          description: Время формирования заявки
+          minLength: 1
+      required:
+      - subscriptionPurpose
+    CreateOrderQrDynamicRequest:
+      title: CreateOrderQrDynamicRequest
+      type: object
+      properties:
+        account:
+          type: string
+          example: '40702810500000000045'
+          description: Счёт для зачисления
+        paymentDetails:
+          $ref: '#/components/schemas/PaymentDetails'
+        type:
+          type: string
+          description: Тип QR кода
+          default: QRDynamic
+        redirectUrl:
+          $ref: '#/components/schemas/RedirectUrl_2'
+        description:
+          type: string
+          description: 'Описание QR-кода
+
+            Может содержать любую информацию для удобства идентификации конкретного QR-кода. Например, его местоположение или расположение в магазине. Отображается в ЛК и RBO как название QR. Не отображается покупателю и в выписке'
+          maxLength: 32
+          example: QR для главной страницы
+        subscription:
+          $ref: '#/components/schemas/CreateOrderQrSubscriptionRequest'
+      required:
+      - type
+    BankListResponse:
+      type: array
+      x-examples:
+        '200':
+        - alias: RAIFFEISEN
+          name: Райффайзенбанк
+        - alias: TINKOFF
+          name: Тинькофф
+        - alias: VTB
+          name: ВТБ
+      items:
+        type: object
+        properties:
+          alias:
+            type: string
+            description: Алиас Банка
+            x-description-i18n:
+              eng: Bank alias
+            minLength: 1
+          name:
+            type: string
+            description: Наименование Банка
+            x-description-i18n:
+              eng: Name of the Bank
+            minLength: 1
+    additionalUserProperty:
+      type: object
+      required:
+      - name
+      - value
+      description: '`Тег ФФД — 1084` <br/>
+
+        Дополнительный реквизит пользователя'
+      x-description-i18n:
+        eng: '`The tag FDF — 1084` <br/>
+
+          Additional user property'
+      properties:
+        name:
+          type: string
+          description: '`Тег ФФД — 1085` <br/>
+
+            Наименование дополнительного реквизита пользователя'
+          x-description-i18n:
+            eng: '`The tag FDF — 1085` <br/>
+
+              Additional user property name'
+          maxLength: 64
+        value:
+          type: string
+          description: '`Тег ФФД — 1086` <br/>
+
+            Значение дополнительного реквизита пользователя'
+          x-description-i18n:
+            eng: '`The tag FDF — 1086` <br/>
+
+              Additional user property value'
+          maxLength: 256
+    OrderStatusValue:
+      title: OrderStatusValue
+      type: string
+      enum:
+      - NEW
+      - PAID
+      - EXPIRED
+      - CANCELLED
+    PaymentDetails:
+      title: PaymentDetails
+      type: string
+      description: 'Назначение платежа. Отображается в выписке. Может содержать:<br>
+
+        - Символы латиницы (A–Z и a–z)
+
+        - Символы кириллицы (А-Я и а-я)
+
+        - Цифры 0-9
+
+        - Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`
+
+        - Спецсимвол `№`'
+      pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
+    RedirectUrl_2:
+      title: RedirectUrl
+      type: string
+      description: 'Ссылка, по котрой плательщик будет перенаправлен из приложения Банка в приложение или на сайт мерчанта в случае успешной оплаты по СБП<br>
+
+        * Допускается использование схемы `http` или `https`, за которой следует `://` и последовательность символов без пробелов.
+
+        * Допускается использование схемы, начинающейся с буквы латинского алфавита и содержащей цифры, за которыми следует `://` и непробельная последовательность символов.
+
+        '
+      pattern: ^[A-Za-z][A-Za-z0-9]*://\S+$
+    CreateOrderQrResponse_2:
+      title: CreateOrderQrResponse
+      type: object
+      properties:
+        id:
+          type: string
+          description: Уникальный идентификатор QR-кода<br>Параметр должен быть заполнен идентификатором QR, который был получен в ответе на [запрос создания QR-кода](#operation/post-sbp-v2-qrs)
+          example: AD100004BAL7227F9BNP6KNE007J9B3K
+        account:
+          type: string
+          example: '40702810500000000045'
+          description: Счёт для зачисления
+        paymentDetails:
+          $ref: '#/components/schemas/PaymentDetails'
+        type:
+          type: string
+          enum:
+          - QRDynamic
+          - QRVariable
+          description: Тип QR кода
+        redirectUrl:
+          $ref: '#/components/schemas/RedirectUrl_3'
+        description:
+          type: string
+          description: 'Описание QR-кода
+
+            Может содержать любую информацию для удобства идентификации конкретного QR-кода. Например, его местоположение или расположение в магазине. Отображается в ЛК и RBO как название QR. Не отображается покупателю и в выписке'
+          maxLength: 32
+          example: QR для главной страницы
+        subscription:
+          $ref: '#/components/schemas/CreateOrderQrSubscriptionResponse'
+        url:
+          type: string
+          example: https://pay-test.raif.ru/api/sbp/v1/qr/AD100004BAL7227F9BNP6KNE007J9B3K/image
+        payload:
+          type: string
+          example: https://qr.nspk.ru/AD100004BAL7227F9BNP6KNE007J9B3K
+      required:
+      - type
+    ExpirationDate_3:
+      title: ExpirationDate
+      type: string
+      description: 'Срок действия<br>
+
+        Может содержать точную дату и время, например `2025-01-10T20:10:00+03:00` или количество минут в формате `+nM`, где n - количество минут. Например, для формирования QR на 2 минуты можно передать: `''+2M''`.<br>
+
+        Параметр не может быть меньше текущей даты и времени.
+
+        Не может быть меньше 1 минуты. Максимальное значение - 90 суток. Если параметр не передан, то по умолчанию QR будет действителен 3 суток<br>
+
+        '
+      format: date-time
+    OrderId_3:
+      title: OrderId
+      type: string
+      pattern: ^[A-Za-z0-9-_.]+$
+      description: Идентификатор заказа. Рекомендуем использовать длинный формат без возможности перебора, например, использовать формат [UUID v4](https://ru.wikipedia.org/wiki/UUID)
+    Extra_3:
+      title: Extra
+      type: object
+      additionalProperties:
+        type: string
+      description: Дополнительные поля для свободного заполнения по принципу key-value<br> В extra рекомендуется передавать параметры `apiClient` и `apiClientVersion`. Данная информация позволит Банку определять клиентское ПО, исправлять ошибки и улучшать сервис
+    CreateOrderQrDynamicRequest_2:
+      title: CreateOrderQrDynamicRequest
+      type: object
+      properties:
+        account:
+          type: string
+          example: '40702810500000000045'
+          description: Счёт для зачисления
+        paymentDetails:
+          $ref: '#/components/schemas/PaymentDetails'
+        type:
+          type: string
+          description: Тип QR кода
+          default: QRDynamic
+        redirectUrl:
+          $ref: '#/components/schemas/RedirectUrl_3'
+        description:
+          type: string
+          description: 'Описание QR-кода
+
+            Может содержать любую информацию для удобства идентификации конкретного QR-кода. Например, его местоположение или расположение в магазине. Отображается в ЛК и RBO как название QR. Не отображается покупателю и в выписке'
+          maxLength: 32
+          example: QR для главной страницы
+        subscription:
+          $ref: '#/components/schemas/CreateOrderQrSubscriptionRequest'
+      required:
+      - type
+    RedirectUrl_3:
+      title: RedirectUrl
+      type: string
+      description: 'Ссылка, по котрой плательщик будет перенаправлен из приложения Банка в приложение или на сайт мерчанта в случае успешной оплаты по СБП<br>
+
+        * Допускается использование схемы `http` или `https`, за которой следует `://` и последовательность символов без пробелов.
+
+        * Допускается использование схемы, начинающейся с буквы латинского алфавита и содержащей цифры, за которыми следует `://` и непробельная последовательность символов.
+
+        '
+      pattern: ^[A-Za-z][A-Za-z0-9]*://\S+$
+  parameters:
+    OrderIdWithoutGenerating:
+      in: path
+      description: Идентификатор заказа
+      required: true
+      name: id
+      schema:
+        type: string
+    WithLogo:
+      name: withLogo
+      in: query
+      required: false
+      description: Отображение логотипа СБП в QR-коде
+      schema:
+        type: boolean
+        default: true
+    Format:
+      name: format
+      in: query
+      required: false
+      description: Формат изображения
+      schema:
+        enum:
+        - SVG
+        - PNG
+    QrId:
+      name: qrId
+      in: path
+      required: true
+      description: Уникальный идентификатор платёжной ссылки
+      schema:
+        type: string
+    parameters-publicId:
+      name: publicId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Идентификатор мерчанта в системе Банка
+      x-description-i18n:
+        eng: Merchant ID in the Bank system
+    orderId:
+      name: orderId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Идентификатор заказа
+    publicId:
+      name: publicId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Идентификатор мерчанта
+    parameters-orderId:
+      name: orderId
+      in: path
+      required: true
+      schema:
+        type: string
+        maxLength: 40
+      description: Идентификатор заказа в системе мерчанта
+      x-description-i18n:
+        eng: Unique order ID in the merchant system
+  responses:
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: FORBIDDEN
+                message: Доступ запрещен
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: SYSTEM_ERROR
+                message: Возникла системная ошибка
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: INVALID_DATA
+                message: Некорректные данные
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: ORDER_NOT_FOUND
+                message: По данному идентификатору Заказ не найден
+    Error400Response:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error4xx'
+    Error404Response:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error4xx'
+    CreateOrderResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                $ref: '#/components/schemas/OrderId_2'
+              amount:
+                type: number
+                format: float
+                description: Сумма заказа
+                x-description-i18n:
+                  eng: Amount in rubles
+                example: 432.19
+              comment:
+                $ref: '#/components/schemas/OrderComment'
+              extra:
+                $ref: '#/components/schemas/Extra_2'
+              status:
+                $ref: '#/components/schemas/OrderStatus'
+              expirationDate:
+                $ref: '#/components/schemas/ExpirationDate_2'
+              qr:
+                $ref: '#/components/schemas/CreateOrderQrResponse'
+              splits:
+                $ref: '#/components/schemas/Split'
+    RefundStatusResponseV2:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RefundWithSplits'
+    GeneralErrorResponse:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            properties:
+              code:
+                type: string
+                description: Код ошибки
+              value:
+                type: string
+                description: Поясняющее сообщение об ошибке
+          examples:
+            Невалидный номер заказа:
+              value:
+                code: ERROR.INVALID_REQUEST
+                message: Недопустимый идентификатор заказа
+            Заказ уже был оплачен:
+              value:
+                code: ERROR.ORDER_NUMBER_ALREADY_REGISTERED
+                message: QR-код с номером заказа 1-22-333 партнера MA0000000552 и успешными платежами уже зарегистрирован
+            Невалидная дата истечения QR:
+              value:
+                code: ERROR.QR_EXPIRATION_DATE_NOT_VALID
+                message: Неверная дата истечения QR-кода
+    CreateOrderResponse_2:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                $ref: '#/components/schemas/OrderId_3'
+              amount:
+                type: number
+                format: float
+                description: Сумма заказа
+                x-description-i18n:
+                  eng: Amount in rubles
+                example: 432.19
+              comment:
+                $ref: '#/components/schemas/OrderComment'
+              extra:
+                $ref: '#/components/schemas/Extra_3'
+              status:
+                $ref: '#/components/schemas/OrderStatus'
+              expirationDate:
+                $ref: '#/components/schemas/ExpirationDate_3'
+              qr:
+                $ref: '#/components/schemas/CreateOrderQrResponse_2'
+              splits:
+                $ref: '#/components/schemas/Split'
+  requestBodies:
+    CreateRefundRequestV2:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateRefundRequestV2'
+          examples:
+            Возврат со сплитованием:
+              value:
+                id: 348230ad-2a8d-4976-af4f-8603d11cba8c
+                amount: 432.21
+                paymentDetails: Возврат за обувь
+                splits:
+                - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
+                  amount: 10.21
+                - accountId: 226f0738-d5d8-4ee6-afff-71e05836820a
+                  amount: 422
+            Возврат:
+              value:
+                id: 348230ad-2a8d-4976-af4f-8603d11cba8c
+                amount: 432.21
+                paymentDetails: Возврат за обувь
+            Возврат в другой банк:
+              value:
+                id: 348230ad-2a8d-4976-af4f-8603d11cba8c
+                amount: 432.21
+                paymentDetails: Возврат за обувь
+                customer:
+                  bankAlias: RAIFFEISEN
+                  phone: '79161111111'
+    CreateOrderRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                minLength: 1
+                description: Уникальный идентификатор заказа. Рекомендуется использовать формат, не допускающий возможность перебора, например, [UUID v4](https://ru.wikipedia.org/wiki/UUID)<br>Если параметр не передан, то идентификатор присвоится заказу автоматически
+                x-description-i18n:
+                  eng: Unique identifier of the order in the partner system. We recommend using a long format, for example, using the [UUID v4 format](https://ru.wikipedia.org/wiki/UUID)
+                maxLength: 40
+                pattern: ^[A-Za-z0-9-_.]+$
+                example: 5d5d52a0-2c7a-4a41-9d9c-c0f91f5ce266
+              amount:
+                type: number
+                format: float
+                description: Сумма заказа
+                x-description-i18n:
+                  eng: Amount in rubles
+                example: 432.19
+                exclusiveMinimum: 0
+              comment:
+                $ref: '#/components/schemas/OrderComment'
+              extra:
+                $ref: '#/components/schemas/Extra_2'
+              expirationDate:
+                $ref: '#/components/schemas/ExpirationDate_2'
+              splits:
+                $ref: '#/components/schemas/Split'
+              qr:
+                anyOf:
+                - $ref: '#/components/schemas/CreateOrderQRVariableRequest'
+                - $ref: '#/components/schemas/CreateOrderQrDynamicRequest'
+            required:
+            - amount
+          examples:
+            Заказ со сплитованием:
+              value:
+                id: 5d5d52a0-2c7a-4a41-9d9c-c0f91f5ce266
+                amount: 432.19
+                comment: Комментарий к заказу
+                extra:
+                  property1: string
+                  property2: string
+                expirationDate: '2025-05-01T16:34:09+03:00'
+                splits:
+                - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
+                  amount: 100
+                - accountId: 401a1971-f073-4b5b-9add-6044006f38b1
+                  amount: 332.19
+                qr:
+                  account: '40702810500000000045'
+                  paymentDetails: Благотворительное пожертвование
+                  type: QRDynamic
+                  redirectUrl: https://bfkh.ru
+                  description: QR для оплаты заказа
+            QRDynamic:
+              value:
+                id: 5d5d52a0-2c7a-4a41-9d9c-c0f91f5ce266
+                amount: 432.19
+                comment: Комментарий к заказу
+                extra:
+                  property1: value1
+                  property2: value2
+                expirationDate: '2025-05-01T16:34:09+03:00'
+                qr:
+                  account: '40702810500000000045'
+                  paymentDetails: Благотворительное пожертвование
+                  type: QRDynamic
+                  redirectUrl: https://bfkh.ru
+                  description: QR для оплаты заказа
+            QRVariable:
+              value:
+                id: 5d5d52a0-2c7a-4a41-9d9c-c0f91f5ce266
+                amount: 432.19
+                comment: Комментарий к заказу
+                extra:
+                  property1: string
+                  property2: string
+                expirationDate: '2025-05-01T16:34:09+03:00'
+                qr:
+                  id: AS100004BAL7227F9BNP6KNE007J9B3K
+                  paymentDetails: Благотворительное пожертвование
+                  type: QRVariable
+            Заказ с подпиской:
+              value:
+                id: 5d5d52a0-2c7a-4a41-9d9c-c0f91f5ce266
+                amount: 432.19
+                comment: Комментарий к заказу
+                extra:
+                  property1: string
+                  property2: string
+                expirationDate: '2025-05-01T16:34:09+03:00'
+                qr:
+                  account: '40702810500000000045'
+                  paymentDetails: Благотворительное пожертвование
+                  type: QRDynamic
+                  redirectUrl: https://bfkh.ru
+                  description: QR для главной станицы
+                  subscription:
+                    id: 09d2efa6-74b1-4086-b7c7-5022b33dd913
+                    subscriptionPurpose: Подписка на регулярные благотворительные пожертвования
+    ChangeOrderRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                format: float
+                description: Сумма заказа
+                x-description-i18n:
+                  eng: Amount in rubles
+                example: 432.19
+              comment:
+                $ref: '#/components/schemas/OrderComment'
+              extra:
+                $ref: '#/components/schemas/Extra_2'
+              expirationDate:
+                $ref: '#/components/schemas/ExpirationDate_2'
+              splits:
+                $ref: '#/components/schemas/Split'
+              qr:
+                anyOf:
+                - $ref: '#/components/schemas/CreateOrderQRVariableRequest'
+                - $ref: '#/components/schemas/CreateOrderQrDynamicRequest'
+            required:
+            - amount
+          examples:
+            Заказ со сплитованием:
+              value:
+                amount: 432.19
+                comment: Комментарий к заказу
+                extra:
+                  property1: string
+                  property2: string
+                expirationDate: '2025-05-01T16:34:09+03:00'
+                splits:
+                - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
+                  amount: 100
+                - accountId: 401a1971-f073-4b5b-9add-6044006f38b1
+                  amount: 332.19
+                qr:
+                  account: '40702810500000000045'
+                  paymentDetails: Благотворительное пожертвование
+                  type: QRDynamic
+                  redirectUrl: https://bfkh.ru
+                  description: QR для оплаты заказа
+            QRDynamic:
+              value:
+                amount: 432.19
+                comment: Комментарий к заказу
+                extra:
+                  property1: value1
+                  property2: value2
+                expirationDate: '2025-05-01T16:34:09+03:00'
+                qr:
+                  account: '40702810500000000045'
+                  paymentDetails: Благотворительное пожертвование
+                  type: QRDynamic
+                  redirectUrl: https://bfkh.ru
+                  description: QR для оплаты заказа
+            QRVariable:
+              value:
+                amount: 432.19
+                comment: Комментарий к заказу
+                extra:
+                  property1: string
+                  property2: string
+                expirationDate: '2025-05-01T16:34:09+03:00'
+                qr:
+                  id: AS100004BAL7227F9BNP6KNE007J9B3K
+                  paymentDetails: Благотворительное пожертвование
+                  type: QRVariable
+            Заказ с подпиской:
+              value:
+                amount: 432.19
+                comment: Комментарий к заказу
+                extra:
+                  property1: string
+                  property2: string
+                expirationDate: '2025-05-01T16:34:09+03:00'
+                qr:
+                  account: '40702810500000000045'
+                  paymentDetails: Благотворительное пожертвование
+                  type: QRDynamic
+                  redirectUrl: https://bfkh.ru
+                  description: QR для главной станицы
+                  subscription:
+                    id: 09d2efa6-74b1-4086-b7c7-5022b33dd913
+                    subscriptionPurpose: Подписка на регулярные благотворительные пожертвования
+    CreateOrderRequest_2:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                minLength: 1
+                description: Уникальный идентификатор заказа. Рекомендуется использовать формат, не допускающий возможность перебора, например, [UUID v4](https://ru.wikipedia.org/wiki/UUID)<br>Если параметр не передан, то идентификатор присвоится заказу автоматически
+                x-description-i18n:
+                  eng: Unique identifier of the order in the partner system. We recommend using a long format, for example, using the [UUID v4 format](https://ru.wikipedia.org/wiki/UUID)
+                maxLength: 40
+                pattern: ^[A-Za-z0-9-_.]+$
+                example: 5d5d52a0-2c7a-4a41-9d9c-c0f91f5ce266
+              amount:
+                type: number
+                format: float
+                description: Сумма заказа
+                x-description-i18n:
+                  eng: Amount in rubles
+                example: 432.19
+                exclusiveMinimum: 0
+              comment:
+                $ref: '#/components/schemas/OrderComment'
+              extra:
+                $ref: '#/components/schemas/Extra_3'
+              expirationDate:
+                $ref: '#/components/schemas/ExpirationDate_3'
+              splits:
+                $ref: '#/components/schemas/Split'
+              qr:
+                anyOf:
+                - $ref: '#/components/schemas/CreateOrderQRVariableRequest'
+                - $ref: '#/components/schemas/CreateOrderQrDynamicRequest_2'
+            required:
+            - amount
+          examples:
+            Заказ со сплитованием:
+              value:
+                id: 5d5d52a0-2c7a-4a41-9d9c-c0f91f5ce266
+                amount: 432.19
+                comment: Комментарий к заказу
+                extra:
+                  property1: string
+                  property2: string
+                expirationDate: '2025-05-01T16:34:09+03:00'
+                splits:
+                - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
+                  amount: 100
+                - accountId: 401a1971-f073-4b5b-9add-6044006f38b1
+                  amount: 332.19
+                qr:
+                  account: '40702810500000000045'
+                  paymentDetails: Благотворительное пожертвование
+                  type: QRDynamic
+                  redirectUrl: https://bfkh.ru
+                  description: QR для оплаты заказа
+            QRDynamic:
+              value:
+                id: 5d5d52a0-2c7a-4a41-9d9c-c0f91f5ce266
+                amount: 432.19
+                comment: Комментарий к заказу
+                extra:
+                  property1: value1
+                  property2: value2
+                expirationDate: '2025-05-01T16:34:09+03:00'
+                qr:
+                  account: '40702810500000000045'
+                  paymentDetails: Благотворительное пожертвование
+                  type: QRDynamic
+                  redirectUrl: https://bfkh.ru
+                  description: QR для оплаты заказа
+            QRVariable:
+              value:
+                id: 5d5d52a0-2c7a-4a41-9d9c-c0f91f5ce266
+                amount: 432.19
+                comment: Комментарий к заказу
+                extra:
+                  property1: string
+                  property2: string
+                expirationDate: '2025-05-01T16:34:09+03:00'
+                qr:
+                  id: AS100004BAL7227F9BNP6KNE007J9B3K
+                  paymentDetails: Благотворительное пожертвование
+                  type: QRVariable
+            Заказ с подпиской:
+              value:
+                id: 5d5d52a0-2c7a-4a41-9d9c-c0f91f5ce266
+                amount: 432.19
+                comment: Комментарий к заказу
+                extra:
+                  property1: string
+                  property2: string
+                expirationDate: '2025-05-01T16:34:09+03:00'
+                qr:
+                  account: '40702810500000000045'
+                  paymentDetails: Благотворительное пожертвование
+                  type: QRDynamic
+                  redirectUrl: https://bfkh.ru
+                  description: QR для главной станицы
+                  subscription:
+                    id: 09d2efa6-74b1-4086-b7c7-5022b33dd913
+                    subscriptionPurpose: Подписка на регулярные благотворительные пожертвования
+    ChangeOrderRequest_2:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                format: float
+                description: Сумма заказа
+                x-description-i18n:
+                  eng: Amount in rubles
+                example: 432.19
+              comment:
+                $ref: '#/components/schemas/OrderComment'
+              extra:
+                $ref: '#/components/schemas/Extra_3'
+              expirationDate:
+                $ref: '#/components/schemas/ExpirationDate_3'
+              splits:
+                $ref: '#/components/schemas/Split'
+              qr:
+                anyOf:
+                - $ref: '#/components/schemas/CreateOrderQRVariableRequest'
+                - $ref: '#/components/schemas/CreateOrderQrDynamicRequest_2'
+            required:
+            - amount
+          examples:
+            Заказ со сплитованием:
+              value:
+                amount: 432.19
+                comment: Комментарий к заказу
+                extra:
+                  property1: string
+                  property2: string
+                expirationDate: '2025-05-01T16:34:09+03:00'
+                splits:
+                - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
+                  amount: 100
+                - accountId: 401a1971-f073-4b5b-9add-6044006f38b1
+                  amount: 332.19
+                qr:
+                  account: '40702810500000000045'
+                  paymentDetails: Благотворительное пожертвование
+                  type: QRDynamic
+                  redirectUrl: https://bfkh.ru
+                  description: QR для оплаты заказа
+            QRDynamic:
+              value:
+                amount: 432.19
+                comment: Комментарий к заказу
+                extra:
+                  property1: value1
+                  property2: value2
+                expirationDate: '2025-05-01T16:34:09+03:00'
+                qr:
+                  account: '40702810500000000045'
+                  paymentDetails: Благотворительное пожертвование
+                  type: QRDynamic
+                  redirectUrl: https://bfkh.ru
+                  description: QR для оплаты заказа
+            QRVariable:
+              value:
+                amount: 432.19
+                comment: Комментарий к заказу
+                extra:
+                  property1: string
+                  property2: string
+                expirationDate: '2025-05-01T16:34:09+03:00'
+                qr:
+                  id: AS100004BAL7227F9BNP6KNE007J9B3K
+                  paymentDetails: Благотворительное пожертвование
+                  type: QRVariable
+            Заказ с подпиской:
+              value:
+                amount: 432.19
+                comment: Комментарий к заказу
+                extra:
+                  property1: string
+                  property2: string
+                expirationDate: '2025-05-01T16:34:09+03:00'
+                qr:
+                  account: '40702810500000000045'
+                  paymentDetails: Благотворительное пожертвование
+                  type: QRDynamic
+                  redirectUrl: https://bfkh.ru
+                  description: QR для главной станицы
+                  subscription:
+                    id: 09d2efa6-74b1-4086-b7c7-5022b33dd913
+                    subscriptionPurpose: Подписка на регулярные благотворительные пожертвования
+  securitySchemes:
+    BearerAuth:
+      type: http
+      description: '[Bearer secretKey](#tag/authorization)
+
+
+        example: eyJ0eXA***
+
+        '
+      scheme: bearer
+      bearerFormat: JWT
+      x-internal: false
+    secretKey:
+      type: http
+      scheme: bearer
+      description: 'Указывается в заголовке `Authorization` в формате `Bearer <secretKey>`.
+
+
+        Подробная информация содержится в разделе [Авторизация](#section/Avtorizaciya)'
+x-refined-from:
+- raiffeisen-ru-raif-pay-sbp-b2b-openapi.json
+- raiffeisen-ru-raif-pay-sbp-openapi.json
+- raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml
+- raiffeisen-ru-raif-pay-sbp-openapi.yml

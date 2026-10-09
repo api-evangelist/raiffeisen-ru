@@ -1,0 +1,977 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Issued guarantees API
+  version: 1.0.0
+  description: 'Operations tagged Issued guarantees across 2 of this provider''s published API definitions: raiffeisen-ru-trade-finance-guarantees-openapi.yml, raiffeisen-ru-trade-finance-guarantees-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/trade-finance
+tags:
+- name: Issued guarantees
+  description: Выпущенные гарантии
+paths:
+  /v1/guarantees/get-actives-by-cnum:
+    post:
+      tags:
+      - Issued guarantees
+      summary: Получение списка активных гарантий
+      operationId: getActivesByCnum
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetActivesByCnumRequest'
+        required: true
+      responses:
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GuaranteeShortDTO'
+              examples:
+                simple:
+                  summary: Список активных гарантий
+                  description: Возвращает список активных гарантий по указанным CNUM
+                  value:
+                  - number: 70690/GI/250911
+                    issueDate: '2025-09-11'
+                  - number: 70691/GI/250912
+                    issueDate: '2025-09-12'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/trade-finance
+  /v1/guarantees/commission/excel:
+    post:
+      tags:
+      - Issued guarantees
+      summary: Получение графика комиссий по гарантии в формате Excel
+      operationId: getFeesForClientInExcel
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuaranteeCommissionExcelRequest'
+        required: true
+      responses:
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: object
+                format: binary
+              examples:
+                simple:
+                  summary: График комиссии в формате Excel
+                  description: Возвращает график комиссии по гарантии в формате Excel
+                  value: <binary data>
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/trade-finance
+  /v1/guarantees/commission/excel/all:
+    post:
+      tags:
+      - Issued guarantees
+      summary: Получение графика комиссий по нескольким гарантиям в формате Excel
+      operationId: getAllFeesForClientInExcel
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuaranteeCommissionExcelRequest'
+        required: true
+      responses:
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: object
+                format: binary
+              examples:
+                simple:
+                  summary: Реестр гарантий в формате Excel
+                  description: Возвращает реестр гарантий в формате Excel
+                  value: <binary data>
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/trade-finance
+  /v1/guarantees/change-log/list:
+    get:
+      tags:
+      - Issued guarantees
+      summary: Получение списка изменений по гарантии
+      operationId: getChangeLogList
+      parameters:
+      - name: entityId
+        in: query
+        required: true
+        explode: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GuaranteeChangeLogDto'
+              examples:
+                simple:
+                  summary: Список изменений по гарантии
+                  description: Возвращает список изменений по указанной гарантии
+                  value:
+                  - applicationNumber: APP123456
+                    applicationDate: '2024-08-30'
+                    effectiveDate: '2025-09-11'
+                    section: Основные параметры
+                    parametrName: Сумма гарантии
+                    sectionEn: Main parameters
+                    parametrNameEn: Guarantee amount
+                    oldValue: 9000.0
+                    newValue: 10115.0
+                    isSeparate: false
+                    isFromTfo: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/trade-finance
+  /v1/guarantees:
+    post:
+      tags:
+      - Issued guarantees
+      summary: Получение списка гарантий по CNUM и фильтру
+      operationId: getAllByFilterAndCNum
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuaranteeFilterRequest'
+        required: true
+      responses:
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuaranteesResponse'
+              examples:
+                simple:
+                  summary: Список гарантий по CNUM и фильтру
+                  description: Возвращает список гарантий по указанным CNUM и фильтру
+                  value:
+                    offset: 0
+                    limit: 20
+                    totalCount: 35
+                    data:
+                    - status: ACTIVE
+                      statusName: Действует
+                      number: 70690/GI/250911
+                      amount: 10115.0
+                      currency: EUR
+                      issueDate: '2025-09-11'
+                      agreement:
+                        id: 12345
+                        agreementNumber: Agreement_123
+                      startDate: '2025-09-11'
+                      endDate: '2027-10-21'
+                      guaranteeTypeCode: ADV
+                      guaranteeTypeName: Гарантия возврата аванса
+                      placeOfDisputeResolution: Арбитражный суд города Москвы
+                      avisoBankCode: RZBMRUMM
+                      useRussianLaw: true
+                      useUrdg758: false
+                      issueMethod: SWIFT
+                      principal:
+                        cnum: Z63221
+                        fullNameRus: Общество с ограниченной ответственностью ООО ТЕСТ-ТЕХНОЛОГИИ ПЛЮС
+                        shortName: ООО ТЕСТ-ТЕХНОЛОГИИ ПЛЮС
+                        fullNameEng: TEST TECHNOLOGIES OOO
+                        currentAddress: 121096, RU, Москва г, Филевская 2-я ул, 7, 6, кв. 11
+                        postalAddress: 121096, RU, Москва г, Филевская 2-я ул, 7, 6, кв. 11
+                        inn: 7712345678
+                        kpp: 771201001
+                        kppLargestTaxPayer: 771201002
+                        ogrn: 1157746054321
+                        oktmo: 12345678
+                        taxRegistrationDate: '2006-10-14'
+                        taxUnitCode: 1234
+                        customsUnitCode: 5678
+                        kio: 9012
+                        tin: US123456789
+                      applicant:
+                        cnum: Z63221
+                        fullNameRus: Общество с ограниченной ответственностью ООО ТЕСТ-ТЕХНОЛОГИИ ПЛЮС
+                        shortName: ООО ТЕСТ-ТЕХНОЛОГИИ ПЛЮС
+                        fullNameEng: TEST TECHNOLOGIES OOO
+                        currentAddress: 121096, RU, Москва г, Филевская 2-я ул, 7, 6, кв. 11
+                        postalAddress: 121096, RU, Москва г, Филевская 2-я ул, 7, 6, кв. 11
+                        inn: 7712345678
+                        kpp: 771201001
+                        kppLargestTaxPayer: 771201002
+                        ogrn: 1157746054321
+                        oktmo: 12345678
+                        taxRegistrationDate: '2006-10-14'
+                        taxUnitCode: 1234
+                        customsUnitCode: 5678
+                        kio: 9012
+                        tin: US123456789
+                      beneficiary:
+                        cnum: Z63222
+                        fullNameRus: Общество с ограниченной ответственностью ООО ТЕСТ-КОНСАЛТИНГ
+                        shortName: ООО ТЕСТ-КОНСАЛТИНГ
+                        fullNameEng: TEST CONSULTING OOO
+                        currentAddress: 121096, RU, Москва г, Филевская 2-я ул, 8, 7, кв. 12
+                        postalAddress: 121096, RU, Москва г, Филевская 2-я ул, 8, 7, кв. 12
+                        inn: 7814987654
+                        kpp: 781401001
+                        kppLargestTaxPayer: 781401002
+                        ogrn: 1157746054322
+                        oktmo: 87654321
+                        taxRegistrationDate: '2006-10-15'
+                        taxUnitCode: 4321
+                        customsUnitCode: 8765
+                        kio: 2109
+                        tin: US987654321
+                      guaranteeSubject:
+                        contractNumber: Contract_123
+                        contractDate: '2024-08-29'
+                      applicationNumber: APP123456
+                      changeStartDate: '2025-09-11'
+                      fees:
+                        commissions:
+                        - feeList:
+                          - beginDate: '2025-09-11'
+                            endDate: '2027-10-21'
+                            plannedPaymentDate: '2026-03-11'
+                            amount: 500
+                            currency: EUR
+                            status: ACTIVE
+                          totalAmount: 1000
+                          currency: EUR
+                          commissionName: Комиссия за выпуск
+                          status: ACTIVE
+                        account: 40702810900000000390
+                        accountType: current
+                        penaltyRate: 0.5
+                        rate: 0.3
+                        paymentTermMaturity: 30
+                        total: 1000
+                        minimumAmount: 500
+                        minimumAmountCurrency: EUR
+                      emails:
+                      - user@example.com
+                      - admin@example.com
+                      cbrfUuid: uuid-12345
+                      thirdParty: false
+                      isCounter: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/trade-finance
+components:
+  responses:
+    UnprocessableEntity:
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+  schemas:
+    IntervalLocalDateTimeDTO:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date-time
+        to:
+          type: string
+          format: date-time
+      description: Дата создания гарантии
+    IntervalDecimalFilterDTO:
+      type: object
+      properties:
+        from:
+          type: number
+          example: 10000
+        to:
+          type: number
+          example: 20000
+      description: Сумма гарантии, интервал
+    FeeScheduleDto:
+      type: object
+      properties:
+        beginDate:
+          type: string
+          format: date
+          example: '2025-09-11'
+        endDate:
+          type: string
+          format: date
+          example: '2027-10-21'
+        plannedPaymentDate:
+          type: string
+          format: date
+          example: '2026-03-11'
+        amount:
+          type: number
+          example: 500
+        currency:
+          type: string
+          example: EUR
+        status:
+          type: string
+          example: ACTIVE
+    ErrorResponseItemDto:
+      required:
+      - code
+      - detail
+      - id
+      type: object
+      properties:
+        code:
+          type: string
+        detail:
+          type: string
+        meta:
+          type: object
+        id:
+          type: string
+        source:
+          $ref: '#/components/schemas/ErrorSource'
+    Order:
+      required:
+      - sortBy
+      properties:
+        priority:
+          type: integer
+          format: int32
+          example: 1
+        sortBy:
+          type: string
+          example: number
+        orderBy:
+          $ref: '#/components/schemas/SortDirection'
+    AccountType:
+      type: string
+      enum:
+      - current
+      - transit
+      - third_party
+      - none
+    AgreementResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Идентификатор соглашения
+          format: int64
+        agreementNumber:
+          type: string
+          description: Номер соглашения
+          example: Agreement_123
+      description: Соглашение
+    GuaranteeResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Статус документа (системное имя)
+          example: ACTIVE
+        statusName:
+          type: string
+          description: Статус документа (для отображения в интерфейсе)
+          example: Действует
+        number:
+          type: string
+          description: Номер гарантии
+          example: 70690/GI/250911
+        amount:
+          type: number
+          description: Сумма гарантии
+          example: 10115.0
+        currency:
+          type: string
+          description: Валюта гарантии
+          example: EUR
+        issueDate:
+          type: string
+          format: date
+          example: '2025-09-11'
+        agreement:
+          $ref: '#/components/schemas/AgreementResponse'
+        startDate:
+          type: string
+          format: date
+          example: '2025-09-11'
+        endDate:
+          type: string
+          format: date
+          example: '2027-10-21'
+        guaranteeTypeCode:
+          type: string
+          description: Тип гарантии ТФО
+          example: ADV
+        guaranteeTypeName:
+          type: string
+          description: Название типа гарантии
+          example: Гарантия возврата аванса
+        placeOfDisputeResolution:
+          type: string
+          description: Место разрешения споров
+          example: Арбитражный суд города Москвы
+        avisoBankCode:
+          type: string
+          description: SWIFT-code авизующего банка
+          example: RZBMRUMM
+        useRussianLaw:
+          type: boolean
+          description: Признак применения российского права в отношении выпускаемой гарантии
+          example: true
+        useUrdg758:
+          type: boolean
+          description: Признак применения норм URDG 758 в отношении выпускаемой гарантии
+          example: false
+        issueMethod:
+          type: string
+          description: Способ выдачи
+          example: SWIFT
+        principal:
+          $ref: '#/components/schemas/OrganizationDTO'
+        applicant:
+          $ref: '#/components/schemas/OrganizationDTO'
+        beneficiary:
+          $ref: '#/components/schemas/OrganizationDTO'
+        guaranteeSubject:
+          type: object
+          additionalProperties:
+            type: object
+          description: Поля обязательства
+        applicationNumber:
+          type: string
+          description: Номер заявления в TFO
+        changeStartDate:
+          type: string
+          format: date
+          example: '2025-09-11'
+        fees:
+          $ref: '#/components/schemas/CommissionDto'
+        emails:
+          type: array
+          description: Электронная почта для отправки гарантии с УКЭП
+          items:
+            type: string
+            example: user@example.com
+        cbrfUuid:
+          type: string
+          description: Уникальный идентификатор кредитной истории ЦБ РФ
+        thirdParty:
+          type: boolean
+        isCounter:
+          type: boolean
+          description: Является контргарантией
+    GuaranteeShortDTO:
+      type: object
+      properties:
+        number:
+          type: string
+          description: Номер гарантии
+          example: 70690/GI/250911
+        issueDate:
+          type: string
+          format: date
+          example: '2025-09-11'
+    GuaranteeFilterDTO:
+      type: object
+      properties:
+        status:
+          type: array
+          description: Статус гарантии (ACTIVE, FINISHED, WAIT_BENEFICIARY_CONSENT)
+          items:
+            type: string
+            example: ACTIVE
+        number:
+          type: array
+          description: Номер гарантии
+          items:
+            type: string
+            example: 70690/GI/250911
+        principalCnum:
+          type: array
+          description: CNUM принципала
+          items:
+            type: string
+            example: Z63221
+        amount:
+          $ref: '#/components/schemas/IntervalDecimalFilterDTO'
+        currency:
+          type: array
+          description: Код валюты
+          items:
+            type: string
+            example: EUR
+        issueDate:
+          $ref: '#/components/schemas/IntervalDateFilterDTO'
+        guaranteeType:
+          type: array
+          description: Код типа гарантии
+          items:
+            type: string
+            example: advanced_payment
+        agreementNumber:
+          type: array
+          description: Номер соглашения
+          items:
+            type: string
+            example: Agreement_123
+        agreementDate:
+          $ref: '#/components/schemas/IntervalDateFilterDTO'
+        startDate:
+          $ref: '#/components/schemas/IntervalDateFilterDTO'
+        endDate:
+          $ref: '#/components/schemas/IntervalDateFilterDTO'
+        avisoBankCode:
+          type: array
+          description: Код авизующего банка
+          items:
+            type: string
+            example: RZBMRUMM
+        issueMethod:
+          type: array
+          description: Способ выдачи
+          items:
+            type: string
+            example: SWIFT
+        applicantInn:
+          type: array
+          description: ИНН апликанта
+          items:
+            type: string
+            example: '7712345678'
+        applicantShortName:
+          type: array
+          description: Краткое наименование апликанта
+          items:
+            type: string
+            example: ООО ТЕСТ-ТЕХНОЛОГИИ ПЛЮС
+        beneficiaryInn:
+          type: array
+          description: ИНН бенефициара
+          items:
+            type: string
+            example: '7814987654'
+        beneficiaryShortName:
+          type: array
+          description: Краткое наименование бенефициара
+          items:
+            type: string
+            example: АО "ТЕСТ-КОНСАЛТИНГ"
+        bidNoticeNum:
+          type: array
+          description: Номер извещения
+          items:
+            type: string
+        isScan:
+          type: boolean
+          description: Скан гарантии
+        isScanCopy:
+          type: boolean
+        versionDate:
+          $ref: '#/components/schemas/IntervalLocalDateTimeDTO'
+        versionType:
+          type: array
+          description: Тип версии (PRIMARY, CHANGES)
+          items:
+            type: string
+        channel:
+          type: array
+          description: Канал
+          items:
+            type: string
+        lmsLimitId:
+          type: array
+          description: Список id лимитов в LMS
+          items:
+            type: string
+        cbrfUuid:
+          type: string
+          description: Уникальный идентификатор кредитной истории ЦБ РФ
+    IntervalDateFilterDTO:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date-time
+        to:
+          type: string
+          format: date-time
+      description: Дата окончания действия гарантии
+    CommissionDto:
+      type: object
+      properties:
+        commissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeeShortDto'
+        account:
+          type: string
+          example: '40702810900000000390'
+        accountType:
+          $ref: '#/components/schemas/AccountType'
+        penaltyRate:
+          type: number
+          example: 0.5
+        rate:
+          type: number
+          example: 0.3
+        paymentTermMaturity:
+          type: integer
+          format: int32
+          example: 30
+        total:
+          type: number
+          example: 1000
+        minimumAmount:
+          type: number
+          example: 500
+        minimumAmountCurrency:
+          type: string
+          example: EUR
+      description: График комиссии
+    GuaranteeChangeLogDto:
+      type: object
+      properties:
+        applicationNumber:
+          type: string
+          example: APP123456
+        applicationDate:
+          type: string
+          format: date
+          example: '2024-08-30'
+        effectiveDate:
+          type: string
+          format: date
+          example: '2025-09-11'
+        section:
+          type: string
+          example: Основные параметры
+        parametrName:
+          type: string
+          example: Сумма гарантии
+        sectionEn:
+          type: string
+          example: Main parameters
+        parametrNameEn:
+          type: string
+          example: Guarantee amount
+        oldValue:
+          type: string
+          example: '9000.00'
+        newValue:
+          type: string
+          example: '10115.00'
+        isSeparate:
+          type: boolean
+          example: false
+        isFromTfo:
+          type: boolean
+          example: true
+    OrganizationDTO:
+      type: object
+      properties:
+        cnum:
+          type: string
+          description: CNUM
+          example: Z63221
+        fullNameRus:
+          type: string
+          description: Полное наименование на русском языке
+          example: Общество с ограниченной ответственностью ООО ТЕСТ-ТЕХНОЛОГИИ ПЛЮС
+        shortName:
+          type: string
+          description: Сокращенное наименование на русском языке
+          example: ООО ТЕСТ-ТЕХНОЛОГИИ ПЛЮС
+        fullNameEng:
+          type: string
+          description: Полное наименование латинскими буквами
+          example: TEST TECHNOLOGIES OOO
+        currentAddress:
+          type: string
+          description: Адрес местонахождения
+          example: 121096, RU, Москва г, Филевская 2-я ул, 7, 6, кв. 11
+        postalAddress:
+          type: string
+          description: Почтовый адрес
+          example: 121096, RU, Москва г, Филевская 2-я ул, 7, 6, кв. 11
+        inn:
+          type: string
+          description: ИНН
+          example: '7712345678'
+        kpp:
+          type: string
+          description: КПП
+          example: '771201001'
+        kppLargestTaxPayer:
+          type: string
+          description: КПП крупнейшего налогоплательщика
+        ogrn:
+          type: string
+          description: ОГРН
+          example: '1157746054321'
+        oktmo:
+          type: string
+          description: ОКТМО
+          example: '12345678'
+        taxRegistrationDate:
+          type: string
+          format: date
+          example: '2006-10-14'
+        taxUnitCode:
+          type: string
+          description: Код налогового органа
+        customsUnitCode:
+          type: string
+          description: Код таможенного органа
+        kio:
+          type: string
+          description: КИО
+        tin:
+          type: string
+          description: TIN
+      description: Информация по организации
+    SortDirection:
+      type: string
+      enum:
+      - ASC
+      - DESC
+    Paging:
+      required:
+      - limit
+      - offset
+      properties:
+        offset:
+          type: integer
+          format: int32
+          example: 60
+        limit:
+          type: integer
+          format: int32
+          example: 20
+    GetActivesByCnumRequest:
+      type: object
+      properties:
+        cnums:
+          type: array
+          description: Список клиентских cnum
+          items:
+            type: string
+            example: Z63221
+    ErrorSource:
+      required:
+      - pointer
+      type: object
+      properties:
+        pointer:
+          type: string
+    ErrorResponseDto:
+      required:
+      - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseItemDto'
+    GuaranteeCommissionExcelRequest:
+      type: object
+      properties:
+        guaranteeNumber:
+          type: string
+          example: 70690/GI/250911
+        guaranteeNumbers:
+          type: array
+          items:
+            type: string
+            example: 70690/GI/250911
+        cnums:
+          type: array
+          items:
+            type: string
+            example: Z63221
+        filters:
+          $ref: '#/components/schemas/GuaranteeFilterDTO'
+    GuaranteesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GuaranteeResponse'
+      allOf:
+      - $ref: '#/components/schemas/Pagination'
+    GuaranteeFilterRequest:
+      required:
+      - filter
+      type: object
+      properties:
+        filter:
+          $ref: '#/components/schemas/GuaranteeFilterDTO'
+        paging:
+          $ref: '#/components/schemas/Paging'
+        order:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+    Pagination:
+      required:
+      - limit
+      - offset
+      - totalCount
+      type: object
+      properties:
+        offset:
+          type: integer
+          format: int32
+          example: 0
+        limit:
+          type: integer
+          format: int32
+          example: 20
+        totalCount:
+          type: integer
+          format: int64
+          example: 35
+    FeeShortDto:
+      type: object
+      properties:
+        feeList:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeeScheduleDto'
+        totalAmount:
+          type: number
+          example: 1000
+        currency:
+          type: string
+          example: EUR
+        commissionName:
+          type: string
+          example: Комиссия за выпуск
+        status:
+          type: string
+          example: ACTIVE
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-trade-finance-guarantees-openapi.yml
+- raiffeisen-ru-trade-finance-guarantees-openapi.yml

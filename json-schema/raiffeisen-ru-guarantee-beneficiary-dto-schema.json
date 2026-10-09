@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-guarantee-beneficiary-dto-schema.json",
+  "title": "GuaranteeBeneficiaryDto",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml#/components/schemas/GuaranteeBeneficiaryDto",
+  "required": [
+    "id"
+  ],
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "format": "int64"
+    },
+    "guaranteeNumber": {
+      "type": "string"
+    },
+    "statusTFO": {
+      "type": "string"
+    },
+    "issueDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "expiryDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "amount": {
+      "type": "number"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "guaranteeType": {
+      "type": "string"
+    },
+    "principal": {
+      "$ref": "#/$defs/Principal"
+    },
+    "beneficiaryCnum": {
+      "type": "string"
+    },
+    "beneficiary": {
+      "$ref": "#/$defs/Beneficiary"
+    }
+  },
+  "$defs": {
+    "Beneficiary": {
+      "type": "object",
+      "properties": {
+        "shortName": {
+          "type": "string",
+          "description": "Наименование бенефициара"
+        },
+        "cnum": {
+          "type": "string",
+          "description": "CNUM бенефициара"
+        },
+        "inn": {
+          "type": "string",
+          "description": "ИНН бенефициара"
+        }
+      }
+    },
+    "Principal": {
+      "type": "object",
+      "properties": {
+        "shortName": {
+          "type": "string",
+          "description": "Наименование принципала"
+        },
+        "cnum": {
+          "type": "string",
+          "description": "CNUM принципала"
+        },
+        "inn": {
+          "type": "string",
+          "description": "ИНН принципала"
+        }
+      },
+      "description": "CNUM принципала"
+    }
+  }
+}

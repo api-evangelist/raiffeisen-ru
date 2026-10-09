@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-client-info-response-schema.json",
+  "title": "ClientInfoResponse",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-rcam-openapi.yml#/components/schemas/ClientInfoResponse",
+  "type": "object",
+  "properties": {
+    "cnum": {
+      "type": "string",
+      "description": "CNUM клиента"
+    },
+    "complianceStatus": {
+      "type": "string",
+      "enum": [
+        "REJECTED",
+        "SUCCESS"
+      ],
+      "description": "Комплаенс статус клиента"
+    }
+  },
+  "required": [
+    "cnum",
+    "complianceStatus"
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-status-history-response-schema.json",
+  "title": "StatusHistoryResponse",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml#/components/schemas/StatusHistoryResponse",
+  "required": [
+    "statuses"
+  ],
+  "type": "object",
+  "properties": {
+    "statuses": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/StatusChangeDto"
+      }
+    }
+  },
+  "$defs": {
+    "StatusChangeDto": {
+      "required": [
+        "applicationId",
+        "changed",
+        "clientName",
+        "comment",
+        "toStatus"
+      ],
+      "type": "object",
+      "properties": {
+        "applicationId": {
+          "type": "integer",
+          "description": "ID заявления",
+          "format": "int64"
+        },
+        "toStatus": {
+          "type": "string",
+          "description": "Новый статус"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Комментарий к действию"
+        },
+        "clientName": {
+          "type": "string",
+          "description": "ФИО инициатора действия"
+        },
+        "changed": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

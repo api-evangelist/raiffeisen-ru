@@ -1,0 +1,4844 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Payout Controller API
+  version: '1.0'
+  contact:
+    email: ecom@raiffeisen.ru
+    name: Support e-mail
+    x-team-id: 933
+    x-short-team-name: PPO
+  x-description-i18n:
+    eng: 'You can give your comments about current documentation in repository: https://github.com/Raiffeisen-DGTL/ecom-API/blob/master/payout.yaml
+
+
+      # API Description
+
+      The interaction is carried out via the HTTP protocol using the GET / POST methods (the required method and address are clearly indicated in the description of each request).
+
+
+      POST requests use JSON arguments, GET requests work with query strings.
+
+
+      The API always returns a response in JSON format, regardless of the type of request.
+
+
+      The standard response of the service contains a message code (code).
+
+      If a logical error occurs during request processing, the API will additionally return a description of the error (message).
+
+
+      # Workflow scheme
+
+      ## One step processing
+
+      Upon receipt of a request for payment, the bank immediately conducts all checks and, if the operation can be carried out, makes the payment.
+
+
+      <a href=''images/one-step_payout_en.png'' target=''_blank''><img src=''images/one-step_payout_en.png''/></a>
+
+
+      ## Two-stage processing
+
+      With two-stage processing, a payout request is created, the bank checks the possibility of such an operation and returns the result. Further confirmation of the payout from the partner is expected.
+
+      This interaction scheme is suitable when it is required to separate the creation of an application and its approval.
+
+      Example: the manager creates a payout request, the manager or chief accountant confirms the payout.
+
+
+      <a href=''images/two-step_payout_en.png'' target=''_blank''><img src=''images/two-step_payout_en.png''/></a>
+
+
+      # Authorization
+
+      Authorization is performed using a secret API key (secretKey). The authorization parameter is specified in the Authorization header, the value of which is formed as "Bearer secretKey".
+
+
+      The list of IPs from which the system will pass requests is also configured.'
+  x-logo:
+    url: images/raifflogo.png
+    backgroundColor: '#FFFFFF'
+    altText: Raiff logo
+  description: 'Operations tagged payout-controller across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-payouts-openapi.json, raiffeisen-ru-raif-pay-payouts-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://pay-test.raif.ru/api
+  description: Sandbox
+- url: https://pay.raif.ru/api
+  description: prod
+tags:
+- name: payout-controller
+  x-displayName: Работа с выплатами
+  x-x-displayName-i18n:
+    eng: Payout methods
+  description: 'Для реализации взаимодействия с партнёром Райффайзенбанк предоставляет API из следующих запросов:
+
+    * получение списка банков, принимающих выплаты по СБП,
+
+    * запрос на проведение выплаты,
+
+    * запрос на создание заявки на выплату,
+
+    * запрос на подтверждение заявки на выплату,
+
+    * получение статуса выплаты.'
+  x-description-i18n:
+    eng: "To implement interaction with a partner, Raiffeisenbank provides an API from the following requests:\n * obtaining a list of banks accepting payout under the SBP,\n * request for payout,\n * request for create payout request,\n * confirmation of the request for payment,\n * receiving payout status.\n\nYou can see the list of banks connected to accepting SBP payouts on the website https://sbp.nspk.ru/participants/ in the \"Оплата по QR\" section.\n\nWe automatically maintain an up-to-date list and return it in [request to get participating banks](#operation/get-payout-v1-sbp-banks).\n"
+paths:
+  /payout/v1/sbp/banks:
+    parameters: []
+    get:
+      summary: Получение списка банков
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/banksList'
+              examples:
+                Payload:
+                  value:
+                  - alias: RAIFFEISEN
+                    name: Райффайзенбанк
+                  - alias: TINKOFF
+                    name: Тинькофф
+                  - alias: VTB
+                    name: ВТБ
+      operationId: get-payout-v1-sbp-banks
+      description: Получение списка банков, принимающих выплаты по СБП
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: Authorization
+        required: true
+        description: '[Bearer secretKey](#section/Avtorizaciya)'
+      tags:
+      - payout-controller
+      x-summary-i18n:
+        eng: Get list of banks
+      x-description-i18n:
+        eng: Get a list of banks accepting SBP payments
+      deprecated: true
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+  /payout/v2/sbp/banks:
+    parameters: []
+    get:
+      summary: Получение списка банков
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bankListWithBankId'
+              examples:
+                Payload:
+                  value:
+                  - alias: RAIFFEISEN
+                    name: Райффайзенбанк
+                    bankId: '100000000007'
+                  - alias: TINKOFF
+                    name: Тинькофф Банк
+                    bankId: '100000000004'
+                  - alias: YANDEX BANK
+                    name: Яндекс Банк
+                    bankId: '100000000150'
+      operationId: get-payout-v2-sbp-banks
+      description: Получение списка банков, принимающих выплаты по СБП
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: Authorization
+        description: '[Bearer secretKey](#section/Avtorizaciya)'
+        required: true
+      tags:
+      - payout-controller
+      x-description-i18n:
+        eng: Get list of banks accepting SBP payments
+      x-summary-i18n:
+        eng: Get list of banks
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+  /payout/v3/sbp/banks:
+    parameters: []
+    get:
+      summary: Получение списка банков с БИК
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bankListWithBic'
+              examples:
+                Payload:
+                  value:
+                  - alias: RAIFFEISEN
+                    name: Райффайзенбанк
+                    bankId: '100000000007'
+                    bic: 123456789
+                  - alias: TINKOFF
+                    name: Тинькофф Банк
+                    bankId: '100000000004'
+                    bic: 123456789
+                  - alias: YANDEX BANK
+                    name: Яндекс Банк
+                    bankId: '100000000150'
+                    bic: 123456789
+      operationId: get-payout-v3-sbp-banks
+      description: Получение списка банков, принимающих выплаты по СБП
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: Authorization
+        description: '[Bearer secretKey](#section/Avtorizaciya)'
+        required: true
+      tags:
+      - payout-controller
+      x-description-i18n:
+        eng: Get list of banks accepting SBP payments
+      x-summary-i18n:
+        eng: Get list of banks
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+  /payout/v1/payouts:
+    post:
+      deprecated: true
+      operationId: post-payout-v1-payouts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/payoutResponse'
+              examples:
+                '200':
+                  value:
+                    id: 1404fhr7i272a2
+                    amount: 1110.01
+                    currency: RUB
+                    fiscal: true
+                    payoutMethod: SBP
+                    payoutParams:
+                      phone: '79191234567'
+                      bankAlias: RAIFFEISEN
+                      firstName: Иван
+                      middleName: Иванович
+                      lastName: Иванов
+                      inn: 123456789101
+                    incomeTypeCode: '1'
+                    extra:
+                      apiClient: Payout Software
+                      apiClientVersion: 1.0.0
+                    status:
+                      value: IN_PROGRESS
+                      date: '2019-07-11T17:45:13+03:00'
+                    creationDate: '2019-07-11T17:45:13+03:00'
+        '415':
+          description: 'Unsupported Media Type.
+
+            Check content type in header parameters'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/415response'
+              examples:
+                Example 1:
+                  value:
+                    timestamp: '2023-02-15T06:36:32.418+00:00'
+                    status: 415
+                    error: Unsupported Media Type
+                    path: string
+      description: 'Проведение выплаты.
+
+        Если в запросе переданы ФИО, по ним произойдет сверка данных с данными получателя в системе. Если данные не совпадут, выплата отобъется с ошибкой.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/payoutRequest'
+            examples:
+              Payload:
+                value:
+                  id: 1404fhr7i272a2
+                  account: '40700000000000000000'
+                  amount: 1110.01
+                  currency: RUB
+                  fiscal: true
+                  paymentDetails: Выплата от страховой компании
+                  payoutMethod: SBP
+                  payoutParams:
+                    phone: '79191234567'
+                    bankAlias: RAIFFEISEN
+                    firstName: Иван
+                    middleName: Иванович
+                    lastName: Иванов
+                    inn: 123456789101
+                  incomeTypeCode: '1'
+                  extra:
+                    apiClient: Payout Software
+                    apiClientVersion: 1.0.0
+        description: Запрос на проведение выплаты
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: Authorization
+        required: true
+        description: '[Bearer secretKey](#section/Avtorizaciya)'
+      summary: Проведение выплаты
+      tags:
+      - payout-controller
+      x-summary-i18n:
+        eng: Making a payout
+      x-description-i18n:
+        eng: 'Making a payout. If full name in the request is passed, it will be used to verify data against the recipient data in the system. If data does not match, the payout will be processed with an error.
+
+          '
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+  /v2/payouts:
+    post:
+      operationId: post-v2-payouts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/payoutV2Response'
+              examples:
+                '200':
+                  value:
+                    id: 1404fhr7i272a2
+                    amount: 1110.01
+                    currency: RUB
+                    fiscal: true
+                    payoutMethod: SBP
+                    payoutParams:
+                      phone: '79191234567'
+                      bankAlias: RAIFFEISEN
+                      firstName: Иван
+                      middleName: Иванович
+                      lastName: Иванов
+                      inn: 123456789101
+                    incomeTypeCode: '1'
+                    extra:
+                      apiClient: Payout Software
+                      apiClientVersion: 1.0.0
+                    status:
+                      value: IN_PROGRESS
+                      date: '2019-07-11T17:45:13+03:00'
+                    creationDate: '2019-07-11T17:45:13+03:00'
+                    currencyOperationCode: 21200
+                    agreementDate: '2025-09-18'
+                    agreementNumber: 123456789
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+        '415':
+          description: 'Unsupported Media Type.
+
+            Check content type in header parameters'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/415response'
+              examples:
+                Example 1:
+                  value:
+                    timestamp: '2023-02-15T06:36:32.418+00:00'
+                    status: 415
+                    error: Unsupported Media Type
+                    path: string
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+      description: 'Проведение выплаты.
+
+        Если в запросе переданы ФИО, по ним произойдет сверка данных с данными получателя в системе. Если данные не совпадут, выплата отобъется с ошибкой.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/payoutV2Request'
+            examples:
+              Payload:
+                value:
+                  id: 1404fhr7i272a2
+                  account: '40700000000000000000'
+                  amount: 1110.01
+                  currency: RUB
+                  fiscal: true
+                  paymentDetails: Выплата от страховой компании
+                  payoutMethod: SBP
+                  payoutParams:
+                    phone: '79191234567'
+                    bankAlias: RAIFFEISEN
+                    firstName: Иван
+                    middleName: Иванович
+                    lastName: Иванов
+                    inn: 123456789101
+                  incomeTypeCode: '1'
+                  currencyOperationCode: 21200
+                  agreementDate: '2025-09-18'
+                  agreementNumber: 123456789
+                  extra:
+                    apiClient: Payout Software
+                    apiClientVersion: 1.0.0
+        description: Запрос на проведение выплаты
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: Authorization
+        required: true
+        description: '[Bearer secretKey](#section/Avtorizaciya)'
+      - $ref: '#/components/parameters/AcceptCharset'
+      - $ref: '#/components/parameters/ContentTypeCharset'
+      summary: Проведение выплаты
+      tags:
+      - payout-controller
+      x-summary-i18n:
+        eng: Making a payout
+      x-description-i18n:
+        eng: 'Making a payout. If full name in the request is passed, it will be used to verify data against the recipient data in the system. If data does not match, the payout will be processed with an error.
+
+          '
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+  /payout/v1/payouts/draft:
+    post:
+      summary: Создание заявки на выплату
+      operationId: post-payout-v1-payouts-draft
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/payoutResponse'
+              examples:
+                '200':
+                  value:
+                    id: 1404fhr7i272a2
+                    amount: 1110.01
+                    currency: RUB
+                    fiscal: true
+                    payoutMethod: SBP
+                    payoutParams:
+                      phone: '79191234567'
+                      bankAlias: RAIFFEISEN
+                      firstName: Иван
+                      middleName: Иванович
+                      lastName: Иванов
+                      inn: 123456789101
+                    incomeTypeCode: '1'
+                    extra:
+                      apiClient: Payout Software
+                      apiClientVersion: 1.0.0
+                    status:
+                      value: PENDING
+                      date: '2019-07-11T17:45:13+03:00'
+                    creationDate: '2019-07-11T17:45:13+03:00'
+        '415':
+          description: 'Unsupported Media Type.
+
+            Check content type in header parameters'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/415response'
+              examples:
+                Example 1:
+                  value:
+                    timestamp: '2023-02-15T06:36:32.418+00:00'
+                    status: 415
+                    error: Unsupported Media Type
+                    path: string
+      x-internal: false
+      description: 'Метод позволяет создавать заявку на выплату для двухстадийного взаимодействия.
+
+        При создании заявки также проводятся все необходимые проверки на возможность провести выплату.
+
+        Если в запросе переданы ФИО, по ним произойдет сверка данных с данными получателя в системе. Если данные не совпадут, заявка отобъется с ошибкой.
+
+        Для дальнейшей работы с заявкой необходимо смотреть на ее статус.
+
+        Успешное прохождение проверок при создании заявки не гарантирует успешное проведение выплаты.'
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: Authorization
+        required: true
+        description: '[Bearer secretKey](#section/Avtorizaciya)'
+      - $ref: '#/components/parameters/AcceptCharset'
+      - $ref: '#/components/parameters/ContentTypeCharset'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/payoutRequest'
+            examples:
+              Payload:
+                value:
+                  id: 1404fhr7i272a2
+                  account: '40700000000000000000'
+                  amount: 1110.01
+                  currency: RUB
+                  fiscal: true
+                  paymentDetails: Выплата от страховой компании
+                  payoutMethod: SBP
+                  payoutParams:
+                    phone: '79191234567'
+                    bankAlias: RAIFFEISEN
+                    firstName: Иван
+                    middleName: Иванович
+                    lastName: Иванов
+                    inn: 123456789101
+                  incomeTypeCode: '1'
+                  currencyOperationCode: 21200
+                  agreementDate: '2025-09-18'
+                  agreementNumber: 123456789
+                  extra:
+                    apiClient: Payout Software
+                    apiClientVersion: 1.0.0
+        description: Запрос на создание черновика выплаты
+      tags:
+      - payout-controller
+      x-summary-i18n:
+        eng: Creating two-stage payout
+      x-description-i18n:
+        eng: The method allows you to create a payout request for a two-stage interaction. When creating a request, all necessary checks are also carried out for the possibility of making a payout. If the full name is transmitted in the request, it will be used to verify the data with the recipient's data in the system. If the data does not match, the request will be rejected with an error. For further work with the request, you need to check status. Successful passing of checks when creating a request does not guarantee successful payout.
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+  /payout/v1/payouts/{id}:
+    parameters:
+    - schema:
+        type: string
+        maxLength: 20
+        format: ^[Aa-Zz0-9_-]
+      name: id
+      in: path
+      required: true
+      description: id выплаты
+      x-description-i18n:
+        eng: Payout id
+    get:
+      summary: Получение информации по выплате
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/payoutResponse'
+              examples:
+                COMPLETED:
+                  value:
+                    id: 1404fhr7i272a2
+                    amount: 1110.01
+                    currency: RUB
+                    payoutMethod: SBP
+                    payoutParams:
+                      phone: '79191234567'
+                      bankAlias: RAIFFEISEN
+                      firstName: Иван
+                      middleName: Иванович
+                      lastName: Иванов
+                      inn: 123456789101
+                    incomeTypeCode: '1'
+                    extra:
+                      apiClient: Payout Software
+                      apiClientVersion: 1.0.0
+                    status:
+                      value: COMPLETED
+                      date: '2019-07-11T17:45:13+03:00'
+                    creationDate: '2019-07-11T17:45:13+03:00'
+                DECLINED:
+                  value:
+                    id: 1404fhr7i272a2
+                    amount: 1110.01
+                    currency: RUB
+                    payoutMethod: SBP
+                    payoutParams:
+                      phone: '79191234567'
+                      bankAlias: RAIFFEISEN
+                      firstName: Иван
+                      middleName: Иванович
+                      lastName: Иванов
+                      inn: 123456789101
+                    incomeTypeCode: '1'
+                    extra:
+                      apiClient: Payout Software
+                      apiClientVersion: 1.0.0
+                    status:
+                      value: DECLINED
+                      declineReason: RECEIVER_ACCOUNT_ERROR
+                      date: '2019-07-11T17:45:13+03:00'
+                    creationDate: '2019-07-11T17:45:13+03:00'
+      operationId: get-payout-v1-payouts-id
+      description: Получение информации по выплате.
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: Authorization
+        required: true
+        description: '[Bearer secretKey](#section/Avtorizaciya)'
+      tags:
+      - payout-controller
+      x-summary-i18n:
+        eng: Obtaining payout information
+      x-description-i18n:
+        eng: Obtaining payout information
+      deprecated: true
+    put:
+      summary: Подтверждение выплаты
+      operationId: put-payout-v1-payouts-id
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: Content-Type
+        description: application/json
+        required: true
+      - schema:
+          type: string
+        in: header
+        name: Authorization
+        required: true
+        description: '[Bearer secretKey](#section/Avtorizaciya)'
+      - $ref: '#/components/parameters/AcceptCharset'
+      description: Подтверждение выплаты при двухстадийной схеме.
+      tags:
+      - payout-controller
+      x-summary-i18n:
+        eng: Payout confirmation
+      x-description-i18n:
+        eng: Confirmation two-stage payout
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+  /payout/v2/payouts/{id}:
+    parameters:
+    - schema:
+        type: string
+        maxLength: 20
+        format: ^[Aa-Zz0-9_-]
+      name: id
+      in: path
+      required: true
+      description: id выплаты
+      x-description-i18n:
+        eng: Payout id
+    - $ref: '#/components/parameters/AcceptCharset'
+    get:
+      summary: Получение информации по выплате
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/payoutResponseV2'
+              examples:
+                COMPLETED:
+                  value:
+                    id: 1404fhr7i272a22
+                    amount: 1110.01
+                    fiscal: true
+                    receiptLink: https://lknpd.nalog.ru/api/v1/receipt/123456789101/2017i8xslu/print
+                    currency: RUB
+                    payoutMethod: SBP
+                    payoutParams:
+                      phone: '79191234567'
+                      bankAlias: RAIFFEISEN
+                      firstName: Иван
+                      middleName: Иванович
+                      lastName: Иванов
+                      inn: 123456789101
+                    receiverPam: Иван Иванович И
+                    incomeTypeCode: '1'
+                    extra:
+                      apiClient: Payout Software
+                      apiClientVersion: 1.0.0
+                    status:
+                      value: COMPLETED
+                      date: '2025-02-11T12:58:44+03:00'
+                    creationDate: '2025-02-11T12:58:44+03:00'
+                DECLINED:
+                  value:
+                    id: 1404fhr7i272a23
+                    amount: 1110.01
+                    currency: RUB
+                    payoutMethod: SBP
+                    payoutParams:
+                      phone: '79191234567'
+                      bankAlias: RAIFFEISEN
+                      firstName: Иван
+                      middleName: Иванович
+                      lastName: Иванов
+                      inn: 123456789101
+                    receiverPam: Иван Иванович И
+                    incomeTypeCode: '1'
+                    extra:
+                      apiClient: Payout Software
+                      apiClientVersion: 1.0.0
+                    status:
+                      value: DECLINED
+                      declineReason: RECEIVER_ACCOUNT_ERROR
+                      date: '2025-02-01T13:00:00+03:00'
+                    creationDate: '2025-02-01T13:00:00+03:00'
+      operationId: get-payout-v2-payouts-id
+      description: Получение информации по выплате. Метод позволяет сверить PAM получателя с ФИО, указанным в запросе на создание выплаты. API для данного сценария может быть расширяемым.
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: Authorization
+        required: true
+        description: '[Bearer secretKey](#section/Avtorizaciya)'
+      tags:
+      - payout-controller
+      x-summary-i18n:
+        eng: Obtaining payout information. The method allows you to check the recipient's PAM with the full name specified in the request to create a payment.
+      x-description-i18n:
+        eng: Obtaining payout information. The method allows you to check the recipient's PAM with the full name specified in the request to create a payment.
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+  /payout/v1/payout-bundles:
+    post:
+      deprecated: true
+      summary: Создание пакета выплат
+      tags:
+      - payout-controller
+      x-summary-i18n:
+        eng: Create payout package
+      x-description-i18n:
+        eng: This method allows you to make several payouts with one request. Up to 15000 payouts can be transferred in one package.
+      operationId: post-payout-v1-payout-bundles
+      description: 'Данный метод позволяет произвести несколько выплат одним запросом.
+
+        В одном пакете можно передать до 15000 выплат.'
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: Authorization
+        description: '[Bearer secretKey](#section/Avtorizaciya)'
+        required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/payoutBundlesRequest'
+            examples:
+              payload:
+                value:
+                  id: b-0001
+                  account: '40700000000000000000'
+                  fiscal: true
+                  payouts:
+                  - id: 1404fhr7i272a2
+                    amount: 1110.01
+                    currency: RUB
+                    paymentDetails: Выплата от страховой компании
+                    payoutMethod: SBP
+                    payoutParams:
+                      phone: '79191234567'
+                      bankAlias: RAIFFEISEN
+                      firstName: Иван
+                      middleName: Иванович
+                      lastName: Иванов
+                      inn: 123456789101
+                    incomeTypeCode: '1'
+                    currencyOperationCode: 21200
+                    agreementDate: '2025-09-18'
+                    agreementNumber: 123456789
+                    extra:
+                      apiClient: Payout Software
+                      apiClientVersion: 1.0.0
+                  - id: 120445r7i272a2
+                    amount: 500
+                    currency: RUB
+                    paymentDetails: Выплата от страховой компании
+                    payoutMethod: SBP
+                    payoutParams:
+                      phone: '79191234567'
+                      bankAlias: VTB
+                      firstName: Иван
+                      middleName: Иванович
+                      lastName: Иванов
+                      inn: 123456789101
+                    incomeTypeCode: '1'
+                    currencyOperationCode: 21200
+                    agreementDate: '2025-09-18'
+                    agreementNumber: 123456789
+                    extra:
+                      apiClient: Payout Software
+                      apiClientVersion: 1.0.0
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayoutBundlesResponse'
+              examples:
+                payload:
+                  value:
+                    id: b-0001
+                    account: '40700000000000000000'
+                    fiscal: true
+                    payouts:
+                    - id: 1404fhr7i272a2
+                      amount: 1110.01
+                      currency: RUB
+                      payoutMethod: SBP
+                      payoutParams:
+                        phone: '79191234567'
+                        bankAlias: RAIFFEISEN
+                        firstName: Иван
+                        middleName: Иванович
+                        lastName: Иванов
+                        inn: 123456789101
+                      incomeTypeCode: '1'
+                      extra:
+                        apiClient: Payout Software
+                        apiClientVersion: 1.0.0
+                      status:
+                        value: IN_PROGRESS
+                        date: '2019-07-11T17:45:13+03:00'
+                      creationDate: '2019-07-11T17:45:13+03:00'
+                    - id: 120445r7i272a2
+                      amount: 500
+                      currency: RUB
+                      payoutMethod: SBP
+                      payoutParams:
+                        phone: '79191234567'
+                        bankAlias: VTB
+                        firstName: Иван
+                        middleName: Иванович
+                        lastName: Иванов
+                        inn: 123456789101
+                      incomeTypeCode: '1'
+                      extra:
+                        apiClient: Payout Software
+                        apiClientVersion: 1.0.0
+                      status:
+                        value: IN_PROGRESS
+                        date: '2019-07-11T17:45:13+03:00'
+                      creationDate: '2019-07-11T17:45:13+03:00'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+        '403':
+          description: Операция запрещена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error403Response'
+        '404':
+          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error404Response'
+        '413':
+          description: Размер запроса превышает максимальное ограничение
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error413Response'
+        '415':
+          description: 'Unsupported Media Type.
+
+            Check content type in header parameters'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/415response'
+              examples:
+                Example 1:
+                  value:
+                    timestamp: '2023-02-15T06:36:32.418+00:00'
+                    status: 415
+                    error: Unsupported Media Type
+                    path: string
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+  /payout/v2/payout-bundles:
+    post:
+      summary: Создание пакета выплат
+      tags:
+      - payout-controller
+      x-summary-i18n:
+        eng: Create payout package
+      x-description-i18n:
+        eng: This method allows you to make several payouts with one request. Up to 15000 payouts can be transferred in one package.
+      operationId: post-payout-v2-payout-bundles
+      description: 'Данный метод позволяет произвести несколько выплат одним запросом.
+
+        В одном пакете можно передать до 15000 выплат.'
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: Authorization
+        description: '[Bearer secretKey](#section/Avtorizaciya)'
+        required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/payoutBundlesRequestV2'
+            examples:
+              payload:
+                value:
+                  id: b-0001
+                  account: '40700000000000000000'
+                  fiscal: true
+                  payouts:
+                  - id: 1404fhr7i272a2
+                    amount: 1110.01
+                    currency: RUB
+                    paymentDetails: Выплата от страховой компании
+                    payoutMethod: SBP
+                    payoutParams:
+                      phone: '79191234567'
+                      bankAlias: RAIFFEISEN
+                      firstName: Иван
+                      middleName: Иванович
+                      lastName: Иванов
+                      inn: 123456789101
+                    incomeTypeCode: '1'
+                    currencyOperationCode: 21200
+                    agreementDate: '2025-09-18'
+                    agreementNumber: 123456789
+                    extra:
+                      apiClient: Payout Software
+                      apiClientVersion: 1.0.0
+                  - id: 120445r7i272a2
+                    amount: 500
+                    currency: RUB
+                    paymentDetails: Выплата от страховой компании
+                    payoutMethod: SBP
+                    fiscal: false
+                    payoutParams:
+                      phone: '79191234567'
+                      bankAlias: VTB
+                      firstName: Иван
+                      middleName: Иванович
+                      lastName: Иванов
+                      inn: 123456789101
+                    incomeTypeCode: '1'
+                    currencyOperationCode: 21200
+                    agreementDate: '2025-09-18'
+                    agreementNumber: 123456789
+                    extra:
+                      apiClient: Payout Software
+                      apiClientVersion: 1.0.0
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayoutBundlesResponseV2'
+              examples:
+                payload:
+                  value:
+                    id: b-0001
+                    account: '40700000000000000000'
+                    fiscal: true
+                    payouts:
+                    - id: 1404fhr7i272a2
+                      amount: 1110.01
+                      currency: RUB
+                      payoutMethod: SBP
+                      payoutParams:
+                        phone: '79191234567'
+                        bankAlias: RAIFFEISEN
+                        firstName: Иван
+                        middleName: Иванович
+                        lastName: Иванов
+                        inn: 123456789101
+                      incomeTypeCode: '1'
+                      extra:
+                        apiClient: Payout Software
+                        apiClientVersion: 1.0.0
+                      status:
+                        value: IN_PROGRESS
+                        date: '2019-07-11T17:45:13+03:00'
+                      creationDate: '2019-07-11T17:45:13+03:00'
+                    - id: 120445r7i272a2
+                      amount: 500
+                      currency: RUB
+                      payoutMethod: SBP
+                      payoutParams:
+                        phone: '79191234567'
+                        bankAlias: VTB
+                        firstName: Иван
+                        middleName: Иванович
+                        lastName: Иванов
+                        inn: 123456789101
+                      incomeTypeCode: '1'
+                      extra:
+                        apiClient: Payout Software
+                        apiClientVersion: 1.0.0
+                      status:
+                        value: IN_PROGRESS
+                        date: '2019-07-11T17:45:13+03:00'
+                      creationDate: '2019-07-11T17:45:13+03:00'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+        '403':
+          description: Операция запрещена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error403Response'
+        '404':
+          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error404Response'
+        '413':
+          description: Размер запроса превышает максимальное ограничение
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error413Response'
+        '415':
+          description: 'Unsupported Media Type.
+
+            Check content type in header parameters'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/415response'
+              examples:
+                Example 1:
+                  value:
+                    timestamp: '2023-02-15T06:36:32.418+00:00'
+                    status: 415
+                    error: Unsupported Media Type
+                    path: string
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+  /payout/v3/payout-bundles:
+    post:
+      summary: Создание пакета выплат(v.3)
+      tags:
+      - payout-controller
+      x-summary-i18n:
+        eng: Create payout package(v3)
+      x-description-i18n:
+        eng: This method allows you to make several payouts with one request. Up to 15000 payouts can be transferred in one package. Account number is specified for each payout individually.
+      operationId: post-payout-v3-payout-bundles
+      description: 'Данный метод позволяет произвести несколько выплат одним запросом.
+
+        В одном пакете можно передать до 15000 выплат.
+
+        Счет списания может быть указан как на уровне пакета (опционально), так и для каждой выплаты индивидуально.'
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: Authorization
+        description: '[Bearer secretKey](#section/Avtorizaciya)'
+        required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PayoutBundlesRequestV3'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayoutBundlesResponseV3'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/BadRequestErrorResponse'
+                - $ref: '#/components/schemas/MissingAccountErrorResponse'
+        '403':
+          description: Операция запрещена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error403Response'
+        '404':
+          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error404Response'
+        '413':
+          description: Размер запроса превышает максимальное ограничение
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error413Response'
+        '415':
+          description: 'Unsupported Media Type.
+
+            Check content type in header parameters'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/415response'
+              examples:
+                Example 1:
+                  value:
+                    timestamp: '2023-02-15T06:36:32.418+00:00'
+                    status: 415
+                    error: Unsupported Media Type
+                    path: string
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+  /v2/payout-bundles/{id}:
+    get:
+      tags:
+      - payout-controller
+      summary: Получение общей информации реестра выплат
+      description: Получение общей информации реестра выплат по уникальному номеру реестра.
+      operationId: get-v1-payout-bundle-info
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: уникальный номер реестра выплат
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayoutBundleMetadata'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+        '401':
+          description: Неавторизованный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401Response'
+        '403':
+          description: Операция запрещена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error403Response'
+        '404':
+          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error404Response'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+  /v1/payout-bundles/{id}:
+    parameters:
+    - $ref: '#/components/parameters/BundleId'
+    patch:
+      summary: Обновление статуса пакета
+      tags:
+      - payout-controller
+      operationId: patch-v1-payout-bundles-id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PayoutBundleUpdateRequest'
+            examples:
+              Payload:
+                value:
+                  status: ON_SIGNING
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayoutBundlesResponseV2'
+              examples:
+                payload:
+                  value:
+                    id: b-0001
+                    account: '40700000000000000000'
+                    payouts:
+                    - id: 1404fhr7i272a2
+                      amount: 1110.01
+                      currency: RUB
+                      payoutMethod: SBP
+                      payoutParams:
+                        phone: '79191234567'
+                        bankAlias: RAIFFEISEN
+                        firstName: Иван
+                        middleName: Иванович
+                        lastName: Иванов
+                        inn: 123456789101
+                      incomeTypeCode: '1'
+                      extra:
+                        apiClient: Payout Software
+                        apiClientVersion: 1.0.0
+                      status:
+                        value: COMPLETED
+                        date: '2019-07-11T17:45:13+03:00'
+                      creationDate: '2019-07-11T17:45:13+03:00'
+                    - id: 120445r7i272a2
+                      amount: 500
+                      currency: RUB
+                      payoutMethod: SBP
+                      payoutParams:
+                        phone: '79191234567'
+                        bankAlias: VTB
+                        firstName: Иван
+                        middleName: Иванович
+                        lastName: Иванов
+                        inn: 123456789101
+                      incomeTypeCode: '1'
+                      extra:
+                        apiClient: Payout Software
+                        apiClientVersion: 1.0.0
+                      status:
+                        value: DECLINED
+                        declineReason: RECEIVER_ACCOUNT_ERROR
+                        date: '2019-07-11T17:45:13+03:00'
+                      creationDate: '2019-07-11T17:45:13+03:00'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+        '401':
+          description: Неавторизованный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401Response'
+        '403':
+          description: Операция запрещена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error403Response'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+  /payout/v1/payout-bundles/{id}:
+    parameters:
+    - schema:
+        type: string
+      name: id
+      in: path
+      required: true
+      description: Идентификатор пакета
+      x-description-i18n:
+        eng: Bundle ID
+    get:
+      deprecated: true
+      summary: Получение статуса по пакету
+      tags:
+      - payout-controller
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayoutBundlesResponse'
+              examples:
+                payload:
+                  value:
+                    id: b-0001
+                    account: '40700000000000000000'
+                    payouts:
+                    - id: 1404fhr7i272a2
+                      amount: 1110.01
+                      currency: RUB
+                      payoutMethod: SBP
+                      payoutParams:
+                        phone: '79191234567'
+                        bankAlias: RAIFFEISEN
+                        firstName: Иван
+                        middleName: Иванович
+                        lastName: Иванов
+                        inn: 123456789101
+                      incomeTypeCode: '1'
+                      extra:
+                        apiClient: Payout Software
+                        apiClientVersion: 1.0.0
+                      status:
+                        value: COMPLETED
+                        date: '2019-07-11T17:45:13+03:00'
+                      creationDate: '2019-07-11T17:45:13+03:00'
+                      paymentDetails: выплата заработной платы
+                    - id: 120445r7i272a2
+                      amount: 500
+                      currency: RUB
+                      payoutMethod: SBP
+                      payoutParams:
+                        phone: '79191234567'
+                        bankAlias: VTB
+                        firstName: Иван
+                        middleName: Иванович
+                        lastName: Иванов
+                        inn: 123456789101
+                      incomeTypeCode: '1'
+                      extra:
+                        apiClient: Payout Software
+                        apiClientVersion: 1.0.0
+                      status:
+                        value: DECLINED
+                        declineReason: RECEIVER_ACCOUNT_ERROR
+                        date: '2019-07-11T17:45:13+03:00'
+                      creationDate: '2019-07-11T17:45:13+03:00'
+                      paymentDetails: выплата заработной платы
+      operationId: get-payout-v1-payout-bundles-id
+      parameters:
+      - schema:
+          type: string
+          enum:
+          - IN_PROGRESS
+          - COMPLETED
+          - DECLINED
+          - PENDING
+        in: query
+        name: status
+        description: Запрашиваемые статусы
+        x-description-i18n:
+          eng: Requested statuses
+      - schema:
+          type: string
+        in: header
+        name: Authorization
+        description: '[Bearer secretKey](#section/Avtorizaciya)'
+        required: true
+      description: Позволяет получить данные по пакету со статусами операций.
+      x-summary-i18n:
+        eng: Obtaining status of a package
+      x-description-i18n:
+        eng: Allows you to get data on the package with the operations status
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+  /v1/payout-bundles:
+    get:
+      tags:
+      - payout-controller
+      summary: Получение метаданных пакетов выплат
+      description: Получение списка пакетов выплат, в котором есть метаданные пакетов выплат.
+      operationId: get-v1-payout-bundles-meta-info
+      security:
+      - BearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/Size'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/BundleStatus'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPayoutBundleMetadataResponse'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+        '401':
+          description: Неавторизованный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401Response'
+        '403':
+          description: Операция запрещена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error403Response'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+    post:
+      tags:
+      - payout-controller
+      summary: Импорт реестра с выплатами
+      description: 'Данный метод позволяет импортировать реестр выплат в формате csv.
+
+        В одном пакете можно передать до 1000 выплат.'
+      operationId: post-v1-payout-bundles
+      security:
+      - BearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ImportRegistryRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportRegistryResponse'
+        '400':
+          description: Ошибка валидации или формата данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error404ResponceImportFile'
+        '401':
+          description: Неавторизованный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401Response'
+        '403':
+          description: Операция запрещена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error403Response'
+        '409':
+          description: Ошибка добавления реестра с уже существующим именем
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error409Response'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+    delete:
+      tags:
+      - payout-controller
+      summary: Удаление реестров выплат, не отправленных на обработку
+      description: Удаление списка реестров выплат по их номерам.
+      operationId: delete-v1-payout-bundles
+      x-summary-i18n:
+        eng: Delete payout bundles
+      x-description-i18n:
+        eng: Delete a list of payout bundles by their numbers.
+      security:
+      - BearerAuth: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteBundlesRequest'
+      responses:
+        '200':
+          description: 'OK.
+
+            Если все реестры удалены успешно, ответ возвращается с пустым телом.
+
+            Если хотя бы один реестр недоступен к удалению, в ответе возвращается массив `failed`.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteBundlesResponse'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+        '401':
+          description: Неавторизованный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401Response'
+        '403':
+          description: Операция запрещена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error403Response'
+        '404':
+          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error404Response'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+  /v2/payout-bundles/{id}/payouts:
+    get:
+      tags:
+      - payout-controller
+      summary: Получение списка платежей в пакете
+      description: Получение списка платежей в пакете по идентификатору
+      operationId: get-v2-bundle-payouts
+      security:
+      - BearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/BundleId'
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/Size'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/PayoutStatuses'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayoutBundleResponseV2'
+              examples:
+                payload:
+                  value:
+                    data:
+                    - id: 1404fhr7i272a22
+                      amount: 1110.01
+                      currency: RUB
+                      fiscal: true
+                      receiptLink: https://lknpd.nalog.ru/api/v1/receipt/123456789101/2017i8xslu/print
+                      payoutMethod: SBP
+                      payoutParams:
+                        phone: '79191234567'
+                        bankAlias: RAIFFEISEN
+                        firstName: Иван
+                        middleName: Иванович
+                        lastName: Иванов
+                      receiverPam: Иван Иванович И
+                      incomeTypeCode: '1'
+                      extra:
+                        apiClient: Payout Software
+                        apiClientVersion: 1.0.0
+                      status:
+                        value: IN_PROGRESS
+                        date: '2025-02-11T12:58:44+03:00'
+                      creationDate: '2025-02-11T12:58:44+03:00'
+                      paymentDetails: Выплата заработной платы
+                      currencyOperationCode: 12060
+                      agreementDate: '2025-02-11T12:58:44+03:00'
+                      agreementNumber: AGR1234
+                    totalElements: 1
+                    page: 1
+                    size: 1
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+        '401':
+          description: Неавторизованный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401Response'
+        '403':
+          description: Операция запрещена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error403Response'
+        '404':
+          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error404Response'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+  /v3/payout-bundles/{id}/payouts:
+    get:
+      tags:
+      - payout-controller
+      summary: Получение списка платежей в пакете
+      description: Получение списка платежей в пакете по идентификатору
+      operationId: get-v3-bundle-payouts
+      security:
+      - BearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/BundleId'
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/Size'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/PayoutStatuses'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayoutBundleResponseV3'
+              examples:
+                payload:
+                  value:
+                    data:
+                    - id: 1404fhr7i272a22
+                      amount: 1110.01
+                      currency: RUB
+                      account: '40700000000000000000'
+                      fiscal: true
+                      receiptLink: https://lknpd.nalog.ru/api/v1/receipt/123456789101/2017i8xslu/print
+                      payoutMethod: SBP
+                      payoutParams:
+                        phone: '79191234567'
+                        bankAlias: RAIFFEISEN
+                        firstName: Иван
+                        middleName: Иванович
+                        lastName: Иванов
+                      receiverPam: Иван Иванович И
+                      incomeTypeCode: '1'
+                      extra:
+                        apiClient: Payout Software
+                        apiClientVersion: 1.0.0
+                      status:
+                        value: IN_PROGRESS
+                        date: '2025-02-11T12:58:44+03:00'
+                      creationDate: '2025-02-11T12:58:44+03:00'
+                      paymentDetails: Выплата заработной платы
+                      currencyOperationCode: 12060
+                      agreementDate: '2025-02-11T12:58:44+03:00'
+                      agreementNumber: AGR1234
+                    totalElements: 1
+                    page: 1
+                    size: 1
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+        '401':
+          description: Неавторизованный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401Response'
+        '403':
+          description: Операция запрещена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error403Response'
+        '404':
+          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error404Response'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+  /v1/payout-bundles/{id}/payouts:
+    get:
+      deprecated: true
+      tags:
+      - payout-controller
+      summary: Получение списка платежей в пакете
+      description: Получение списка платежей в пакете по идентификатору
+      operationId: get-v1-bundle-payouts
+      security:
+      - BearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/BundleId'
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/Size'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/PayoutStatuses'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayoutBundleResponse'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+        '401':
+          description: Неавторизованный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401Response'
+        '403':
+          description: Операция запрещена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error403Response'
+        '404':
+          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error404Response'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+components:
+  schemas:
+    BadRequestErrorResponse:
+      required:
+      - code
+      - message
+      - traceId
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки (`INVALID_DATA`)
+          example: INVALID_DATA
+        message:
+          type: string
+          description: Текст ошибки (`The request contains invalid fields or values`)
+          example: The request contains invalid fields or values
+        traceId:
+          type: string
+          description: Уникальный идентификатор запроса
+          example: 84b19a21e19410b62c30b4cd40c228a1
+    PayoutBundleResponseV2:
+      required:
+      - data
+      - totalElements
+      - page
+      - size
+      properties:
+        data:
+          type: array
+          description: Список выплат
+          items:
+            $ref: '#/components/schemas/payoutResponseV4'
+        page:
+          $ref: '#/components/schemas/Page'
+        size:
+          $ref: '#/components/schemas/Size'
+        totalElements:
+          $ref: '#/components/schemas/TotalElements'
+    bankListWithBic:
+      title: bankListWithBic
+      type: array
+      minItems: 1
+      uniqueItems: true
+      x-examples:
+        '200':
+        - alias: RAIFFEISEN
+          name: Райффайзенбанк
+          bankId: '100000000007'
+          bic: '123456789'
+        - alias: TINKOFF
+          name: Тинькофф Банк
+          bankId: '100000000004'
+          bic: '123456789'
+        - alias: YANDEX BANK
+          name: Яндекс Банк
+          bankId: '100000000150'
+          bic: '123456789'
+      items:
+        type: object
+        properties:
+          alias:
+            type: string
+            description: Алиас банка
+            x-description-i18n:
+              eng: Bank alias
+            minLength: 1
+            maxLength: 255
+          name:
+            type: string
+            description: Наименование банка
+            x-description-i18n:
+              eng: Bank name
+            minLength: 1
+            maxLength: 255
+          bankId:
+            type: string
+            description: Идентификатор банка
+            x-description-i18n:
+              eng: Bank id
+          bic:
+            type: string
+            description: БИК банка
+            x-description-i18n:
+              eng: bank BIC
+    PayoutBundleUpdateRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Статус пакета
+          enum:
+          - ON_SIGNING
+          - ARCHIVED
+    DeleteBundlesRequest:
+      type: object
+      required:
+      - bundleNumbers
+      properties:
+        bundleNumbers:
+          type: array
+          minItems: 1
+          description: Список номеров реестров для удаления
+          x-description-i18n:
+            eng: List of bundle numbers to delete
+          items:
+            type: string
+          example:
+          - payoutBundle-1
+          - payoutBundle-2
+    BundleSuccessPayouts:
+      type: number
+      description: Количество успешных выплат в пакете
+      example: 99
+      minLength: 1
+    InternalServerError:
+      required:
+      - code
+      - message
+      - traceId
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки (`INTERNAL_ERROR`)
+          example: INTERNAL_ERROR
+        message:
+          type: string
+          description: Текст ошибки (`An internal error occurred`)
+          example: An internal error occurred
+        traceId:
+          type: string
+          description: Уникальный идентификатор запроса
+          example: 84b19a21e19410b62c30b4cd40c228a1
+    GetPayoutBundleMetadataResponse:
+      type: object
+      required:
+      - data
+      - page
+      - size
+      - totalElements
+      properties:
+        data:
+          type: array
+          description: Массив метаданных выплат
+          items:
+            $ref: '#/components/schemas/PayoutBundleMetadata'
+        page:
+          $ref: '#/components/schemas/Page'
+        size:
+          $ref: '#/components/schemas/Size'
+        totalElements:
+          $ref: '#/components/schemas/TotalElements'
+    BundleId:
+      type: string
+      minLength: 1
+      maxLength: 20
+      format: ^[Aa-Zz0-9_-]
+      description: ID пакета выплат
+      x-description-i18n:
+        eng: Bundle ID
+      example: 1404fhr7i272afcc
+    PayoutBundleItemV3:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Уникальный идентификатор выплаты в вашей системе, используется как номер документа в выписке
+          x-description-i18n:
+            eng: The unique payout ID in your system, used as the document number in the statement
+          format: ^[Aa-Zz0-9_-]+
+          minLength: 1
+        account:
+          type: string
+          description: '20-значный счет списания для выплаты. Опционально: если не указан, используется счет пакета'
+          x-description-i18n:
+            eng: '20-digit payout account number for this payout. Optional: if not specified, uses account from bundle'
+          minLength: 20
+          maxLength: 20
+        amount:
+          type: number
+          description: 'Сумма в рублях.
+
+            Действует несколько лимитов от НСПК:
+
+            1. Ограничение до 1000000 рублей (включительно) на одну операцию
+
+            2. Ограничение в 1000000 рублей в сутки в пользу одного получателя
+
+            Можно сделать 3 выплаты на одинаковую сумму, например, по 400000. Главное, чтобы первые 2 выплаты в общей сумме не превышили лимит в 1000000'
+        currency:
+          type: string
+          description: Валюта выплаты
+          x-description-i18n:
+            eng: Payout currency
+          enum:
+          - RUB
+        paymentDetails:
+          type: string
+          description: Назначение платежа. Значение попадает в выписку, после системного префикса. Не может быть пустым или содержать только пробелы. Может содержать:<br/>• Символы латинского алфавита (A–Z и a–z) с десятичными кодами из диапазонов [065-090] и [097-122] в кодировке UTF-8;<br/>• Символы русского алфавита (А-Я и а-я) с десятичными кодами из диапазона [1040-1103] в кодировке UTF-8;<br/>• Цифры 0-9 с десятичными кодами из диапазона [048-057] в кодировке UTF-8;<br/>• Специальные символы с десятичными кодами из диапазонов [032-047], [058-064], [091-096], [123-126] в кодировке UTF-8; - Символ «№» под номером 8470 в кодировке UTF-8
+          minLength: 1
+          maxLength: 140
+          x-description-i18n:
+            eng: Payment details. Cannot be empty or contain only spaces. May contain:<br/>• Latin alphabet characters (A–Z and a–z) with decimal codes from the ranges [065-090] and [097-122] in UTF-8 encoding;<br/>• Characters of the Russian alphabet (A-Z and a-z) with decimal codes from the range [1040-1103] in UTF-8 encoding;<br/>• Digits 0-9 with decimal codes from the range [048-057] in UTF-8 encoding;<br/>• Special characters with decimal codes from ranges [032-047], [058-064], [091-096], [123-126] in UTF-8 encoding; - The character "№." under the number 8470 in UTF-8 encoding
+        payoutMethod:
+          type: string
+          description: Тип выплаты
+          x-description-i18n:
+            eng: Payout type
+        fiscal:
+          type: boolean
+          description: '1. true - выплата самозанятому с фискализацией, в payoutParams нужно передать ИНН и телефон
+
+            2. false - выплата физ лицу, в payoutParams нужно передать телефон'
+          x-description-i18n:
+            eng: 1. true - payment to self-employed with fiscalization, INN and phone number must be passed to payoutParams 2. false - payment to physical person, phone number must be passed to payoutParams
+        payoutParams:
+          type: object
+          required:
+          - phone
+          properties:
+            phone:
+              type: string
+              description: Номер телефона получателя
+              maxLength: 15
+              minLength: 1
+            bankAlias:
+              type: string
+              description: Код банка получателя из запроса списка банков. Обязательно передается если не указан bankId.
+              x-description-i18n:
+                eng: Beneficiary bank code from the list of banks request. It is required if bankId is not specified.
+              maxLength: 255
+              minLength: 1
+            bankId:
+              type: string
+              minLength: 1
+              description: ID банка получателя из запроса списка банков. Обязательно передается если не указан bankAlias.
+              x-description-i18n:
+                eng: Beneficiary's bank id from the list of banks request. It is required if bankAlias is not specified.
+              maxLength: 255
+            firstName:
+              type: string
+              description: Имя получателя
+              x-description-i18n:
+                eng: Recipient first name
+            middleName:
+              type: string
+              description: Отчество получателя
+              x-description-i18n:
+                eng: Recipient middle name
+            lastName:
+              type: string
+              description: Фамилия получателя
+              x-description-i18n:
+                eng: Recipient last name
+            inn:
+              type: string
+              minLength: 10
+              maxLength: 12
+              description: ИНН получателя
+              x-description-i18n:
+                eng: Recipient INN
+        incomeTypeCode:
+          type: string
+          description: Код вида дохода<br/>[Значения описаны тут](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+          x-description-i18n:
+            eng: Income type code</br>[Values are described here](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+          enum:
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+        extra:
+          type: object
+          description: Дополнительные данные.<br/> При создании заказа рекомендуется передавать параметры <font color = dark>apiClient</font> и <font color = dark>apiClientVersion</font>. Данная информация позволит Банку определять клиентское ПО, отлавливать баги и улучшать сервис.
+          x-description-i18n:
+            eng: Additional data
+          properties:
+            apiClient:
+              type: string
+              description: Наименование ПО
+              x-description-i18n:
+                eng: Software name
+            apiClientVersion:
+              type: string
+              description: Версия ПО
+              x-description-i18n:
+                eng: Software version
+        currencyOperationCode:
+          type: string
+          minLength: 5
+          maxLength: 5
+          description: Код валютной операции
+          x-description-i18n:
+            eng: The code of operations realated to currency transactions
+        agreementDate:
+          type: string
+          format: date
+          description: Дата договора
+          x-description-i18n:
+            eng: The execution date, when the agreement is signed
+        agreementNumber:
+          type: string
+          description: Номер договора
+          x-description-i18n:
+            eng: Agreement number
+      required:
+      - amount
+      - currency
+      - payoutParams
+    Error401Response:
+      required:
+      - code
+      - message
+      - traceId
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки (`UNAUTHORIZED`)
+          example: UNAUTHORIZED
+        message:
+          type: string
+          description: Текст ошибки (`The operation is not allowed`)
+          example: The operation is not allowed.
+        traceId:
+          type: string
+          example: 84b19a21e19410b62c30b4cd40c228a1
+          description: Уникальный идентификатор запроса
+    BundleCreatedAt:
+      type: string
+      minLength: 1
+      description: Дата импорта (создания) реестра
+      example: '2019-07-11T17:45:13+03:00'
+      format: date-time
+    RegistryFile:
+      type: string
+      format: binary
+      description: Файл в формате csv
+    payoutResponseV2:
+      description: Ответ сервиса с информацией о выплате (версия 2)
+      type: object
+      x-examples:
+        '200':
+          id: 1404fhr7i272a22
+          amount: 1110.01
+          currency: RUB
+          fiscal: true
+          receiptLink: https://lknpd.nalog.ru/api/v1/receipt/123456789101/2017i8xslu/print
+          payoutMethod: SBP
+          payoutParams:
+            phone: '79191234567'
+            bankAlias: RAIFFEISEN
+            firstName: Иван
+            middleName: Иванович
+            lastName: Иванов
+          incomeTypeCode: '1'
+          extra:
+            apiClient: Payout Software
+            apiClientVersion: 1.0.0
+          status:
+            value: IN_PROGRESS
+            date: '2025-02-11T12:58:44+03:00'
+          createDate: '2025-02-11T12:58:44+03:00'
+          paymentDetails: выплата заработной платы
+          value:
+            id: 1404fhr7i272a22
+            account: '40700000000000000000'
+            amount: 1110.01
+            currency: RUB
+            payoutMethod: SBP
+            payoutParams:
+              phone: '79191234567'
+              bankAlias: RAIFFEISEN
+              firstName: Иван
+              middleName: Иванович
+              lastName: Иванов
+              inn: 123456789101
+            receiverPam: Иван Иванович И
+            incomeTypeCode: '1'
+            extra:
+              contract: 1234567/89012
+            status:
+              value: PENDING
+              date: '2025-02-11T12:58:44+03:00'
+            createDate: '2025-02-11T12:58:44+03:00'
+            paymentDetails: выплата заработной платы
+      title: payoutResponseV2
+      properties:
+        id:
+          type: string
+          description: Уникальный идентификатор выплаты в вашей системе, используется как номер документа в выписке
+          x-description-i18n:
+            eng: The unique payout ID in your system, used as the document number in the statement
+        amount:
+          type: number
+          description: Сумма в рублях
+          x-description-i18n:
+            eng: Amount in Russian ruble
+        currency:
+          type: string
+          minLength: 3
+          description: Валюта выплаты
+          x-description-i18n:
+            eng: Payout currency
+          maxLength: 3
+          enum:
+          - RUB
+        fiscal:
+          $ref: '#/components/schemas/Fiscal'
+        receiptLink:
+          $ref: '#/components/schemas/ReceiptLink'
+        payoutMethod:
+          type: string
+          minLength: 1
+          description: Тип выплаты
+          x-description-i18n:
+            eng: Payout type
+          enum:
+          - SBP
+        payoutParams:
+          type: object
+          properties:
+            phone:
+              type: string
+              minLength: 1
+              description: Номер телефона получателя
+              x-description-i18n:
+                eng: Recipient phone number
+            bankAlias:
+              type: string
+              minLength: 1
+              description: Код банка получателя из запроса списка банков.
+              x-description-i18n:
+                eng: Beneficiary bank code from the list of banks request.
+            firstName:
+              type: string
+              minLength: 1
+              description: Имя получателя
+              x-description-i18n:
+                eng: Recipient first name
+            middleName:
+              type: string
+              minLength: 1
+              description: Отчество получателя
+              x-description-i18n:
+                eng: Recipient middle name
+            lastName:
+              type: string
+              minLength: 1
+              description: Фамилия получателя
+              x-description-i18n:
+                eng: Recipient last name
+            inn:
+              type: string
+              minLength: 10
+              maxLength: 12
+              description: ИНН получателя
+              x-description-i18n:
+                eng: Recipient INN
+        receiverPam:
+          type: string
+          minLength: 1
+          description: PAM получателя
+          x-description-i18n:
+            eng: Receiver PAM
+        incomeTypeCode:
+          type: string
+          minLength: 1
+          description: Код вида дохода<br/>[Значения описаны тут](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+          x-description-i18n:
+            eng: Income type code</br>[Values are described here](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+          enum:
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+        extra:
+          type: object
+          description: Дополнительные данные.<br/> При создании заказа рекомендуется передавать параметры <font color = dark>apiClient</font> и <font color = dark>apiClientVersion</font>. Данная информация позволит Банку определять клиентское ПО, отлавливать баги и улучшать сервис.
+          x-description-i18n:
+            eng: Additional data
+        status:
+          type: object
+          properties:
+            value:
+              type: string
+              minLength: 1
+              description: 'Статус:<br/>
+
+                • ON_SIGNING – в статусе подписания.<br/>
+
+                • COMPLETED – операция выполнена, финальный статус.<br/>
+
+                • DECLINED – операция не выполнена, финальный статус.<br/>
+
+                • IN_PROGRESS – обработка операции, промежуточный статус.<br/>
+
+                • PENDING – обработка заявки, промежуточный статус.<br/>
+
+                • DRAFT – операция в статусе черновик, ожидает подписания.<br/>
+
+                • WAITING_CONFIRMATION – заявка ожидает подтверждения со стороны плательщика, промежуточный статус.<br/>
+
+                • WAITING_INCOME_REGISTRATION - ожидание регистрации дохода.<br/>
+
+                • WAITING_RECEIPT_RELEASING – ожидание выпуска чека.<br/>
+
+                • WAITING_RECEIPT_CANCELLATION – ожидание аннулировния чека.<br/>
+
+                • READY_TO_PROCESS – готов к обработке.<br/>'
+              x-description-i18n:
+                eng: 'Status:<br/>
+
+                  • COMPLETED - operation complete, final status.</br>
+
+                  • DECLINED - operation declined, final status. </br>
+
+                  • IN_PROGRESS - intermediate status. </br>
+
+                  • PENDING - processing request, intermediate status. </br>
+
+                  • DRAFT - operation in status draft, expected signing. </br>
+
+                  • WAITING_CONFIRMATION - the request is awaiting confirmation from the payer, intermediate status. </br>
+
+                  • WAITING_INCOME_REGISTRATION - waiting for income registration.</br>
+
+                  • WAITING_RECEIPT_RELEASING - waiting for the check to be issued.</br>
+
+                  • WAITING_RECEIPT_CANCELLATION - waiting for check to clear.</br>
+
+                  • READY_TO_PROCESS - ready for processing.</br>'
+              enum:
+              - ON_SIGNING
+              - COMPLETED
+              - DECLINED
+              - IN_PROGRESS
+              - PENDING
+              - DRAFT
+              - WAITING_CONFIRMATION
+              - WAITING_INCOME_REGISTRATION
+              - WAITING_RECEIPT_RELEASING
+              - WAITING_RECEIPT_CANCELLATION
+              - READY_TO_PROCESS
+            date:
+              type: string
+              minLength: 1
+              description: Дата
+              x-description-i18n:
+                eng: Date
+            declineReason:
+              type: string
+              description: 'Причина отклонения операции:<br/>• TIMEOUT – превышено время ожидания ответа от системы<br/>• BANK_NOT_SUPPORTED – ошибка на стороне другого банка. Проведение выплаты заблокировано банком-получателем<br/>• RECEIVER_ACCOUNT_ERROR – ошибка зачисления на счет. Счет в банке-получателе может быть заблокирован или закрыт<br/>• WRONG_RECIPIENT – не пройдена сверка ФИО в системе. Попробуйте изменить ФИО и повторить запрос<br/>• SYSTEM_ERROR – другая техническая ошибка<br/>• NON_RESIDENT_RECIPIENT - получатель не является резидентом РФ<br/>• FAILED_SIGNATURE – Некорректная подпись<br/>• INSUFFICIENT_FUNDS – Недостаточно средств<br/>• FAILED_RECEIPT_CANCELLATION – Не удалось аннулировать чек<br/>• TAXPAYER_UNREGISTERED – Получатель не является самозанятым<br/>• TAXPAYER_UNBOUND – У банка нет доступа к данным ФНС получателя<br/>• TAXPAYER_LIMIT_EXCEEDED – Превышен зарегистрированный годовой доход самозанятого<br/>• FAILED_CURRENCY_CONTROL – не пройден валютный контроль. т. 8 800 700-55-20<br/>• MISSING_CURRENCY_CONTROL_PARAMS – Отсутствуют параметры для валютного контроля: если отправитель резидент, а получатель нерезидент - КВО, номер договора, дата договора. Если отправитель нерезидент - КВО<br/>'
+              x-description-i18n:
+                eng: Decline reason
+              enum:
+              - TIMEOUT
+              - BANK_NOT_SUPPORTED
+              - RECEIVER_ACCOUNT_ERROR
+              - WRONG_RECIPIENT
+              - SYSTEM_ERROR
+              - NON_RESIDENT_RECIPIENT
+              - FAILED_SIGNATURE
+              - INSUFFICIENT_FUNDS
+              - FAILED_RECEIPT_CANCELLATION
+              - TAXPAYER_UNREGISTERED
+              - TAXPAYER_UNBOUND
+              - TAXPAYER_LIMIT_EXCEEDED
+              - FAILED_CURRENCY_CONTROL
+              - MISSING_CURRENCY_CONTROL_PARAMS
+        creationDate:
+          type: string
+          minLength: 1
+          description: Дата создания
+          x-description-i18n:
+            eng: Operation create date
+        paymentDetails:
+          type: string
+          minLength: 1
+          description: Назначение платежа
+          x-description-i18n:
+            eng: Payout payment details
+    ImportRegistryRequest:
+      type: object
+      properties:
+        fiscal:
+          $ref: '#/components/schemas/Fiscal'
+        id:
+          $ref: '#/components/schemas/BundleId'
+        registryFile:
+          $ref: '#/components/schemas/RegistryFile'
+      required:
+      - registryFile
+    payoutV2Response:
+      description: Ответ сервиса с информацией о выплате
+      type: object
+      x-examples:
+        '200':
+          id: 1404fhr7i272a2
+          amount: 1110.01
+          currency: RUB
+          fiscal: true
+          payoutMethod: SBP
+          payoutParams:
+            phone: '79191234567'
+            bankAlias: RAIFFEISEN
+            firstName: Иван
+            middleName: Иванович
+            lastName: Иванов
+          incomeTypeCode: '1'
+          extra:
+            apiClient: Payout Software
+            apiClientVersion: 1.0.0
+          status:
+            value: IN_PROGRESS
+            date: '2019-07-11T17:45:13+03:00'
+          createDate: '2019-07-11T17:45:13+03:00'
+          value:
+            id: 1404fhr7i272a2
+            account: '40700000000000000000'
+            amount: 1110.01
+            currency: RUB
+            payoutMethod: SBP
+            payoutParams:
+              phone: '79191234567'
+              bankAlias: RAIFFEISEN
+              firstName: Иван
+              middleName: Иванович
+              lastName: Иванов
+              inn: '123456789101'
+            incomeTypeCode: '1'
+            extra:
+              contract: 1234567/89012
+            status:
+              value: PENDING
+              date: '2019-07-11T17:45:13+03:00'
+            createDate: '2019-07-11T17:45:13+03:00'
+            currencyOperationCode: 12060
+            agreementDate: '2025-02-11T12:58:44+03:00'
+            agreementNumber: AGR1234
+      title: payoutV2Response
+      properties:
+        id:
+          type: string
+          description: Уникальный идентификатор выплаты в вашей системе, используется как номер документа в выписке
+          x-description-i18n:
+            eng: The unique payout ID in your system, used as the document number in the statement
+        amount:
+          type: number
+          description: Сумма в рублях
+          x-description-i18n:
+            eng: Amount in Russian ruble
+        currency:
+          type: string
+          minLength: 3
+          description: Валюта выплаты
+          x-description-i18n:
+            eng: Payout currency
+          maxLength: 3
+          enum:
+          - RUB
+        fiscal:
+          $ref: '#/components/schemas/Fiscal'
+        payoutMethod:
+          type: string
+          minLength: 1
+          description: Тип выплаты
+          x-description-i18n:
+            eng: Payout type
+          enum:
+          - SBP
+        currencyOperationCode:
+          type: string
+          minLength: 5
+          maxLength: 5
+          description: Код валютной операции
+          x-description-i18n:
+            eng: The code of operations realated to currency transactions
+        agreementDate:
+          type: string
+          format: date
+          description: Дата договора
+          x-description-i18n:
+            eng: The execution date, when the agreement is signed
+        agreementNumber:
+          type: string
+          description: Номер договора
+          x-description-i18n:
+            eng: Agreement number
+        payoutParams:
+          type: object
+          properties:
+            phone:
+              type: string
+              minLength: 1
+              description: Номер телефона получателя
+              x-description-i18n:
+                eng: Recipient phone number
+            bankAlias:
+              type: string
+              minLength: 1
+              description: Код банка получателя из запроса списка банков.
+              x-description-i18n:
+                eng: Beneficiary bank code from the list of banks request.
+            firstName:
+              type: string
+              minLength: 1
+              description: Имя получателя
+              x-description-i18n:
+                eng: Recipient first name
+            middleName:
+              type: string
+              minLength: 1
+              description: Отчество получателя
+              x-description-i18n:
+                eng: Recipient middle name
+            lastName:
+              type: string
+              minLength: 1
+              description: Фамилия получателя
+              x-description-i18n:
+                eng: Recipient last name
+            inn:
+              type: string
+              minLength: 10
+              maxLength: 12
+              description: ИНН получателя
+              x-description-i18n:
+                eng: Recipient INN
+        incomeTypeCode:
+          type: string
+          minLength: 1
+          description: Код вида дохода<br/>[Значения описаны тут](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+          x-description-i18n:
+            eng: Income type code</br>[Values are described here](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+          enum:
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+        extra:
+          type: object
+          description: Дополнительные данные.<br/> При создании заказа рекомендуется передавать параметры <font color = dark>apiClient</font> и <font color = dark>apiClientVersion</font>. Данная информация позволит Банку определять клиентское ПО, отлавливать баги и улучшать сервис.
+          x-description-i18n:
+            eng: Additional data
+        status:
+          type: object
+          properties:
+            value:
+              type: string
+              minLength: 1
+              description: 'Статус:<br/>
+
+                • ON_SIGNING – в статусе подписания.<br/>
+
+                • COMPLETED – операция выполнена, финальный статус.<br/>
+
+                • DECLINED – операция не выполнена, финальный статус.<br/>
+
+                • IN_PROGRESS – обработка операции, промежуточный статус.<br/>
+
+                • PENDING – обработка заявки, промежуточный статус.<br/>
+
+                • DRAFT – операция в статусе черновик, ожидает подписания.<br/>
+
+                • WAITING_CONFIRMATION – заявка ожидает подтверждения со стороны плательщика, промежуточный статус.<br/>
+
+                • WAITING_INCOME_REGISTRATION - ожидание регистрации дохода.<br/>
+
+                • WAITING_RECEIPT_RELEASING – ожидание выпуска чека.<br/>
+
+                • WAITING_RECEIPT_CANCELLATION – ожидание аннулировния чека.<br/>
+
+                • READY_TO_PROCESS – готов к обработке.<br/>'
+              x-description-i18n:
+                eng: 'Status:<br/>
+
+                  • COMPLETED - operation complete, final status.</br>
+
+                  • DECLINED - operation declined, final status. </br>
+
+                  • IN_PROGRESS - intermediate status. </br>
+
+                  • PENDING - processing request, intermediate status. </br>
+
+                  • DRAFT - operation in status draft, expected signing. </br>
+
+                  • WAITING_CONFIRMATION - the request is awaiting confirmation from the payer, intermediate status. </br>
+
+                  • WAITING_INCOME_REGISTRATION - waiting for income registration.</br>
+
+                  • READY_TO_PROCESS - ready for processing.</br>''
+
+                  • WAITING_RECEIPT_RELEASING - waiting for the check to be issued.</br>
+
+                  • WAITING_RECEIPT_CANCELLATION - waiting for check to clear.</br>'
+              enum:
+              - ON_SIGNING
+              - COMPLETED
+              - DECLINED
+              - IN_PROGRESS
+              - PENDING
+              - DRAFT
+              - WAITING_CONFIRMATION
+              - WAITING_INCOME_REGISTRATION
+              - WAITING_RECEIPT_RELEASING
+              - WAITING_RECEIPT_CANCELLATION
+              - READY_TO_PROCESS
+            date:
+              type: string
+              minLength: 1
+              description: Дата
+              x-description-i18n:
+                eng: Date
+            declineReason:
+              type: string
+              description: 'Причина отклонения операции:<br/>• TIMEOUT – превышено время ожидания ответа от системы<br/>• BANK_NOT_SUPPORTED – ошибка на стороне другого банка. Проведение выплаты заблокировано банком-получателем<br/>• RECEIVER_ACCOUNT_ERROR – ошибка зачисления на счет. Счет в банке-получателе может быть заблокирован или закрыт<br/>• WRONG_RECIPIENT – не пройдена сверка ФИО в системе. Попробуйте изменить ФИО и повторить запрос<br/>• SYSTEM_ERROR – другая техническая ошибка<br/>• NON_RESIDENT_RECIPIENT - получатель не является резидентом РФ<br/>• FAILED_SIGNATURE – Некорректная подпись<br/>• INSUFFICIENT_FUNDS – Недостаточно средств<br/>• FAILED_RECEIPT_CANCELLATION – Не удалось аннулировать чек<br/>• TAXPAYER_UNREGISTERED – Получатель не является самозанятым<br/>• TAXPAYER_UNBOUND – У банка нет доступа к данным ФНС получателя<br/>• TAXPAYER_LIMIT_EXCEEDED – Превышен зарегистрированный годовой доход самозанятого<br/>• FAILED_CURRENCY_CONTROL – не пройден валютный контроль. т. 8 800 700-55-20<br/>• MISSING_CURRENCY_CONTROL_PARAMS – Отсутствуют параметры для валютного контроля: если отправитель резидент, а получатель нерезидент - КВО, номер договора, дата договора. Если отправитель нерезидент - КВО<br/>'
+              x-description-i18n:
+                eng: Decline reason
+              enum:
+              - TIMEOUT
+              - BANK_NOT_SUPPORTED
+              - RECEIVER_ACCOUNT_ERROR
+              - WRONG_RECIPIENT
+              - SYSTEM_ERROR
+              - NON_RESIDENT_RECIPIENT
+              - FAILED_SIGNATURE
+              - INSUFFICIENT_FUNDS
+              - FAILED_RECEIPT_CANCELLATION
+              - TAXPAYER_UNREGISTERED
+              - TAXPAYER_UNBOUND
+              - TAXPAYER_LIMIT_EXCEEDED
+              - FAILED_CURRENCY_CONTROL
+              - MISSING_CURRENCY_CONTROL_PARAMS
+        creationDate:
+          type: string
+          minLength: 1
+          description: Дата создания
+          x-description-i18n:
+            eng: Operation create date
+    Error413Response:
+      required:
+      - code
+      - message
+      - traceId
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки (`PAYLOAD_TOO_LARGE`)
+          example: PAYLOAD_TOO_LARGE
+        message:
+          type: string
+          description: Текст ошибки (`Request body too large`)
+          example: Request body too large.
+        traceId:
+          type: string
+          example: 84b19a21e19410b62c30b4cd40c228a1
+          description: Уникальный идентификатор запроса
+    payoutResponseV5:
+      description: Ответ сервиса с информацией о выплате. В данной версии возвращается поле account
+      type: object
+      title: payoutResponseV5
+      properties:
+        id:
+          type: string
+          description: Уникальный идентификатор выплаты в вашей системе, используется как номер документа в выписке
+          x-description-i18n:
+            eng: The unique payout ID in your system, used as the document number in the statement
+        amount:
+          type: number
+          description: Сумма в рублях
+          x-description-i18n:
+            eng: Amount in Russian ruble
+        currency:
+          type: string
+          minLength: 3
+          description: Валюта выплаты
+          x-description-i18n:
+            eng: Payout currency
+          maxLength: 3
+          enum:
+          - RUB
+        account:
+          type: string
+          description: Счет, с которого производилась выплата
+          x-description-i18n:
+            eng: Account used for payout
+          maxLength: 20
+        fiscal:
+          $ref: '#/components/schemas/Fiscal'
+        receiptLink:
+          $ref: '#/components/schemas/ReceiptLink'
+        payoutMethod:
+          type: string
+          minLength: 1
+          description: Тип выплаты
+          x-description-i18n:
+            eng: Payout type
+          enum:
+          - SBP
+        payoutParams:
+          type: object
+          properties:
+            phone:
+              type: string
+              minLength: 1
+              description: Номер телефона получателя
+              x-description-i18n:
+                eng: Recipient phone number
+            bankAlias:
+              type: string
+              minLength: 1
+              description: Код банка получателя из запроса списка банков.
+              x-description-i18n:
+                eng: Beneficiary bank code from the list of banks request.
+            firstName:
+              type: string
+              minLength: 1
+              description: Имя получателя
+              x-description-i18n:
+                eng: Recipient first name
+            middleName:
+              type: string
+              minLength: 1
+              description: Отчество получателя
+              x-description-i18n:
+                eng: Recipient middle name
+            lastName:
+              type: string
+              minLength: 1
+              description: Фамилия получателя
+              x-description-i18n:
+                eng: Recipient last name
+            inn:
+              type: string
+              minLength: 10
+              maxLength: 12
+              description: ИНН получателя
+              x-description-i18n:
+                eng: Recipient INN
+        receiverPam:
+          type: string
+          minLength: 1
+          description: PAM получателя
+          x-description-i18n:
+            eng: Receiver PAM
+        incomeTypeCode:
+          type: string
+          minLength: 1
+          description: Код вида дохода<br/>[Значения описаны тут](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+          x-description-i18n:
+            eng: Income type code</br>[Values are described here](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+          enum:
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+        extra:
+          type: object
+          description: Дополнительные данные.<br/> При создании заказа рекомендуется передавать параметры <font color = dark>apiClient</font> и <font color = dark>apiClientVersion</font>. Данная информация позволит Банку определять клиентское ПО, отлавливать баги и улучшать сервис.
+          x-description-i18n:
+            eng: Additional data
+        status:
+          type: object
+          properties:
+            value:
+              type: string
+              minLength: 1
+              description: 'Статус:<br/>
+
+                • ON_SIGNING – в статусе подписания.<br/>
+
+                • COMPLETED – операция выполнена, финальный статус.<br/>
+
+                • DECLINED – операция не выполнена, финальный статус.<br/>
+
+                • IN_PROGRESS – обработка операции, промежуточный статус.<br/>
+
+                • PENDING – обработка заявки, промежуточный статус.<br/>
+
+                • DRAFT – операция в статусе черновик, ожидает подписания.<br/>
+
+                • WAITING_CONFIRMATION – заявка ожидает подтверждения со стороны плательщика, промежуточный статус.<br/>
+
+                • WAITING_INCOME_REGISTRATION - ожидание регистрации дохода.<br/>
+
+                • WAITING_RECEIPT_RELEASING – ожидание выпуска чека.<br/>
+
+                • WAITING_RECEIPT_CANCELLATION – ожидание аннулировния чека.<br/>
+
+                • READY_TO_PROCESS – готов к обработке.<br/>'
+              enum:
+              - ON_SIGNING
+              - COMPLETED
+              - DECLINED
+              - IN_PROGRESS
+              - PENDING
+              - DRAFT
+              - WAITING_CONFIRMATION
+              - WAITING_INCOME_REGISTRATION
+              - WAITING_RECEIPT_RELEASING
+              - WAITING_RECEIPT_CANCELLATION
+              - READY_TO_PROCESS
+            date:
+              type: string
+              minLength: 1
+              description: Дата
+              x-description-i18n:
+                eng: Date
+            declineReason:
+              type: string
+              description: Причина отклонения операции
+              x-description-i18n:
+                eng: Decline reason
+              enum:
+              - TIMEOUT
+              - BANK_NOT_SUPPORTED
+              - RECEIVER_ACCOUNT_ERROR
+              - WRONG_RECIPIENT
+              - SYSTEM_ERROR
+              - NON_RESIDENT_RECIPIENT
+              - FAILED_SIGNATURE
+              - INSUFFICIENT_FUNDS
+              - FAILED_RECEIPT_CANCELLATION
+              - TAXPAYER_UNREGISTERED
+              - TAXPAYER_UNBOUND
+              - TAXPAYER_LIMIT_EXCEEDED
+              - FAILED_CURRENCY_CONTROL
+              - MISSING_CURRENCY_CONTROL_PARAMS
+        creationDate:
+          type: string
+          minLength: 1
+          description: Дата создания
+          x-description-i18n:
+            eng: Operation create date
+        paymentDetails:
+          type: string
+          minLength: 1
+          description: Назначение платежа
+          x-description-i18n:
+            eng: Payout payment details
+        currencyOperationCode:
+          type: string
+          minLength: 5
+          maxLength: 5
+          description: Код валютной операции
+          x-description-i18n:
+            eng: The code of operations realated to currency transactions
+        agreementDate:
+          type: string
+          format: date
+          description: Дата договора
+          x-description-i18n:
+            eng: The execution date, when the agreement is signed
+        agreementNumber:
+          type: string
+          description: Номер договора
+          x-description-i18n:
+            eng: Agreement number
+    PayoutBundleMetadata:
+      type: object
+      required:
+      - id
+      - clientId
+      - createdAt
+      - status
+      - totalAmount
+      - totalPayouts
+      properties:
+        id:
+          $ref: '#/components/schemas/BundleId'
+        createdAt:
+          $ref: '#/components/schemas/BundleCreatedAt'
+        status:
+          $ref: '#/components/schemas/BundleStatus'
+        totalAmount:
+          $ref: '#/components/schemas/BundleTotalAmount'
+        totalPayouts:
+          $ref: '#/components/schemas/BundleTotalPayouts'
+        successPayouts:
+          $ref: '#/components/schemas/BundleSuccessPayouts'
+        successPayoutsAmount:
+          $ref: '#/components/schemas/BundleSuccessPayoutsAmount'
+        account:
+          $ref: '#/components/schemas/BundleAccount'
+    PayoutBundlesRequestV3:
+      allOf:
+      - $ref: '#/components/schemas/payoutBundlesRequestV2'
+      - type: object
+        properties:
+          account:
+            type: string
+            description: '20-значный счет списания на уровне пакета. Опционально: если не указан, используется счет пакета'
+            x-description-i18n:
+              eng: '20-digit payout account number at bundle level. Optional: if not specified, the bundle`s account is used'
+            minLength: 20
+            maxLength: 20
+          payouts:
+            type: array
+            description: Массив выплат с индивидуальными счетами
+            x-description-i18n:
+              eng: Payout array with individual accounts
+            items:
+              $ref: '#/components/schemas/PayoutBundleItemV3'
+        example:
+          id: b-0001
+          account: '40700000000000000000'
+          payouts:
+          - id: 1404fhr7i272a2
+            account: '40700000000000000000'
+            amount: 1110.01
+            currency: RUB
+            paymentDetails: Выплата от страховой компании
+            payoutMethod: SBP
+            payoutParams:
+              phone: '79191234567'
+              bankAlias: RAIFFEISEN
+              firstName: Иван
+              middleName: Иванович
+              lastName: Иванов
+              inn: '123456789101'
+            incomeTypeCode: '1'
+            extra:
+              apiClient: Payout Software
+              apiClientVersion: 1.0.0
+          - id: 120445r7i272a2
+            account: '40800000000000000000'
+            amount: 500
+            currency: RUB
+            paymentDetails: Выплата от страховой компании
+            payoutMethod: SBP
+            fiscal: false
+            payoutParams:
+              phone: '79191234567'
+              bankAlias: VTB
+              firstName: Иван
+              middleName: Иванович
+              lastName: Иванов
+              inn: '123456789101'
+            incomeTypeCode: '1'
+            extra:
+              apiClient: Payout Software
+              apiClientVersion: 1.0.0
+    DeleteBundlesResponse:
+      type: object
+      properties:
+        failed:
+          type: array
+          description: Список реестров, которые не удалось удалить
+          x-description-i18n:
+            eng: List of bundles that failed to delete
+          items:
+            $ref: '#/components/schemas/DeleteFailedItem'
+    Error403Response:
+      required:
+      - code
+      - message
+      - traceId
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки (`OPERATION_FORBIDDEN`)
+          example: OPERATION_FORBIDDEN
+        message:
+          type: string
+          description: Текст ошибки (`The operation is not allowed`)
+          example: The operation is not allowed.
+        traceId:
+          type: string
+          example: 84b19a21e19410b62c30b4cd40c228a1
+          description: Уникальный идентификатор запроса
+    payoutV2Request:
+      description: Запрос на проведение выплаты
+      type: object
+      x-examples:
+        Payload:
+          id: 1404fhr7i272a2
+          account: '40700000000000000000'
+          amount: 1110.01
+          currency: RUB
+          fiscal: true
+          paymentDetails: Выплата от страховой компании
+          payoutMethod: SBP
+          payoutParams:
+            phone: '79191234567'
+            bankAlias: RAIFFEISEN
+            firstName: Иван
+            middleName: Иванович
+            lastName: Иванов
+            inn: '12345678910'
+          incomeTypeCode: '1'
+          extra:
+            apiClient: Payout Software
+            apiClientVersion: 1.0.0
+          currencyOperationCode: 21200
+          agreementDate: '2025-09-18'
+          agreementNumber: 123456789
+          value:
+            id: 1404fhr7i272a2
+            account: '40700000000000000000'
+            amount: 1110.01
+            currency: RUB
+            paymentDetails: Выплата от страховой компании
+            payoutMethod: SBP
+            payoutParams:
+              phone: '79191234567'
+              bankAlias: RAIFFEISEN
+              firstName: Иван
+              middleName: Иванович
+              lastName: Иванов
+              inn: '123456789101'
+            incomeTypeCode: '1'
+            extra:
+              apiClient: Payout Software
+              apiClientVersion: 1.0.0
+            currencyOperationCode: 21200
+            agreementDate: '2025-09-18'
+            agreementNumber: 123456789
+      title: payoutRequest
+      properties:
+        id:
+          type: string
+          minLength: 1
+          description: Уникальный идентификатор выплаты в вашей системе, используется как номер документа в выписке
+          x-description-i18n:
+            eng: The unique payout ID in your system, used as the document number in the statement
+          format: ^[Aa-Zz0-9_-]+
+        account:
+          type: string
+          description: Счет, с которого будет происходить списание
+          x-description-i18n:
+            eng: Account to be debited
+          maxLength: 20
+        amount:
+          type: number
+          description: 'Сумма в рублях.
+
+            Действует несколько лимитов от НСПК:
+
+            1. Ограничение до 1000000 рублей (включительно) на одну операцию
+
+            2. Ограничение до 2000000 рублей в сутки в пользу одного получателя
+
+            Можно сделать 3 выплаты на одинаковую сумму, например, по 400000. Главное, чтобы первые 2 выплаты в общей сумме не превысили лимит в 1000000'
+          x-description-i18n:
+            eng: 'Amount in Russian ruble.
+
+              There are several limits from NSPK
+
+              1. Limitation up to 1,000,000 rubles (inclusive) for one operation
+
+              2. Limitation up to 2,000,000 rubles per day in favor of one recipient
+
+              You can make 3 payouts for the same amount, for example, 400,000 each. The main thing is that the first 2 payouts in total do not exceed the limit of 1,000,000
+
+              '
+        currency:
+          type: string
+          description: Валюта выплаты
+          x-description-i18n:
+            eng: Payout currency
+          maxLength: 3
+          minLength: 3
+          enum:
+          - RUB
+        fiscal:
+          $ref: '#/components/schemas/Fiscal'
+        paymentDetails:
+          type: string
+          minLength: 1
+          description: Назначение платежа. Значение попадает в выписку после системного префикса. Не может быть пустым или содержать только пробелы. Может содержать:<br/>• Символы латинского алфавита (A–Z и a–z) с десятичными кодами из диапазонов [065-090] и [097-122] в кодировке UTF-8;<br/>• Символы русского алфавита (А-Я и а-я) с десятичными кодами из диапазона [1040-1103] в кодировке UTF-8;<br/>• Цифры 0-9 с десятичными кодами из диапазона [048-057] в кодировке UTF-8;<br/>• Специальные символы с десятичными кодами из диапазонов [032-047], [058-064], [091-096], [123-126] в кодировке UTF-8; - Символ «№» под номером 8470 в кодировке UTF-8
+          x-description-i18n:
+            eng: Purpose of payment. The value is included in the statement after the system prefix. Cannot be empty or contain only spaces. May contain:<br/>• Latin alphabet characters (A–Z and a–z) with decimal codes from the ranges [065-090] and [097-122] in UTF-8 encoding;<br/>• Characters of the Russian alphabet (A-Z and a-z) with decimal codes from the range [1040-1103] in UTF-8 encoding;<br/>• Digits 0-9 with decimal codes from the range [048-057] in UTF-8 encoding;<br/>• Special characters with decimal codes from ranges [032-047], [058-064], [091-096], [123-126] in UTF-8 encoding; - The character "№." under the number 8470 in UTF-8 encoding
+          maxLength: 140
+        payoutMethod:
+          type: string
+          minLength: 1
+          description: Тип выплаты
+          x-description-i18n:
+            eng: Payout type
+          enum:
+          - SBP
+        payoutParams:
+          type: object
+          required:
+          - phone
+          properties:
+            phone:
+              type: string
+              minLength: 1
+              description: Номер телефона получателя
+              x-description-i18n:
+                eng: Recipient phone number
+              maxLength: 15
+            bankAlias:
+              type: string
+              minLength: 1
+              description: Код банка получателя из запроса списка банков. Обязательно передается если не указан bankId.
+              x-description-i18n:
+                eng: Beneficiary's bank code from the list of banks request. It is required if bankId is not specified.
+              maxLength: 255
+            bankId:
+              type: string
+              minLength: 1
+              description: ID банка получателя из запроса списка банков. Обязательно передается если не указан bankAlias.
+              x-description-i18n:
+                eng: Beneficiary's bank id from the list of banks request. It is required if bankAlias is not specified.
+              maxLength: 255
+            firstName:
+              type: string
+              minLength: 1
+              description: Имя получателя
+              x-description-i18n:
+                eng: Recipient first name
+              maxLength: 140
+            middleName:
+              type: string
+              minLength: 1
+              description: Отчество получателя
+              x-description-i18n:
+                eng: Recipient middle name
+              maxLength: 140
+            lastName:
+              type: string
+              minLength: 1
+              description: Фамилия получателя
+              x-description-i18n:
+                eng: Recipient last name
+              maxLength: 140
+            inn:
+              minLength: 10
+              maxLength: 12
+              description: ИНН получателя
+              x-description-i18n:
+                eng: Recipient INN
+              type: string
+        incomeTypeCode:
+          type: string
+          minLength: 1
+          description: Код вида дохода<br/>[Значения описаны тут](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+          x-description-i18n:
+            eng: Income type code</br>[Values are described here](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+          enum:
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+        extra:
+          type: object
+          description: Дополнительные данные.<br/> При создании заказа рекомендуется передавать параметры <font color = dark>apiClient</font> и <font color = dark>apiClientVersion</font>. Данная информация позволит Банку определять клиентское ПО, отлавливать баги и улучшать сервис.
+          x-description-i18n:
+            eng: Additional data
+          properties:
+            apiClient:
+              type: string
+              description: Наименование ПО
+              x-description-i18n:
+                eng: Software name
+            apiClientVersion:
+              type: string
+              description: Версия ПО
+              x-description-i18n:
+                eng: Software version
+        currencyOperationCode:
+          type: string
+          minLength: 5
+          maxLength: 5
+          description: Код валютной операции
+          x-description-i18n:
+            eng: The code of operations realated to currency transactions
+        agreementDate:
+          type: string
+          format: date
+          description: Дата договора
+          x-description-i18n:
+            eng: The execution date, when the agreement is signed
+        agreementNumber:
+          type: string
+          description: Номер договора
+          x-description-i18n:
+            eng: A unique identifier assigned to a specific agreement
+      required:
+      - account
+      - amount
+      - currency
+      - payoutMethod
+      - payoutParams
+    banksList:
+      type: array
+      minItems: 1
+      uniqueItems: true
+      x-examples:
+        '200':
+        - alias: RAIFFEISEN
+          name: Райффайзенбанк
+        - alias: TINKOFF
+          name: Тинькофф
+        - alias: VTB
+          name: ВТБ
+      items:
+        type: object
+        properties:
+          alias:
+            type: string
+            minLength: 1
+            description: Алиас банка
+            x-description-i18n:
+              eng: Bank alias
+            maxLength: 255
+          name:
+            type: string
+            minLength: 1
+            description: Наименование банка
+            x-description-i18n:
+              eng: Bank name
+            maxLength: 255
+      title: banksList
+    Size:
+      type: integer
+      description: Размер страницы
+      example: 1
+    Fiscal:
+      type: boolean
+      description: '1. true - выплата самозанятому с фискализацией, в payoutParams нужно передать ИНН и телефон
+
+        2. false - выплата физ лицу, в payoutParams нужно передать телефон'
+      x-description-i18n:
+        eng: '1. true - payment to self-employed with fiscalization, INN and phone number must be passed to payoutParams
+
+          2. false - payment to physical person, phone number must be passed to payoutParams
+
+          '
+    bankListWithBankId:
+      title: bankListWithBankId
+      type: array
+      minItems: 1
+      uniqueItems: true
+      x-examples:
+        '200':
+        - alias: RAIFFEISEN
+          name: Райффайзенбанк
+          bankId: '100000000007'
+        - alias: TINKOFF
+          name: Тинькофф Банк
+          bankId: '100000000004'
+        - alias: YANDEX BANK
+          name: Яндекс Банк
+          bankId: '100000000150'
+      items:
+        type: object
+        properties:
+          alias:
+            type: string
+            description: Алиас банка
+            x-description-i18n:
+              eng: Bank alias
+            minLength: 1
+            maxLength: 255
+          name:
+            type: string
+            description: Наименование банка
+            x-description-i18n:
+              eng: Bank name
+            minLength: 1
+            maxLength: 255
+          bankId:
+            type: string
+            description: Идентификатор банка
+            x-description-i18n:
+              eng: Bank id
+    Error404ResponceImportFile:
+      type: object
+      required:
+      - code
+      - message
+      - traceId
+      - errors
+      allOf:
+      - $ref: '#/components/schemas/BadRequestErrorResponse'
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            required:
+            - rowNumber
+            - details
+            properties:
+              rowNumber:
+                type: integer
+                example: 12
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: phone
+                    code:
+                      type: string
+                      example: WRONG_LENGTH
+                    message:
+                      type: string
+                      example: wrong length
+                  required:
+                  - name
+                  - code
+                  - message
+    PayoutBundleResponseV3:
+      required:
+      - data
+      - totalElements
+      - page
+      - size
+      properties:
+        data:
+          type: array
+          description: Список выплат
+          items:
+            $ref: '#/components/schemas/payoutResponseV5'
+        page:
+          $ref: '#/components/schemas/Page'
+        size:
+          $ref: '#/components/schemas/Size'
+        totalElements:
+          $ref: '#/components/schemas/TotalElements'
+    BundleTotalPayouts:
+      type: number
+      description: Количество выплат в пакете
+      example: 100
+    BundleTotalAmount:
+      type: number
+      description: Общая сумма выплат в пакете
+      example: 1000000
+      minLength: 1
+    415response:
+      title: 415response
+      type: object
+      properties:
+        timestamp:
+          type: string
+          description: Время ответа сервиса
+          x-description-i18n:
+            eng: Response timestamp
+        status:
+          type: integer
+          description: Код состояния HTTP-запроса
+          x-description-i18n:
+            eng: HTTP-code
+        error:
+          type: string
+          description: Описание ошибки
+          x-description-i18n:
+            eng: Response description
+        path:
+          type: string
+          description: Путь запроса
+          x-description-i18n:
+            eng: Query path
+      x-examples:
+        Example 1:
+          timestamp: '2023-02-15T06:36:32.418+00:00'
+          status: 415
+          error: Unsupported Media Type
+          path: string
+    PayoutBundlesResponseV3:
+      title: payoutBundlesResponseV3
+      type: object
+      properties:
+        id:
+          type: string
+          description: Идентификатор пакета
+          x-description-i18n:
+            eng: Bundle ID
+        account:
+          type: string
+          description: Номер счета
+          x-description-i18n:
+            eng: Account number
+        fiscal:
+          $ref: '#/components/schemas/Fiscal'
+        payouts:
+          type: array
+          description: Массив выплат
+          x-description-i18n:
+            eng: Payout array
+          items:
+            $ref: '#/components/schemas/payoutResponseV4'
+    BundleStatusValue:
+      type: string
+      minLength: 1
+      description: 'Статус:<br/>
+
+        • COMPLETED_WITH_ERRORS – операция выполнена, не все выплаты имеют статус SUCCESS.<br/>
+
+        • IN_PROGRESS – обработка операции, промежуточный статус.<br/>
+
+        • COMPLETED – операция выполнена, все выплаты в статусе COMPLETED.<br/>
+
+        • DECLINED – операция не выполнена, финальный статус.<br/>
+
+        • DRAFT – в статусе черновик, ожидает подписания.<br/>
+
+        • ON_SIGNING – в статусе подписания.<br/>
+
+        • ARCHIVED – в статусе в архиве.<br/>'
+      enum:
+      - ON_SIGNING
+      - COMPLETED_WITH_ERRORS
+      - IN_PROGRESS
+      - DECLINED
+      - COMPLETED
+      - DRAFT
+      - ARCHIVED
+      example: IN_PROGRESS
+    BundleTotalElements:
+      type: number
+      minimum: 1
+      maximum: 1000
+      description: Количество выплат в реестре
+      example: 1000
+    ReceiptLink:
+      type: string
+      description: Ссылка на чек
+      example: https://lknpd.nalog.ru/api/v1/receipt/123456789101/2017i8xslu/print
+    payoutBundlesRequest:
+      type: object
+      x-examples:
+        example-1:
+          id: 123wasd
+          account: '12345'
+          fiscal: true
+          payouts:
+          - id: 1404fhr7i272a2
+            account: '40700000000000000000'
+            amount: 1110.01
+            currency: RUB
+            paymentDetails: Выплата от страховой компании
+            payoutMethod: SBP
+            payoutParams:
+              phone: '79191234567'
+              bankAlias: RAIFFEISEN
+              firstName: Иван
+              middleName: Иванович
+              lastName: Иванов
+              inn: '12345678910'
+            incomeTypeCode: '1'
+            extra:
+              apiClient:
+                type: string
+                description: Наименование ПО
+                x-description-i18n:
+                  eng: Software name
+              apiClientVersion:
+                type: string
+                description: Версия ПО
+                x-description-i18n:
+                  eng: Software version
+            currencyOperationCode: 21200
+            agreementDate: '2025-09-18'
+            agreementNumber: 123456789
+      properties:
+        id:
+          type: string
+          description: Идентификатор пакета
+          x-description-i18n:
+            eng: Bundle ID
+        account:
+          type: string
+          description: Номер счета
+          x-description-i18n:
+            eng: Account number
+        fiscal:
+          type: boolean
+          description: '1. true - выплата самозанятому с фискализацией, в payoutParams нужно передать ИНН и телефон
+
+            2. false - выплата физ лицу, в payoutParams нужно передать телефон'
+          x-description-i18n:
+            eng: '1. true - payment to self-employed with fiscalization, INN and phone number must be passed to payoutParams
+
+              2. false - payment to physical person, phone number must be passed to payoutParams
+
+              '
+        payouts:
+          type: array
+          description: Массив выплат
+          x-description-i18n:
+            eng: Payout array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Уникальный идентификатор выплаты в вашей системе, используется как номер документа в выписке
+                x-description-i18n:
+                  eng: The unique payout ID in your system, used as the document number in the statement
+                format: ^[Aa-Zz0-9_-]+
+                minLength: 1
+              amount:
+                type: number
+                description: 'Сумма в рублях.
+
+                  Действует несколько лимитов от НСПК:
+
+                  1. Ограничение до 1000000 рублей (включительно) на одну операцию
+
+                  2. Ограничение в 1000000 рублей в сутки в пользу одного получателя
+
+                  Можно сделать 3 выплаты на одинаковую сумму, например, по 400000. Главное, чтобы первые 2 выплаты в общей сумме не превысили лимит в 1000000'
+              currency:
+                type: string
+                description: Валюта выплаты
+                x-description-i18n:
+                  eng: Payout currency
+                enum:
+                - RUB
+              paymentDetails:
+                type: string
+                description: Назначение платежа. Значение попадает в выписку, после системного префикса. Не может быть пустым или содержать только пробелы. Может содержать:<br/>• Символы латинского алфавита (A–Z и a–z) с десятичными кодами из диапазонов [065-090] и [097-122] в кодировке UTF-8;<br/>• Символы русского алфавита (А-Я и а-я) с десятичными кодами из диапазона [1040-1103] в кодировке UTF-8;<br/>• Цифры 0-9 с десятичными кодами из диапазона [048-057] в кодировке UTF-8;<br/>• Специальные символы с десятичными кодами из диапазонов [032-047], [058-064], [091-096], [123-126] в кодировке UTF-8; - Символ «№» под номером 8470 в кодировке UTF-8
+                minLength: 1
+                maxLength: 140
+                x-description-i18n:
+                  eng: Payment details. Cannot be empty or contain only spaces. May contain:<br/>• Latin alphabet characters (A–Z and a–z) with decimal codes from the ranges [065-090] and [097-122] in UTF-8 encoding;<br/>• Characters of the Russian alphabet (A-Z and a-z) with decimal codes from the range [1040-1103] in UTF-8 encoding;<br/>• Digits 0-9 with decimal codes from the range [048-057] in UTF-8 encoding;<br/>• Special characters with decimal codes from ranges [032-047], [058-064], [091-096], [123-126] in UTF-8 encoding; - The character "№." under the number 8470 in UTF-8 encoding
+              payoutMethod:
+                type: string
+                description: Тип выплаты
+                x-description-i18n:
+                  eng: Payout type
+              payoutParams:
+                type: object
+                required:
+                - phone
+                properties:
+                  phone:
+                    type: string
+                    description: Номер телефона получателя
+                    maxLength: 15
+                    minLength: 1
+                  bankAlias:
+                    type: string
+                    description: Код банка получателя из запроса списка банков. Обязательно передается если не указан bankId.
+                    x-description-i18n:
+                      eng: Beneficiary bank code from the list of banks request. It is required if bankId is not specified.
+                    maxLength: 255
+                    minLength: 1
+                  bankId:
+                    type: string
+                    minLength: 1
+                    description: ID банка получателя из запроса списка банков. Обязательно передается если не указан bankAlias.
+                    x-description-i18n:
+                      eng: Beneficiary's bank id from the list of banks request. It is required if bankAlias is not specified.
+                    maxLength: 255
+                  firstName:
+                    type: string
+                    description: Имя получателя
+                    x-description-i18n:
+                      eng: Recipient first name
+                  middleName:
+                    type: string
+                    description: Отчество получателя
+                    x-description-i18n:
+                      eng: Recipient middle name
+                  lastName:
+                    type: string
+                    description: Фамилия получателя
+                    x-description-i18n:
+                      eng: Recipient last name
+                  inn:
+                    type: string
+                    minLength: 10
+                    maxLength: 12
+                    description: ИНН получателя
+                    x-description-i18n:
+                      eng: Recipient INN
+              incomeTypeCode:
+                type: string
+                description: Код вида дохода<br/>[Значения описаны тут](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+                x-description-i18n:
+                  eng: Income type code</br>[Values are described here](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+                enum:
+                - '1'
+                - '2'
+                - '3'
+                - '4'
+                - '5'
+              extra:
+                type: object
+                description: Дополнительные данные.<br/> При создании заказа рекомендуется передавать параметры <font color = dark>apiClient</font> и <font color = dark>apiClientVersion</font>. Данная информация позволит Банку определять клиентское ПО, отлавливать баги и улучшать сервис.
+                x-description-i18n:
+                  eng: Additional data
+                properties:
+                  apiClient:
+                    type: string
+                    description: Наименование ПО
+                    x-description-i18n:
+                      eng: Software name
+                  apiClientVersion:
+                    type: string
+                    description: Версия ПО
+                    x-description-i18n:
+                      eng: Software version
+            required:
+            - amount
+            - currency
+            - payoutParams
+    PayoutBundlesResponseV2:
+      title: payoutBundlesResponseV2
+      type: object
+      properties:
+        id:
+          type: string
+          description: Идентификатор пакета
+          x-description-i18n:
+            eng: Bundle ID
+        account:
+          type: string
+          description: Номер счета
+          x-description-i18n:
+            eng: Account number
+        fiscal:
+          $ref: '#/components/schemas/Fiscal'
+        payouts:
+          type: array
+          description: Массив выплат
+          x-description-i18n:
+            eng: Payout array
+          items:
+            $ref: '#/components/schemas/payoutResponseV4'
+    PayoutBundleResponse:
+      required:
+      - data
+      - totalElements
+      - page
+      - size
+      properties:
+        data:
+          type: array
+          description: Список выплат
+          items:
+            $ref: '#/components/schemas/payoutResponseV2'
+        page:
+          $ref: '#/components/schemas/Page'
+        size:
+          $ref: '#/components/schemas/Size'
+        totalElements:
+          $ref: '#/components/schemas/TotalElements'
+    TotalAmount:
+      type: number
+      description: Общая сумма выплат в реестре
+      example: 1000000
+    Page:
+      type: integer
+      description: Текущая страница
+      example: 1
+    DeleteFailedItem:
+      type: object
+      required:
+      - bundleNumber
+      - code
+      - message
+      properties:
+        bundleNumber:
+          type: string
+          description: Номер реестра, для которого операция не выполнена
+          x-description-i18n:
+            eng: Number of the bundle for which the operation failed
+          example: payoutBundle-2
+        code:
+          type: string
+          description: Код ошибки
+          x-description-i18n:
+            eng: Error code
+          enum:
+          - PAYOUT_BUNDLE_DELETE_UNAVAILABLE
+          - PAYOUT_BUNDLE_NOT_FOUND
+          example: PAYOUT_BUNDLE_DELETE_UNAVAILABLE
+        message:
+          type: string
+          description: Описание ошибки
+          x-description-i18n:
+            eng: Error description
+          example: 'Удаление реестра недоступно в статусе: "В работе". Доступные для удаления статусы: "Черновик", "Ждет доп. подпись"'
+    TotalElements:
+      type: integer
+      description: Общее число элементов
+      format: int64
+      example: 1
+    payoutResponse:
+      description: Ответ сервиса с информацией о выплате
+      type: object
+      x-examples:
+        '200':
+          id: 1404fhr7i272a2
+          amount: 1110.01
+          currency: RUB
+          fiscal: true
+          payoutMethod: SBP
+          payoutParams:
+            phone: '79191234567'
+            bankAlias: RAIFFEISEN
+            firstName: Иван
+            middleName: Иванович
+            lastName: Иванов
+          incomeTypeCode: '1'
+          extra:
+            apiClient: Payout Software
+            apiClientVersion: 1.0.0
+          status:
+            value: IN_PROGRESS
+            date: '2019-07-11T17:45:13+03:00'
+          createDate: '2019-07-11T17:45:13+03:00'
+          value:
+            id: 1404fhr7i272a2
+            account: '40700000000000000000'
+            amount: 1110.01
+            currency: RUB
+            payoutMethod: SBP
+            payoutParams:
+              phone: '79191234567'
+              bankAlias: RAIFFEISEN
+              firstName: Иван
+              middleName: Иванович
+              lastName: Иванов
+              inn: '123456789101'
+            incomeTypeCode: '1'
+            extra:
+              contract: 1234567/89012
+            status:
+              value: PENDING
+              date: '2019-07-11T17:45:13+03:00'
+            createDate: '2019-07-11T17:45:13+03:00'
+      title: payoutResponse
+      properties:
+        id:
+          type: string
+          description: Уникальный идентификатор выплаты в вашей системе, используется как номер документа в выписке
+          x-description-i18n:
+            eng: The unique payout ID in your system, used as the document number in the statement
+        amount:
+          type: number
+          description: Сумма в рублях
+          x-description-i18n:
+            eng: Amount in Russian ruble
+        currency:
+          type: string
+          minLength: 3
+          description: Валюта выплаты
+          x-description-i18n:
+            eng: Payout currency
+          maxLength: 3
+          enum:
+          - RUB
+        fiscal:
+          $ref: '#/components/schemas/Fiscal'
+        payoutMethod:
+          type: string
+          minLength: 1
+          description: Тип выплаты
+          x-description-i18n:
+            eng: Payout type
+          enum:
+          - SBP
+        payoutParams:
+          type: object
+          properties:
+            phone:
+              type: string
+              minLength: 1
+              description: Номер телефона получателя
+              x-description-i18n:
+                eng: Recipient phone number
+            bankAlias:
+              type: string
+              minLength: 1
+              description: Код банка получателя из запроса списка банков.
+              x-description-i18n:
+                eng: Beneficiary bank code from the list of banks request.
+            firstName:
+              type: string
+              minLength: 1
+              description: Имя получателя
+              x-description-i18n:
+                eng: Recipient first name
+            middleName:
+              type: string
+              minLength: 1
+              description: Отчество получателя
+              x-description-i18n:
+                eng: Recipient middle name
+            lastName:
+              type: string
+              minLength: 1
+              description: Фамилия получателя
+              x-description-i18n:
+                eng: Recipient last name
+            inn:
+              type: string
+              minLength: 10
+              maxLength: 12
+              description: ИНН получателя
+              x-description-i18n:
+                eng: Recipient INN
+        incomeTypeCode:
+          type: string
+          minLength: 1
+          description: Код вида дохода<br/>[Значения описаны тут](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+          x-description-i18n:
+            eng: Income type code</br>[Values are described here](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+          enum:
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+        extra:
+          type: object
+          description: Дополнительные данные.<br/> При создании заказа рекомендуется передавать параметры <font color = dark>apiClient</font> и <font color = dark>apiClientVersion</font>. Данная информация позволит Банку определять клиентское ПО, отлавливать баги и улучшать сервис.
+          x-description-i18n:
+            eng: Additional data
+        status:
+          type: object
+          properties:
+            value:
+              type: string
+              minLength: 1
+              description: 'Статус:<br/>
+
+                • ON_SIGNING – в статусе подписания.<br/>
+
+                • COMPLETED – операция выполнена, финальный статус.<br/>
+
+                • DECLINED – операция не выполнена, финальный статус.<br/>
+
+                • IN_PROGRESS – обработка операции, промежуточный статус.<br/>
+
+                • PENDING – обработка заявки, промежуточный статус.<br/>
+
+                • DRAFT – операция в статусе черновик, ожидает подписания.<br/>
+
+                • WAITING_CONFIRMATION – заявка ожидает подтверждения со стороны плательщика, промежуточный статус.<br/>
+
+                • WAITING_INCOME_REGISTRATION - ожидание регистрации дохода.<br/>
+
+                • WAITING_RECEIPT_RELEASING – ожидание выпуска чека.<br/>
+
+                • WAITING_RECEIPT_CANCELLATION – ожидание аннулировния чека.<br/>
+
+                • READY_TO_PROCESS – готов к обработке.<br/>'
+              x-description-i18n:
+                eng: 'Status:<br/>
+
+                  • COMPLETED - operation complete, final status.</br>
+
+                  • DECLINED - operation declined, final status. </br>
+
+                  • IN_PROGRESS - intermediate status. </br>
+
+                  • PENDING - processing request, intermediate status. </br>
+
+                  • DRAFT - operation in status draft, expected signing. </br>
+
+                  • WAITING_CONFIRMATION - the request is awaiting confirmation from the payer, intermediate status. </br>
+
+                  • WAITING_INCOME_REGISTRATION - waiting for income registration.</br>
+
+                  • READY_TO_PROCESS - ready for processing.</br>''
+
+                  • WAITING_RECEIPT_RELEASING - waiting for the check to be issued.</br>
+
+                  • WAITING_RECEIPT_CANCELLATION - waiting for check to clear.</br>'
+              enum:
+              - ON_SIGNING
+              - COMPLETED
+              - DECLINED
+              - IN_PROGRESS
+              - PENDING
+              - DRAFT
+              - WAITING_CONFIRMATION
+              - WAITING_INCOME_REGISTRATION
+              - WAITING_RECEIPT_RELEASING
+              - WAITING_RECEIPT_CANCELLATION
+              - READY_TO_PROCESS
+            date:
+              type: string
+              minLength: 1
+              description: Дата
+              x-description-i18n:
+                eng: Date
+            declineReason:
+              type: string
+              description: 'Причина отклонения операции:<br/>• TIMEOUT – превышено время ожидания ответа от системы<br/>• BANK_NOT_SUPPORTED – ошибка на стороне другого банка. Проведение выплаты заблокировано банком-получателем<br/>• RECEIVER_ACCOUNT_ERROR – ошибка зачисления на счет. Счет в банке-получателе может быть заблокирован или закрыт<br/>• WRONG_RECIPIENT – не пройдена сверка ФИО в системе. Попробуйте изменить ФИО и повторить запрос<br/>• SYSTEM_ERROR – другая техническая ошибка<br/>• NON_RESIDENT_RECIPIENT - получатель не является резидентом РФ<br/>• FAILED_SIGNATURE – Некорректная подпись<br/>• INSUFFICIENT_FUNDS – Недостаточно средств<br/>• FAILED_RECEIPT_CANCELLATION – Не удалось аннулировать чек<br/>• TAXPAYER_UNREGISTERED – Получатель не является самозанятым<br/>• TAXPAYER_UNBOUND – У банка нет доступа к данным ФНС получателя<br/>• TAXPAYER_LIMIT_EXCEEDED – Превышен зарегистрированный годовой доход самозанятого<br/>• FAILED_CURRENCY_CONTROL – не пройден валютный контроль. т. 8 800 700-55-20<br/>• MISSING_CURRENCY_CONTROL_PARAMS – Отсутствуют параметры для валютного контроля: если отправитель резидент, а получатель нерезидент - КВО, номер договора, дата договора. Если отправитель нерезидент - КВО<br/>'
+              x-description-i18n:
+                eng: Decline reason
+              enum:
+              - TIMEOUT
+              - BANK_NOT_SUPPORTED
+              - RECEIVER_ACCOUNT_ERROR
+              - WRONG_RECIPIENT
+              - SYSTEM_ERROR
+              - NON_RESIDENT_RECIPIENT
+              - FAILED_SIGNATURE
+              - INSUFFICIENT_FUNDS
+              - FAILED_RECEIPT_CANCELLATION
+              - TAXPAYER_UNREGISTERED
+              - TAXPAYER_UNBOUND
+              - TAXPAYER_LIMIT_EXCEEDED
+              - FAILED_CURRENCY_CONTROL
+              - MISSING_CURRENCY_CONTROL_PARAMS
+        creationDate:
+          type: string
+          minLength: 1
+          description: Дата создания
+          x-description-i18n:
+            eng: Operation create date
+    StatusDate:
+      type: string
+      minLength: 1
+      description: Дата последнего обновления статуса
+      example: '2019-07-11T17:45:13+03:00'
+      format: date-time
+    Error409Response:
+      required:
+      - code
+      - message
+      - traceId
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки (`REGISTRY_NUMBER_ALREADY_EXIST`)
+          example: REGISTRY_NUMBER_ALREADY_EXIST
+        message:
+          type: string
+          description: Текст ошибки (`The specified register was not found`)
+          example: The specified register was not found.
+        traceId:
+          type: string
+          example: 84b19a21e19410b62c30b4cd40c228a1
+          description: Уникальный идентификатор запроса
+    payoutResponseV4:
+      description: Ответ сервиса с информацией о выплате (версия 4). В данной версии возвращаются поля по выплате нерезидентам
+      type: object
+      x-examples:
+        '200':
+          value:
+            id: 1404fhr7i272a22
+            amount: 1110.01
+            currency: RUB
+            fiscal: true
+            receiptLink: https://lknpd.nalog.ru/api/v1/receipt/123456789101/2017i8xslu/print
+            payoutMethod: SBP
+            payoutParams:
+              phone: '79191234567'
+              bankAlias: RAIFFEISEN
+              firstName: Иван
+              middleName: Иванович
+              lastName: Иванов
+            receiverPam: Иван Иванович И
+            incomeTypeCode: '1'
+            extra:
+              apiClient: Payout Software
+              apiClientVersion: 1.0.0
+            status:
+              value: IN_PROGRESS
+              date: '2025-02-11T12:58:44+03:00'
+            creationDate: '2025-02-11T12:58:44+03:00'
+            paymentDetails: Выплата заработной платы
+            currencyOperationCode: 12060
+            agreementDate: '2025-02-11T12:58:44+03:00'
+            agreementNumber: AGR1234
+      title: payoutResponseV4
+      properties:
+        id:
+          type: string
+          description: Уникальный идентификатор выплаты в вашей системе, используется как номер документа в выписке
+          x-description-i18n:
+            eng: The unique payout ID in your system, used as the document number in the statement
+        amount:
+          type: number
+          description: Сумма в рублях
+          x-description-i18n:
+            eng: Amount in Russian ruble
+        currency:
+          type: string
+          minLength: 3
+          description: Валюта выплаты
+          x-description-i18n:
+            eng: Payout currency
+          maxLength: 3
+          enum:
+          - RUB
+        fiscal:
+          $ref: '#/components/schemas/Fiscal'
+        receiptLink:
+          $ref: '#/components/schemas/ReceiptLink'
+        payoutMethod:
+          type: string
+          minLength: 1
+          description: Тип выплаты
+          x-description-i18n:
+            eng: Payout type
+          enum:
+          - SBP
+        payoutParams:
+          type: object
+          properties:
+            phone:
+              type: string
+              minLength: 1
+              description: Номер телефона получателя
+              x-description-i18n:
+                eng: Recipient phone number
+            bankAlias:
+              type: string
+              minLength: 1
+              description: Код банка получателя из запроса списка банков.
+              x-description-i18n:
+                eng: Beneficiary bank code from the list of banks request.
+            firstName:
+              type: string
+              minLength: 1
+              description: Имя получателя
+              x-description-i18n:
+                eng: Recipient first name
+            middleName:
+              type: string
+              minLength: 1
+              description: Отчество получателя
+              x-description-i18n:
+                eng: Recipient middle name
+            lastName:
+              type: string
+              minLength: 1
+              description: Фамилия получателя
+              x-description-i18n:
+                eng: Recipient last name
+            inn:
+              type: string
+              minLength: 10
+              maxLength: 12
+              description: ИНН получателя
+              x-description-i18n:
+                eng: Recipient INN
+        receiverPam:
+          type: string
+          minLength: 1
+          description: PAM получателя
+          x-description-i18n:
+            eng: Receiver PAM
+        incomeTypeCode:
+          type: string
+          minLength: 1
+          description: Код вида дохода<br/>[Значения описаны тут](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+          x-description-i18n:
+            eng: Income type code</br>[Values are described here](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+          enum:
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+        extra:
+          type: object
+          description: Дополнительные данные.<br/> При создании заказа рекомендуется передавать параметры <font color = dark>apiClient</font> и <font color = dark>apiClientVersion</font>. Данная информация позволит Банку определять клиентское ПО, отлавливать баги и улучшать сервис.
+          x-description-i18n:
+            eng: Additional data
+        status:
+          type: object
+          properties:
+            value:
+              type: string
+              minLength: 1
+              description: 'Статус:<br/>
+
+                • ON_SIGNING – в статусе подписания.<br/>
+
+                • COMPLETED – операция выполнена, финальный статус.<br/>
+
+                • DECLINED – операция не выполнена, финальный статус.<br/>
+
+                • IN_PROGRESS – обработка операции, промежуточный статус.<br/>
+
+                • PENDING – обработка заявки, промежуточный статус.<br/>
+
+                • DRAFT – операция в статусе черновик, ожидает подписания.<br/>
+
+                • WAITING_CONFIRMATION – заявка ожидает подтверждения со стороны плательщика, промежуточный статус.<br/>
+
+                • WAITING_INCOME_REGISTRATION - ожидание регистрации дохода.<br/>
+
+                • WAITING_RECEIPT_RELEASING – ожидание выпуска чека.<br/>
+
+                • WAITING_RECEIPT_CANCELLATION – ожидание аннулировния чека.<br/>
+
+                • READY_TO_PROCESS – готов к обработке.<br/>'
+              x-description-i18n:
+                eng: 'Status:<br/>
+
+                  • COMPLETED - operation complete, final status.</br>
+
+                  • DECLINED - operation declined, final status. </br>
+
+                  • IN_PROGRESS - intermediate status. </br>
+
+                  • PENDING - processing request, intermediate status. </br>
+
+                  • DRAFT - operation in status draft, expected signing. </br>
+
+                  • WAITING_CONFIRMATION - the request is awaiting confirmation from the payer, intermediate status. </br>
+
+                  • WAITING_INCOME_REGISTRATION - waiting for income registration.</br>
+
+                  • WAITING_RECEIPT_RELEASING - waiting for the check to be issued.</br>
+
+                  • WAITING_RECEIPT_CANCELLATION - waiting for check to clear.</br>
+
+                  • READY_TO_PROCESS - ready for processing.</br>'
+              enum:
+              - ON_SIGNING
+              - COMPLETED
+              - DECLINED
+              - IN_PROGRESS
+              - PENDING
+              - DRAFT
+              - WAITING_CONFIRMATION
+              - WAITING_INCOME_REGISTRATION
+              - WAITING_RECEIPT_RELEASING
+              - WAITING_RECEIPT_CANCELLATION
+              - READY_TO_PROCESS
+            date:
+              type: string
+              minLength: 1
+              description: Дата
+              x-description-i18n:
+                eng: Date
+            declineReason:
+              type: string
+              description: 'Причина отклонения операции:<br/>• TIMEOUT – превышено время ожидания ответа от системы<br/>• BANK_NOT_SUPPORTED – ошибка на стороне другого банка. Проведение выплаты заблокировано банком-получателем<br/>• RECEIVER_ACCOUNT_ERROR – ошибка зачисления на счет. Счет в банке-получателе может быть заблокирован или закрыт<br/>• WRONG_RECIPIENT – не пройдена сверка ФИО в системе. Попробуйте изменить ФИО и повторить запрос<br/>• SYSTEM_ERROR – другая техническая ошибка<br/>• NON_RESIDENT_RECIPIENT - получатель не является резидентом РФ<br/>• FAILED_SIGNATURE – Некорректная подпись<br/>• INSUFFICIENT_FUNDS – Недостаточно средств<br/>• FAILED_RECEIPT_CANCELLATION – Не удалось аннулировать чек<br/>• TAXPAYER_UNREGISTERED – Получатель не является самозанятым<br/>• TAXPAYER_UNBOUND – У банка нет доступа к данным ФНС получателя<br/>• TAXPAYER_LIMIT_EXCEEDED – Превышен зарегистрированный годовой доход самозанятого<br/>• FAILED_CURRENCY_CONTROL – не пройден валютный контроль. т. 8 800 700-55-20<br/>• MISSING_CURRENCY_CONTROL_PARAMS – Отсутствуют параметры для валютного контроля: если отправитель резидент, а получатель нерезидент - КВО, номер договора, дата договора. Если отправитель нерезидент - КВО<br/>'
+              x-description-i18n:
+                eng: Decline reason
+              enum:
+              - TIMEOUT
+              - BANK_NOT_SUPPORTED
+              - RECEIVER_ACCOUNT_ERROR
+              - WRONG_RECIPIENT
+              - SYSTEM_ERROR
+              - NON_RESIDENT_RECIPIENT
+              - FAILED_SIGNATURE
+              - INSUFFICIENT_FUNDS
+              - FAILED_RECEIPT_CANCELLATION
+              - TAXPAYER_UNREGISTERED
+              - TAXPAYER_UNBOUND
+              - TAXPAYER_LIMIT_EXCEEDED
+              - FAILED_CURRENCY_CONTROL
+              - MISSING_CURRENCY_CONTROL_PARAMS
+        creationDate:
+          type: string
+          minLength: 1
+          description: Дата создания
+          x-description-i18n:
+            eng: Operation create date
+        paymentDetails:
+          type: string
+          minLength: 1
+          description: Назначение платежа
+          x-description-i18n:
+            eng: Payout payment details
+        currencyOperationCode:
+          type: string
+          minLength: 5
+          maxLength: 5
+          description: Код валютной операции
+          x-description-i18n:
+            eng: The code of operations realated to currency transactions
+        agreementDate:
+          type: string
+          format: date
+          description: Дата договора
+          x-description-i18n:
+            eng: The execution date, when the agreement is signed
+        agreementNumber:
+          type: string
+          description: Номер договора
+          x-description-i18n:
+            eng: Agreement number
+    Error404Response:
+      required:
+      - code
+      - message
+      - traceId
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки (`REGISTER_NOT_FOUND`)
+          example: REGISTER_NOT_FOUND
+        message:
+          type: string
+          description: Текст ошибки (`The specified register was not found`)
+          example: The specified register was not found.
+        traceId:
+          type: string
+          example: 84b19a21e19410b62c30b4cd40c228a1
+          description: Уникальный идентификатор запроса
+    payoutBundlesRequestV2:
+      type: object
+      x-examples:
+        example-1:
+          id: 123wasd
+          account: '12345'
+          payouts:
+          - id: 1404fhr7i272a2
+            account: '40700000000000000000'
+            amount: 1110.01
+            currency: RUB
+            paymentDetails: Выплата от страховой компании
+            payoutMethod: SBP
+            fiscal: true
+            payoutParams:
+              phone: '79191234567'
+              bankAlias: RAIFFEISEN
+              firstName: Иван
+              middleName: Иванович
+              lastName: Иванов
+              inn: '12345678910'
+            incomeTypeCode: '1'
+            extra:
+              apiClient:
+                type: string
+                description: Наименование ПО
+                x-description-i18n:
+                  eng: Software name
+              apiClientVersion:
+                type: string
+                description: Версия ПО
+                x-description-i18n:
+                  eng: Software version
+            currencyOperationCode: 21200
+            agreementDate: '2025-09-18'
+            agreementNumber: 123456789
+      properties:
+        id:
+          type: string
+          description: Идентификатор пакета
+          x-description-i18n:
+            eng: Bundle ID
+        account:
+          type: string
+          description: Номер счета
+          x-description-i18n:
+            eng: Account number
+        payouts:
+          type: array
+          description: Массив выплат
+          x-description-i18n:
+            eng: Payout array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Уникальный идентификатор выплаты в вашей системе, используется как номер документа в выписке
+                x-description-i18n:
+                  eng: The unique payout ID in your system, used as the document number in the statement
+                format: ^[Aa-Zz0-9_-]+
+                minLength: 1
+              amount:
+                type: number
+                description: 'Сумма в рублях.
+
+                  Действует несколько лимитов от НСПК:
+
+                  1. Ограничение до 1000000 рублей (включительно) на одну операцию
+
+                  2. Ограничение в 1000000 рублей в сутки в пользу одного получателя
+
+                  Можно сделать 3 выплаты на одинаковую сумму, например, по 400000. Главное, чтобы первые 2 выплаты в общей сумме не превысили лимит в 1000000'
+              currency:
+                type: string
+                description: Валюта выплаты
+                x-description-i18n:
+                  eng: Payout currency
+                enum:
+                - RUB
+              paymentDetails:
+                type: string
+                description: Назначение платежа. Значение попадает в выписку, после системного префикса. Не может быть пустым или содержать только пробелы. Может содержать:<br/>• Символы латинского алфавита (A–Z и a–z) с десятичными кодами из диапазонов [065-090] и [097-122] в кодировке UTF-8;<br/>• Символы русского алфавита (А-Я и а-я) с десятичными кодами из диапазона [1040-1103] в кодировке UTF-8;<br/>• Цифры 0-9 с десятичными кодами из диапазона [048-057] в кодировке UTF-8;<br/>• Специальные символы с десятичными кодами из диапазонов [032-047], [058-064], [091-096], [123-126] в кодировке UTF-8; - Символ «№» под номером 8470 в кодировке UTF-8
+                minLength: 1
+                maxLength: 140
+                x-description-i18n:
+                  eng: Payment details. Cannot be empty or contain only spaces. May contain:<br/>• Latin alphabet characters (A–Z and a–z) with decimal codes from the ranges [065-090] and [097-122] in UTF-8 encoding;<br/>• Characters of the Russian alphabet (A-Z and a-z) with decimal codes from the range [1040-1103] in UTF-8 encoding;<br/>• Digits 0-9 with decimal codes from the range [048-057] in UTF-8 encoding;<br/>• Special characters with decimal codes from ranges [032-047], [058-064], [091-096], [123-126] in UTF-8 encoding; - The character "№." under the number 8470 in UTF-8 encoding
+              payoutMethod:
+                type: string
+                description: Тип выплаты
+                x-description-i18n:
+                  eng: Payout type
+              fiscal:
+                type: boolean
+                description: '1. true - выплата самозанятому с фискализацией, в payoutParams нужно передать ИНН и телефон
+
+                  2. false - выплата физ лицу, в payoutParams нужно передать телефон'
+                x-description-i18n:
+                  eng: 1. true - payment to self-employed with fiscalization, INN and phone number must be passed to payoutParams 2. false - payment to physical person, phone number must be passed to payoutParams
+              payoutParams:
+                type: object
+                required:
+                - phone
+                properties:
+                  phone:
+                    type: string
+                    description: Номер телефона получателя
+                    maxLength: 15
+                    minLength: 1
+                  bankAlias:
+                    type: string
+                    description: Код банка получателя из запроса списка банков. Обязательно передается если не указан bankId.
+                    x-description-i18n:
+                      eng: Beneficiary bank code from the list of banks request. It is required if bankId is not specified.
+                    maxLength: 255
+                    minLength: 1
+                  bankId:
+                    type: string
+                    minLength: 1
+                    description: ID банка получателя из запроса списка банков. Обязательно передается если не указан bankAlias.
+                    x-description-i18n:
+                      eng: Beneficiary's bank id from the list of banks request. It is required if bankAlias is not specified.
+                    maxLength: 255
+                  firstName:
+                    type: string
+                    description: Имя получателя
+                    x-description-i18n:
+                      eng: Recipient first name
+                  middleName:
+                    type: string
+                    description: Отчество получателя
+                    x-description-i18n:
+                      eng: Recipient middle name
+                  lastName:
+                    type: string
+                    description: Фамилия получателя
+                    x-description-i18n:
+                      eng: Recipient last name
+                  inn:
+                    type: string
+                    minLength: 10
+                    maxLength: 12
+                    description: ИНН получателя
+                    x-description-i18n:
+                      eng: Recipient INN
+              incomeTypeCode:
+                type: string
+                description: Код вида дохода<br/>[Значения описаны тут](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+                x-description-i18n:
+                  eng: Income type code</br>[Values are described here](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+                enum:
+                - '1'
+                - '2'
+                - '3'
+                - '4'
+                - '5'
+              extra:
+                type: object
+                description: Дополнительные данные.<br/> При создании заказа рекомендуется передавать параметры <font color = dark>apiClient</font> и <font color = dark>apiClientVersion</font>. Данная информация позволит Банку определять клиентское ПО, отлавливать баги и улучшать сервис.
+                x-description-i18n:
+                  eng: Additional data
+                properties:
+                  apiClient:
+                    type: string
+                    description: Наименование ПО
+                    x-description-i18n:
+                      eng: Software name
+                  apiClientVersion:
+                    type: string
+                    description: Версия ПО
+                    x-description-i18n:
+                      eng: Software version
+              currencyOperationCode:
+                type: string
+                minLength: 5
+                maxLength: 5
+                description: Код валютной операции
+                x-description-i18n:
+                  eng: The code of operations realated to currency transactions
+              agreementDate:
+                type: string
+                format: date
+                description: Дата договора
+                x-description-i18n:
+                  eng: The execution date, when the agreement is signed
+              agreementNumber:
+                type: string
+                description: Номер договора
+                x-description-i18n:
+                  eng: Agreement number
+            required:
+            - amount
+            - currency
+            - payoutParams
+    BundleStatus:
+      type: object
+      required:
+      - value
+      - updatedAt
+      properties:
+        value:
+          $ref: '#/components/schemas/BundleStatusValue'
+        updatedAt:
+          $ref: '#/components/schemas/StatusDate'
+    PayoutBundlesResponse:
+      title: payoutBundlesResponse
+      type: object
+      properties:
+        id:
+          type: string
+          description: Идентификатор пакета
+          x-description-i18n:
+            eng: Bundle ID
+        account:
+          type: string
+          description: Номер счета
+          x-description-i18n:
+            eng: Account number
+        payouts:
+          type: array
+          description: Массив выплат
+          x-description-i18n:
+            eng: Payout array
+          items:
+            $ref: '#/components/schemas/payoutResponse'
+    payoutRequest:
+      description: Запрос на проведение выплаты
+      type: object
+      x-examples:
+        Payload:
+          id: 1404fhr7i272a2
+          account: '40700000000000000000'
+          amount: 1110.01
+          currency: RUB
+          fiscal: true
+          paymentDetails: Выплата от страховой компании
+          payoutMethod: SBP
+          payoutParams:
+            phone: '79191234567'
+            bankAlias: RAIFFEISEN
+            firstName: Иван
+            middleName: Иванович
+            lastName: Иванов
+            inn: '12345678910'
+          incomeTypeCode: '1'
+          extra:
+            apiClient: Payout Software
+            apiClientVersion: 1.0.0
+          value:
+            id: 1404fhr7i272a2
+            account: '40700000000000000000'
+            amount: 1110.01
+            currency: RUB
+            paymentDetails: Выплата от страховой компании
+            payoutMethod: SBP
+            payoutParams:
+              phone: '79191234567'
+              bankAlias: RAIFFEISEN
+              firstName: Иван
+              middleName: Иванович
+              lastName: Иванов
+              inn: '123456789101'
+            incomeTypeCode: '1'
+            extra:
+              apiClient: Payout Software
+              apiClientVersion: 1.0.0
+            currencyOperationCode: 21200
+            agreementDate: '2025-09-18'
+            agreementNumber: 123456789
+      title: payoutRequest
+      properties:
+        id:
+          type: string
+          minLength: 1
+          description: Уникальный идентификатор выплаты в вашей системе, используется как номер документа в выписке
+          x-description-i18n:
+            eng: The unique payout ID in your system, used as the document number in the statement
+          format: ^[Aa-Zz0-9_-]+
+        account:
+          type: string
+          description: Счет, с которого будет происходить списание
+          x-description-i18n:
+            eng: Account to be debited
+          maxLength: 20
+        amount:
+          type: number
+          description: 'Сумма в рублях.
+
+            Действует несколько лимитов от НСПК:
+
+            1. Ограничение до 1000000 рублей (включительно) на одну операцию
+
+            2. Ограничение до 2000000 рублей в сутки в пользу одного получателя
+
+            Можно сделать 3 выплаты на одинаковую сумму, например, по 400000. Главное, чтобы первые 2 выплаты в общей сумме не превысили лимит в 1000000'
+          x-description-i18n:
+            eng: 'Amount in Russian ruble.
+
+              There are several limits from NSPK
+
+              1. Limitation up to 1,000,000 rubles (inclusive) for one operation
+
+              2. Limitation up to 2,000,000 rubles per day in favor of one recipient
+
+              You can make 3 payouts for the same amount, for example, 400,000 each. The main thing is that the first 2 payouts in total do not exceed the limit of 1,000,000
+
+              '
+        currency:
+          type: string
+          description: Валюта выплаты
+          x-description-i18n:
+            eng: Payout currency
+          maxLength: 3
+          minLength: 3
+          enum:
+          - RUB
+        fiscal:
+          $ref: '#/components/schemas/Fiscal'
+        paymentDetails:
+          type: string
+          minLength: 1
+          description: Назначение платежа. Значение попадает в выписку после системного префикса. Не может быть пустым или содержать только пробелы. Может содержать:<br/>• Символы латинского алфавита (A–Z и a–z) с десятичными кодами из диапазонов [065-090] и [097-122] в кодировке UTF-8;<br/>• Символы русского алфавита (А-Я и а-я) с десятичными кодами из диапазона [1040-1103] в кодировке UTF-8;<br/>• Цифры 0-9 с десятичными кодами из диапазона [048-057] в кодировке UTF-8;<br/>• Специальные символы с десятичными кодами из диапазонов [032-047], [058-064], [091-096], [123-126] в кодировке UTF-8; - Символ «№» под номером 8470 в кодировке UTF-8
+          x-description-i18n:
+            eng: Purpose of payment. The value is included in the statement after the system prefix. Cannot be empty or contain only spaces. May contain:<br/>• Latin alphabet characters (A–Z and a–z) with decimal codes from the ranges [065-090] and [097-122] in UTF-8 encoding;<br/>• Characters of the Russian alphabet (A-Z and a-z) with decimal codes from the range [1040-1103] in UTF-8 encoding;<br/>• Digits 0-9 with decimal codes from the range [048-057] in UTF-8 encoding;<br/>• Special characters with decimal codes from ranges [032-047], [058-064], [091-096], [123-126] in UTF-8 encoding; - The character "№." under the number 8470 in UTF-8 encoding
+          maxLength: 140
+        payoutMethod:
+          type: string
+          minLength: 1
+          description: Тип выплаты
+          x-description-i18n:
+            eng: Payout type
+          enum:
+          - SBP
+        payoutParams:
+          type: object
+          required:
+          - phone
+          properties:
+            phone:
+              type: string
+              minLength: 1
+              description: Номер телефона получателя
+              x-description-i18n:
+                eng: Recipient phone number
+              maxLength: 15
+            bankAlias:
+              type: string
+              minLength: 1
+              description: Код банка получателя из запроса списка банков. Обязательно передается если не указан bankId.
+              x-description-i18n:
+                eng: Beneficiary's bank code from the list of banks request. It is required if bankId is not specified.
+              maxLength: 255
+            bankId:
+              type: string
+              minLength: 1
+              description: ID банка получателя из запроса списка банков. Обязательно передается если не указан bankAlias.
+              x-description-i18n:
+                eng: Beneficiary's bank id from the list of banks request. It is required if bankAlias is not specified.
+              maxLength: 255
+            firstName:
+              type: string
+              minLength: 1
+              description: Имя получателя
+              x-description-i18n:
+                eng: Recipient first name
+              maxLength: 140
+            middleName:
+              type: string
+              minLength: 1
+              description: Отчество получателя
+              x-description-i18n:
+                eng: Recipient middle name
+              maxLength: 140
+            lastName:
+              type: string
+              minLength: 1
+              description: Фамилия получателя
+              x-description-i18n:
+                eng: Recipient last name
+              maxLength: 140
+            inn:
+              minLength: 10
+              maxLength: 12
+              description: ИНН получателя
+              x-description-i18n:
+                eng: Recipient INN
+              type: string
+        incomeTypeCode:
+          type: string
+          minLength: 1
+          description: Код вида дохода<br/>[Значения описаны тут](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+          x-description-i18n:
+            eng: Income type code</br>[Values are described here](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+          enum:
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+        extra:
+          type: object
+          description: Дополнительные данные.<br/> При создании заказа рекомендуется передавать параметры <font color = dark>apiClient</font> и <font color = dark>apiClientVersion</font>. Данная информация позволит Банку определять клиентское ПО, отлавливать баги и улучшать сервис.
+          x-description-i18n:
+            eng: Additional data
+          properties:
+            apiClient:
+              type: string
+              description: Наименование ПО
+              x-description-i18n:
+                eng: Software name
+            apiClientVersion:
+              type: string
+              description: Версия ПО
+              x-description-i18n:
+                eng: Software version
+      required:
+      - account
+      - amount
+      - currency
+      - payoutMethod
+      - payoutParams
+    BundleSuccessPayoutsAmount:
+      type: number
+      description: Сумма всех успешных выплат в пакете
+      example: 900000
+    ImportRegistryResponse:
+      type: object
+      required:
+      - id
+      - bundleStatus
+      - totalElements
+      - totalAmount
+      properties:
+        id:
+          $ref: '#/components/schemas/BundleId'
+        bundleStatus:
+          $ref: '#/components/schemas/BundleStatus'
+        totalElements:
+          $ref: '#/components/schemas/BundleTotalElements'
+        totalAmount:
+          $ref: '#/components/schemas/TotalAmount'
+    MissingAccountErrorResponse:
+      required:
+      - code
+      - message
+      - traceId
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки (`ERROR.MISSING_ACCOUNT`)
+          example: ERROR.MISSING_ACCOUNT
+        message:
+          type: string
+          description: Текст ошибки (`Отсутствует счет. Необходимо указать счет или на уровне реестра, или на уровне выплаты`)
+          example: Missing account. Please specify an account at either the registry or payout level
+        traceId:
+          type: string
+          description: Уникальный идентификатор запроса
+          example: 84b19a21e19410b62c30b4cd40c228a1
+    BundleAccount:
+      type: string
+      description: Счет, с которого производилась выплата
+      example: '40700000000000000000'
+      minLength: 1
+  parameters:
+    PayoutStatuses:
+      name: status
+      in: query
+      description: Запрашиваемые статусы выплат
+      schema:
+        type: string
+        enum:
+        - ON_SIGNING
+        - COMPLETED
+        - DECLINED
+        - IN_PROGRESS
+        - PENDING
+        - DRAFT
+        - WAITING_CONFIRMATION
+        - WAITING_INCOME_REGISTRATION
+        - WAITING_RECEIPT_RELEASING
+        - WAITING_RECEIPT_CANCELLATION
+        - READY_TO_PROCESS
+      example: IN_PROGRESS
+    Sort:
+      name: sort
+      in: query
+      required: false
+      description: Наименование поля для сортировки и направление сортировки (`asc` | `desc`)
+      schema:
+        type: string
+      example: createdAt,desc
+    BundleId:
+      name: id
+      in: path
+      required: true
+      description: Уникальный идентификатор пакета выплат
+      schema:
+        type: string
+        format: ^[Aa-Zz0-9_-]+
+        minLength: 1
+        maxLength: 40
+      example: 1404fhr7i272a2
+    Page:
+      name: page
+      in: query
+      required: false
+      description: Номер страницы
+      schema:
+        type: integer
+        minimum: 1
+      example: 1
+    AcceptCharset:
+      name: Accept-Charset
+      in: header
+      required: false
+      description: 'Позволяет клиенту выбрать кодировку символов в ответе.
+
+        Если заголовок не передан, используется кодировка по умолчанию (UTF-8).
+
+        '
+      schema:
+        type: string
+        enum:
+        - UTF-8
+        - Windows-1251
+        - CP866
+        default: UTF-8
+      example: UTF-8
+      x-description-i18n:
+        eng: 'Allows the client to select the character encoding in the response.
+
+          If the header is not provided, the default encoding (UTF-8) is used.
+
+          '
+    Size:
+      name: size
+      in: query
+      required: false
+      description: Количество элементов на странице
+      schema:
+        type: integer
+        minimum: 0
+      example: 10
+    ContentTypeCharset:
+      name: Content-Type
+      in: header
+      required: false
+      description: 'Тип содержимого запроса с указанием кодировки символов тела запроса.
+
+        Сервер декодирует тело запроса в соответствии с указанным charset.
+
+        '
+      schema:
+        type: string
+        enum:
+        - application/json; charset=UTF-8
+        - application/json; charset=Windows-1251
+        - application/json; charset=CP866
+        default: application/json; charset=UTF-8
+      example: application/json; charset=UTF-8
+      x-description-i18n:
+        eng: 'Request content type with character encoding of the request body.
+
+          The server decodes the request body according to the specified charset.
+
+          '
+    BundleStatus:
+      name: status
+      in: query
+      description: 'Запрашиваемые статусы реестров:<br/>
+
+        • COMPLETED_WITH_ERRORS – операция выполнена, не все выплаты имеют статус SUCCESS.<br/>
+
+        • IN_PROGRESS – обработка операции, промежуточный статус.<br/>
+
+        • COMPLETED – операция выполнена, все выплаты в статусе COMPLETED.<br/>
+
+        • DECLINED – операция не выполнена, финальный статус.<br/>
+
+        • DRAFT – в статусе черновик, ожидает подписания.<br/>
+
+        • ON_SIGNING – в статусе подписания.<br/>
+
+        • ARCHIVED – в статусе в архиве.<br/>'
+      schema:
+        enum:
+        - ON_SIGNING
+        - COMPLETED_WITH_ERRORS
+        - IN_PROGRESS
+        - DECLINED
+        - COMPLETED
+        - DRAFT
+        - ARCHIVED
+        example: IN_PROGRESS
+  securitySchemes:
+    BearerAuth:
+      type: http
+      description: '[Bearer secretKey](#tag/authorization)
+
+
+        example: eyJ0eXA***
+
+        '
+      scheme: bearer
+      bearerFormat: JWT
+      x-internal: false
+    UserTokenAuth:
+      name: X-USER-ACCESS-TOKEN
+      type: apiKey
+      in: cookie
+x-refined-from:
+- raiffeisen-ru-raif-pay-payouts-openapi.json
+- raiffeisen-ru-raif-pay-payouts-openapi.yml

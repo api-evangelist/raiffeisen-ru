@@ -1,0 +1,46 @@
+generated: '2026-10-09'
+method: searched
+source: openapi/raiffeisen-ru-domestic-payments-iso20022-openapi.yml; openapi/raiffeisen-ru-bank-statements-openapi.yml; https://developer.raiffeisen.ru/docs/howToStart/tokens/howToGetTokensByCodeFlow
+standards:
+- id: iso20022
+  conforms: partial
+  kind: domain-standard
+  evidence: 'Contract declares ISO 20022 message types: openapi/raiffeisen-ru-domestic-payments-iso20022-openapi.yml paths /v2/transfers/iso20022/unsigned
+    and /signed accept pain.001.001.raif (XSD https://cdn.rbo.raiffeisen.ru/fs/cashmanagement/pain.001.001.raif.xsd); openapi/raiffeisen-ru-foreign-currency-transfers-iso20022-openapi.yml
+    uses pain.001.001.11.raifsig; openapi/raiffeisen-ru-bank-statements-openapi.yml lines 454/492 generate camt.053 and camt.052 statements. "partial"
+    because the pain.001 variants are bank-specific (.raif) profiles of the ISO schema.'
+- id: oauth2
+  conforms: true
+  evidence: Documented authorization-code flow at https://sso.rbo.raiffeisen.ru/authorize with /token using HTTP Basic client credentials and
+    refresh_token (https://developer.raiffeisen.ru/docs/howToStart/tokens/howToGetTokensByCodeFlow).
+- id: oidc
+  conforms: true
+  evidence: Static scope "openid profile email phone", nonce parameter and id_token/ID-Token header documented (Code Flow docs; sandbox test values
+    list access_token, id_token).
+- id: pkce
+  conforms: true
+  evidence: code_challenge (S256) computed from code_verifier in the Code Flow (https://developer.raiffeisen.ru/docs/sandbox/tokens; support page).
+- id: openapi-3.0
+  conforms: true
+  evidence: the document declares 3.0.0
+- id: openapi-3.0
+  conforms: true
+  evidence: the document declares 3.0.1
+- id: openapi-3.0
+  conforms: true
+  evidence: the document declares 3.0.3
+- id: openapi-3.0
+  conforms: true
+  evidence: the document declares 3.0.4
+- id: openapi-3.1
+  conforms: true
+  evidence: the document declares 3.1.0
+- id: rfc9457
+  conforms: false
+  evidence: no response declares application/problem+json
+- id: idempotency
+  conforms: false
+  evidence: no idempotency key parameter on mutating operations
+- id: pagination
+  conforms: true
+  evidence: list operations take error_page_details, limit, offset, page

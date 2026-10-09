@@ -1,0 +1,333 @@
+# x-archived-from: raiffeisen-ru-financing-consents-openapi.yml
+# x-archived-on: 2026-10-09
+---
+openapi: "3.0.3"
+info:
+  description: "API предоставление сведений, согласий и поручений в банк с помощью\
+    \ УКЭП юридического лица"
+  title: "Финансирование. Предоставление сведений, согласий и поручений в банк"
+  version: "1.0.0"
+paths:
+  /v1/ukep/documents/visualize:
+    post:
+      operationId: "visualizeBkiConsent"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisualizationRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisualizationResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "Bad Request"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Визуализация контента и получение значений хэшей для подписания"
+      tags:
+      - "ukep-controller"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/ukep/documents/save-signed-documents:
+    post:
+      operationId: "saveSignedDocuments"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignedDocumentsRequest"
+        required: true
+      responses:
+        "201":
+          description: "Документы получены"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "Bad Request"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Сохранение подписанных документов"
+      tags:
+      - "ukep-controller"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/ukep/check-organization-details:
+    post:
+      operationId: "checkOrganizationDetails"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckOrganizationDetailsRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckOrganizationDetailsResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "Bad Request"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение детальной информации по организации и проверка является\
+        \ ли подписант ЕИО"
+      tags:
+      - "ukep-controller"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+components:
+  schemas:
+    VisualizationRequest:
+      description: "Запрос на визуализацию контента и получение значений хэшей для\
+        \ подписания"
+      example:
+        documentType: "BKI_CONSENT"
+        organizationInfo:
+          actualAddress: "г. Москва, пл. Смоленская-Сенная, д. 28"
+          phone: "+7 (495) 721 99 00"
+          email: "mail@mail.ru"
+        certificate: "Q2VyaXRpZmljYXRl"
+      properties:
+        documentType:
+          $ref: "#/components/schemas/DocumentType"
+        certificate:
+          description: "Сертификат УКЭП в формате DER в виде base64 строки"
+          example: "Q2VyaXRpZmljYXRl"
+          minLength: 1
+          type: "string"
+        organizationInfo:
+          $ref: "#/components/schemas/OrganizationInfo"
+      required:
+      - "certificate"
+      - "documentType"
+      - "organizationInfo"
+      type: "object"
+    VisualizationResponse:
+      description: "Ответ c визуализацией контента и значениями хэшей для подписан\
+        ия"
+      example:
+        hash256: "hash256"
+        hash512: "hash512"
+        visualizedContent: "visualizedContent"
+      properties:
+        visualizedContent:
+          description: "Визуализация подписываемого документа"
+          type: "string"
+        hash256:
+          description: "Значение хэш-функции ГОСТ Р 34.11-2012 256 бит"
+          type: "string"
+        hash512:
+          description: "Значение хэш-функции ГОСТ Р 34.11-2012 512 бит"
+          type: "string"
+      required:
+      - "hash256"
+      - "hash512"
+      - "visualizedContent"
+      type: "object"
+    ErrorResponse:
+      items:
+        $ref: "#/components/schemas/ErrorMessage"
+      type: "array"
+    SignedDocumentsRequest:
+      description: "Запрос с готовыми УКЭП"
+      example:
+        signatureDocuments:
+        - documentType: "BKI_CONSENT"
+          signature: "Q01TIGNvbnRhaW5lciBzaWduYXR1cmU="
+        - documentType: "BKI_CONSENT"
+          signature: "Q01TIGNvbnRhaW5lciBzaWduYXR1cmU="
+        organizationInfo:
+          actualAddress: "г. Москва, пл. Смоленская-Сенная, д. 28"
+          phone: "+7 (495) 721 99 00"
+          email: "mail@mail.ru"
+      properties:
+        signatureDocuments:
+          items:
+            $ref: "#/components/schemas/SignatureDocument"
+          minItems: 1
+          type: "array"
+        organizationInfo:
+          $ref: "#/components/schemas/OrganizationInfo"
+      required:
+      - "organizationInfo"
+      - "signatureDocuments"
+      type: "object"
+    CheckOrganizationDetailsRequest:
+      description: "Запрос на получение детальной информации по организации и пров\
+        ерка является ли подписант ЕИО"
+      example:
+        certificate: "Q2VyaXRpZmljYXRl"
+      properties:
+        certificate:
+          description: "Сертификат УКЭП в формате DER в виде base64 строки"
+          example: "Q2VyaXRpZmljYXRl"
+          minLength: 1
+          type: "string"
+      required:
+      - "certificate"
+      type: "object"
+    CheckOrganizationDetailsResponse:
+      description: "Детальная информация об организации"
+      example:
+        ogrn: "1027739326449"
+        orgInn: "7744000302"
+        phone: "+7 (495) 721 99 00"
+        registrationAddress: "г. Москва, пл. Смоленская-Сенная, д. 28"
+        shortName: "АО Райффайзенбанк"
+        email: "mail@mail.ru"
+      properties:
+        ogrn:
+          description: "ОГРН организации"
+          example: "1027739326449"
+          type: "string"
+        orgInn:
+          description: "ИНН организации"
+          example: "7744000302"
+          type: "string"
+        shortName:
+          description: "Краткое наименование организации"
+          example: "АО Райффайзенбанк"
+          type: "string"
+        registrationAddress:
+          description: "Адрес юридического лица"
+          example: "г. Москва, пл. Смоленская-Сенная, д. 28"
+          type: "string"
+        phone:
+          description: "Телефон"
+          example: "+7 (495) 721 99 00"
+          type: "string"
+        email:
+          description: "Электронная почта"
+          example: "mail@mail.ru"
+          type: "string"
+      required:
+      - "ogrn"
+      - "orgInn"
+      - "registrationAddress"
+      - "shortName"
+      type: "object"
+    DocumentType:
+      description: "| code            | Тип документа                            \
+        \                          |\n|-----------------|--------------------------------------------------------------------|\n\
+        | BKI_CONSENT     | Согласие на получение информации из бюро кредитных ист\
+        орий         |\n| PERSONAL_DATA   | Поручение на обработку персональных да\
+        нных                         |\n| ACTUAL_ADDRESS  | Сведения об адресе фак\
+        тического места нахождения юридического лица |\n"
+      enum:
+      - "BKI_CONSENT"
+      - "PERSONAL_DATA"
+      - "ACTUAL_ADDRESS"
+      example: "BKI_CONSENT"
+      type: "string"
+    OrganizationInfo:
+      description: "Поля в тексте документов, которые можно переопределить. Если к\
+        онкретное поле не заполнено, будет использовано автоматически определенное\
+        \ значение"
+      example:
+        actualAddress: "г. Москва, пл. Смоленская-Сенная, д. 28"
+        phone: "+7 (495) 721 99 00"
+        email: "mail@mail.ru"
+      properties:
+        actualAddress:
+          description: "Фактический адрес организации, если не заполнен будет испо\
+            льзован автоматически определенный адрес юридического лица"
+          example: "г. Москва, пл. Смоленская-Сенная, д. 28"
+          type: "string"
+        phone:
+          description: "Телефон"
+          example: "+7 (495) 721 99 00"
+          type: "string"
+        email:
+          description: "Электронная почта"
+          example: "mail@mail.ru"
+          type: "string"
+      type: "object"
+    ErrorMessage:
+      example:
+        traceId: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+        code: "VALIDATION_ERROR"
+        message: "Переданы некорректные данные"
+      properties:
+        code:
+          description: "Код ошибки"
+          example: "VALIDATION_ERROR"
+          type: "string"
+        message:
+          description: "Описание ошибки"
+          example: "Переданы некорректные данные"
+          type: "string"
+        traceId:
+          example: "29bda8ca-4d33-11ec-81d3-0242ac130000"
+          type: "string"
+      required:
+      - "code"
+      - "message"
+      type: "object"
+    SignatureDocument:
+      description: "Подпись документа с указанием типа"
+      example:
+        documentType: "BKI_CONSENT"
+        signature: "Q01TIGNvbnRhaW5lciBzaWduYXR1cmU="
+      properties:
+        documentType:
+          $ref: "#/components/schemas/DocumentType"
+        signature:
+          description: "Подпись в формате CMS-контейнера в виде base64 строки"
+          example: "Q01TIGNvbnRhaW5lciBzaWduYXR1cmU="
+          minLength: 1
+          type: "string"
+      required:
+      - "documentType"
+      - "signature"
+      type: "object"
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+servers:
+- url: "https://api.raiffeisen.ru/consents"

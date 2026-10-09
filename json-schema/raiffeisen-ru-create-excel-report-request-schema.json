@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-create-excel-report-request-schema.json",
+  "title": "CreateExcelReportRequest",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-bank-statements-openapi.yml#/components/schemas/CreateExcelReportRequest",
+  "type": "object",
+  "properties": {
+    "accountKeys": {
+      "$ref": "#/$defs/AccountKeys"
+    },
+    "from": {
+      "$ref": "#/$defs/RequestIntervalFrom"
+    },
+    "to": {
+      "$ref": "#/$defs/RequestIntervalTo"
+    },
+    "zero": {
+      "$ref": "#/$defs/Zero"
+    },
+    "fileName": {
+      "$ref": "#/$defs/FileName"
+    },
+    "sort": {
+      "$ref": "#/$defs/ReportSort"
+    },
+    "intraday": {
+      "$ref": "#/$defs/Intraday"
+    },
+    "debitCreditFilter": {
+      "$ref": "#/$defs/DebitCreditFilter"
+    },
+    "counterpartyInn": {
+      "$ref": "#/$defs/CounterpartyInn"
+    },
+    "counterpartyAccounts": {
+      "$ref": "#/$defs/CounterpartyAccounts"
+    },
+    "splitBy": {
+      "$ref": "#/$defs/SplitByExcel"
+    },
+    "showVat": {
+      "$ref": "#/$defs/ShowVat"
+    }
+  },
+  "required": [
+    "accountKeys",
+    "from",
+    "to"
+  ],
+  "$defs": {
+    "AccountKeys": {
+      "type": "array",
+      "description": "Бизнес-ключ счета. Формат: `<20-значный номер счета>` или `<20-значный номер счета>:<CNUM>`",
+      "items": {
+        "type": "string"
+      }
+    },
+    "CounterpartyAccounts": {
+      "type": "array",
+      "description": "Фильтр операций по счетам контрагента",
+      "items": {
+        "type": "string"
+      }
+    },
+    "CounterpartyInn": {
+      "type": "string",
+      "description": "Фильтр операций по ИНН контрагента"
+    },
+    "DebitCreditFilter": {
+      "type": "string",
+      "enum": [
+        "DEBIT",
+        "CREDIT",
+        "ALL"
+      ],
+      "description": "Фильтр дебетовых/кредитовых операций: DEBIT - только дебетовые операции, CREDIT - только кредитовые операции, ALL - все операции",
+      "default": "ALL"
+    },
+    "FileName": {
+      "type": "string",
+      "description": "Имя сгенерированного файла"
+    },
+    "Intraday": {
+      "type": "boolean",
+      "description": "Включать внутридневные выписки: true - включать, false - не включать",
+      "default": false
+    },
+    "OrderBy": {
+      "type": "string",
+      "enum": [
+        "ASC",
+        "DESC"
+      ],
+      "description": "Направление сортировки"
+    },
+    "ReportSort": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ServiceSortReportSortFields"
+      }
+    },
+    "RequestIntervalFrom": {
+      "type": "string",
+      "format": "date",
+      "description": "Дата выписки с"
+    },
+    "RequestIntervalTo": {
+      "type": "string",
+      "format": "date",
+      "description": "Дата выписки по"
+    },
+    "ServiceSortReportSortFields": {
+      "type": "object",
+      "properties": {
+        "sortBy": {
+          "$ref": "#/$defs/SortBy"
+        },
+        "orderBy": {
+          "$ref": "#/$defs/OrderBy"
+        }
+      },
+      "required": [
+        "sortBy",
+        "orderBy"
+      ]
+    },
+    "ShowVat": {
+      "type": "boolean",
+      "description": "Признак добавления колонки \"Сумма НДС\". Значение НДС извлекается из текста назначения платежа по шаблонам и может отсутствовать или быть определено некорректно. true - добавить колонку \"Сумма НДС\" (только для рублёвых счетов), false - не добавлять колонку",
+      "default": false
+    },
+    "SortBy": {
+      "type": "string",
+      "enum": [
+        "DEBIT",
+        "CREDIT"
+      ],
+      "description": "Поле сортировки"
+    },
+    "SplitByExcel": {
+      "type": "string",
+      "enum": [
+        "ACCOUNT",
+        "ACCOUNT_DATE",
+        "MULTIPLE_ACCOUNT_DATE"
+      ],
+      "description": "Разделить выписки на отдельные файлы и генерировать zip архив. \nACCOUNT - разделить по счетам (в архиве каждый файл будет содержать выписки за период по одному счету), \nACCOUNT_DATE - разделить по счетам и дням (в архиве каждый файл будет содержать выписки по счету за один день),\nMULTIPLE_ACCOUNT_DATE - разделить по дням (в архиве каждый файл будет содержать выписки по нескольким счетам за один день),\nnull - генерируется один файл. \nПо умолчанию генерируется один файл."
+    },
+    "Zero": {
+      "type": "boolean",
+      "description": "Включать нулевые выписки, true - все выписки (с движениями по счету и без), false - только выписки с движениями по счету (ненулевые)",
+      "default": false
+    }
+  }
+}

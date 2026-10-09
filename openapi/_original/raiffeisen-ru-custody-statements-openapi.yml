@@ -1,0 +1,415 @@
+---
+openapi: "3.0.3"
+info:
+  title: "Депозитарий. Отчеты. Депозитарные выписки"
+  description: "Депозитарные выписки"
+  version: "1.0.0"
+paths:
+  /v1/statements/tasks:
+    post:
+      tags:
+      - "custody"
+      operationId: "createStatementTask"
+      summary: "Создание задачи на формирование депозитарных выписок"
+      description: "Метод создания задачи на формирование депозитарных выписок"
+      parameters:
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Создание задачи на формирование депозитарных выписок"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskCreateRequest"
+            examples:
+              simple:
+                $ref: "#/components/examples/TaskCreateRequestExample"
+        required: true
+      responses:
+        "202":
+          description: "Информация по созданной задаче на формирование выписок"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+              examples:
+                simple:
+                  $ref: "#/components/examples/TaskCreateResponseExample"
+        "400":
+          description: "Плохой запрос"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/statements/tasks/{id}:
+    get:
+      tags:
+      - "custody"
+      operationId: "getStatementTask"
+      summary: "Информация по задаче на формирование депозитарных выписок"
+      description: "Метод получения информации по задаче на формирование депозитар\
+        ных выписок"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          $ref: "#/components/schemas/TaskId"
+        example: "071d129c-8fd3-11f0-8de9-0242ac120002"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Информация по задаче на формирование выписок"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+              examples:
+                simple:
+                  $ref: "#/components/examples/TaskResponseExample"
+        "400":
+          description: "Плохой запрос"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/statements/tasks/page:
+    get:
+      tags:
+      - "custody"
+      operationId: "getStatementTasks"
+      summary: "Получение списка задач на формирование депозитарных выписок"
+      description: "Метод получения списка задач на формирование депозитарных выпи\
+        сок"
+      parameters:
+      - $ref: "#/components/parameters/PageNumberParam"
+      - $ref: "#/components/parameters/PageSizeParam"
+      - $ref: "#/components/parameters/TaskIdQueryParam"
+      - $ref: "#/components/parameters/TaskStatusParam"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Список задач на формирование выписок"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/TaskResponse"
+              examples:
+                simple:
+                  $ref: "#/components/examples/TaskListResponseExample"
+        "400":
+          description: "Плохой запрос"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/statements/files/{id}/download:
+    get:
+      tags:
+      - "custody"
+      operationId: "getStatementTaskResult"
+      summary: "Получение zip-файла с результатом выполнения задачи формирования д\
+        епозитарных выписок"
+      description: "Метод получения zip-файла с результатами выполнения задачи фор\
+        мирования депозитарных выписок"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          $ref: "#/components/schemas/FileId"
+        example: "30dcde3a-b26f-435b-93a5-2bbaaca1ddbf"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "файл типа application/zip в котором названия поддиректорий\
+            \ соответствуют запрашиваемым форматам выписок"
+          content:
+            application/zip:
+              schema:
+                type: "string"
+                format: "binary"
+        "400":
+          description: "Плохой запрос"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  parameters:
+    PageNumberParam:
+      name: "number"
+      in: "query"
+      description: "Page number (0-indexed)"
+      required: false
+      schema:
+        type: "integer"
+        default: 0
+      example: 0
+    PageSizeParam:
+      name: "size"
+      in: "query"
+      description: "Number of items per page"
+      required: false
+      schema:
+        type: "integer"
+        default: 10
+      example: 10
+    TaskIdQueryParam:
+      name: "id"
+      in: "query"
+      description: "Filter by task id"
+      required: false
+      schema:
+        $ref: "#/components/schemas/TaskId"
+      example: "19229514-5821-11f0-9fe2-0242ac120002"
+    TaskStatusParam:
+      name: "status"
+      in: "query"
+      description: "Filter by task status"
+      required: false
+      schema:
+        $ref: "#/components/schemas/TaskStatus"
+      examples:
+        new:
+          summary: "Новая задача"
+          value: "NEW"
+        progress:
+          summary: "В обработке"
+          value: "IN_PROGRESS"
+        done:
+          summary: "Завершена"
+          value: "DONE"
+        failed:
+          summary: "Ошибка"
+          value: "FAILED"
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+  schemas:
+    TaskCreateRequest:
+      required:
+      - "dateFrom"
+      - "type"
+      type: "object"
+      properties:
+        cnums:
+          uniqueItems: true
+          type: "array"
+          description: "Уникальные идентификаторы клиента (CNUM)"
+          items:
+            type: "string"
+        accounts:
+          uniqueItems: true
+          type: "array"
+          description: "Счета клиента"
+          items:
+            type: "string"
+        dateFrom:
+          type: "string"
+          description: "Дата начала периода выписок"
+          format: "date"
+        dateTo:
+          type: "string"
+          description: "Дата окончания периода выписок"
+          format: "date"
+        type:
+          $ref: "#/components/schemas/TaskType"
+        forceGeneration:
+          type: "boolean"
+          description: "Переформировывать ли заново выписку, если она была сформир\
+            ована ранее (true) или получить из кэша (false)"
+        formats:
+          uniqueItems: true
+          type: "array"
+          description: "Типы выписки"
+          items:
+            $ref: "#/components/schemas/Formats"
+        locales:
+          uniqueItems: true
+          type: "array"
+          description: "Тип выписки"
+          items:
+            $ref: "#/components/schemas/Locales"
+    TaskResponse:
+      type: "object"
+      properties:
+        id:
+          $ref: "#/components/schemas/TaskId"
+        status:
+          $ref: "#/components/schemas/TaskStatus"
+          example: "DONE"
+        createdAt:
+          type: "string"
+          description: "Дата и время создания задачи"
+          format: "date-time"
+          example: "2024-11-05T15:30:00Z"
+        updatedAt:
+          type: "string"
+          description: "Дата и время последнего обновления статуса выполнения зада\
+            чи"
+          format: "date-time"
+          example: "2024-11-05T15:35:00Z"
+        results:
+          uniqueItems: true
+          type: "array"
+          items:
+            $ref: "#/components/schemas/FileId"
+          example:
+          - "30dcde3a-b26f-435b-93a5-2bbaaca1ddbf"
+          - "30dcde3a-b26f-435b-93a5-2bbaaca1ddbr"
+    TaskType:
+      type: "string"
+      description: "Тип отчета выписки"
+      enum:
+      - "PORTFOLIO"
+      - "TRANSACTIONS"
+    TaskStatus:
+      type: "string"
+      description: "Статус выполнения задачи на формирование выписок"
+      enum:
+      - "NEW"
+      - "IN_PROGRESS"
+      - "FAILED"
+      - "DONE"
+    Formats:
+      type: "string"
+      description: "Тип выписки"
+      enum:
+      - "PDF"
+      - "XML"
+      - "JSON"
+    Locales:
+      type: "string"
+      description: "Тип выписки"
+      enum:
+      - "RUS"
+      - "ENG"
+    TaskId:
+      type: "string"
+      description: "Идентификатор задачи на формирование выписок"
+      format: "uuid"
+      example: "19229514-5821-11f0-9fe2-0242ac120002"
+    FileId:
+      type: "string"
+      description: "Идентификатор сформированного zip-архива с выписками"
+      format: "uuid"
+      example: "30dcde3a-b26f-435b-93a5-2bbaaca1ddbf"
+    ErrorResponse:
+      type: "object"
+      required:
+      - "code"
+      - "message"
+      properties:
+        code:
+          type: "string"
+          description: "Код ошибки"
+        message:
+          type: "string"
+          description: "Описание ошибки"
+        traceId:
+          type: "string"
+        errors:
+          type: "object"
+          description: "Детали ошибок по полям"
+          additionalProperties:
+            type: "string"
+          nullable: true
+  examples:
+    TaskCreateRequestExample:
+      summary: "Пример запроса на создание задачи для получения выписок"
+      description: "TaskCreateRequest"
+      value:
+        cnums:
+        - "Z12345"
+        - "K98765"
+        accounts:
+        - "K550987654321"
+        - "K551234567890"
+        dateFrom: "2023-12-29"
+        dateTo: "2023-12-31"
+        type: "PORTFOLIO"
+        forceGeneration: true
+        formats:
+        - "PDF"
+        - "XML"
+        - "JSON"
+        locales:
+        - "RUS"
+    TaskCreateResponseExample:
+      summary: "Пример ответа на создание задачи для получения выписок"
+      description: "TaskCreateResponse"
+      value:
+        id: "19229514-5821-11f0-9fe2-0242ac120002"
+        status: "NEW"
+        createdAt: "2024-11-05T15:30:00Z"
+        updatedAt: "2024-11-05T15:30:00Z"
+        results: []
+    TaskResponseExample:
+      summary: "Пример ответа по статусу задачи получения выписок"
+      description: "TaskResponse"
+      value:
+        id: "19229514-5821-11f0-9fe2-0242ac120002"
+        status: "DONE"
+        createdAt: "2024-11-05T15:30:00Z"
+        updatedAt: "2024-11-05T15:30:00Z"
+        results:
+        - "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+    TaskListResponseExample:
+      summary: "Пример ответа со списком задач получения выписок"
+      description: "TaskListResponse"
+      value:
+      - id: "19229514-5821-11f0-9fe2-0242ac120002"
+        status: "DONE"
+        createdAt: "2024-11-05T15:30:00Z"
+        updatedAt: "2024-11-05T15:35:00Z"
+        results:
+        - "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      - id: "2c9a8081-7f70-4a4e-b8d2-9d1c2a3b4e5f"
+        status: "IN_PROGRESS"
+        createdAt: "2024-11-06T10:15:00Z"
+        updatedAt: "2024-11-06T10:20:00Z"
+        results: []
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+servers:
+- url: "https://api.raiffeisen.ru/custody"

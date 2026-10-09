@@ -1,0 +1,357 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Currency Transfer API
+  version: 1.11.0
+  description: 'Operations tagged currency-transfer across 2 of this provider''s published API definitions: raiffeisen-ru-foreign-currency-transfers-iso20022-openapi.yml, raiffeisen-ru-foreign-currency-transfers-iso20022-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/foreign-trade
+tags:
+- name: currency-transfer
+  description: Операции с валютными переводами
+paths:
+  /v2/currency-transfers/iso20022/unsigned:
+    post:
+      tags:
+      - currency-transfer
+      summary: Импорт неподписанного валютного перевода
+      description: 'Отправка XML-файла с неподписанными валютными платежами.
+
+
+        Документация по неподписанным валютным платежам,
+
+
+        Guide for sending unsigned currency payments (EN),
+
+
+        XSD-схема для валидации (XSD validation scheme),
+
+
+        Документация API по ISO XML,
+
+
+        API ISO Documentation XML (EN).'
+      operationId: unsignedCurrencyTransfer
+      parameters:
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: 'Информация о валютном переводе в XML-формате. Каждый CdtTrfTxInf может содержать до 10 блоков Attchmnt: DocNm, MIMETp и InclBinryObjct с base64-контентом. Поддерживаются application/pdf, image/tiff, image/png и image/jpeg. Размер одного файла не должен превышать 5 МБ, суммарный размер вложений во всём XML-сообщении — 5 МБ. Расширение DocNm должно соответствовать MIMETp.'
+        content:
+          application/xml:
+            schema:
+              type: string
+        required: true
+      responses:
+        '202':
+          description: Задача импорта валютного перевода успешно создана
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/DuplicateMessage'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+  /v2/currency-transfers/iso20022/signed:
+    post:
+      tags:
+      - currency-transfer
+      summary: Отправка подписанного валютного перевода
+      description: 'Отправка XML-файла с подписанными валютными платежами.
+
+
+        Документация по подписанным валютным платежам,
+
+
+        Guide for sending signed currency payments (EN)
+
+
+        XSD-схема для валидации (XSD validation scheme),
+
+
+        Документация API по ISO XML,
+
+
+        API ISO Documentation XML (EN).'
+      operationId: signedCurrencyTransfer
+      parameters:
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: 'Информация о валютном переводе в XML-формате. Каждый CdtTrfTxInf может содержать до 10 блоков Attchmnt: DocNm, MIMETp и InclBinryObjct с base64-контентом. Поддерживаются application/pdf, image/tiff, image/png и image/jpeg. Размер одного файла не должен превышать 5 МБ, суммарный размер вложений во всём XML-сообщении — 5 МБ. Расширение DocNm должно соответствовать MIMETp. Base64-контент входит в подписываемую часть XML.'
+        content:
+          application/xml:
+            schema:
+              type: string
+        required: true
+      responses:
+        '202':
+          description: Задача импорта валютного перевода успешно создана
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/DuplicateMessage'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+  /v2/currency-transfers/iso20022/{msgId}/status:
+    get:
+      tags:
+      - currency-transfer
+      summary: Получение детального статуса группового платежа
+      description: 'Получение детального статуса группового платежа.
+
+
+        XSD-схема для валидации (XSD validation scheme),
+
+
+        Документация API по ISO XML,
+
+
+        API ISO Documentation XML.'
+      operationId: currencyTransferStatus
+      parameters:
+      - name: msgId
+        in: path
+        required: true
+        schema:
+          type: string
+        example: ORCRUWIRE0170202229000030
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: 'Статус успешно получен. Для документов с ошибкой вложения ответ содержит опциональный SplmtryData/rai:AttachmentError с полями pmtInfId, errorCode и errorFileName. Namespace расширения: urn:raiffeisen:iso:adapter:status.'
+          content:
+            application/xml:
+              schema:
+                type: string
+              examples:
+                ACSC:
+                  summary: ACSC - Все платежи исполнены
+                  description: ACSC
+                  value: <Document>...<GrpSts>ACSC</GrpSts>...</Document>
+                PDNG:
+                  summary: PDNG - Платежи обрабатываются
+                  description: PDNG
+                  value: <Document>...<GrpSts>PDNG</GrpSts>...</Document>
+                RJCT:
+                  summary: RJCT - Все платежи отклонены
+                  description: RJCT
+                  value: <Document>...<GrpSts>RJCT</GrpSts>...</Document>
+                CANC:
+                  summary: CANC - Все платежи отозваны
+                  description: CANC
+                  value: <Document>...<GrpSts>CANC</GrpSts>...</Document>
+                DELT:
+                  summary: DELT - Все платежи помечены к удалению
+                  description: DELT
+                  value: <Document>...<GrpSts>DELT</GrpSts>...</Document>
+                ACWC:
+                  summary: ACWC - Платежи имеют ошибки
+                  description: ACWC
+                  value: <Document>...<GrpSts>ACWC</GrpSts>...</Document>
+                PART:
+                  summary: PART - Часть платежей исполнена
+                  description: PART
+                  value: <Document>...<GrpSts>PART</GrpSts>...</Document>
+                PERR:
+                  summary: PERR - Платежи имеют ошибку ожидания
+                  description: PERR
+                  value: <Document>...<GrpSts>PERR</GrpSts>...</Document>
+                ATTACHMENT_REJECTED:
+                  summary: RJCT - Вложение платежа отклонено
+                  description: Management отклонил вложение. Для повторной отправки клиент должен использовать новые MsgId и pmtInfId.
+                  value: <Document>...<GrpSts>RJCT</GrpSts>...<SplmtryData><PlcAndNm>AttachmentError</PlcAndNm><Envlp><rai:AttachmentError xmlns:rai="urn:raiffeisen:iso:adapter:status"><rai:pmtInfId>ORCRUWIRE0040203219700010</rai:pmtInfId><rai:errorCode>ATTACHMENT_REJECTED</rai:errorCode><rai:errorFileName>invoice.pdf</rai:errorFileName></rai:AttachmentError></Envlp></SplmtryData>...</Document>
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/DocumentNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+  /v2/currency-transfers/iso20022/{msgId}/payments/{pmtInfId}/status:
+    get:
+      tags:
+      - currency-transfer
+      summary: Получение статуса платежа в формате ISO20022
+      description: 'Получение статуса платежа.
+
+
+        XSD-схема для валидации (XSD validation scheme),
+
+
+        Документация API по ISO XML,
+
+
+        API ISO Documentation XML (EN).'
+      operationId: currencyTransferPaymentStatus
+      parameters:
+      - name: msgId
+        in: path
+        required: true
+        schema:
+          type: string
+        example: ORCRUWIRE0170202229000030
+      - name: pmtInfId
+        in: path
+        required: true
+        schema:
+          type: string
+        example: ORCRUWIRE0040203219700010
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: 'Статус успешно получен. При ошибке вложения ответ содержит опциональный SplmtryData/rai:AttachmentError с полями errorCode и errorFileName. Namespace расширения: urn:raiffeisen:iso:adapter:status.'
+          content:
+            application/xml:
+              schema:
+                type: string
+              examples:
+                ACWC:
+                  summary: ACWC - Документ создан, найдены ошибки
+                  description: ACWC
+                  value: <Document> ... <DtldSts>ACWC</DtldSts> ... </Document>
+                ACCP:
+                  summary: ACCP - Документ ждет подписи
+                  description: ACCP
+                  value: <Document>...<DtldSts>ACCP</DtldSts>...</Document>
+                PSGN:
+                  summary: PSGN - Документ ждет доп. подписи
+                  description: PSGN
+                  value: <Document> ... <DtldSts>PSGN</DtldSts> ... </Document>
+                FSGN:
+                  summary: FSGN - Документ ждет отправки
+                  description: FSGN
+                  value: <Document> ... <DtldSts>FSGN</DtldSts> ... </Document>
+                ACSP:
+                  summary: ACSP - Документ в работе у банка
+                  description: ACSP
+                  value: <Document> ... <DtldSts>ACSP</DtldSts> ... </Document>
+                ACSC:
+                  summary: ACSC - Документ исполнен
+                  description: ACSC
+                  value: <Document> ... <DtldSts>ACSC</DtldSts> ... </Document>
+                CANC:
+                  summary: CANC - Документ отклонен
+                  description: CANC
+                  value: <Document> ... <DtldSts>CANC</DtldSts> ... </Document>
+                DELT:
+                  summary: DELT - Документ удален
+                  description: DELT
+                  value: <Document> ... <DtldSts>DELT</DtldSts> ... </Document>
+                RJCT:
+                  summary: RJCT - Документ отклонен
+                  description: RJCT
+                  value: <Document> ... <DtldSts>RJCT</DtldSts> ... </Document>
+                PDNG:
+                  summary: PDNG - Документ обрабатывается
+                  description: PDNG
+                  value: <Document> ... <DtldSts>PDNG</DtldSts> ... </Document>
+                PERR:
+                  summary: PERR - Документ имеет ошибку ожидания
+                  description: PERR
+                  value: <Document> ... <DtldSts>PERR</DtldSts> ... </Document>
+                ACTC:
+                  summary: ACTC - Документ принят
+                  description: ACTC
+                  value: <Document> ... <DtldSts>ACTC</DtldSts> ... </Document>
+                RCVD:
+                  summary: RCVD - Документ получен
+                  description: RCVD
+                  value: <Document> ... <DtldSts>RCVD</DtldSts> ... </Document>
+                ATTN:
+                  summary: ATTN - Документ принят
+                  description: ATTN
+                  value: <Document> ... <DtldSts>ATTN</DtldSts> ... </Document>
+                NPMT:
+                  summary: NPMT - Документ не оплачен
+                  description: NPMT
+                  value: <Document> ... <DtldSts>NPMT</DtldSts> ... </Document>
+                DBLC:
+                  summary: DBLC - Документ является дубликатом
+                  description: DBLC
+                  value: <Document> ... <DtldSts>DBLC</DtldSts> ... </Document>
+                ATTACHMENT_REJECTED:
+                  summary: RJCT - Вложение платежа отклонено
+                  description: Management отклонил вложение. Для повторной отправки клиент должен использовать новые MsgId и pmtInfId.
+                  value: <Document>...<DtldSts>RJCT</DtldSts>...<SplmtryData><PlcAndNm>AttachmentError</PlcAndNm><Envlp><rai:AttachmentError xmlns:rai="urn:raiffeisen:iso:adapter:status"><rai:errorCode>ATTACHMENT_REJECTED</rai:errorCode><rai:errorFileName>invoice.pdf</rai:errorFileName></rai:AttachmentError></Envlp></SplmtryData>...</Document>
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/DocumentNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    DuplicateMessage:
+      description: Дубликат сообщения или платежа. После ошибки вложения повторная отправка допускается только с новыми MsgId и pmtInfId.
+      content:
+        text/plain:
+          schema:
+            type: string
+            description: Сообщение об ошибке
+          example: Duplicate message id or payment id
+    Forbidden:
+      description: Доступ запрещён
+    ValidationError:
+      description: Ошибки валидации
+      content:
+        text/plain:
+          schema:
+            type: string
+            description: Сообщение об ошибке
+          example: XML validation error
+    DocumentNotFound:
+      description: Документ не найден
+      content:
+        text/plain:
+          schema:
+            type: string
+            description: Сообщение об ошибке
+          example: Message not found with id = ... for current user
+    InternalError:
+      description: Внутренняя ошибка
+    PayloadTooLarge:
+      description: Размер тела XML-запроса превышает установленный лимит
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-foreign-currency-transfers-iso20022-openapi.yml
+- raiffeisen-ru-foreign-currency-transfers-iso20022-openapi.yml

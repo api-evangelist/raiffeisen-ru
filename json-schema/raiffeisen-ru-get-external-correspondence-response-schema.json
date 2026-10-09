@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-get-external-correspondence-response-schema.json",
+  "title": "GetExternalCorrespondenceResponse",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-letters-openapi.yml#/components/schemas/GetExternalCorrespondenceResponse",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Идентификатор переписки"
+    },
+    "status": {
+      "description": "Статус переписки",
+      "$ref": "#/$defs/ExternalCorrespondenceStatus"
+    },
+    "topicId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Идентификатор темы переписки"
+    },
+    "createdAt": {
+      "description": "Время создания переписки",
+      "$ref": "#/$defs/DateTime"
+    },
+    "updatedAt": {
+      "description": "Время обновления переписки",
+      "$ref": "#/$defs/DateTime"
+    },
+    "account": {
+      "type": "string",
+      "description": "Номер счета"
+    },
+    "senderFirstName": {
+      "type": "string",
+      "description": "Имя инициатора"
+    },
+    "senderMiddleName": {
+      "type": "string",
+      "description": "Отчетсво инициатора"
+    },
+    "senderLastName": {
+      "type": "string",
+      "description": "Фамилия инициатора"
+    },
+    "correspondenceMails": {
+      "type": "array",
+      "description": "Письма переписки",
+      "items": {
+        "$ref": "#/$defs/ExternalCorrespondenceMail"
+      }
+    }
+  },
+  "required": [
+    "id",
+    "topicId",
+    "createdAt",
+    "updatedAt",
+    "senderFirstName",
+    "senderLastName",
+    "correspondenceMails"
+  ],
+  "$defs": {
+    "DateTime": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+      "description": "Дата и время в UTC в формате yyyy-MM-dd'T'HH:mm:ss'Z'"
+    },
+    "ExternalCorrespondenceMail": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Идентификатор письма"
+        },
+        "type": {
+          "description": "Тип письма",
+          "$ref": "#/$defs/ExternalMailType"
+        },
+        "text": {
+          "type": "string",
+          "description": "Текст письма"
+        },
+        "number": {
+          "type": "integer",
+          "description": "Номер письма"
+        },
+        "createdAt": {
+          "description": "Время создания письма",
+          "$ref": "#/$defs/DateTime"
+        },
+        "updatedAt": {
+          "description": "Время обновления письма",
+          "$ref": "#/$defs/DateTime"
+        },
+        "senderFirstName": {
+          "type": "string",
+          "description": "Имя отправителя"
+        },
+        "senderMiddleName": {
+          "type": "string",
+          "description": "Отчетсво отправителя"
+        },
+        "senderLastName": {
+          "type": "string",
+          "description": "Фамилия отправителя"
+        },
+        "attachments": {
+          "type": "array",
+          "description": "Информация о вложениях",
+          "items": {
+            "$ref": "#/$defs/ExternalMailAttachment"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "text",
+        "number",
+        "createdAt",
+        "updatedAt",
+        "senderFirstName",
+        "senderLastName",
+        "attachments"
+      ]
+    },
+    "ExternalCorrespondenceStatus": {
+      "type": "string",
+      "description": "Статус переписки; промежуточные статусы закрытия относятся к OPEN",
+      "enum": [
+        "OPEN",
+        "CLOSED"
+      ]
+    },
+    "ExternalMailAttachment": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "integer",
+          "description": "Номер вложения"
+        },
+        "name": {
+          "type": "string",
+          "description": "Название вложения"
+        }
+      },
+      "required": [
+        "number",
+        "name"
+      ]
+    },
+    "ExternalMailType": {
+      "type": "string",
+      "description": "Направление письма относительно клиента",
+      "enum": [
+        "TO_BANK",
+        "FROM_BANK"
+      ]
+    }
+  }
+}

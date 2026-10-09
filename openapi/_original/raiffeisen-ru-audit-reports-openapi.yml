@@ -1,0 +1,566 @@
+---
+openapi: "3.0.3"
+info:
+  title: "Справки и аудиторские отчеты. Заказ аудиторского отчета"
+  version: "0.0.1"
+  description: "DB API продукта \"Справки\""
+tags:
+- name: "AuditsController"
+  description: "Работа с аудиторскими запросами"
+paths:
+  /v1/audits:
+    post:
+      summary: "Заказать аудиторский отчет"
+      description: "Отправляет запрос на создание аудиторского отчета с приложение\
+        м файла и дополнительными параметрами"
+      operationId: "createAuditOrder"
+      tags:
+      - "AuditsController"
+      parameters:
+      - $ref: "#/components/parameters/SourceSystem"
+      - $ref: "#/components/parameters/CnumParam"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: "object"
+              properties:
+                file:
+                  type: "string"
+                  format: "binary"
+                  description: "Файл запроса аудитора. Поддерживаемые mime-типы:\n\
+                    \  * application/pdf\n  * application/zip\n  * application/x-zip-compressed\n\
+                    \  * application/msword\n  * application/vnd.openxmlformats-officedocument.wordprocessingml.document\n\
+                    \nВ архивах application/zip и application/x-zip-compressed мог\
+                    ут быть файлы с mime-типами:\n  * application/pdf\n  * application/msword\n\
+                    \  * application/vnd.openxmlformats-officedocument.wordprocessingml.document\n\
+                    \  * image/tif\n  * image/tiff\n  * image/jpe\n  * image/jpeg\n\
+                    \  * image/jpg\n  * image/gif\n  * image/bmp\n  * image/png\n\
+                    \  * application/xml\n  * image/jfif\n  * application/x-tika-msoffice\n"
+                  example: "U2hhMjU2OmtleWlkOiA0MjQ4ZTQ5Zi04MDUxLTQ2MDMtYjQ4Zi01ZjFjNjFjNjFjNjFjNjFjNjFjNjFjNjFjNjFjNjE="
+                request:
+                  $ref: "#/components/schemas/AuditRequest"
+              required:
+              - "file"
+              - "request"
+            examples:
+              request_example:
+                summary: "Пример запроса"
+                value:
+                  file: "U2hhMjU2OmtleWlkOiA0MjQ4ZTQ5Zi04MDUxLTQ2MDMtYjQ4Zi01ZjFjNjFjNjFjNjFjNjFjNjFjNjFjNjFjNjFjNjE="
+                  request:
+                    cnum: "888888"
+                    auditEmail: "auditor@example.com"
+                    auditDate: "2025-04-10"
+                    auditComment: "Проверка по налоговым обязательствам"
+      responses:
+        "201":
+          description: "Запрос успешно создан"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateAuditOrderResponse"
+              examples:
+                success:
+                  summary: "Успешный ответ"
+                  value:
+                    id: 321
+                    docNum: "1"
+                    status: "WAIT_OF_SIGN"
+                    orgName: "ОАО Тайфун РУС"
+                    createdAt: "2025-04-05T14:30:00Z"
+                    cnum: "888888"
+                    auditEmail: "auditor@example.com"
+                    auditDate: "2025-04-10"
+                    auditComment: "Проверка по налоговым обязательствам."
+        "400":
+          description: "Ошибка выполнения запроса"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringResponse"
+              examples:
+                bad_service_request:
+                  summary: "Ошибка обращения к сервису"
+                  value: "BAD_REQUEST"
+                type_detection_error:
+                  summary: "Ошибка определения mime-типа вложения"
+                  value: "UNABLE_TO_DETECT_MIMETYPE"
+                unsupported_type_error:
+                  summary: "Mime-тип вложения не поддерживается"
+                  value: "UNSUPPORTED_MIME_TYPE"
+                max_folder_error:
+                  summary: "Количество папок внутри архива больше 10"
+                  value: "MAX_FOLDER_COUNT_REACHED"
+                max_file_error:
+                  summary: "Количество файлов внутри архива больше 100"
+                  value: "MAX_FILE_COUNT_REACHED"
+                nested_archive_error:
+                  summary: "Загружаемый архив содержит вложенный архив"
+                  value: "ATTACHMENT_HAS_NESTED_ARCHIVE"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: "У потребителя недостаточно прав на выполнение запроса"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringResponse"
+              examples:
+                forbidden:
+                  summary: "Недостаточно прав"
+                  value: "FORBIDDEN"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/audits/{id}:
+    get:
+      summary: "Получить информацию о запросе на аудиторский отчет"
+      description: "Возвращает данные о конкретном запросе на аудиторский отчет по\
+        \ его идентификатору"
+      operationId: "getAuditOrderById"
+      tags:
+      - "AuditsController"
+      parameters:
+      - $ref: "#/components/parameters/SourceSystem"
+      - $ref: "#/components/parameters/CnumParam"
+      - name: "id"
+        in: "path"
+        description: "Идентификатор аудиторского запроса"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+          example: 1
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Данные по аудит-запросу"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuditOrderResponse"
+              examples:
+                success:
+                  summary: "Успешный ответ"
+                  value:
+                    id: 12
+                    docNum: "132"
+                    createdAt: "2025-04-10T09:00:00Z"
+                    status: "WAIT_OF_SIGN"
+                    cnum: "408943"
+                    orgName: "ОАО Тайфун РУС"
+                    auditEmail: "auditor@example.com"
+                    auditDate: "2025-04-10"
+                    auditComment: "Просьба предоставить отчет по запросу аудитора"
+                    digest: "U2hhMjU2OmtleWlkOiA0MjQ4ZTQ5Zi04MDUxLTQ2MDMtYjQ4Zi01ZjFjNjFjNjFjNjFjNjFjNjFjNjFjNjE="
+                    results:
+                    - 1
+        "400":
+          description: "Ошибка выполнения запроса"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringResponse"
+              examples:
+                bad_request:
+                  value: "BAD_REQUEST"
+                  summary: "Ошибка выполнения запроса"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: "У потребителя недостаточно прав на выполнение запроса"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringResponse"
+              examples:
+                forbidden:
+                  summary: "Недостаточно прав"
+                  value: "FORBIDDEN"
+        "404":
+          description: "Ресурс не найден"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringResponse"
+              examples:
+                not_found:
+                  summary: "Ресурс не найден"
+                  value: "NOT_FOUND"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/audits/{id}/results/{resultId}:
+    head:
+      tags:
+      - "AuditsController"
+      summary: "Проверить наличие файла и получить его метаданные"
+      description: "Возвращает метаданные файла по идентификатору аудиторского зап\
+        роса"
+      operationId: "getAuditReportData"
+      parameters:
+      - $ref: "#/components/parameters/SourceSystem"
+      - $ref: "#/components/parameters/CnumParam"
+      - name: "id"
+        description: "Идентификатор аудиторского запроса"
+        in: "path"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+          example: 1
+      - name: "resultId"
+        description: "Идентификатор файла, являющегося результатом выполнения ауди\
+          торского запроса"
+        in: "path"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+          example: 1
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Доступны метаданные файла"
+          headers:
+            Content-Type:
+              schema:
+                type: "string"
+                example: "application/pdf"
+              description: "Mime-type файла"
+            Content-Disposition:
+              schema:
+                type: "string"
+                example: "attachment; filename=\"audit_report.pdf"
+              description: "Заголовок, содержащий имя файла"
+        "400":
+          description: "Ошибка выполнения запроса"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringResponse"
+              examples:
+                bad_request:
+                  value: "BAD_REQUEST"
+                  summary: "Ошибка выполнения запроса"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: "У потребителя недостаточно прав на выполнение запроса"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringResponse"
+              examples:
+                forbidden:
+                  summary: "Недостаточно прав"
+                  value: "FORBIDDEN"
+        "404":
+          description: "Ресурс не найден"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringResponse"
+              examples:
+                not_found:
+                  summary: "Ресурс не найден"
+                  value: "NOT_FOUND"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    get:
+      summary: "Скачать файл аудиторского отчета"
+      description: "Возвращает бинарное содержимое файла по идентификатору аудитор\
+        ского запроса"
+      operationId: "downloadAuditReport"
+      tags:
+      - "AuditsController"
+      parameters:
+      - $ref: "#/components/parameters/SourceSystem"
+      - $ref: "#/components/parameters/CnumParam"
+      - name: "id"
+        in: "path"
+        description: "Идентификатор аудиторского запроса"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+          example: 1
+      - name: "resultId"
+        description: "Идентификатор файла, являющегося результатом выполнения ауди\
+          торского запроса"
+        in: "path"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+          example: 1
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Бинарный файл"
+          content:
+            application/octet-stream:
+              schema:
+                type: "string"
+                format: "binary"
+              examples:
+                success:
+                  summary: "Бинарный файл"
+                  value: "U2hhMjU2OmtleWlkOiA0MjQ4ZTQ5Zi04MDUxLTQ2MDMtYjQ4Zi01ZjFjNjFjNjFjNjFjNjFjNjFjNjFjNjFjNjFjNjE="
+          headers:
+            Content-Type:
+              schema:
+                type: "string"
+                example: "application/pdf"
+              description: "Mime-type файла"
+            Content-Length:
+              schema:
+                type: "integer"
+                format: "int64"
+                example: 123456
+              description: "Размер файла"
+            Content-Disposition:
+              schema:
+                type: "string"
+                example: "attachment; filename=\"audit_report.pdf"
+              description: "Заголовок, содержащий имя файла"
+        "400":
+          description: "Ошибка выполнения запроса"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringResponse"
+              examples:
+                bad_request:
+                  value: "BAD_REQUEST"
+                  summary: "Ошибка выполнения запроса"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: "У потребителя недостаточно прав на выполнение запроса"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringResponse"
+              examples:
+                forbidden:
+                  summary: "Недостаточно прав"
+                  value: "FORBIDDEN"
+        "404":
+          description: "Ресурс не найден"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringResponse"
+              examples:
+                not_found:
+                  summary: "Ресурс не найден"
+                  value: "NOT_FOUND"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  schemas:
+    SourceSystem:
+      type: "string"
+      description: "Источник запроса"
+      enum:
+      - "RBO"
+      - "RBM"
+      example: "RBO"
+      default: "RBO"
+    StringResponse:
+      type: "string"
+      description: "Строковый ответ"
+      example: "Forbidden"
+    CreateAuditOrderResponse:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+          description: "Уникальный идентификатор созданного запроса"
+          example: 12
+        docNum:
+          type: "string"
+          description: "Номер запроса"
+          example: "132"
+        createdAt:
+          type: "string"
+          format: "date-time"
+          description: "Дата и время создания запроса"
+          example: "2025-04-10T09:00:00Z"
+        status:
+          $ref: "#/components/schemas/AuditStatus"
+        cnum:
+          type: "string"
+          description: "Идентификатор организации"
+          example: "408943"
+        orgName:
+          type: "string"
+          description: "Идентификатор организации"
+          example: "ОАО Тайфун РУС"
+        auditEmail:
+          type: "string"
+          description: "Email аудитора"
+          example: "auditor@example.com"
+        auditDate:
+          type: "string"
+          format: "date"
+          description: "Дата, на которую требуется подготовить аудиторский отчет"
+          example: "2025-04-10"
+        auditComment:
+          type: "string"
+          description: "Комментарий к запросу аудита"
+          example: "Просьба предоставить отчет по запросу аудитора"
+      required:
+      - "id"
+      - "docNum"
+      - "createdAt"
+      - "status"
+      - "cnum"
+      - "orgName"
+      - "auditEmail"
+      - "auditDate"
+    AuditStatus:
+      type: "string"
+      description: "Текущий статус аудиторского запроса"
+      enum:
+      - "WAIT_OF_SIGN"
+      - "SENDING"
+      - "SENT"
+      - "IN_PROGRESS"
+      - "PROCESSED"
+      - "CANCEL"
+      example: "WAIT_OF_SIGN"
+    AuditRequest:
+      type: "object"
+      description: "Данные для создания аудиторского запроса"
+      properties:
+        auditEmail:
+          type: "string"
+          format: "email"
+          description: "Email аудитора, которому требуется направить аудиторский о\
+            тчет"
+          example: "audit@test.ru"
+        auditDate:
+          type: "string"
+          format: "date"
+          description: "Дата, на которую требуется выполнить запрос. (year-month-day)"
+          example: "2025-04-10"
+        auditComment:
+          type: "string"
+          description: "Комментарий к запросу"
+          maxLength: 1500
+          example: "Проверка по налоговым обязательствам"
+      required:
+      - "auditEmail"
+      - "auditDate"
+    AuditOrderResponse:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+          description: "Уникальный идентификатор созданного запроса"
+          example: 12
+        docNum:
+          type: "string"
+          description: "Номер запроса"
+          example: "132"
+        createdAt:
+          type: "string"
+          format: "date-time"
+          description: "Дата и время создания запроса"
+          example: "2025-04-10T09:00:00Z"
+        status:
+          $ref: "#/components/schemas/AuditStatus"
+        cnum:
+          type: "string"
+          description: "Идентификатор организации"
+          example: "408943"
+        orgName:
+          type: "string"
+          description: "Идентификатор организации"
+          example: "ОАО Тайфун РУС"
+        auditEmail:
+          type: "string"
+          description: "Email аудитора"
+          example: "auditor@example.com"
+        auditDate:
+          type: "string"
+          format: "date"
+          description: "Дата, на которую требуется подготовить аудиторский отчет"
+          example: "2025-04-10"
+        auditComment:
+          type: "string"
+          description: "Комментарий к запросу аудита"
+          example: "Просьба предоставить отчет по запросу аудитора"
+        digest:
+          type: "string"
+          description: "Дайджест запроса на аудиторский отчет для подписи"
+          example: "U2hhMjU2OmtleWlkOiA0MjQ4ZTQ5Zi04MDUxLTQ2MDMtYjQ4Zi01ZjFjNjFjNjFjNjFjNjFjNjFjNjFjNjFjNjFjNjE="
+        results:
+          type: "array"
+          items:
+            type: "integer"
+            format: "int64"
+          example:
+          - 1
+          description: "Идентификаторы файлов, являющихся результатом выполнения а\
+            удиторского запроса"
+      required:
+      - "id"
+      - "docNum"
+      - "createdAt"
+      - "status"
+      - "cnum"
+      - "orgName"
+      - "auditEmail"
+      - "auditDate"
+      - "digest"
+  parameters:
+    SourceSystem:
+      in: "header"
+      name: "Source-System"
+      description: "Источник запроса"
+      required: true
+      schema:
+        $ref: "#/components/schemas/SourceSystem"
+    CnumParam:
+      name: "cnum"
+      in: "query"
+      description: "Номер организации"
+      required: true
+      schema:
+        type: "string"
+        example: "408943"
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+servers:
+- url: "https://api.raiffeisen.ru/enquiries"

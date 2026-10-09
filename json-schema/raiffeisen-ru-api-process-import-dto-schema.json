@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-api-process-import-dto-schema.json",
+  "title": "ApiProcessImportDto",
+  "description": "Подробная информация о задаче импорта",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-domestic-payments-import-openapi.yml#/components/schemas/ApiProcessImportDto",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "#/$defs/ApiShortProcessImportDto"
+    }
+  ],
+  "properties": {
+    "message": {
+      "type": "string",
+      "description": "Сообщение, если не удалось целиком импортировать файл"
+    },
+    "startTime": {
+      "type": "string",
+      "description": "Время начала импорта (GMT+3)"
+    },
+    "endTime": {
+      "type": "string",
+      "description": "Время завершения импорта (GMT+3). Отображается только при importStatus COMPLETED или ERROR"
+    },
+    "importStatus": {
+      "$ref": "#/$defs/ProcessImportStatus"
+    },
+    "massPaymentId": {
+      "type": "string",
+      "description": "Уникальный идентификатор массового платежа (отображается при импорте массового платежа)"
+    },
+    "massPaymentStatus": {
+      "$ref": "#/$defs/ApiMassPaymentStatus"
+    },
+    "importFormat": {
+      "type": "string",
+      "description": "Формат импорта"
+    },
+    "documentsInfo": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ImportDocumentInfoDto"
+      },
+      "description": "Информация по ошибкам в документах (платежному поручению) в файле"
+    }
+  },
+  "$defs": {
+    "ApiMassPaymentStatus": {
+      "type": "string",
+      "description": "Статус массового платежа",
+      "enum": [
+        "IMPORT_PROCESS",
+        "IMPORTED",
+        "DRAFT",
+        "REJECTED"
+      ]
+    },
+    "ApiShortProcessImportDto": {
+      "type": "object",
+      "description": "Краткая информация о задаче импорта",
+      "properties": {
+        "importTaskId": {
+          "type": "string",
+          "description": "Идентификатор процесса импорта"
+        }
+      }
+    },
+    "ImportDocumentInfoDto": {
+      "type": "object",
+      "description": "Информация по одному документу в файле импорта",
+      "properties": {
+        "documentListNumber": {
+          "type": "integer",
+          "description": "Порядковый номер документа (платежного поручения) в файле"
+        },
+        "fileName": {
+          "type": "string",
+          "description": "Имя файла, из которого импортирован платеж"
+        },
+        "paymentId": {
+          "type": "string",
+          "description": "Уникальный идентификатор импортированного платежа. Присваивается только при documentStatus IMPORTED или DRAFT"
+        },
+        "message": {
+          "type": "string",
+          "description": "Сообщение с ошибкой"
+        },
+        "documentNumber": {
+          "type": "integer",
+          "description": "Номер документа"
+        },
+        "documentStatus": {
+          "$ref": "#/$defs/ImportDocumentInfoStatus"
+        }
+      }
+    },
+    "ImportDocumentInfoStatus": {
+      "type": "string",
+      "description": "Статус документа",
+      "enum": [
+        "IMPORTED",
+        "DRAFT",
+        "REJECTED"
+      ]
+    },
+    "ProcessImportStatus": {
+      "type": "string",
+      "description": "Статус процесса импорта",
+      "enum": [
+        "IN_PROGRESS",
+        "COMPLETED",
+        "QUEUED",
+        "ERROR"
+      ]
+    }
+  }
+}

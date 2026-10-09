@@ -1,0 +1,396 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Applications API
+  version: '0.1'
+  contact:
+    email: ecom@raiffeisen.ru
+    name: Support e-mail
+    x-team-id: 932
+    x-short-team-name: FPS B2B
+  x-logo:
+    url: images/raifflogo.png
+    backgroundColor: '#FFFFFF'
+    altText: Raiff logo
+  description: 'Operations tagged applications across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-sbp-b2b-openapi.json, raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://pay-test.raif.ru
+  description: Sandbox
+- url: https://pay.raif.ru
+  description: Production
+tags:
+- name: Applications
+  x-displayName: Заявки для счетов со сплитованием
+paths:
+  /api/v1/applications:
+    post:
+      tags:
+      - Applications
+      summary: Создание заявки для добавления счета
+      operationId: createApplications
+      security:
+      - BearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/ContentDigest'
+      - $ref: '#/components/parameters/Signature'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationInfoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    get:
+      tags:
+      - Applications
+      summary: Список заявок для добавления счета
+      operationId: getApplications
+      security:
+      - BearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/CreatedDateFrom-2'
+      - $ref: '#/components/parameters/CreatedDateTo-2'
+      - $ref: '#/components/parameters/Type'
+      - $ref: '#/components/parameters/Status-2'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListApplicationResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+  /api/v1/applications/{id}:
+    get:
+      tags:
+      - Applications
+      summary: Данные заявки для добавления счета
+      operationId: getApplicationsInfo
+      security:
+      - BearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/ApplicationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationInfoResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFoundApplication'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+components:
+  schemas:
+    Kpp:
+      type: string
+      description: КПП юридического лица
+      example: '123456789'
+      minLength: 9
+      maxLength: 9
+    ApplicationId:
+      type: string
+      format: uuid
+      description: Уникальный идентификатор заявки
+      example: 550e8400-e29b-41d4-a716-446655440000
+    ApplicationType:
+      type: string
+      description: Тип заявки<br/>Возможные значения <br/>- REQUISITES (заявка на добавления счета для сплитования)
+      enum:
+      - REQUISITES
+      example: REQUISITES
+    RequisitesApplicationBody:
+      type: object
+      required:
+      - type
+      - purpose
+      - account
+      - corrAccount
+      - bic
+      - legalName
+      - inn
+      properties:
+        type:
+          type: string
+          description: Тип заявки
+          example: REQUISITES
+        purpose:
+          allOf:
+          - $ref: '#/components/schemas/Purpose'
+        account:
+          allOf:
+          - $ref: '#/components/schemas/Account'
+        corrAccount:
+          allOf:
+          - $ref: '#/components/schemas/CorrAccount'
+        bic:
+          allOf:
+          - $ref: '#/components/schemas/BankBic'
+        legalName:
+          allOf:
+          - $ref: '#/components/schemas/LegalName'
+        inn:
+          allOf:
+          - $ref: '#/components/schemas/Inn'
+        kpp:
+          allOf:
+          - $ref: '#/components/schemas/Kpp'
+    LegalName:
+      type: string
+      maxLength: 512
+      description: Сокращённое наименование ЮЛ или ИП Плательщика
+      example: ООО Ромашка
+    ApplicationStatus:
+      type: string
+      description: Статус заявки
+      enum:
+      - ON_SIGNING
+      - PARTLY_SIGNED
+      - IN_PROGRESS
+      - CANCELLED
+      - SUCCESS
+      - ERROR
+      example: ON_SIGNING
+    ApplicationRequest:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/RequisitesApplicationBody'
+      discriminator:
+        propertyName: type
+        mapping:
+          REQUISITES: '#/components/schemas/RequisitesApplicationBody'
+    ListApplicationResponse:
+      type: object
+      description: Список заявок
+      required:
+      - offset
+      - limit
+      - totalCount
+      - data
+      properties:
+        offset:
+          type: integer
+        limit:
+          type: integer
+        totalCount:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationInfoResponse'
+    Account:
+      type: string
+      minLength: 20
+      maxLength: 20
+      description: Банковский счёт ЮЛ или ИП для зачисления средств
+      example: '40817810601002630020'
+    ErrorResponseDto:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки запроса.
+        message:
+          type: string
+          description: Описание ошибки
+    BankBic:
+      type: string
+      description: БИК банка
+      example: '044525700'
+    Purpose:
+      type: string
+      description: Назначение счета
+      enum:
+      - COUNTERPARTY
+      example: COUNTERPARTY
+    CreationDate:
+      type: string
+      format: date-time
+      description: Дата создания
+      example: '2024-06-12T19:35:55+03:00'
+    Inn:
+      type: string
+      minLength: 10
+      maxLength: 12
+      description: ИНН ЮЛ или ИП Плательщика
+      example: '123456789012'
+    CorrAccount:
+      type: string
+      description: Номер корреспондентского счета банка
+      example: '30101810200000000700'
+      minLength: 20
+      maxLength: 20
+    ApplicationInfoResponse:
+      type: object
+      required:
+      - id
+      - status
+      - request
+      - createdDate
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/ApplicationId'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ApplicationStatus'
+        request:
+          $ref: '#/components/schemas/ApplicationRequest'
+        createdDate:
+          allOf:
+          - $ref: '#/components/schemas/CreationDate'
+  parameters:
+    Status-2:
+      name: status
+      in: query
+      description: Статус заявки
+      schema:
+        $ref: '#/components/schemas/ApplicationStatus'
+    Type:
+      name: type
+      in: query
+      description: Тип заявки
+      schema:
+        $ref: '#/components/schemas/ApplicationType'
+    Offset:
+      name: offset
+      in: query
+      description: Смещение списка операций
+      schema:
+        type: integer
+    ApplicationId:
+      description: Идентификатор заявки
+      in: path
+      required: true
+      name: id
+      schema:
+        type: string
+    CreatedDateTo-2:
+      name: createdDateTo
+      in: query
+      description: Дата создания до
+      schema:
+        type: string
+        format: date-time
+        example: '2024-06-13T19:36:55+03:00'
+    Signature:
+      name: Signature
+      in: header
+      schema:
+        type: string
+      description: Подпись в формате base64, созданная при использовании RBO-сертификата. Подробности создания можно найти в <a href='https://help.pay.raif.ru/ru/sbp-b2b/sign' target='_blank'>инструкции</a>.
+      example: MIAGCSqGSIb3D...
+      required: true
+      x-exclude-for-generate-front: true
+    Limit:
+      name: limit
+      in: query
+      description: Количество операций в ответе
+      schema:
+        type: integer
+    CreatedDateFrom-2:
+      name: createdDateFrom
+      in: query
+      description: Дата создания от
+      schema:
+        type: string
+        format: date-time
+        example: '2024-06-12T19:36:55+03:00'
+    ContentDigest:
+      name: Content-Digest
+      in: header
+      schema:
+        type: string
+      description: Дайджест, подписываемый клиентом, является строкой в формате base64, в которой хранится результат хеш-функции sha256, представленный массивом байт. Подробности создания можно найти в <a href='https://help.pay.raif.ru/ru/sbp-b2b/sign' target='_blank'>инструкции</a>.
+      example: yxlZv97...
+      required: true
+      x-exclude-for-generate-front: true
+  responses:
+    NotFoundApplication:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: APPLICATION_NOT_FOUND
+                message: По данному идентификатору заявки не найдено
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: FORBIDDEN
+                message: Доступ запрещен
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: SYSTEM_ERROR
+                message: Возникла системная ошибка
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: INVALID_DATA
+                message: Некорректные данные
+  securitySchemes:
+    BearerAuth:
+      type: http
+      description: '[Bearer secretKey](#tag/authorization)
+
+
+        example: eyJ0eXA***
+
+        '
+      scheme: bearer
+      bearerFormat: JWT
+      x-internal: false
+x-refined-from:
+- raiffeisen-ru-raif-pay-sbp-b2b-openapi.json
+- raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml

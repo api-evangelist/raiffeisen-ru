@@ -1,0 +1,2418 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Closing Documents API
+  version: 1.0.0
+  description: 'Operations tagged closingDocuments across 2 of this provider''s published API definitions: raiffeisen-ru-invoices-openapi.yml, raiffeisen-ru-invoices-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/invoices
+tags:
+- name: closingDocuments
+  description: Управление закрывающими документами
+paths:
+  /v4/closing-documents/{documentId}:
+    get:
+      tags:
+      - closingDocuments
+      summary: Получить детальную информацию о закрывающем документе
+      description: Возвращает детальную информацию о закрывающем документе по id документа
+      operationId: getDocumentDetails
+      parameters:
+      - name: documentId
+        in: path
+        required: true
+        description: Идентификатор закрывающего документа
+        schema:
+          type: string
+          format: uuid
+          example: c735502b-fb38-4f60-8f06-ba3cb72a7b0e
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClosingDocumentDetailsResponse'
+              examples:
+                closingDocumentDetailConsignmentNote:
+                  $ref: '#/components/examples/closingDocumentDetailConsignmentNote'
+                closingDocumentDetailWorkAct:
+                  $ref: '#/components/examples/closingDocumentDetailWorkAct'
+                closingDocumentDetailUPD:
+                  $ref: '#/components/examples/closingDocumentDetailUPD'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    put:
+      tags:
+      - closingDocuments
+      summary: Обновить информацию о закрывающем документе
+      description: Обновляет информацию о закрывающем документе по id документа
+      operationId: updateDocument
+      parameters:
+      - name: documentId
+        in: path
+        required: true
+        description: Идентификатор закрывающего документа
+        schema:
+          type: string
+          format: uuid
+          example: c735502b-fb38-4f60-8f06-ba3cb72a7b0e
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/ConsignmentNoteRequest'
+              - $ref: '#/components/schemas/UPDRequest'
+              - $ref: '#/components/schemas/WorkActRequest'
+            examples:
+              consignmentNoteRequest:
+                $ref: '#/components/examples/consignmentNoteRequest'
+              workActRequest:
+                $ref: '#/components/examples/workActRequest'
+              updRequest:
+                $ref: '#/components/examples/updRequest'
+        required: true
+      responses:
+        '204':
+          description: OK
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/invoices
+  /v4/closing-documents:
+    get:
+      tags:
+      - closingDocuments
+      summary: Получить список закрывающих документов
+      description: Возвращает список закрывающих документов
+      operationId: getDocuments
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: Номер страницы для пагинации, нумерация с нуля
+        schema:
+          type: integer
+          format: int32
+          default: 0
+          minimum: 0
+          example: 0
+      - name: size
+        in: query
+        required: false
+        description: Количество элементов на странице
+        schema:
+          type: integer
+          format: int32
+          default: 30
+          maximum: 50
+          minimum: 1
+          example: 30
+      - name: sumFrom
+        in: query
+        required: false
+        description: Минимальная сумма документа (включительно) для фильтрации
+        schema:
+          type: number
+          example: 1000.0
+      - name: sumTo
+        in: query
+        required: false
+        description: Максимальная сумма документа (включительно) для фильтрации
+        schema:
+          type: number
+          example: 500000.0
+      - name: types
+        in: query
+        required: false
+        description: Список типов закрывающих документов для фильтрации
+        schema:
+          type: array
+          items:
+            type: string
+            description: Тип закрывающего документа
+            enum:
+            - BILL
+            - WORK_ACT
+            - CONSIGNMENT_NOTE
+            - UPD
+            - INVOICE_FACTURA
+            example: WORK_ACT
+          uniqueItems: true
+          example:
+          - WORK_ACT
+          - UPD
+      - name: periodFrom
+        in: query
+        required: false
+        description: Начало периода фильтрации по дате документа (включительно)
+        schema:
+          type: string
+          format: date
+          example: '2026-09-01'
+      - name: periodTo
+        in: query
+        required: false
+        description: Конец периода фильтрации по дате документа (включительно)
+        schema:
+          type: string
+          format: date
+          example: '2026-09-30'
+      - name: customerSearchString
+        in: query
+        required: false
+        description: Строка поиска по контрагенту (наименование или ИНН)
+        schema:
+          type: string
+          example: ООО Ромашка
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClosingDocumentListResponse'
+              examples:
+                closingDocumentListResponse:
+                  $ref: '#/components/examples/closingDocumentListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags:
+      - closingDocuments
+      summary: Создать закрывающий документ
+      description: 'Создает закрывающий документ одного из следующих видов: Товарная накладная (ConsignmentNoteRequest), Акт работ (WorkActRequest), УПД (UPDRequest)'
+      operationId: createDocument
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/ConsignmentNoteRequest'
+              - $ref: '#/components/schemas/UPDRequest'
+              - $ref: '#/components/schemas/WorkActRequest'
+            examples:
+              consignmentNoteRequest:
+                $ref: '#/components/examples/consignmentNoteRequest'
+              workActRequest:
+                $ref: '#/components/examples/workActRequest'
+              updRequest:
+                $ref: '#/components/examples/updRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClosingDocumentResponse'
+              examples:
+                closingDocumentCreateResponse:
+                  $ref: '#/components/examples/closingDocumentCreateResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    delete:
+      tags:
+      - closingDocuments
+      summary: Удалить закрывающие документы
+      description: Удаляет один или несколько закрывающих документов
+      operationId: removeDocuments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentIdsRequest'
+            examples:
+              closingDocumentDeleteRequest:
+                $ref: '#/components/examples/closingDocumentDeleteRequest'
+        required: true
+      responses:
+        '204':
+          description: OK
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/invoices
+  /v4/closing-documents/{documentId}/file:
+    get:
+      tags:
+      - closingDocuments
+      summary: Получить документ в виде файла
+      description: Возвращает документ (XML или PDF) по его id. Для PDF можно запросить вариант без информации о формировании документа (параметр withoutGenerationInfo)
+      operationId: file
+      parameters:
+      - name: documentId
+        in: path
+        required: true
+        description: Идентификатор закрывающего документа
+        schema:
+          type: string
+          format: uuid
+          example: c735502b-fb38-4f60-8f06-ba3cb72a7b0e
+      - name: docType
+        in: query
+        required: false
+        description: Формат файла документа
+        schema:
+          type: string
+          enum:
+          - PDF
+          - XML
+          example: PDF
+      - name: withoutGenerationInfo
+        in: query
+        required: false
+        description: Исключить из PDF блок с информацией о формировании документа
+        schema:
+          type: boolean
+          default: false
+          example: false
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: byte
+            application/xml;charset=windows-1251:
+              schema:
+                type: string
+                format: byte
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/invoices
+components:
+  schemas:
+    TransferInfo:
+      type: object
+      description: Информация о передаче/приемке УПД
+      properties:
+        document:
+          $ref: '#/components/schemas/DocumentBase'
+          description: Документ-основание передачи
+        transportationInfo:
+          type: string
+          description: Данные о транспортировке и грузе
+          example: Доставка транспортной компанией Деловые линии
+        shippingDocumentNumber:
+          type: string
+          description: Номер документа об отгрузке
+          example: '552'
+        shippingDocumentDate:
+          type: string
+          format: date
+          description: Дата документа об отгрузке
+          example: '2026-09-25'
+        sellerTransferEmployee:
+          $ref: '#/components/schemas/Signatory'
+          description: Представитель продавца, передавший товар/услуги
+        transferDate:
+          type: string
+          format: date
+          description: Дата отгрузки, передачи
+          example: '2026-09-25'
+        sellerAdditionalInfo:
+          type: string
+          description: Иные сведения об отгрузке, передаче
+          example: Отпуск разрешен
+        sellerResponsiblePerson:
+          $ref: '#/components/schemas/Signatory'
+          description: Ответственный продавца за правильность оформления
+        buyerReceiptEmployee:
+          $ref: '#/components/schemas/Signatory'
+          description: Представитель покупателя, принявший товар/услуги
+        receiptDate:
+          type: string
+          format: date
+          description: Дата получения, приемки
+          example: '2026-09-26'
+        buyerAdditionalInfo:
+          type: string
+          description: Иные сведения о получении, приемке
+          example: Товар принят
+        buyerResponsiblePerson:
+          $ref: '#/components/schemas/Signatory'
+          description: Ответственный покупателя за правильность оформления
+        sellerEconomicSubject:
+          type: string
+          description: Наименование экономического субъекта - составителя документа продавца
+          example: ООО Продавец
+        buyerEconomicSubject:
+          type: string
+          description: Наименование экономического субъекта - составителя документа покупателя
+          example: ООО Покупатель
+      required:
+      - document
+      - transferDate
+    BankRequisites:
+      type: object
+      description: Банковские реквизиты
+      properties:
+        bic:
+          type: string
+          description: БИК банка
+          example: 081395980
+        name:
+          type: string
+          description: Наименование банка
+          example: АО «Банк»
+        accountNumber:
+          type: string
+          description: Номер счета
+          example: '51421810026450470886'
+        corrAccountNumber:
+          type: string
+          description: Номер корреспондентского счета
+          example: '30101810400000000598'
+    SellerRequest:
+      type: object
+      description: Продавец
+      properties:
+        inn:
+          type: string
+          description: ИНН
+          example: '394439302723'
+        name:
+          type: string
+          description: Наименование продавца
+          example: ООО Продавец
+        address:
+          type: string
+          description: Адрес продавца
+          example: 123154, Москва г, ул. Тестовая, д. 2
+        kpp:
+          type: string
+          description: КПП
+          example: '637996731'
+        okpo:
+          type: string
+          description: ОКПО
+          example: 0120223589
+        consignor:
+          type: boolean
+          description: Признак является ли продавец отправителем груза
+          example: false
+        phoneNumber:
+          type: string
+          description: Номер телефона
+          example: +7 (900) 449-10-42
+        bankRequisites:
+          $ref: '#/components/schemas/BankRequisitesRequest'
+          description: Банковские реквизиты
+      required:
+      - consignor
+      - inn
+      - name
+    UPDRequest:
+      allOf:
+      - $ref: '#/components/schemas/AbstractClosingDocumentRequest'
+      - type: object
+        properties:
+          items:
+            type: array
+            description: Список товаров/работ/услуг
+            items:
+              $ref: '#/components/schemas/ItemRequest'
+            maxItems: 2147483647
+            minItems: 1
+          additionalInfo:
+            $ref: '#/components/schemas/UPDAdditionalInfoRequest'
+            description: Дополнительная информация
+          transferInfo:
+            $ref: '#/components/schemas/TransferInfoRequest'
+            description: Информация о передаче/приемке
+          buyer:
+            $ref: '#/components/schemas/Participant'
+            description: Покупатель
+          shipper:
+            $ref: '#/components/schemas/Participant'
+            description: Грузоотправитель. Если поле отсутствует, грузоотправителем считается продавец
+          receiver:
+            $ref: '#/components/schemas/Participant'
+            description: Грузополучатель. Если поле отсутствует, грузополучателем считается покупатель
+          bills:
+            type: array
+            description: Связанные счета
+            items:
+              type: string
+              format: uuid
+            uniqueItems: true
+            example:
+            - 3fa85f64-5717-4562-b3fc-2c963f66afa6
+      description: Модель УПД
+      required:
+      - additionalInfo
+      - buyer
+      - items
+      - transferInfo
+      - type
+    SignatoryRequest:
+      type: object
+      description: Подписант/ответственный
+      properties:
+        position:
+          type: string
+          description: Должность
+          minLength: 1
+          example: Директор
+        fio:
+          $ref: '#/components/schemas/Name'
+          description: ФИО
+      required:
+      - fio
+      - position
+    AbstractClosingDocumentResponse:
+      type: object
+      description: Базовая модель закрывающего документа
+      discriminator:
+        propertyName: type
+      properties:
+        type:
+          type: string
+          description: Тип закрывающего документа
+          enum:
+          - BILL
+          - WORK_ACT
+          - CONSIGNMENT_NOTE
+          - UPD
+          - INVOICE_FACTURA
+          example: WORK_ACT
+      required:
+      - type
+    GoodsRequest:
+      type: object
+      description: Товары
+      example:
+        items:
+        - name: Услуги по настройке ПО
+          count: 5
+          price: 1200.5
+          unit: HOUR
+          vat: VAT_20
+      properties:
+        items:
+          type: array
+          description: Список товаров
+          items:
+            $ref: '#/components/schemas/ItemRequest'
+          maxItems: 2147483647
+          minItems: 1
+          example:
+          - name: Услуги по настройке ПО
+            count: 5
+            price: 1200.5
+            unit: HOUR
+            vat: VAT_20
+      required:
+      - items
+    ItemMiniResponse:
+      type: object
+      description: Модель товара
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор товара (возвращается в ответах по счетам, у закрывающих документов отсутствует)
+          example: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+        name:
+          type: string
+          description: Наименование единицы товара.
+          example: Услуги по настройке ПО
+        count:
+          type: number
+          description: Количество
+          example: 5
+        price:
+          type: number
+          description: Цена единицы товара
+          example: 1200.5
+        vat:
+          $ref: '#/components/schemas/Unit'
+          description: НДС
+        unit:
+          $ref: '#/components/schemas/Unit'
+          description: Единица измерения
+        sum:
+          type: number
+          description: Итоговая стоимость
+          example: 6002.5
+        vatAmount:
+          type: number
+          description: НДС
+          example: 1000.42
+      required:
+      - count
+      - name
+      - price
+      - sum
+      - unit
+      - vat
+      - vatAmount
+    CustomerRequest:
+      type: object
+      description: Заказчик
+      properties:
+        inn:
+          type: string
+          description: ИНН
+          example: '394439302723'
+        innType:
+          type: string
+          description: Тип ИНН заказчика. INDIVIDUAL (физик) / LEGAL (юрик)
+          enum:
+          - INDIVIDUAL
+          - IE
+          - COMPANY
+          example: COMPANY
+        name:
+          type: string
+          description: Наименование
+          example: ООО Заказчик
+        kpp:
+          type: string
+          description: КПП
+          example: '637996731'
+        address:
+          type: string
+          description: Адрес
+          example: г. Москва, ул. Тестовая, д. 1
+      required:
+      - innType
+      - name
+    Waybill:
+      type: object
+      description: Транспортная накладная
+      properties:
+        number:
+          type: string
+          description: Номер транспортной накладной
+          example: Транспорт-552
+        date:
+          type: string
+          format: date
+          description: Дата транспортной накладной
+          example: '2026-09-30'
+    CDListLinkedDocumentResponse:
+      type: object
+      description: Список связанных документов
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор связанного документа
+          example: 60612e6c-d182-4b59-a868-69714a910ee3
+        type:
+          type: string
+          description: Тип связанного документа. Одно из значений BILL, WORK_ACT, CONSIGNMENT_NOTE, INVOICE_FACTURA
+          example: BILL
+        documentNumber:
+          type: string
+          description: Номер связанного документа
+          example: '1'
+      required:
+      - id
+      - type
+    ConsignmentNoteAdditionalInfo:
+      type: object
+      description: Дополнительная информация товарной накладной
+      properties:
+        documentNumber:
+          type: string
+          description: Номер документа
+          example: '2'
+        documentDate:
+          type: string
+          format: date
+          description: Дата документа
+          example: '2026-09-30'
+        documentBase:
+          $ref: '#/components/schemas/DocumentBase'
+          description: Документ-основание
+        waybill:
+          $ref: '#/components/schemas/Waybill'
+          description: Транспортная накладная
+        operationType:
+          type: string
+          description: Тип операции
+          example: Реализация
+      required:
+      - documentBase
+      - documentDate
+      - documentNumber
+    ConsignmentNote:
+      description: Модель товарной накладной
+      allOf:
+      - $ref: '#/components/schemas/AbstractClosingDocumentResponse'
+      - type: object
+        properties:
+          goods:
+            $ref: '#/components/schemas/Goods'
+            description: Товары
+          additionalInfo:
+            $ref: '#/components/schemas/ConsignmentNoteAdditionalInfo'
+            description: Дополнительная информация
+          seller:
+            $ref: '#/components/schemas/Seller'
+            description: Продавец
+          consignor:
+            $ref: '#/components/schemas/Consignor'
+            description: Отправитель груза
+          buyer:
+            $ref: '#/components/schemas/Buyer'
+            description: Покупатель
+          receiver:
+            $ref: '#/components/schemas/Receiver'
+            description: Получатель груза
+      required:
+      - additionalInfo
+      - buyer
+      - goods
+      - seller
+      - type
+    Executor:
+      type: object
+      description: Исполнитель
+      properties:
+        inn:
+          type: string
+          description: ИНН
+          example: '394439302723'
+        name:
+          type: string
+          description: Наименование
+          example: ООО Исполнитель
+        address:
+          type: string
+          description: Адрес
+          example: 123154, Москва г, ул. Тестовая, д. 2
+        kpp:
+          type: string
+          description: КПП
+          example: '637996731'
+      required:
+      - inn
+      - name
+    Receiver:
+      type: object
+      description: Получатель груза
+      properties:
+        inn:
+          type: string
+          description: ИНН
+          example: '394439302723'
+        name:
+          type: string
+          description: Наименование
+          example: ООО Получатель
+        innType:
+          type: string
+          description: Тип участника. INDIVIDUAL (ФЛ) / IE (ИП) / COMPANY (ООО)
+          enum:
+          - INDIVIDUAL
+          - IE
+          - COMPANY
+          example: IE
+        address:
+          type: string
+          description: Адрес
+          example: г. Москва, ул. Тестовая, д. 3
+        kpp:
+          type: string
+          description: КПП
+          example: '637996731'
+        okpo:
+          type: string
+          description: ОКПО
+          example: 0120223589
+        phoneNumber:
+          type: string
+          description: Номер телефона
+          example: +7 (900) 449-10-42
+        bankRequisites:
+          $ref: '#/components/schemas/BankRequisites'
+          description: Банковские реквизиты
+      required:
+      - innType
+      - name
+    Participant:
+      type: object
+      description: Участник УПД
+      properties:
+        type:
+          type: string
+          description: Тип участника. INDIVIDUAL (ФЛ) / IE (ИП) / COMPANY (ООО)
+          enum:
+          - INDIVIDUAL
+          - IE
+          - COMPANY
+          example: COMPANY
+        name:
+          type: string
+          description: Наименование участника
+          example: ООО Покупатель
+        fio:
+          $ref: '#/components/schemas/Name'
+          description: ФИО участника
+        inn:
+          type: string
+          description: ИНН
+          example: '4108003484'
+        address:
+          type: string
+          description: Адрес участника
+          example: г. Москва, ул. Тестовая, д. 1
+        kpp:
+          type: string
+          description: КПП
+          example: '410801001'
+      required:
+      - type
+    Unit:
+      type: object
+      description: Модель единицы измерения
+      properties:
+        name:
+          type: string
+          description: Кодовое название
+          example: PIECE
+        abbreviation:
+          type: string
+          description: Единица измерения
+          example: Штуки
+        value:
+          type: string
+          description: Значение
+          example: шт
+      required:
+      - abbreviation
+      - name
+      - value
+    Name:
+      type: object
+      description: ФИО
+      properties:
+        lastName:
+          type: string
+          description: Фамилия
+          minLength: 1
+          example: Иванов
+        firstName:
+          type: string
+          description: Имя
+          minLength: 1
+          example: Иван
+        middleName:
+          type: string
+          description: Отчество
+          example: Иванович
+      required:
+      - firstName
+      - lastName
+    AbstractClosingDocumentRequest:
+      type: object
+      description: Базовая модель запроса на создание закрывающего документа
+      discriminator:
+        propertyName: type
+      properties:
+        type:
+          type: string
+          description: Тип закрывающего документа
+          enum:
+          - BILL
+          - WORK_ACT
+          - CONSIGNMENT_NOTE
+          - UPD
+          - INVOICE_FACTURA
+          example: WORK_ACT
+        bills:
+          type: array
+          description: Связанные счета
+          items:
+            type: string
+            format: uuid
+          uniqueItems: true
+          example:
+          - 3fa85f64-5717-4562-b3fc-2c963f66afa6
+      required:
+      - type
+    ConsignmentNoteRequest:
+      allOf:
+      - $ref: '#/components/schemas/AbstractClosingDocumentRequest'
+      - type: object
+        properties:
+          goods:
+            $ref: '#/components/schemas/GoodsRequest'
+            description: Товары
+          additionalInfo:
+            $ref: '#/components/schemas/AdditionalInfoRequest'
+            description: Дополнительная информация
+          seller:
+            $ref: '#/components/schemas/SellerRequest'
+            description: Продавец
+          consignor:
+            $ref: '#/components/schemas/ConsignorRequest'
+            description: Отправитель груза. Поле обязательно, если seller.consignor = false
+          buyer:
+            $ref: '#/components/schemas/BuyerRequest'
+            description: Покупатель
+          receiver:
+            $ref: '#/components/schemas/ReceiverRequest'
+            description: Получатель груза. Поле обязательно, если buyer.receiver = false
+          bills:
+            type: array
+            description: Связанные счета
+            items:
+              type: string
+              format: uuid
+            uniqueItems: true
+            example:
+            - 3fa85f64-5717-4562-b3fc-2c963f66afa6
+      description: Модель товарной накладной
+      required:
+      - additionalInfo
+      - buyer
+      - goods
+      - seller
+      - type
+    DocumentBase:
+      type: object
+      description: Документ-основание
+      properties:
+        name:
+          type: string
+          description: Наименование документа
+          example: Счет на оплату
+        number:
+          type: string
+          description: Номер документа
+          example: '84860631'
+        date:
+          type: string
+          format: date
+          description: Дата документа
+          example: '2026-09-30'
+      required:
+      - date
+      - name
+      - number
+    UPD:
+      description: Модель универсального передаточного документа (УПД)
+      allOf:
+      - $ref: '#/components/schemas/AbstractClosingDocumentResponse'
+      - type: object
+        properties:
+          status:
+            type: string
+            description: Статус УПД
+            example: '2'
+          goods:
+            $ref: '#/components/schemas/Goods'
+            description: Товары
+          additionalInfo:
+            $ref: '#/components/schemas/AdditionalInfo'
+            description: Дополнительная информация
+          transferInfo:
+            $ref: '#/components/schemas/TransferInfo'
+            description: Информация о передаче/приемке
+          seller:
+            $ref: '#/components/schemas/Seller'
+            description: Продавец
+          shipper:
+            $ref: '#/components/schemas/Participant'
+            description: Грузоотправитель
+          buyer:
+            $ref: '#/components/schemas/Participant'
+            description: Покупатель
+          receiver:
+            $ref: '#/components/schemas/Participant'
+            description: Грузополучатель
+      required:
+      - additionalInfo
+      - buyer
+      - goods
+      - seller
+      - status
+      - transferInfo
+      - type
+    WorkAct:
+      description: Модель акта выполненных работ
+      allOf:
+      - $ref: '#/components/schemas/AbstractClosingDocumentResponse'
+      - type: object
+        properties:
+          services:
+            $ref: '#/components/schemas/ServiceList'
+            description: Услуги
+          additionalInfo:
+            $ref: '#/components/schemas/WorkActAdditionalInfo'
+            description: Дополнительная информация
+          executor:
+            $ref: '#/components/schemas/Executor'
+            description: Исполнитель
+          customer:
+            $ref: '#/components/schemas/Customer'
+            description: Заказчик
+      required:
+      - additionalInfo
+      - customer
+      - executor
+      - services
+      - type
+    ClosingDocumentResponse:
+      type: object
+      description: Созданный закрывающий документ
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор созданного документа
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        type:
+          type: string
+          description: Тип закрывающего документа
+          enum:
+          - BILL
+          - WORK_ACT
+          - CONSIGNMENT_NOTE
+          - UPD
+          - INVOICE_FACTURA
+          example: UPD
+      required:
+      - id
+      - type
+    UPDAdditionalInfoRequest:
+      type: object
+      description: Дополнительная информация УПД
+      properties:
+        documentNumber:
+          type: string
+          description: Номер документа
+          example: UPD-1c6410d2
+        documentDate:
+          type: string
+          format: date
+          description: Дата документа
+          example: '2026-09-25'
+        operationType:
+          type: string
+          description: Тип операции
+          example: Продажа
+        correctionNumber:
+          type: string
+          description: Номер исправления
+          example: '1'
+        correctionDate:
+          type: string
+          format: date
+          description: Дата исправления
+          example: '2026-09-26'
+        paymentDocumentNumber:
+          type: string
+          description: Номер платежно-расчетного документа
+          example: '123'
+        paymentDocumentDate:
+          type: string
+          format: date
+          description: Дата платежно-расчетного документа
+          example: '2026-09-26'
+      required:
+      - documentDate
+      - documentNumber
+    AdditionalInfoRequest:
+      type: object
+      description: Дополнительная информация
+      properties:
+        documentNumber:
+          type: string
+          description: Номер документа
+          example: '35503799'
+        documentDate:
+          type: string
+          format: date
+          description: Дата отправки документа
+          example: '2026-09-30'
+        upperComment:
+          type: string
+          description: Комментарий вверху бланка документа
+          example: Работы выполнены в полном объеме
+        lowerComment:
+          type: string
+          description: Комментарий внизу бланка документа
+          example: Претензий не имеем
+      required:
+      - documentDate
+    ClosingDocumentListItemResponse:
+      type: object
+      description: Список закрывающих документов
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор документа
+          example: 60612e6c-d182-4b59-a868-69714a910ee3
+        cnum:
+          type: string
+          description: CNUM организации
+          example: A12345
+        type:
+          type: string
+          description: Тип документа
+          enum:
+          - BILL
+          - WORK_ACT
+          - CONSIGNMENT_NOTE
+          - UPD
+          - INVOICE_FACTURA
+          example: WORK_ACT
+        number:
+          type: string
+          description: Номер документа
+          example: 1
+        date:
+          type: string
+          format: date
+          description: Дата документа
+          example: '2007-12-03'
+        customerName:
+          type: string
+          description: Наименование контрагента
+          example: ооо ромашка
+        customerInn:
+          type: string
+          description: ИНН контрагента
+          example: 6145133894
+        totalPrice:
+          type: number
+          description: Сумма услуг
+          example: 123.11
+        totalVatAmount:
+          type: number
+          description: Суммарный НДС
+          example: 123.11
+        numberOfPositions:
+          type: integer
+          format: int32
+          description: Количество позиций
+          example: 5
+        numberOfRemainingLinkedDocuments:
+          type: integer
+          format: int64
+          description: Количество связанных документов, которые не вернулись в ответе
+          example: 5
+        linkedDocuments:
+          type: array
+          description: Список связанных документов, количество документов ограничено
+          items:
+            $ref: '#/components/schemas/CDListLinkedDocumentResponse'
+      required:
+      - cnum
+      - customerName
+      - date
+      - id
+      - linkedDocuments
+      - numberOfPositions
+      - numberOfRemainingLinkedDocuments
+      - totalPrice
+      - type
+    ConsignorRequest:
+      type: object
+      description: Отправитель груза
+      properties:
+        inn:
+          type: string
+          description: ИНН
+          example: '394439302723'
+        innType:
+          type: string
+          description: Тип ИНН. INDIVIDUAL (ФЛ) / IE (ИП) / COMPANY (ООО)
+          enum:
+          - INDIVIDUAL
+          - IE
+          - COMPANY
+          example: IE
+        name:
+          type: string
+          description: Наименование продавца
+          example: ООО Отправитель
+        address:
+          type: string
+          description: Адрес продавца
+          example: 123154, Москва г, ул. Тестовая, д. 2
+        kpp:
+          type: string
+          description: КПП
+          example: '637996731'
+        okpo:
+          type: string
+          description: ОКПО
+          example: 0120223589
+        phoneNumber:
+          type: string
+          description: Номер телефона
+          example: +7 (900) 449-10-42
+        bankRequisites:
+          $ref: '#/components/schemas/BankRequisitesRequest'
+          description: Банковские реквизиты
+        isInn:
+          type: boolean
+          description: Признак наличия ИНН
+          example: true
+        isKpp:
+          type: boolean
+          description: Признак наличия КПП
+          example: true
+      required:
+      - innType
+      - isInn
+      - isKpp
+      - name
+    Item:
+      type: object
+      description: Модель единицы товара
+      properties:
+        name:
+          type: string
+          description: Наименование единицы товара
+          example: Монитор
+        count:
+          type: number
+          description: Количество
+          example: 10
+        price:
+          type: number
+          description: Цена единицы товара
+          example: 50000
+        vat:
+          $ref: '#/components/schemas/Unit'
+          description: НДС
+        unit:
+          $ref: '#/components/schemas/Unit'
+          description: Единица измерения
+        sum:
+          type: number
+          description: Итоговая стоимость
+          example: 500000.0
+        vatAmount:
+          type: number
+          description: Сумма НДС
+          example: 45454.55
+        productCode:
+          type: string
+          description: Код товара
+          example: TEST-001
+        productTypeCode:
+          type: string
+          description: Код вида товара
+          example: '1'
+        originCountry:
+          $ref: '#/components/schemas/OriginCountry'
+          description: Страна происхождения
+        customsDeclarationNumber:
+          type: string
+          description: Номер таможенной декларации
+          example: 10714020/010926/0000440
+      required:
+      - count
+      - name
+      - price
+      - sum
+      - unit
+      - vat
+      - vatAmount
+    Buyer:
+      type: object
+      description: Покупатель
+      properties:
+        inn:
+          type: string
+          description: ИНН
+          example: '394439302723'
+        innType:
+          type: string
+          description: Тип участника. INDIVIDUAL (ФЛ) / IE (ИП) / COMPANY (ООО)
+          enum:
+          - INDIVIDUAL
+          - IE
+          - COMPANY
+          example: COMPANY
+        name:
+          type: string
+          description: Наименование
+          example: ООО Покупатель
+        address:
+          type: string
+          description: Адрес
+          example: г. Москва, ул. Тестовая, д. 1
+        kpp:
+          type: string
+          description: КПП
+          example: '637996731'
+        okpo:
+          type: string
+          description: ОКПО
+          example: 0120223589
+        receiver:
+          type: boolean
+          description: Признак является ли покупатель получателем груза
+          example: false
+        phoneNumber:
+          type: string
+          description: Номер телефона
+          example: +7 (900) 449-10-42
+        bankRequisites:
+          $ref: '#/components/schemas/BankRequisites'
+          description: Банковские реквизиты
+      required:
+      - innType
+      - name
+      - receiver
+    OriginCountry:
+      type: object
+      description: Страна происхождения товара
+      properties:
+        digitalCode:
+          type: string
+          description: Цифровой код страны (ОКСМ)
+          example: '643'
+        shortName:
+          type: string
+          description: Краткое наименование страны
+          example: РОССИЯ
+      required:
+      - digitalCode
+      - shortName
+    BuyerRequest:
+      type: object
+      description: Покупатель
+      properties:
+        inn:
+          type: string
+          description: ИНН
+          example: '394439302723'
+        innType:
+          type: string
+          description: Тип ИНН. INDIVIDUAL (ФЛ) / IE (ИП) / COMPANY (ООО)
+          enum:
+          - INDIVIDUAL
+          - IE
+          - COMPANY
+          example: COMPANY
+        name:
+          type: string
+          description: Наименование продавца
+          example: ООО Покупатель
+        address:
+          type: string
+          description: Адрес продавца
+          example: г. Москва, ул. Тестовая, д. 1
+        kpp:
+          type: string
+          description: КПП
+          example: '637996731'
+        okpo:
+          type: string
+          description: ОКПО
+          example: 0120223589
+        receiver:
+          type: boolean
+          description: Признак является ли покупатель получателем груза
+          example: false
+        phoneNumber:
+          type: string
+          description: Номер телефона
+          example: +7 (900) 449-10-42
+        bankRequisites:
+          $ref: '#/components/schemas/BankRequisitesRequest'
+          description: Банковские реквизиты
+        isInn:
+          type: boolean
+          description: Признак наличия ИНН
+          example: true
+        isKpp:
+          type: boolean
+          description: Признак наличия КПП
+          example: true
+      required:
+      - innType
+      - isInn
+      - isKpp
+      - name
+      - receiver
+    Consignor:
+      type: object
+      description: Отправитель груза
+      properties:
+        inn:
+          type: string
+          description: ИНН
+          example: '394439302723'
+        innType:
+          type: string
+          description: Тип участника. INDIVIDUAL (ФЛ) / IE (ИП) / COMPANY (ООО)
+          enum:
+          - INDIVIDUAL
+          - IE
+          - COMPANY
+          example: IE
+        name:
+          type: string
+          description: Наименование
+          example: ООО Отправитель
+        address:
+          type: string
+          description: Адрес
+          example: 123154, Москва г, ул. Тестовая, д. 2
+        kpp:
+          type: string
+          description: КПП
+          example: '637996731'
+        okpo:
+          type: string
+          description: ОКПО
+          example: 0120223589
+        phoneNumber:
+          type: string
+          description: Номер телефона
+          example: +7 (900) 449-10-42
+        bankRequisites:
+          $ref: '#/components/schemas/BankRequisites'
+          description: Банковские реквизиты
+      required:
+      - innType
+      - name
+    AdditionalInfo:
+      type: object
+      description: Дополнительная информация УПД
+      properties:
+        documentNumber:
+          type: string
+          description: Номер документа
+          example: UPD-1c6410d2
+        documentDate:
+          type: string
+          format: date
+          description: Дата документа
+          example: '2026-09-25'
+        operationType:
+          type: string
+          description: Тип операции
+          example: Продажа
+        correctionNumber:
+          type: string
+          description: Номер исправления
+          example: '1'
+        correctionDate:
+          type: string
+          format: date
+          description: Дата исправления
+          example: '2026-09-26'
+        paymentDocumentNumber:
+          type: string
+          description: Номер платежно-расчетного документа
+          example: '123'
+        paymentDocumentDate:
+          type: string
+          format: date
+          description: Дата платежно-расчетного документа
+          example: '2026-09-26'
+      required:
+      - documentDate
+      - documentNumber
+    ReceiverRequest:
+      type: object
+      description: Получатель груза
+      properties:
+        inn:
+          type: string
+          description: ИНН
+          example: '394439302723'
+        innType:
+          type: string
+          description: Тип ИНН. INDIVIDUAL (ФЛ) / IE (ИП) / COMPANY (ООО)
+          enum:
+          - INDIVIDUAL
+          - IE
+          - COMPANY
+          example: IE
+        name:
+          type: string
+          description: Наименование продавца
+          example: ООО Получатель
+        address:
+          type: string
+          description: Адрес продавца
+          example: г. Москва, ул. Тестовая, д. 3
+        kpp:
+          type: string
+          description: КПП
+          example: '637996731'
+        okpo:
+          type: string
+          description: ОКПО
+          example: 0120223589
+        phoneNumber:
+          type: string
+          description: Номер телефона
+          example: +7 (900) 449-10-42
+        bankRequisites:
+          $ref: '#/components/schemas/BankRequisitesRequest'
+          description: Банковские реквизиты
+        isInn:
+          type: boolean
+          description: Признак наличия ИНН
+          example: true
+        isKpp:
+          type: boolean
+          description: Признак наличия КПП
+          example: true
+      required:
+      - innType
+      - isInn
+      - isKpp
+      - name
+    ClosingDocumentListResponse:
+      type: object
+      description: Ответ на запрос получения списка закрывающих документов
+      properties:
+        page:
+          type: integer
+          format: int32
+          description: Порядковый номер страницы, 0-based
+          example: 0
+        maxPageSize:
+          type: integer
+          format: int32
+          description: Максимальное количество элементов на странице
+          example: 30
+        totalPages:
+          type: integer
+          format: int32
+          description: Всего страниц
+          example: 10
+        totalElements:
+          type: integer
+          format: int64
+          description: Всего документов
+          example: 40
+        documents:
+          type: array
+          description: Список закрывающих документов
+          items:
+            $ref: '#/components/schemas/ClosingDocumentListItemResponse'
+          example:
+          - id: c735502b-fb38-4f60-8f06-ba3cb72a7b0e
+            cnum: A12345
+            type: WORK_ACT
+            number: '1'
+            date: '2026-10-01'
+            customerName: АО ВЕТРООГК-2
+            customerInn: '9701098248'
+            totalPrice: 82942.0
+            totalVatAmount: 0.0
+            numberOfPositions: 1
+            numberOfRemainingLinkedDocuments: 0
+            linkedDocuments: []
+      required:
+      - documents
+      - maxPageSize
+      - page
+      - totalElements
+      - totalPages
+    Signatory:
+      type: object
+      description: Подписант/ответственное лицо
+      properties:
+        position:
+          type: string
+          description: Должность
+          example: Директор
+        fullName:
+          type: string
+          description: ФИО полностью
+          example: Иванов Иван Иванович
+    Seller:
+      type: object
+      description: Продавец
+      properties:
+        cnum:
+          type: string
+          description: CNUM организации
+          example: UVGASK
+        name:
+          type: string
+          description: Наименование продавца
+          example: ООО Продавец
+        inn:
+          type: string
+          description: ИНН
+          example: '394439302723'
+        address:
+          type: string
+          description: Адрес
+          example: 123154, Москва г, ул. Тестовая, д. 2
+        kpp:
+          type: string
+          description: КПП
+          example: '637996731'
+        okpo:
+          type: string
+          description: ОКПО
+          example: 0120223589
+        consignor:
+          type: boolean
+          description: Признак является ли продавец отправителем груза
+          example: false
+        phoneNumber:
+          type: string
+          description: Номер телефона
+          example: +7 (900) 449-10-42
+        bankRequisites:
+          $ref: '#/components/schemas/BankRequisites'
+          description: Банковские реквизиты
+      required:
+      - cnum
+      - inn
+      - name
+    WorkActAdditionalInfo:
+      type: object
+      description: Дополнительная информация акта выполненных работ
+      properties:
+        documentNumber:
+          type: string
+          description: Номер документа
+          example: '35503799'
+        documentDate:
+          type: string
+          format: date
+          description: Дата документа
+          example: '2026-09-30'
+        upperComment:
+          type: string
+          description: Комментарий вверху бланка документа
+          example: Работы выполнены в полном объеме
+        lowerComment:
+          type: string
+          description: Комментарий внизу бланка документа
+          example: Претензий не имеем
+      required:
+      - documentDate
+    BankRequisitesRequest:
+      type: object
+      description: Банковские реквизиты
+      properties:
+        bic:
+          type: string
+          description: БИК банка
+          example: 081395980
+        name:
+          type: string
+          description: Наименование банка
+          example: АО «Банк»
+        accountNumber:
+          type: string
+          description: Номер счета
+          example: '51421810026450470886'
+        corrAccountNumber:
+          type: string
+          description: Номер корреспондентского счета
+          example: '30101810400000000598'
+    ExecutorRequest:
+      type: object
+      description: Исполнитель
+      properties:
+        inn:
+          type: string
+          description: ИНН
+          example: '394439302723'
+        name:
+          type: string
+          description: Наименование
+          example: ООО Исполнитель
+        address:
+          type: string
+          description: Адрес
+          example: 123154, Москва г, ул. Тестовая, д. 2
+        kpp:
+          type: string
+          description: КПП
+          example: '637996731'
+      required:
+      - inn
+      - name
+    ClosingDocumentDetailsResponse:
+      type: object
+      description: Детальная информация о закрывающем документе
+      properties:
+        cnum:
+          type: string
+          description: Уникальный идентификатор организации
+          example: UVGASK
+        document:
+          oneOf:
+          - $ref: '#/components/schemas/ConsignmentNote'
+          - $ref: '#/components/schemas/UPD'
+          - $ref: '#/components/schemas/WorkAct'
+          description: Содержимое закрывающего документа
+          example:
+            type: UPD
+            status: '2'
+        type:
+          type: string
+          description: Тип закрывающего документа
+          enum:
+          - BILL
+          - WORK_ACT
+          - CONSIGNMENT_NOTE
+          - UPD
+          - INVOICE_FACTURA
+          example: UPD
+        linkedDocuments:
+          type: array
+          description: Связанные со счетом закрывающие документы
+          items:
+            $ref: '#/components/schemas/CDDetailsLinkedDocumentResponse'
+          example:
+          - id: 60612e6c-d182-4b59-a868-69714a910ee3
+            type: WORK_ACT
+            documentNumber: '35503799'
+            documentDate: '2026-09-30'
+            totalPrice: 22600.0
+            totalVatAmount: 0.0
+            items: []
+        createdOn:
+          type: string
+          format: date-time
+          description: Дата и время создания документа
+          example: '2026-09-30T15:39:26.681Z'
+      required:
+      - cnum
+      - createdOn
+      - document
+      - linkedDocuments
+      - type
+    WorkActRequest:
+      allOf:
+      - $ref: '#/components/schemas/AbstractClosingDocumentRequest'
+      - type: object
+        properties:
+          services:
+            type: array
+            description: Список услуг
+            items:
+              $ref: '#/components/schemas/ItemRequest'
+            maxItems: 2147483647
+            minItems: 1
+          additionalInfo:
+            $ref: '#/components/schemas/AdditionalInfoRequest'
+            description: Дополнительная информация
+          executor:
+            $ref: '#/components/schemas/ExecutorRequest'
+            description: Исполнитель
+          customer:
+            $ref: '#/components/schemas/CustomerRequest'
+            description: Заказчик
+          bills:
+            type: array
+            deprecated: true
+            description: Связанные счета
+            items:
+              type: string
+              format: uuid
+            uniqueItems: true
+            example:
+            - 3fa85f64-5717-4562-b3fc-2c963f66afa6
+      description: Модель акта выполненных работ
+      required:
+      - additionalInfo
+      - customer
+      - executor
+      - services
+      - type
+    Goods:
+      type: object
+      description: Товары
+      properties:
+        items:
+          type: array
+          description: Список товаров
+          items:
+            $ref: '#/components/schemas/Item'
+        totalPrice:
+          type: number
+          description: Итоговая сумма
+          example: 500000.0
+        totalVatAmount:
+          type: number
+          description: Итоговый НДС
+          example: 45454.55
+      required:
+      - items
+      - totalPrice
+      - totalVatAmount
+    CDDetailsLinkedDocumentResponse:
+      type: object
+      description: Связанный документ в детальной информации о закрывающем документе
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор связанного документа
+          example: 60612e6c-d182-4b59-a868-69714a910ee3
+        type:
+          type: string
+          description: Тип закрывающего документа
+          enum:
+          - BILL
+          - WORK_ACT
+          - CONSIGNMENT_NOTE
+          - UPD
+          - INVOICE_FACTURA
+          example: WORK_ACT
+        documentNumber:
+          type: string
+          description: Номер связанного документа
+          example: '35503799'
+        documentDate:
+          type: string
+          format: date
+          description: Дата связанного документа
+          example: '2026-09-30'
+        totalPrice:
+          type: number
+          description: Итоговая сумма
+          example: 22600.0
+        totalVatAmount:
+          type: number
+          description: Итоговый НДС
+          example: 0.0
+        payer:
+          $ref: '#/components/schemas/Payer'
+          description: Плательщик
+        items:
+          type: array
+          description: Список товаров
+          items:
+            $ref: '#/components/schemas/ItemMiniResponse'
+      required:
+      - documentDate
+      - id
+      - items
+      - totalPrice
+      - totalVatAmount
+      - type
+    TransferInfoRequest:
+      type: object
+      description: Информация о передаче/приемке УПД
+      properties:
+        document:
+          $ref: '#/components/schemas/DocumentBaseRequest'
+          description: Документ-основание передачи
+        transportationInfo:
+          type: string
+          description: Данные о транспортировке и грузе
+          example: Доставка транспортной компанией Деловые линии
+        shippingDocumentNumber:
+          type: string
+          description: Номер документа об отгрузке
+          example: '552'
+        shippingDocumentDate:
+          type: string
+          format: date
+          description: Дата документа об отгрузке
+          example: '2026-09-25'
+        sellerTransferEmployee:
+          $ref: '#/components/schemas/SignatoryRequest'
+          description: Представитель продавца, передавший товар/услуги
+        transferDate:
+          type: string
+          format: date
+          description: Дата отгрузки, передачи
+          example: '2026-09-25'
+        sellerAdditionalInfo:
+          type: string
+          description: Иные сведения об отгрузке, передаче
+          example: Отпуск разрешен
+        sellerResponsiblePerson:
+          $ref: '#/components/schemas/SignatoryRequest'
+          description: Ответственный продавца за правильность оформления
+        buyerReceiptEmployee:
+          $ref: '#/components/schemas/SignatoryRequest'
+          description: Представитель покупателя, принявший товар/услуги
+        receiptDate:
+          type: string
+          format: date
+          description: Дата получения, приемки
+          example: '2026-09-26'
+        buyerAdditionalInfo:
+          type: string
+          description: Иные сведения о получении, приемке
+          example: Товар принят
+        buyerResponsiblePerson:
+          $ref: '#/components/schemas/SignatoryRequest'
+          description: Ответственный покупателя за правильность оформления
+        sellerEconomicSubject:
+          type: string
+          description: Наименование экономического субъекта - составителя документа продавца
+          example: ООО Продавец
+        buyerEconomicSubject:
+          type: string
+          description: Наименование экономического субъекта - составителя документа покупателя
+          example: ООО Покупатель
+      required:
+      - document
+      - transferDate
+    DocumentIdsRequest:
+      type: object
+      description: Запрос на удаление закрывающих документов
+      properties:
+        documentIds:
+          type: array
+          description: Список идентификаторов документов для удаления
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+          example:
+          - 3fa85f64-5717-4562-b3fc-2c963f66afa6
+      required:
+      - documentIds
+    Payer:
+      type: object
+      description: Плательщик
+      example:
+        type: LEGAL
+        name: ООО Покупатель
+        inn: '394439302723'
+        kpp: '637996731'
+        address: г. Москва, ул. Тестовая, д. 1
+      properties:
+        type:
+          type: string
+          description: Тип плательщика. INDIVIDUAL (ФЛ) / LEGAL (юр. лицо) / NONE (без типа)
+          enum:
+          - INDIVIDUAL
+          - LEGAL
+          - NONE
+          example: LEGAL
+        name:
+          type: string
+          description: Наименование плательщика
+          example: ООО Покупатель
+        inn:
+          type: string
+          description: ИНН плательщика
+          example: '394439302723'
+        kpp:
+          type: string
+          description: КПП плательщика
+          example: '637996731'
+        address:
+          type: string
+          description: Адрес плательщика
+          example: г. Москва, ул. Тестовая, д. 1
+      required:
+      - type
+    DocumentBaseRequest:
+      type: object
+      description: Документ-основание/связанный документ
+      properties:
+        name:
+          type: string
+          description: Наименование
+          example: Договор
+        number:
+          type: string
+          description: Номер
+          example: '1'
+        date:
+          type: string
+          format: date
+          description: Дата
+          example: '2026-09-25'
+      required:
+      - date
+      - name
+      - number
+    Customer:
+      type: object
+      description: Заказчик
+      properties:
+        inn:
+          type: string
+          description: ИНН
+          example: '394439302723'
+        innType:
+          type: string
+          description: Тип участника. INDIVIDUAL (ФЛ) / IE (ИП) / COMPANY (ООО)
+          enum:
+          - INDIVIDUAL
+          - IE
+          - COMPANY
+          example: COMPANY
+        name:
+          type: string
+          description: Наименование
+          example: ООО Заказчик
+        kpp:
+          type: string
+          description: КПП
+          example: '637996731'
+        address:
+          type: string
+          description: Адрес
+          example: г. Москва, ул. Тестовая, д. 1
+      required:
+      - innType
+      - name
+    ItemRequest:
+      type: object
+      description: Модель единицы товара
+      properties:
+        name:
+          type: string
+          description: Наименование единицы товара
+          example: Услуги по настройке ПО
+        count:
+          type: number
+          description: Количество
+          example: 5
+        price:
+          type: number
+          description: Цена единицы товара
+          example: 1200.5
+        unit:
+          type: string
+          description: Единица измерения товара
+          example: HOUR
+          enum:
+          - PIECE
+          - MINUTE
+          - HOUR
+          - DAY
+          - CENTIMETER
+          - DECIMETER
+          - METER
+          - KILOMETER
+          - SQUARE_METER
+          - HECTARE
+          - CUBIC_METER
+          - LITER
+          - GRAM
+          - KILOGRAM
+          - TON
+          - KIT
+          - BOX
+          - KILOWATT_HOUR
+          - GIGA_CALORIES
+          - STANDARD_UNIT
+          - LINEAR_METER
+          - PACKAGE
+          - SERVICE
+          - PAIR
+          - MACHINE_HOUR
+          - MONTH
+          - EMPTY
+        vat:
+          type: string
+          description: НДС
+          example: VAT_20
+          enum:
+          - VAT_0
+          - NO_VAT
+          - VAT_22
+          - VAT_20
+          - VAT_18
+          - VAT_10
+          - VAT_7
+          - VAT_5
+      required:
+      - count
+      - name
+      - price
+      - unit
+      - vat
+    ServiceList:
+      type: object
+      description: Список услуг
+      properties:
+        items:
+          type: array
+          description: Список услуг
+          items:
+            $ref: '#/components/schemas/ItemMiniResponse'
+        totalPrice:
+          type: number
+          description: Итоговая сумма
+          example: 22600.0
+        totalVatAmount:
+          type: number
+          description: Итоговый НДС
+          example: 0.0
+      required:
+      - items
+      - totalPrice
+      - totalVatAmount
+  examples:
+    consignmentNoteRequest:
+      summary: Товарная накладная - запрос
+      value:
+        type: CONSIGNMENT_NOTE
+        goods:
+          items:
+          - name: Монитор
+            count: 10
+            price: 50000
+            unit: PACKAGE
+            vat: VAT_10
+        additionalInfo:
+          documentNumber: '2'
+          documentDate: '2026-09-30'
+          documentBase:
+            name: Счет на оплату
+            number: '84860631'
+            date: '2026-09-30'
+          waybill:
+            number: Транспорт-552
+            date: '2026-09-30'
+          operationType: Реализация
+        seller:
+          inn: 0816020925
+          name: ООО Продавец
+          address: 123154, Москва г, ул. Тестовая, д. 2
+          kpp: '773401417'
+          okpo: 0120223589
+          consignor: true
+        buyer:
+          inn: '4108003484'
+          innType: COMPANY
+          name: ООО Покупатель
+          address: г. Москва, ул. Тестовая, д. 1
+          kpp: '410801001'
+          okpo: 0120223589
+          receiver: true
+    closingDocumentListResponse:
+      summary: Ответ со списком закрывающих документов
+      value:
+        page: 0
+        maxPageSize: 30
+        totalPages: 1
+        totalElements: 3
+        documents:
+        - id: c735502b-fb38-4f60-8f06-ba3cb72a7b0e
+          cnum: A12345
+          type: WORK_ACT
+          date: '2026-10-01'
+          customerName: АО ВЕТРООГК-2
+          customerInn: '9701098248'
+          totalPrice: 82942.0
+          totalVatAmount: 0.0
+          numberOfPositions: 1
+          numberOfRemainingLinkedDocuments: 0
+          linkedDocuments: []
+        - id: caaedffc-d875-4de2-9a73-ba51da23a8dc
+          cnum: A12345
+          type: CONSIGNMENT_NOTE
+          number: 86110305Aubergine
+          date: '2026-09-29'
+          customerName: Conroy, Lebsack and Bruen
+          customerInn: '4108003484'
+          totalPrice: 22600.0
+          totalVatAmount: 0.0
+          numberOfPositions: 1
+          numberOfRemainingLinkedDocuments: 0
+          linkedDocuments: []
+        - id: ac80e3ab-dda1-41d5-91eb-755fdb5621fd
+          cnum: A12345
+          type: UPD
+          number: UPD-a8fce6a5
+          date: '2026-09-25'
+          customerName: ООО Покупатель УПД
+          customerInn: '4108003484'
+          totalPrice: 200.0
+          totalVatAmount: 40.0
+          numberOfPositions: 1
+          numberOfRemainingLinkedDocuments: 0
+          linkedDocuments: []
+    workActRequest:
+      summary: Акт выполненных работ - запрос
+      value:
+        type: WORK_ACT
+        services:
+        - name: Настройка ПО
+          count: 8
+          price: 2500
+          unit: HOUR
+          vat: NO_VAT
+        additionalInfo:
+          documentNumber: '35503799'
+          documentDate: '2026-09-30'
+          upperComment: Работы выполнены в полном объеме
+          lowerComment: Претензий не имеем
+        executor:
+          inn: 0816020925
+          name: ООО Исполнитель
+          address: 123154, Москва г, ул. Тестовая, д. 2
+          kpp: '773401417'
+        customer:
+          inn: '401900899873'
+          innType: IE
+          name: ИП Заказчик
+          address: г. Москва, ул. Тестовая, д. 1
+    closingDocumentCreateResponse:
+      summary: Ответ на создание закрывающего документа
+      value:
+        id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        type: UPD
+    closingDocumentDetailWorkAct:
+      summary: Закрывающий документ - Акт выполненных работ
+      value:
+        cnum: A12345
+        document:
+          type: WORK_ACT
+          services:
+            items:
+            - name: Настройка ПО
+              count: 200
+              price: 113
+              vat:
+                name: VAT_0
+                abbreviation: НДС 0%
+                value: '0'
+              unit:
+                name: MINUTE
+                abbreviation: Минуты
+                value: мин
+              sum: 22600.0
+              vatAmount: 0.0
+            totalPrice: 22600.0
+            totalVatAmount: 0.0
+          additionalInfo:
+            documentNumber: '35503799'
+            documentDate: '2026-09-30'
+            upperComment: Работы выполнены в полном объеме
+            lowerComment: Претензий не имеем
+          executor:
+            inn: 0816020925
+            name: ООО Исполнитель
+            address: 123154, Москва г, ул. Тестовая, д. 2
+            kpp: '773401417'
+          customer:
+            inn: '401900899873'
+            innType: IE
+            name: ИП Заказчик
+            address: г. Москва, ул. Тестовая, д. 1
+        type: WORK_ACT
+        linkedDocuments: []
+        createdOn: '2026-09-30T10:19:16Z'
+    closingDocumentDetailConsignmentNote:
+      summary: Закрывающий документ - товарная накладная
+      value:
+        cnum: Z62321
+        document:
+          type: CONSIGNMENT_NOTE
+          goods:
+            items:
+            - name: Монитор
+              count: 10
+              price: 50000
+              vat:
+                name: VAT_10
+                abbreviation: НДС 10%
+                value: '10'
+              unit:
+                name: PACKAGE
+                abbreviation: Упаковка
+                value: упак
+              sum: 500000.0
+              vatAmount: 45454.55
+            totalPrice: 500000.0
+            totalVatAmount: 45454.55
+          additionalInfo:
+            documentNumber: '2'
+            documentDate: '2026-09-30'
+            documentBase:
+              name: Счет на оплату
+              number: '84860631'
+              date: '2026-09-30'
+            waybill:
+              number: Транспорт-552
+              date: '2026-09-30'
+            operationType: Реализация
+          seller:
+            cnum: Z62321
+            inn: 0816020925
+            name: ООО Продавец
+            address: 123154, Москва г, ул. Тестовая, д. 2
+            kpp: '773401417'
+            okpo: 0120223589
+            consignor: false
+          buyer:
+            inn: '4108003484'
+            innType: COMPANY
+            name: ООО Покупатель
+            address: г. Москва, ул. Тестовая, д. 1
+            kpp: '410801001'
+            okpo: 0120223589
+            receiver: false
+        type: CONSIGNMENT_NOTE
+        linkedDocuments: []
+        createdOn: '2026-09-30T10:19:26Z'
+    closingDocumentDetailUPD:
+      summary: Закрывающий документ - УПД
+      value:
+        cnum: A12345
+        document:
+          type: UPD
+          status: '2'
+          goods:
+            items:
+            - name: Товар
+              count: 2
+              price: 100
+              vat:
+                name: VAT_20
+                abbreviation: НДС 20%
+                value: '20'
+              unit:
+                name: PIECE
+                abbreviation: Штуки
+                value: шт
+              sum: 200.0
+              vatAmount: 40.0
+              productCode: TEST-001
+            - name: Товар-2
+              count: 1
+              price: 1
+              vat:
+                name: NO_VAT
+                abbreviation: Без НДС
+                value: '0'
+              unit:
+                name: PIECE
+                abbreviation: Штуки
+                value: шт
+              sum: 1.0
+              vatAmount: 0.0
+            totalPrice: 201.0
+            totalVatAmount: 40.0
+          additionalInfo:
+            documentNumber: UPD-1c6410d2
+            documentDate: '2026-09-25'
+            operationType: Продажа
+          transferInfo:
+            document:
+              name: Договор
+              number: '1'
+              date: '2026-09-25'
+            transferDate: '2026-09-25'
+            sellerTransferEmployee:
+              position: Директор
+              fullName: Иванов Иван Иванович
+          seller:
+            cnum: A12345
+            name: ООО Продавец
+            inn: 0816020925
+            address: 123154, Москва г, ул. Тестовая, д. 2
+            kpp: '773401417'
+          buyer:
+            type: COMPANY
+            name: ООО Покупатель
+            inn: '4108003484'
+            address: г. Москва, ул. Тестовая, д. 1
+            kpp: '410801001'
+        type: UPD
+        linkedDocuments: []
+        createdOn: '2026-09-25T13:32:39Z'
+    closingDocumentDeleteRequest:
+      summary: Запрос на удаление закрывающих документов
+      value:
+        documentIds:
+        - 3fa85f64-5717-4562-b3fc-2c963f66afa6
+    updRequest:
+      summary: УПД - запрос
+      value:
+        type: UPD
+        items:
+        - name: Товар
+          count: 2
+          price: 100
+          unit: PIECE
+          vat: VAT_20
+          productCode: TEST-001
+        additionalInfo:
+          documentNumber: UPD-1c6410d2
+          documentDate: '2026-09-25'
+          operationType: Продажа
+        transferInfo:
+          document:
+            name: Договор
+            number: '1'
+            date: '2026-09-25'
+          transferDate: '2026-09-25'
+          sellerTransferEmployee:
+            position: Директор
+            fio:
+              lastName: Иванов
+              firstName: Иван
+              middleName: Иванович
+        buyer:
+          type: COMPANY
+          name: ООО Покупатель
+          inn: '4108003484'
+          address: г. Москва, ул. Тестовая, д. 1
+          kpp: '410801001'
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена
+x-refined-from:
+- raiffeisen-ru-invoices-openapi.yml
+- raiffeisen-ru-invoices-openapi.yml

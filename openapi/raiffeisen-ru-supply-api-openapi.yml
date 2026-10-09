@@ -1,0 +1,3879 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Supply API
+  version: 1.0.0
+  description: 'Operations tagged Supply across 4 of this provider''s published API definitions: raiffeisen-ru-factoring-openapi.yml, raiffeisen-ru-payment-control-openapi.yml, raiffeisen-ru-factoring-openapi.yml, raiffeisen-ru-payment-control-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/factoring
+- url: https://api.raiffeisen.ru/pay-control
+tags:
+- description: Поставка
+  name: Supply
+paths:
+  /v1/supplies:
+    post:
+      description: Метод для загрузки поставок вручную
+      operationId: uploadSupplies
+      parameters:
+      - description: Идентификатор Договора Факторинга
+        in: query
+        name: agreementId
+        required: true
+        schema:
+          example: ba705955-3e0f-4956-84e0-e12616e84e2b
+          format: uuid
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              simple:
+                summary: Ручная загрузка поставок
+                value:
+                  supplies:
+                  - supplyNumber: 26052021-51
+                    signDate: '2021-05-26'
+                    amount: 100.0
+                    contractNumber: 11122019-1
+                    deferralStartDate: '2021-05-26'
+                    debtorInn: '1121003135'
+                  - supplyNumber: 27052021-10
+                    invoiceNumber: '456'
+                    signDate: '2021-05-27'
+                    invoiceSignDate: '2021-05-28'
+                    amount: 250000.5
+                    contractNumber: 22032020-5
+                    deferralStartDate: '2021-05-27'
+                    debtorInn: '7701234567'
+            schema:
+              $ref: '#/components/schemas/SupplyUploadListRequest'
+      responses:
+        '202':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Успешная загрузка
+                  value:
+                    supplies:
+                    - id: 5675c400-9835-491d-8489-d42ea7ed551c
+                    - id: 5d5417d0-edd5-4910-8ae4-43706287a203
+              schema:
+                $ref: '#/components/schemas/SupplyUploadListResponse'
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                validationError:
+                  summary: Ошибка валидации
+                  value:
+                    code: REST_ERROR_5032
+                    message: Data validation failed
+                    details:
+                    - param: array[2]
+                      code: VALIDATION_ERROR_1213
+                      message: Contract not found
+                    - param: array[3].signDate
+                      code: VALIDATION_ERROR_1211
+                      message: Invoice sign date does not equal sign date
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Ручная загрузка поставок
+      tags:
+      - Supply
+    servers:
+    - url: https://api.raiffeisen.ru/factoring
+  /v1/supplies/{id}:
+    get:
+      description: Метод получения поставки по идентификатору
+      operationId: getSupplyById
+      parameters:
+      - description: Идентификатор поставки
+        in: path
+        name: id
+        required: true
+        schema:
+          example: 5675c400-9835-491d-8489-d42ea7ed551c
+          format: uuid
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Поставка
+                  value:
+                    id: 5675c400-9835-491d-8489-d42ea7ed551c
+                    amount: 123456.78
+                    availableFinancingAmount: 98765.42
+                    financedAmount: 25742.31
+                    number: П-1234
+                    deferralStartDate: '2025-10-13'
+                    waitingPeriodEndDate: '2025-10-20'
+                    debtor:
+                      fullNameRus: АО Ромашка
+                    state:
+                      status: APPROVED
+                      statusDate: '2025-10-13T10:53:37.433221'
+                      errors: []
+                      cqrsVersion: -1628796591
+              schema:
+                $ref: '#/components/schemas/Supply'
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Ошибка
+                  value:
+                  - code: REST_ERROR_5001
+                    message: General service error
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Получение поставки по идентификатору
+      tags:
+      - Supply
+    patch:
+      description: Метод редактирования поставки
+      operationId: editSupply
+      parameters:
+      - description: Идентификатор поставки
+        in: path
+        name: id
+        required: true
+        schema:
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              simple:
+                summary: Редактирование поставки
+                value:
+                  amount: 220.12
+                  paymentDate: '2026-01-10'
+                  additionalDocumentNumber: ДД-2
+                  additionalDocumentDate: '2026-01-09'
+                  mainDocumentNumber: ОД-2
+                  mainDocumentDate: '2026-01-08'
+                  cqrsVersion: -1628796591
+            schema:
+              $ref: '#/components/schemas/PatchSupplyRequest'
+        description: Параметры для редактирования поставки
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Успешно обновлено
+                  value:
+                    id: 2c44306f-fc96-4780-9b37-6447273b190e
+                    createdAt: '2025-07-10T06:53:37.433211'
+                    mainDocumentNumber: ОД-2
+                    mainDocumentDate: '2026-01-08'
+                    additionalDocumentNumber: ДД-2
+                    additionalDocumentDate: '2026-01-09'
+                    amount: 220.12
+                    debtSum: 220.12
+                    paymentDate: '2026-01-10'
+                    state:
+                      statusDate: '2025-07-10T06:53:37.433211'
+                      errors: []
+                      status: SENT_TO_CHECK
+                    cqrsVersion: -1628796590
+              schema:
+                $ref: '#/components/schemas/Supply_2'
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: REST_ERROR_5001
+                    description: General service error
+                    traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+              schema:
+                $ref: '#/components/schemas/ErrorResponse_2'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Редактирование поставки
+      tags:
+      - Supply
+    servers:
+    - url: https://api.raiffeisen.ru/factoring
+  /v1/supplies/search:
+    post:
+      description: Метод получения поставок по переданным параметрам
+      operationId: getSupplies
+      requestBody:
+        content:
+          application/json:
+            examples:
+              simple:
+                summary: Поиск поставок по набору параметров
+                value:
+                  agreementId: ba705955-3e0f-4956-84e0-e12616e84e2b
+                  dealConditionsId: b5c1e36d-bde1-42bf-8d72-9d0aa4504f73
+                  financingRequestId: e05f8afe-a72e-4a6f-8292-7edb51a724ec
+                  waitingPeriodEndDateFrom: '2025-12-01'
+                  waitingPeriodEndDateTo: '2025-12-31'
+                  deferralStartDateFrom: '2025-12-01'
+                  deferralStartDateTo: '2025-12-31'
+                  deferralEndDateFrom: '2026-01-01'
+                  statuses:
+                  - APPROVED
+                  - FINANCING_IN_PROGRESS
+                  supplyIds:
+                  - 5675c400-9835-491d-8489-d42ea7ed551c
+                  - 5d5417d0-edd5-4910-8ae4-43706287a203
+                  offset: 10
+                  limit: 2
+            schema:
+              $ref: '#/components/schemas/SupplySearchRequest'
+        description: Параметры для поиска поставок
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Поставки
+                  value:
+                    supplies:
+                    - id: 5675c400-9835-491d-8489-d42ea7ed551c
+                      amount: 123456.78
+                      availableFinancingAmount: 98765.42
+                      financedAmount: 25742.31
+                      number: П-1234
+                      deferralStartDate: '2025-10-13'
+                      waitingPeriodEndDate: '2025-10-20'
+                      debtor:
+                        fullNameRus: АО Ромашка
+                      state:
+                        status: APPROVED
+                        statusDate: '2025-10-13T10:53:37.433221'
+                        errors: []
+                        cqrsVersion: -1628796591
+                    - id: 5d5417d0-edd5-4910-8ae4-43706287a203
+                      amount: 567890.12
+                      availableFinancingAmount: 397523.01
+                      financedAmount: 267752.2
+                      number: П-7777
+                      deferralStartDate: '2025-10-14'
+                      waitingPeriodEndDate: '2025-10-23'
+                      debtor:
+                        fullNameRus: АО Ромашка
+                      state:
+                        status: FINANCING_IN_PROGRESS
+                        statusDate: '2025-10-05T11:21:55.381531'
+                        errors: []
+                        cqrsVersion: 3473257012
+                    offset: 10
+                    limit: 2
+                    totalCount: 100
+              schema:
+                $ref: '#/components/schemas/SupplyPageResponse'
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Ошибка
+                  value:
+                  - code: REST_ERROR_5001
+                    message: General service error
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Получение поставок
+      tags:
+      - Supply
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/factoring
+  /v1/supplies/for-desired-financing-amount:
+    get:
+      description: Метод получения списка поставок, сумма availableFinancingAmount которых меньше или равна желаемой сумме финансирования. Подобранные поставки относятся к одному дебитору (сублимиту). Метод не гарантирует оптимальный подбор поставок - не гарантируется, что сумма availableFinancingAmount подобранных поставок максимальна для заданной границы в виде желаемой суммы. Приоритетом для включения поставок в список является более ранняя deferralStartDate. Отсортированные по deferralStartDate поставки включаются в результирующий список до тех пора, пока сумма availableFinancingAmount <= желаемой сумме. При isPartiallyFinanceable = true единожды может быть добавлена поставка, нарушающая условие 'сумма availableFinancingAmount <= желаемой сумме'
+      operationId: getSuppliesForAmount
+      parameters:
+      - description: Идентификатор основных условий обслуживания Поставщик-Дебитор, по контрактам которых необходимо подобрать поставки
+        example: b5c1e36d-bde1-42bf-8d72-9d0aa4504f73
+        in: query
+        name: dealConditionsId
+        required: true
+        schema:
+          example: b5c1e36d-bde1-42bf-8d72-9d0aa4504f73
+          format: uuid
+          type: string
+      - description: Желаемая сумма финансирования - та сумма, меньше или равна которой должна быть сумма availableFinancingAmount поставок
+        in: query
+        name: desiredFinancingAmount
+        required: true
+        schema:
+          example: 500000.0
+          type: number
+      - description: 'Возможность частичного финансирования на заданную сумму. Если true - сумма availableFinancingAmount подобранных  поставок может быть больше desiredFinancingAmount за счет добавления одной поставки в результирующий список
+
+          '
+        in: query
+        name: isPartiallyFinanceable
+        required: true
+        schema:
+          example: false
+          type: boolean
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Поставки
+                  value:
+                    supplies:
+                    - id: 5675c400-9835-491d-8489-d42ea7ed551c
+                      amount: 123456.78
+                      availableFinancingAmount: 98765.42
+                      financedAmount: 25742.31
+                      number: П-1234
+                      deferralStartDate: '2025-10-13'
+                      waitingPeriodEndDate: '2025-10-20'
+                      debtor:
+                        fullNameRus: АО Ромашка
+                      state:
+                        status: APPROVED
+                        statusDate: '2025-10-13T10:53:37.433221'
+                        errors: []
+                        cqrsVersion: -1628796591
+                    - id: 5d5417d0-edd5-4910-8ae4-43706287a203
+                      amount: 567890.12
+                      availableFinancingAmount: 397523.01
+                      financedAmount: 267752.2
+                      number: П-7777
+                      deferralStartDate: '2025-10-14'
+                      waitingPeriodEndDate: '2025-10-23'
+                      debtor:
+                        fullNameRus: АО Ромашка
+                      state:
+                        status: FINANCING_IN_PROGRESS
+                        statusDate: '2025-10-05T11:21:55.381531'
+                        errors: []
+                        cqrsVersion: 3473257012
+              schema:
+                $ref: '#/components/schemas/SupplyListResponse'
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Ошибка
+                  value:
+                  - code: REST_ERROR_5001
+                    message: General service error
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Получение списка поставок под желаемую сумму финансирования
+      tags:
+      - Supply
+    servers:
+    - url: https://api.raiffeisen.ru/factoring
+  /v1/supplies/summary:
+    get:
+      description: Метод получения количества и суммы поставок в указанном статусе
+      operationId: getSuppliesSummary
+      parameters:
+      - description: Статус поставки
+        example: ON_CONTROL
+        in: query
+        name: status
+        required: true
+        schema:
+          $ref: '#/components/schemas/SupplyStatus_2'
+      - description: Клиентский номер
+        examples:
+          oneCnum:
+            summary: Пример с одним клиентский номером
+            value:
+            - AAAAAA
+          multipleCnums:
+            summary: Пример с несколькими клиентскими номерами
+            value:
+            - AAAAAA
+            - BBBBBB
+        in: query
+        name: cnums
+        required: false
+        schema:
+          example:
+          - AAAAAA
+          items:
+            example: AAAAAA
+            type: string
+          type: array
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Сводная информация
+                  value:
+                    count: 42
+                    amount: '120.12'
+              schema:
+                $ref: '#/components/schemas/SupplySummary'
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: REST_ERROR_5001
+                    description: General service error
+                    traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+              schema:
+                $ref: '#/components/schemas/ErrorResponse_2'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Получение сводной информации по поставкам в статусе
+      tags:
+      - Supply
+    servers:
+    - url: https://api.raiffeisen.ru/pay-control
+  /v1/supplies/reports:
+    get:
+      description: Метод получения документов реестров поставок в формате base64 для подписания
+      operationId: getRegistryReports
+      parameters:
+      - description: Клиентский номер
+        examples:
+          oneCnum:
+            summary: Пример с одним клиентский номером
+            value:
+            - AAAAAA
+          multipleCnums:
+            summary: Пример с несколькими клиентскими номерами
+            value:
+            - AAAAAA
+            - BBBBBB
+        in: query
+        name: cnums
+        required: false
+        schema:
+          example:
+          - AAAAAA
+          items:
+            example: AAAAAA
+            type: string
+          type: array
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Дайджесты поставки
+                  value:
+                  - digest: 0JLQvtGCINGN0YLQviDQvdGD0LbQvdC+INC/0L7QtNC/0LjRgdCw0YLRjA==
+                  - digest: 0JLQvtGCINGN0YLQviDQvdGD0LbQvdC+INC/0L7QtNC/0LjRgdCw0YLRjA==
+              schema:
+                $ref: '#/components/schemas/DigestResponseList'
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: REST_ERROR_5001
+                    description: General service error
+                    traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+              schema:
+                $ref: '#/components/schemas/ErrorResponse_2'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Получение документов реестров поставок для подписания
+      tags:
+      - Supply
+    servers:
+    - url: https://api.raiffeisen.ru/pay-control
+  /v1/supplies/registries:
+    get:
+      description: Метод получения дайджеста реестров постаовок для доп. подписания
+      operationId: getRegistries
+      parameters:
+      - description: Клиентский номер
+        examples:
+          oneCnum:
+            summary: Пример с одним клиентский номером
+            value:
+            - AAAAAA
+          multipleCnums:
+            summary: Пример с несколькими клиентскими номерами
+            value:
+            - AAAAAA
+            - BBBBBB
+        in: query
+        name: cnums
+        required: false
+        schema:
+          example:
+          - AAAAAA
+          items:
+            example: AAAAAA
+            type: string
+          type: array
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Дайджесты реестров
+                  value:
+                  - id: 2c44306f-fc96-4780-9b37-6447273b190e
+                    digest: 0JLQvtGCINGN0YLQviDQvdGD0LbQvdC+INC/0L7QtNC/0LjRgdCw0YLRjA==
+                  - id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                    digest: 0JLQvtGCINGN0YLQviDQvdGD0LbQvdC+INC/0L7QtNC/0LjRgdCw0YLRjA==
+              schema:
+                $ref: '#/components/schemas/SupplyRegistryDigestList'
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: REST_ERROR_5001
+                    description: General service error
+                    traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+              schema:
+                $ref: '#/components/schemas/ErrorResponse_2'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Получение дайджеста реестров поставок для доп. подписания
+      tags:
+      - Supply
+    servers:
+    - url: https://api.raiffeisen.ru/pay-control
+  /v1/supplies/sign:
+    post:
+      description: Метод формирования реестров поставок для подписания
+      operationId: createSupplyRegistriesToSign
+      requestBody:
+        content:
+          application/json:
+            examples:
+              simple:
+                summary: Формирование реестров по клиентским номерам
+                value:
+                  cnums:
+                  - AAAAAA
+                  - BBBBBB
+            schema:
+              $ref: '#/components/schemas/SupplySignRequest'
+        description: Параметры для формирования реестров поставок для подписания
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Дайджесты реестров для подписания
+                  value:
+                  - id: 2c44306f-fc96-4780-9b37-6447273b190e
+                    digest: 0JLQvtGCINGN0YLQviDQvdGD0LbQvdC+INC/0L7QtNC/0LjRgdCw0YLRjA==
+                  - id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+                    digest: 0JLQvtGCINGN0YLQviDQvdGD0LbQvdC+INC/0L7QtNC/0LjRgdCw0YLRjA==
+              schema:
+                $ref: '#/components/schemas/SupplyRegistryDigestList'
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: REST_ERROR_5001
+                    description: General service error
+                    traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+              schema:
+                $ref: '#/components/schemas/ErrorResponse_2'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Формирование реестров поставок для подписания
+      tags:
+      - Supply
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/pay-control
+  /v1/supplies/change-status-to-retired:
+    post:
+      description: Метод массового удаления поставок через перевод в статус RETIRED
+      operationId: changeSupplyStatusesToRetired
+      requestBody:
+        content:
+          application/json:
+            examples:
+              simple:
+                summary: Массовое удаление поставок
+                value:
+                - id: 2c44306f-fc96-4780-9b37-6447273b190e
+                  cqrsVersion: -1628796591
+                - id: 6f143f0a-5393-4e37-a5c7-2d21d0778f4e
+                  cqrsVersion: -1628796592
+            schema:
+              $ref: '#/components/schemas/ChangeSuppliesStatusToRetiredRequest'
+        description: Параметры для массового удаления поставок
+        required: true
+      responses:
+        '200':
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: REST_ERROR_5001
+                    description: General service error
+                    traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+              schema:
+                $ref: '#/components/schemas/ErrorResponse_2'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Перевод поставок в статус RETIRED по идентификаторам
+      tags:
+      - Supply
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/pay-control
+  /v1/parser/supplies:
+    post:
+      description: Метод парсинга файла списка поставок
+      operationId: parseSupplies
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/parseSupplies_request'
+        description: Файл списка поставок в формате xlsx
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Одна поставка
+                  value:
+                  - buyerInn: '77777777'
+                    buyerKpp: '77777777'
+                    contractNumber: ДП-1
+                    contractDate: '2025-07-10'
+                    mainDocumentNumber: ОД-1
+                    mainDocumentDate: '2026-01-01'
+                    additionalDocumentNumber: ДД-1
+                    additionalDocumentDate: '2026-01-01'
+                    amount: 120.12
+                    paymentDate: '2026-01-01'
+              schema:
+                $ref: '#/components/schemas/ParsedSupplyList'
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: REST_ERROR_5001
+                    description: General service error
+                    traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+                    rowNumber: 1
+                    columnNumber: 2
+              schema:
+                $ref: '#/components/schemas/ParseErrorResponse'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Парсинг файла списка поставок
+      tags:
+      - Supply
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/pay-control
+components:
+  schemas:
+    RestErrorCodes:
+      description: '| code            | description                                          |
+
+        |-----------------|------------------------------------------------------|
+
+        | REST_ERROR_5001 | General service error                                |
+
+        | REST_ERROR_5004 | Agreement does not exist                             |
+
+        | REST_ERROR_5017 | DealConditions does not exist                        |
+
+        | REST_ERROR_5024 | Action is available at working hour                  |
+
+        | REST_ERROR_5025 | Supplies are not found                               |
+
+        | REST_ERROR_5026 | Approved contract does not exist                     |
+
+        | REST_ERROR_5027 | Supplies must be selected on only one deal condition |
+
+        | REST_ERROR_5028 | Approved deal conditions do not exist                |
+
+        | REST_ERROR_5029 | Approved agreement does not exist                    |
+
+        | REST_ERROR_5031 | Account for financing cannot be empty                |
+
+        | REST_ERROR_5032 | Data validation failed                               |
+
+        | REST_ERROR_5033 | File is infected                                     |
+
+        | REST_ERROR_5034 | Invalid type of file                                 |
+
+        | REST_ERROR_5035 | File is empty                                        |
+
+        | REST_ERROR_5036 | Failed to read file                                  |
+
+        | REST_ERROR_5037 | Supplier are not found                               |
+
+        | SELECTED_ORGANIZATION_REQUIRED | selectedCnum is required when several organizations are available |
+
+        | SELECTED_ORGANIZATION_NOT_ALLOWED | selectedCnum is not included in allowed organizations |
+
+        '
+      enum:
+      - REST_ERROR_5001
+      - REST_ERROR_5004
+      - REST_ERROR_5017
+      - REST_ERROR_5024
+      - REST_ERROR_5025
+      - REST_ERROR_5026
+      - REST_ERROR_5027
+      - REST_ERROR_5028
+      - REST_ERROR_5029
+      - REST_ERROR_5031
+      - REST_ERROR_5032
+      - REST_ERROR_5033
+      - REST_ERROR_5034
+      - REST_ERROR_5035
+      - REST_ERROR_5036
+      - SELECTED_ORGANIZATION_REQUIRED
+      - SELECTED_ORGANIZATION_NOT_ALLOWED
+      example: REST_ERROR_5001
+      type: string
+    ErrorMessage:
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    ValidationErrorCodes:
+      description: '| code                 | description                                          |
+
+        |----------------------|------------------------------------------------------|
+
+        | VALIDATION_ERROR_1201| Invalid INN format                                   |
+
+        | VALIDATION_ERROR_1202| Invalid date format                                  |
+
+        | VALIDATION_ERROR_1203| Invalid amount format                                |
+
+        | VALIDATION_ERROR_1204| Invalid contract number format                       |
+
+        | VALIDATION_ERROR_1205| Missing required field                               |
+
+        | VALIDATION_ERROR_1206| Invalid column count in header                       |
+
+        | VALIDATION_ERROR_1207| Invalid header name                                  |
+
+        | VALIDATION_ERROR_1208| Supply amount is not positive                        |
+
+        | VALIDATION_ERROR_1209| Duplicate row in file                                |
+
+        | VALIDATION_ERROR_1210| Date in future                                       |
+
+        | VALIDATION_ERROR_1211| Invoice sign date does not equal sign date           |
+
+        | VALIDATION_ERROR_1212| Deferral start date is earlier than sign date        |
+
+        | VALIDATION_ERROR_1213| Contract not found                                   |
+
+        | VALIDATION_ERROR_1214| Document is duplicated                               |
+
+        '
+      enum:
+      - VALIDATION_ERROR_1201
+      - VALIDATION_ERROR_1202
+      - VALIDATION_ERROR_1203
+      - VALIDATION_ERROR_1204
+      - VALIDATION_ERROR_1205
+      - VALIDATION_ERROR_1206
+      - VALIDATION_ERROR_1207
+      - VALIDATION_ERROR_1208
+      - VALIDATION_ERROR_1209
+      - VALIDATION_ERROR_1210
+      - VALIDATION_ERROR_1211
+      - VALIDATION_ERROR_1212
+      - VALIDATION_ERROR_1213
+      - VALIDATION_ERROR_1214
+      example: VALIDATION_ERROR_1201
+      type: string
+    DebtorFullNameRusProjection:
+      description: 'Проекция дебитора с полным наименованием '
+      example:
+        fullNameRus: АО Ромашка
+      properties:
+        fullNameRus:
+          description: Полное наименование дебитора на русском языке
+          example: АО Ромашка
+          type: string
+      required:
+      - fullNameRus
+      type: object
+    SupplyListResponse:
+      allOf:
+      - properties:
+          supplies:
+            description: Поставки
+            items:
+              $ref: '#/components/schemas/Supply'
+            type: array
+        type: object
+      example:
+        supplies:
+        - id: 5675c400-9835-491d-8489-d42ea7ed551c
+          amount: 123456.78
+          availableFinancingAmount: 98765.42
+          financedAmount: 25742.31
+          number: П-1234
+          deferralStartDate: '2025-10-13'
+          waitingPeriodEndDate: '2025-10-20'
+          debtor:
+            fullNameRus: АО Ромашка
+          state:
+            status: APPROVED
+            statusDate: '2025-10-13T10:53:37.433221'
+            errors: []
+            cqrsVersion: -1628796591
+        - id: 5d5417d0-edd5-4910-8ae4-43706287a203
+          amount: 567890.12
+          availableFinancingAmount: 397523.01
+          financedAmount: 267752.2
+          number: П-7777
+          deferralStartDate: '2025-10-14'
+          waitingPeriodEndDate: '2025-10-23'
+          debtor:
+            fullNameRus: АО Ромашка
+          state:
+            status: FINANCING_IN_PROGRESS
+            statusDate: '2025-10-05T11:21:55.381531'
+            errors: []
+            cqrsVersion: 3473257012
+      type: object
+    ErrorResponse:
+      example:
+      - code: REST_ERROR_5001
+        message: General service error
+      items:
+        $ref: '#/components/schemas/ErrorMessage'
+      type: array
+    ValidationErrorDetail:
+      description: Детали ошибки валидации
+      example:
+        param: array[2].debtorInn
+        code: VALIDATION_ERROR_1201
+        message: Invalid INN format
+      properties:
+        param:
+          description: Путь к ошибке во входном файле (array[{elementNumber}].{columnName})
+          example: array[2].debtorInn
+          type: string
+        code:
+          $ref: '#/components/schemas/ValidationErrorCodes'
+        message:
+          description: Сообщение об ошибке
+          example: INN must contain 10 or 12 digits
+          type: string
+      required:
+      - code
+      - message
+      - param
+      type: object
+    Supply:
+      description: Поставка
+      example:
+        id: 5675c400-9835-491d-8489-d42ea7ed551c
+        amount: 123456.78
+        availableFinancingAmount: 98765.42
+        financedAmount: 25742.31
+        number: П-1234
+        deferralStartDate: '2025-10-13'
+        waitingPeriodEndDate: '2025-10-20'
+        debtor:
+          fullNameRus: АО Ромашка
+        state:
+          status: APPROVED
+          statusDate: '2025-10-13T10:53:37.433221'
+          errors: []
+          cqrsVersion: -1628796591
+      properties:
+        id:
+          description: Идентификатор поставки
+          example: 5675c400-9835-491d-8489-d42ea7ed551c
+          format: uuid
+          type: string
+        amount:
+          description: Сумма поставки
+          example: 123456.78
+          type: number
+        availableFinancingAmount:
+          description: Доступная к финансированию сумма поставки
+          example: 98765.42
+          type: number
+        financedAmount:
+          description: Выплаченная сумма финансирования поставки
+          example: 25742.31
+          type: number
+        number:
+          description: Номер поставки
+          example: П-1234
+          type: string
+        deferralStartDate:
+          description: Дата начала отсрочки
+          example: '2025-10-13'
+          format: date
+          type: string
+        waitingPeriodEndDate:
+          description: Дата окончания периода ожидания
+          example: '2025-10-20'
+          format: date
+          type: string
+        debtor:
+          $ref: '#/components/schemas/DebtorFullNameRusProjection'
+        state:
+          allOf:
+          - $ref: '#/components/schemas/SupplyState'
+          description: Состояние поставки
+          type: object
+      required:
+      - amount
+      - availableFinancingAmount
+      - debtor
+      - deferralStartDate
+      - financedAmount
+      - id
+      - number
+      - state
+      - waitingPeriodEndDate
+      type: object
+    SupplyPageResponse:
+      allOf:
+      - properties:
+          supplies:
+            description: Поставки
+            items:
+              $ref: '#/components/schemas/Supply'
+            type: array
+        type: object
+      - $ref: '#/components/schemas/PaginationResponse'
+      example:
+        supplies:
+        - id: 5675c400-9835-491d-8489-d42ea7ed551c
+          amount: 123456.78
+          availableFinancingAmount: 98765.42
+          financedAmount: 25742.31
+          number: П-1234
+          deferralStartDate: '2025-10-13'
+          waitingPeriodEndDate: '2025-10-20'
+          debtor:
+            fullNameRus: АО Ромашка
+          state:
+            status: APPROVED
+            statusDate: '2025-10-13T10:53:37.433221'
+            errors: []
+            cqrsVersion: -1628796591
+        - id: 5d5417d0-edd5-4910-8ae4-43706287a203
+          amount: 567890.12
+          availableFinancingAmount: 397523.01
+          financedAmount: 267752.2
+          number: П-7777
+          deferralStartDate: '2025-10-14'
+          waitingPeriodEndDate: '2025-10-23'
+          debtor:
+            fullNameRus: АО Ромашка
+          state:
+            status: FINANCING_IN_PROGRESS
+            statusDate: '2025-10-05T11:21:55.381531'
+            errors: []
+            cqrsVersion: 3473257012
+        offset: 0
+        limit: 2
+        totalCount: 100
+      type: object
+    PaginationResponse:
+      example:
+        offset: 0
+        limit: 10
+        totalCount: 100
+      properties:
+        offset:
+          description: Число записей для смещения для формирования страницы ответа
+          example: 1
+          type: integer
+        limit:
+          description: Итоговое количество элементов на странице ответа
+          example: 10
+          type: integer
+        totalCount:
+          description: Общее количество элементов
+          example: 100
+          type: integer
+      required:
+      - limit
+      - offset
+      - totalCount
+      type: object
+    ValidationErrorResponse:
+      description: Тело расширенной ошибки
+      example:
+        code: REST_ERROR_5032
+        message: Data validation failed
+        details:
+        - param: array[2].debtorInn
+          code: VALIDATION_ERROR_1201
+          message: Invalid INN format
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Общее сообщение об ошибке
+          example: Переданы некорректные данные
+          type: string
+        details:
+          description: Список деталей ошибки
+          example:
+          - param: array[2].debtorInn
+            code: VALIDATION_ERROR_1201
+            message: Invalid INN format
+          items:
+            $ref: '#/components/schemas/ValidationErrorDetail'
+          type: array
+      required:
+      - code
+      - message
+      type: object
+    SupplyStatus:
+      description: Статус поставки
+      enum:
+      - APPROVED
+      - FINANCING_IN_PROGRESS
+      - AWAITING_REPAY
+      - REPAID
+      - PARTIALLY_REPAID
+      - FINANCED
+      - DATES_RECALCULATION_PROCESSING
+      example: APPROVED
+      type: string
+    SupplySearchRequest:
+      example:
+        financingRequestId: e05f8afe-a72e-4a6f-8292-7edb51a724ec
+        waitingPeriodEndDateFrom: '2025-12-01'
+        deferralStartDateTo: '2025-12-01'
+        supplyIds:
+        - 5675c400-9835-491d-8489-d42ea7ed551c
+        - 5d5417d0-edd5-4910-8ae4-43706287a203
+        offset: 10
+        dealConditionsId: b5c1e36d-bde1-42bf-8d72-9d0aa4504f73
+        waitingPeriodEndDateTo: '2025-12-01'
+        agreementId: ba705955-3e0f-4956-84e0-e12616e84e2b
+        limit: 2
+        statuses:
+        - APPROVED
+        - FINANCING_IN_PROGRESS
+        - PARTIALLY_REPAID
+        deferralEndDateFrom: '2026-01-27'
+        deferralStartDateFrom: '2025-12-01'
+      properties:
+        agreementId:
+          description: Идентификатор Договора Факторинга
+          example: ba705955-3e0f-4956-84e0-e12616e84e2b
+          format: uuid
+          type: string
+        dealConditionsId:
+          description: Идентификатор основных условий обслуживания поставщик-дебитор
+          example: b5c1e36d-bde1-42bf-8d72-9d0aa4504f73
+          format: uuid
+          type: string
+        financingRequestId:
+          description: Идентификатор запроса на финансирование - для поиска поставок, включенных в запрос
+          example: e05f8afe-a72e-4a6f-8292-7edb51a724ec
+          format: uuid
+          type: string
+        waitingPeriodEndDateFrom:
+          description: Начало интервала для даты оплаты дебитором (периода ожидания) включительно
+          example: '2025-12-01'
+          format: date
+          type: string
+        waitingPeriodEndDateTo:
+          description: Конец интервала для даты оплаты дебитором (периода ожидания) включительно
+          example: '2025-12-01'
+          format: date
+          type: string
+        deferralStartDateFrom:
+          description: Начало интервала для даты поставки (начала отсрочки) включительно
+          example: '2025-12-01'
+          format: date
+          type: string
+        deferralStartDateTo:
+          description: Конец интервала для даты поставки (начала отсрочки) включительно
+          example: '2025-12-01'
+          format: date
+          type: string
+        deferralEndDateFrom:
+          description: Начало интервала для даты окончания отсрочки поставки включительно
+          example: '2026-01-27'
+          format: date
+          type: string
+        statuses:
+          description: Список статусов поставок
+          example:
+          - APPROVED
+          - FINANCING_IN_PROGRESS
+          - PARTIALLY_REPAID
+          items:
+            example: APPROVED
+            type: string
+          type: array
+        offset:
+          description: Число записей для смещения для формирования страницы ответа
+          example: 10
+          type: integer
+        limit:
+          description: Ограничение количества элементов на странице ответа
+          example: 2
+          type: integer
+        supplyIds:
+          description: Список идентификаторов поставок
+          example:
+          - 5675c400-9835-491d-8489-d42ea7ed551c
+          - 5d5417d0-edd5-4910-8ae4-43706287a203
+          items:
+            example: 5675c400-9835-491d-8489-d42ea7ed551c
+            format: uuid
+            type: string
+          type: array
+      type: object
+    SupplyState:
+      allOf:
+      - $ref: '#/components/schemas/State'
+      - properties:
+          status:
+            $ref: '#/components/schemas/SupplyStatus'
+        required:
+        - status
+        type: object
+      description: Состояние поставки
+      example:
+        status: APPROVED
+        statusDate: '2025-10-13T10:53:37.433221'
+        errors: []
+        cqrsVersion: -1628796591
+      type: object
+    SupplyUploadRequest:
+      description: Данные об одной поставке в реестре
+      example:
+        supplyNumber: 26052021-51
+        signDate: '2021-05-26'
+        amount: 100.0
+        contractNumber: 11122019-1
+        deferralStartDate: '2021-05-26'
+        debtorInn: '1121003135'
+      properties:
+        supplyNumber:
+          description: Номер поставки (основного документа)
+          example: 26052021-51
+          type: string
+        invoiceNumber:
+          description: Номер счета-фактуры
+          example: '123'
+          type:
+          - string
+          - 'null'
+        additionalDocumentNumber:
+          description: Номер доп. документа
+          example: '456'
+          type:
+          - string
+          - 'null'
+        signDate:
+          description: Дата поставки (основного документа)
+          example: '2021-05-26'
+          format: date
+          type: string
+        invoiceSignDate:
+          description: Дата счета-фактуры
+          example: '2021-05-27'
+          format: date
+          type:
+          - string
+          - 'null'
+        additionalDocumentSignDate:
+          description: Дата доп. документа
+          example: '2021-05-28'
+          format: date
+          type:
+          - string
+          - 'null'
+        amount:
+          description: Сумма поставки
+          example: 100.0
+          format: double
+          type: number
+        contractNumber:
+          description: Номер Контракта
+          example: 11122019-1
+          type: string
+        deferralStartDate:
+          description: Дата начала отсрочки
+          example: '2021-05-26'
+          format: date
+          type: string
+        debtorInn:
+          description: ИНН дебитора
+          example: '1121003135'
+          type: string
+      required:
+      - amount
+      - contractNumber
+      - debtorInn
+      - deferralStartDate
+      - signDate
+      - supplyNumber
+      type: object
+    SupplyUploadListResponse:
+      allOf:
+      - properties:
+          supplies:
+            description: Загруженные вручную поставки
+            items:
+              $ref: '#/components/schemas/SupplyUploadResponse'
+            type: array
+        type: object
+      example:
+        supplies:
+        - id: 5675c400-9835-491d-8489-d42ea7ed551c
+        - id: 5d5417d0-edd5-4910-8ae4-43706287a203
+      type: object
+    SupplyUploadResponse:
+      description: Загруженная поставка
+      example:
+        id: 5675c400-9835-491d-8489-d42ea7ed551c
+      properties:
+        id:
+          description: Идентификатор поставки
+          example: 5675c400-9835-491d-8489-d42ea7ed551c
+          format: uuid
+          type: string
+      required:
+      - id
+      type: object
+    SupplyUploadListRequest:
+      allOf:
+      - properties:
+          supplies:
+            description: Данные об одной поставке в реестре
+            items:
+              $ref: '#/components/schemas/SupplyUploadRequest'
+            type: array
+        type: object
+      description: Строки реестра поставок
+      example:
+        supplies:
+        - supplyNumber: 26052021-51
+          signDate: '2021-05-26'
+          amount: 100.0
+          contractNumber: 11122019-1
+          deferralStartDate: '2021-05-26'
+          debtorInn: '1121003135'
+      type: object
+    State:
+      description: Состояние объекта
+      properties:
+        statusDate:
+          description: Дата последнего изменения состояния объекта yyyy-MM-dd'T'HH:mm:ss.SSSSSS
+          format: date-time
+          pattern: ([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})
+          type: string
+        errors:
+          description: Список ошибок в объекте. Может быть пустым списком или null
+          items:
+            $ref: '#/components/schemas/ErrorMessage'
+          type: array
+        cqrsVersion:
+          description: hashCode от statusDate, status и errors
+          example: -1628796591
+          type: integer
+      required:
+      - cqrsVersion
+      - statusDate
+      type: object
+    RestErrorCodes_2:
+      description: '| code            | description                                                      |
+
+        |-----------------|------------------------------------------------------------------|
+
+        | REST_ERROR_5001 | General service error                                            |
+
+        | REST_ERROR_5002 | Current CQRS version is different                                |
+
+        | REST_ERROR_0001 | inn not valid                                                    |
+
+        | REST_ERROR_0002 | ogrn not valid                                                   |
+
+        | REST_ERROR_0003 | okved not valid                                                  |
+
+        | REST_ERROR_0004 | opf not valid                                                    |
+
+        | REST_ERROR_0005 | fullNameRus not valid                                            |
+
+        | REST_ERROR_0006 | shortNameRus not valid                                           |
+
+        | REST_ERROR_0007 | fullNameEn not valid                                             |
+
+        | REST_ERROR_0008 | shortNameEn not valid                                            |
+
+        | REST_ERROR_0009 | address not valid                                                |
+
+        | REST_ERROR_0010 | you can`t use product                                            |
+
+        | REST_ERROR_0011 | buyer already exists                                             |
+
+        | REST_ERROR_0012 | can''t fetched buyer requisites from DaData                       |
+
+        | REST_ERROR_0013 | can''t find data for buyer requisites                             |
+
+        | REST_ERROR_0014 | client not valid                                                 |
+
+        | REST_ERROR_0015 | agreement not valid                                              |
+
+        | REST_ERROR_0016 | buyer not valid                                                  |
+
+        | REST_ERROR_0017 | condition with contract number and date already exists           |
+
+        | REST_ERROR_0018 | for the PRO tariff, at least one contact must be fully filled in |
+
+        | REST_ERROR_0019 | for the PRO newTariff, payment period must be filled             |
+
+        | REST_ERROR_0020 | for the PRO newTariff, payment period must be less then max      |
+
+        | REST_ERROR_0021 | contract date must be after then current date                    |
+
+        | REST_ERROR_0022 | agreement already exists for client                              |
+
+        | REST_ERROR_0023 | condition with current contract number and date already exist    |
+
+        | REST_ERROR_1000 | Unexpected error. Call to support team - paycontrol.support@raiffeisen.ru. |
+
+        | REST_ERROR_1001 | File contains viruses                                            |
+
+        | REST_ERROR_1002 | Incorrect file format                                            |
+
+        | REST_ERROR_1003 | Supplies number exceeds limit                                    |
+
+        | REST_ERROR_1004 | The file size exceeds 1 MB                                       |
+
+        | REST_ERROR_1005 | Invalid cell type (row %d, column %d)                            |
+
+        | REST_ERROR_1006 | Incorrect number of columns, expected: %d, found: %d             |
+
+        | REST_ERROR_1007 | Invalid header, expected: %s, found: %s                          |
+
+        | REST_ERROR_1008 | INN must contain 10 or 12 digits                                 |
+
+        | REST_ERROR_1009 | INN cannot be empty                                              |
+
+        | REST_ERROR_1010 | contract number cannot be empty                                  |
+
+        | REST_ERROR_1011 | contract date cannot be empty                                    |
+
+        | REST_ERROR_1012 | primary document number is empty                                 |
+
+        | REST_ERROR_1013 | primary document date is empty                                   |
+
+        | REST_ERROR_1014 | Supply sum cannot be empty                                       |
+
+        | REST_ERROR_1015 | Invalid KPP                                                      |
+
+        | REST_ERROR_1016 | payment date is empty                                            |
+
+        | REST_ERROR_1017 | payment date is not found in calendar                            |
+
+        | REST_ERROR_1018 | Supply already exists in file                                    |
+
+        | REST_ERROR_1019 | Date cannot be in the future: supply date                        |
+
+        | REST_ERROR_1020 | Date cannot be in the future: additional document date           |
+
+        | REST_ERROR_1021 | File is empty                                                    |
+
+        | REST_ERROR_2000 | Supply with this number/date already exists                      |
+
+        | REST_ERROR_2001 | payment date must be later than contract date                    |
+
+        | REST_ERROR_2002 | payment date must be later than the primary document date        |
+
+        | REST_ERROR_2003 | primary document date cannot be earlier than contract date       |
+
+        | REST_ERROR_2004 | additional document date cannot be earlier than contract date    |
+
+        | REST_ERROR_2005 | Supply amount cannot be less than payment amount                 |
+
+        | REST_ERROR_3000 | Posting amount cannot be more than remaining amount              |
+
+        | REST_ERROR_3001 | Debt sum cannot be less than posting amount                      |
+
+        | REST_ERROR_3002 | Supply already repaid                                            |
+
+        | REST_ERROR_4000 | Out payment order already exists for incoming payment            |
+
+        | REST_ERROR_4001 | Remaining amount must be equal zero                              |
+
+        '
+      enum:
+      - REST_ERROR_5001
+      - REST_ERROR_1000
+      - REST_ERROR_1001
+      - REST_ERROR_1002
+      - REST_ERROR_1003
+      - REST_ERROR_1004
+      - REST_ERROR_1005
+      - REST_ERROR_1006
+      - REST_ERROR_1007
+      - REST_ERROR_1008
+      - REST_ERROR_1009
+      - REST_ERROR_1010
+      - REST_ERROR_1011
+      - REST_ERROR_1012
+      - REST_ERROR_1013
+      - REST_ERROR_1014
+      - REST_ERROR_1015
+      - REST_ERROR_1016
+      - REST_ERROR_1017
+      - REST_ERROR_1018
+      - REST_ERROR_1019
+      - REST_ERROR_1020
+      - REST_ERROR_1021
+      - REST_ERROR_2000
+      - REST_ERROR_2001
+      - REST_ERROR_2002
+      - REST_ERROR_2003
+      - REST_ERROR_2004
+      - REST_ERROR_2005
+      example: REST_ERROR_5001
+      type: string
+    SupplySignRequest:
+      description: Параметры для формирования реестров поставок для подписания
+      example:
+        cnums:
+        - AAAAAA
+        - BBBBBB
+      properties:
+        cnums:
+          description: Клиентские номера
+          example:
+          - AAAAAA
+          - BBBBBB
+          items:
+            example: AAAAAA
+            maxLength: 6
+            minLength: 6
+            type: string
+          minItems: 1
+          type: array
+      required:
+      - cnums
+      type: object
+    ErrorMessage_2:
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes_2'
+        description:
+          description: Сообщение
+          example: General service error
+          type: string
+        traceId:
+          description: traceId
+          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
+          type: string
+      required:
+      - code
+      - description
+      type: object
+    SupplyList:
+      example:
+      - id: 2c44306f-fc96-4780-9b37-6447273b190e
+        condition:
+          id: 2c44306f-fc96-4780-9b37-6447273b190e
+          createdAt: '2025-07-10T06:53:37.433211'
+          contractNumber: ДП-1
+          contractDate: '2025-07-10'
+          client:
+            id: 2c44306f-fc96-4780-9b37-6447273b190e
+            createdAt: '2025-07-10T06:53:37.433211'
+            requisites:
+              ogrn: '123456789012345'
+              fullNameRus: Акционерное общество Ромашка
+              shortNameRus: АО Ромашка
+              address: address
+              opf: opf
+              inn: '1234567890'
+              kpp: '123456789'
+              shortNameEn: АО Ромашка
+              cnum: AAAAAA
+              fullNameEn: Акционерное общество Ромашка
+              okved: '11.11'
+            contacts:
+            - id: 2c44306f-fc96-4780-9b37-6447273b190e
+              createdAt: '2025-07-10T06:53:37.433211'
+              email: foobar@mail.ru
+              state:
+                statusDate: '2021-07-10T06:53:37.433111'
+                errors: []
+                status: CREATED
+              cqrsVersion: -1628796591
+            state:
+              statusDate: '2021-07-10T06:53:37.433111'
+              errors: []
+              status: APPROVED
+            cqrsVersion: -1628796591
+          buyer:
+            id: 2c44306f-fc96-4780-9b37-6447273b190e
+            createdAt: '2025-07-10T06:53:37.433211'
+            fullName: Акционерное общество Ромашка
+            shortName: АО Ромашка
+            inn: '1234567890'
+            kpp: '123456789'
+            ogrn: '123456789012345'
+            state:
+              statusDate: '2021-07-10T06:53:37.433111'
+              errors: []
+              status: APPROVED
+            cqrsVersion: -1628796591
+          contacts:
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            fullName: Иванов Иван Иванович
+            email: test@mail.ru
+            phoneNumber: +9 999 999 99 99
+            additionalNumber: '999'
+            workPosition: Бухгалтер
+            comment: Комментарий
+            state:
+              statusDate: '2025-07-10T06:53:37.433111'
+              errors: []
+              status: CREATED
+            cqrsVersion: -1628796591
+          tariffs:
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            tariffType: PRO
+            paymentPeriod: 60
+            startDate: '2025-01-01'
+            state:
+              statusDate: '2025-07-10T06:53:37.433111'
+              errors: []
+              status: APPROVED
+            cqrsVersion: -1628796591
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            tariffType: LITE
+            paymentPeriod: 0
+            startDate: '2025-01-10'
+            state:
+              statusDate: '2025-07-10T06:53:37.433111'
+              errors: []
+              status: CREATED
+            cqrsVersion: -1628796591
+          wasApproved: true
+          state:
+            statusDate: '2025-07-10T06:53:37.433111'
+            errors: []
+            status: SENT_TO_SIGN
+          cqrsVersion: -1628796591
+        createdAt: '2025-07-10T06:53:37.433211'
+        mainDocumentNumber: ОД-1
+        mainDocumentDate: '2026-01-01'
+        additionalDocumentNumber: ДД-1
+        additionalDocumentDate: '2026-01-01'
+        amount: 120.12
+        debtSum: 120.12
+        paymentDate: '2026-01-01'
+        comment: Комментарий
+        state:
+          statusDate: '2025-07-10T06:53:37.433211'
+          errors: []
+          status: SENT_TO_CHECK
+        cqrsVersion: -1628796591
+      items:
+        $ref: '#/components/schemas/Supply_2'
+      type: array
+    DigestResponseList:
+      example:
+      - digest: 0JLQvtGCINGN0YLQviDQvdGD0LbQvdC+INC/0L7QtNC/0LjRgdCw0YLRjA==
+      - digest: 0JLQvtGCINGN0YLQviDQvdGD0LbQvdC+INC/0L7QtNC/0LjRgdCw0YLRjA==
+      items:
+        $ref: '#/components/schemas/DigestResponse'
+      type: array
+    SupplySummary:
+      description: Сводная информация по поставкам в выбранном статусе
+      example:
+        count: 42
+        amount: '120.12'
+      properties:
+        count:
+          description: Количество поставок в статусе
+          example: 42
+          type: integer
+        amount:
+          description: Сумма поставок в статусе
+          example: '120.12'
+          type: string
+      required:
+      - amount
+      - count
+      type: object
+    CreateSupplyRequest:
+      description: Запрос на создание поставки
+      example:
+        buyerInn: '77777777'
+        buyerKpp: '77777777'
+        contractNumber: ДП-1
+        contractDate: '2025-07-10'
+        mainDocumentNumber: ОД-1
+        mainDocumentDate: '2026-01-01'
+        additionalDocumentNumber: ДД-1
+        additionalDocumentDate: '2026-01-01'
+        amount: 120.12
+        debtSum: 120.12
+        paymentDate: '2026-01-01'
+      properties:
+        buyerInn:
+          description: ИНН покупателя
+          example: '77777777'
+          type: string
+        buyerKpp:
+          description: КПП покупателя
+          example: '77777777'
+          type: string
+        contractNumber:
+          description: Номер контракта
+          example: ДП-1
+          type: string
+        contractDate:
+          description: Дата контракта
+          example: '2025-07-10'
+          format: date
+          type: string
+        mainDocumentNumber:
+          description: Номер основного документа
+          example: ОД-1
+          type: string
+        mainDocumentDate:
+          description: Дата основного документа
+          example: '2026-01-01'
+          format: date
+          type: string
+        additionalDocumentNumber:
+          description: Номер дополнительного документа
+          example: ДД-1
+          type: string
+        additionalDocumentDate:
+          description: Дата дополнительного документа
+          example: '2026-01-01'
+          format: date
+          type: string
+        amount:
+          description: Сумма требований
+          example: 120.12
+          type: number
+        paymentDate:
+          description: Дата оплаты требований
+          example: '2026-01-01'
+          format: date
+          type: string
+      required:
+      - amount
+      - buyerInn
+      - buyerKpp
+      - contractDate
+      - contractNumber
+      - mainDocumentDate
+      - mainDocumentNumber
+      - paymentDate
+      type: object
+    TariffStatus:
+      description: Статус тарифа условий обслуживания
+      enum:
+      - CREATED
+      - APPROVED
+      example: APPROVED
+      type: string
+    CqrsRequest:
+      description: Запрос с версией CQRS
+      example:
+        cqrsVersion: -1628796591
+      properties:
+        cqrsVersion:
+          description: hashCode от state - состояния объекта
+          example: -1628796591
+          type: integer
+      required:
+      - cqrsVersion
+      type: object
+    BuyerStatus:
+      description: Статус покупателя
+      enum:
+      - SENT_TO_CHECK
+      - APPROVED
+      - REJECTED
+      example: APPROVED
+      type: string
+    PatchSupplyRequest:
+      allOf:
+      - description: Запрос на редактирование поставки
+        properties:
+          amount:
+            description: Сумма поставки
+            example: 220.12
+            type: number
+          paymentDate:
+            description: Дата оплаты покупателем
+            example: '2026-01-10'
+            format: date
+            type: string
+          additionalDocumentNumber:
+            description: Номер дополнительного документа
+            example: ДД-2
+            type: string
+          additionalDocumentDate:
+            description: Дата дополнительного документа
+            example: '2026-01-09'
+            format: date
+            type: string
+          mainDocumentNumber:
+            description: Номер поставки
+            example: ОД-2
+            type: string
+          mainDocumentDate:
+            description: Дата поставки
+            example: '2026-01-08'
+            format: date
+            type: string
+        required:
+        - additionalDocumentDate
+        - additionalDocumentNumber
+        - amount
+        - mainDocumentDate
+        - mainDocumentNumber
+        - paymentDate
+        type: object
+      - $ref: '#/components/schemas/CqrsRequest'
+      example:
+        amount: 220.12
+        paymentDate: '2026-01-10'
+        additionalDocumentNumber: ДД-2
+        additionalDocumentDate: '2026-01-09'
+        mainDocumentNumber: ОД-2
+        mainDocumentDate: '2026-01-08'
+        cqrsVersion: -1628796591
+    Client:
+      description: Клиент
+      example:
+        id: 2c44306f-fc96-4780-9b37-6447273b190e
+        createdAt: '2025-07-10T06:53:37.433211'
+        contacts:
+        - id: 2c44306f-fc96-4780-9b37-6447273b190e
+          createdAt: '2025-07-10T06:53:37.433211'
+          email: foobar@mail.ru
+          state:
+            statusDate: '2025-07-10T06:53:37.433211'
+            errors: []
+            status: CREATED
+          cqrsVersion: -1628796591
+        requisites:
+          fullNameRus: Акционерное общество Ромашка
+          shortNameRus: АО Ромашка
+          fullNameEn: Joint-stock company Romashka
+          shortNameEn: JSC Romashka
+          inn: '1234567890'
+          ogrn: '123456789012345'
+          okved: '11.11'
+          cnum: AAAAAA
+          opf: OOO
+          address: address
+        state:
+          statusDate: '2025-07-10T06:53:37.433211'
+          errors: []
+          status: APPROVED
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: Идентификатор клиента
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        createdAt:
+          description: Дата и время создания
+          example: '2025-07-10T06:53:37.433211'
+          pattern: ([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})
+          type: string
+        contacts:
+          description: Контакты
+          example:
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            createdAt: '2025-07-10T06:53:37.433211'
+            email: foobar@mail.ru
+            state:
+              statusDate: '2021-07-10T06:53:37.433111'
+              errors: []
+              status: CREATED
+            cqrsVersion: -1628796591
+          items:
+            $ref: '#/components/schemas/Contact'
+          type: array
+        requisites:
+          $ref: '#/components/schemas/OrganizationRequisites'
+        state:
+          $ref: '#/components/schemas/ClientState'
+        cqrsVersion:
+          description: hashCode от state - состояния объекта
+          example: -1628796591
+          type: integer
+      required:
+      - contacts
+      - cqrsVersion
+      - createdAt
+      - id
+      - requisites
+      - state
+      type: object
+    BuyerState:
+      allOf:
+      - $ref: '#/components/schemas/State_2'
+      - properties:
+          status:
+            $ref: '#/components/schemas/BuyerStatus'
+        type: object
+      description: Состояние покупателя
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: APPROVED
+      type: object
+    ContactStatus:
+      description: Статус контакта
+      enum:
+      - CREATED
+      example: CREATED
+      type: string
+    SupplySorting:
+      description: Параметры сортировки поставок
+      example:
+        sortBy: PAYMENT_DATE
+        orderBy: DESC
+      properties:
+        sortBy:
+          $ref: '#/components/schemas/SupplySortField'
+        orderBy:
+          $ref: '#/components/schemas/Direction'
+      required:
+      - orderBy
+      - sortBy
+      type: object
+    Tariff:
+      description: Контакты условий обслуживания
+      properties:
+        id:
+          description: Идентификатор контакта
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        tariffType:
+          $ref: '#/components/schemas/TariffType'
+        paymentPeriod:
+          description: Период оплаты
+          example: 60
+          type: integer
+        startDate:
+          description: Дата начала действия
+          example: '2025-01-01'
+          format: date
+          type: string
+        state:
+          $ref: '#/components/schemas/TariffState'
+        cqrsVersion:
+          description: hashCode от state - состояния объекта
+          example: -1628796591
+          type: integer
+      required:
+      - cqrsVersion
+      - id
+      - paymentPeriod
+      - startDate
+      - state
+      - tariffType
+      type: object
+    ErrorResponse_2:
+      example:
+      - code: REST_ERROR_5001
+        description: General service error
+        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+      items:
+        $ref: '#/components/schemas/ErrorMessage_2'
+      type: array
+    SupplyRegistryDigestList:
+      description: Список дайджестов реестров поставок
+      example:
+      - id: 2c44306f-fc96-4780-9b37-6447273b190e
+        digest: 0JLQvtGCINGN0YLQviDQvdGD0LbQvdC+INC/0L7QtNC/0LjRgdCw0YLRjA==
+      - id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+        digest: 0JLQvtGCINGN0YLQviDQvdGD0LbQvdC+INC/0L7QtNC/0LjRgdCw0YLRjA==
+      items:
+        $ref: '#/components/schemas/SupplyRegistryDigest'
+      type: array
+    Error:
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCodes'
+        description:
+          description: Сообщение
+          example: General service error
+          type: string
+      required:
+      - code
+      - description
+      type: object
+    Supply_2:
+      description: Поставка
+      example:
+        id: 2c44306f-fc96-4780-9b37-6447273b190e
+        condition:
+          id: 2c44306f-fc96-4780-9b37-6447273b190e
+          createdAt: '2025-07-10T06:53:37.433211'
+          contractNumber: ДП-1
+          contractDate: '2025-07-10'
+          client:
+            id: 2c44306f-fc96-4780-9b37-6447273b190e
+            createdAt: '2025-07-10T06:53:37.433211'
+            requisites:
+              ogrn: '123456789012345'
+              fullNameRus: Акционерное общество Ромашка
+              shortNameRus: АО Ромашка
+              address: address
+              opf: opf
+              inn: '1234567890'
+              kpp: '123456789'
+              shortNameEn: АО Ромашка
+              cnum: AAAAAA
+              fullNameEn: Акционерное общество Ромашка
+              okved: '11.11'
+            contacts:
+            - id: 2c44306f-fc96-4780-9b37-6447273b190e
+              createdAt: '2025-07-10T06:53:37.433211'
+              email: foobar@mail.ru
+              state:
+                statusDate: '2021-07-10T06:53:37.433111'
+                errors: []
+                status: CREATED
+              cqrsVersion: -1628796591
+            state:
+              statusDate: '2021-07-10T06:53:37.433111'
+              errors: []
+              status: APPROVED
+            cqrsVersion: -1628796591
+          buyer:
+            id: 2c44306f-fc96-4780-9b37-6447273b190e
+            createdAt: '2025-07-10T06:53:37.433211'
+            fullName: Акционерное общество Ромашка
+            shortName: АО Ромашка
+            inn: '1234567890'
+            kpp: '123456789'
+            ogrn: '123456789012345'
+            state:
+              statusDate: '2021-07-10T06:53:37.433111'
+              errors: []
+              status: APPROVED
+            cqrsVersion: -1628796591
+          contacts:
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            fullName: Иванов Иван Иванович
+            email: test@mail.ru
+            phoneNumber: +9 999 999 99 99
+            additionalNumber: '999'
+            workPosition: Бухгалтер
+            comment: Комментарий
+            state:
+              statusDate: '2025-07-10T06:53:37.433111'
+              errors: []
+              status: CREATED
+            cqrsVersion: -1628796591
+          tariffs:
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            tariffType: PRO
+            paymentPeriod: 60
+            startDate: '2025-01-01'
+            state:
+              statusDate: '2025-07-10T06:53:37.433111'
+              errors: []
+              status: APPROVED
+            cqrsVersion: -1628796591
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            tariffType: LITE
+            paymentPeriod: 0
+            startDate: '2025-01-10'
+            state:
+              statusDate: '2025-07-10T06:53:37.433111'
+              errors: []
+              status: CREATED
+            cqrsVersion: -1628796591
+          wasApproved: true
+          state:
+            statusDate: '2025-07-10T06:53:37.433111'
+            errors: []
+            status: SENT_TO_SIGN
+          cqrsVersion: -1628796591
+        createdAt: '2025-07-10T06:53:37.433211'
+        mainDocumentNumber: ОД-1
+        mainDocumentDate: '2026-01-01'
+        additionalDocumentNumber: ДД-1
+        additionalDocumentDate: '2026-01-01'
+        amount: 120.12
+        debtSum: 120.12
+        paymentDate: '2026-01-01'
+        actions:
+        - id: 2c44306f-fc96-4780-9b37-6447273b190e
+          comment: Комментарий
+          createdAt: '2025-07-10T06:53:37.433211'
+          state:
+            statusDate: '2025-07-10T06:53:37.433211'
+            errors: []
+            status: CREATED
+          cqrsVersion: -1628796591
+        state:
+          statusDate: '2025-07-10T06:53:37.433211'
+          errors: []
+          status: SENT_TO_CHECK
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: Идентификатор поставки
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        condition:
+          $ref: '#/components/schemas/Condition'
+        createdAt:
+          description: Дата и время создания
+          example: '2025-07-10T06:53:37.433211'
+          pattern: ([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})
+          type: string
+        mainDocumentNumber:
+          description: Номер основного документа
+          example: ОД-1
+          type: string
+        mainDocumentDate:
+          description: Дата основного документа
+          example: '2026-01-01'
+          format: date
+          type: string
+        additionalDocumentNumber:
+          description: Номер дополнительного документа
+          example: ДД-1
+          type: string
+        additionalDocumentDate:
+          description: Дата дополнительного документа
+          example: '2026-01-01'
+          format: date
+          type: string
+        amount:
+          description: Сумма требований
+          example: 120.12
+          type: number
+        debtSum:
+          description: Сумма долга
+          example: 120.12
+          type: number
+        paymentDate:
+          description: Дата оплаты требований
+          example: '2026-01-01'
+          format: date
+          type: string
+        controlEndDate:
+          description: Дата истечения контроля
+          example: '2026-01-01'
+          format: date
+          type: string
+        fullPaymentDate:
+          description: Фактическая дата оплата
+          example: '2026-01-01'
+          format: date
+          type: string
+        actions:
+          description: Действия по поставке
+          example:
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            comment: Комментарий
+            createdAt: '2025-07-10T06:53:37.433211'
+            state:
+              statusDate: '2025-07-10T06:53:37.433211'
+              errors: []
+              status: CREATED
+            cqrsVersion: -1628796591
+          items:
+            $ref: '#/components/schemas/Action'
+          type: array
+        registry:
+          allOf:
+          - $ref: '#/components/schemas/SupplyRegistryDigest'
+          description: Дайджест реестра поставки. Возвращается только при получении поставки по идентификатору
+          example:
+            id: 2c44306f-fc96-4780-9b37-6447273b190e
+            digest: 0JLQvtGCINGN0YLQviDQvdGD0LbQvdC+INC/0L7QtNC/0LjRgdCw0YLRjA==
+        state:
+          $ref: '#/components/schemas/SupplyState_2'
+        cqrsVersion:
+          description: hashCode от state - состояния объекта
+          example: -1628796591
+          type: integer
+      required:
+      - amount
+      - cqrsVersion
+      - createdAt
+      - debtSum
+      - id
+      - mainDocumentDate
+      - mainDocumentNumber
+      - state
+      type: object
+    TariffState:
+      allOf:
+      - $ref: '#/components/schemas/State_2'
+      - properties:
+          status:
+            $ref: '#/components/schemas/TariffStatus'
+        type: object
+      description: Состояние тарифа условий обслуживания
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: APPROVED
+      type: object
+    Action:
+      description: Действие над поставками
+      example:
+        id: 2c44306f-fc96-4780-9b37-6447273b190e
+        comment: Комментарий
+        createdAt: '2025-07-10T06:53:37.433211'
+        state:
+          statusDate: '2025-07-10T06:53:37.433211'
+          errors: []
+          status: CREATED
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: Идентификатор действия
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        comment:
+          description: Комментарий
+          example: Комментарий
+          type: string
+        createdAt:
+          description: Дата и время создания
+          example: '2025-07-10T06:53:37.433211'
+          pattern: ([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})
+          type: string
+        state:
+          $ref: '#/components/schemas/ActionState'
+        cqrsVersion:
+          description: hashCode от state - состояния объекта
+          example: -1628796591
+          type: integer
+      required:
+      - cqrsVersion
+      - createdAt
+      - id
+      - state
+      type: object
+    Contact:
+      description: Контакт
+      properties:
+        id:
+          description: Идентификатор контакта
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        createdAt:
+          description: Дата и время создания
+          example: '2025-07-10T06:53:37.433211'
+          pattern: ([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})
+          type: string
+        email:
+          description: Email
+          example: foobar@mail.ru
+          format: email
+          type: string
+        state:
+          $ref: '#/components/schemas/ContactState'
+        cqrsVersion:
+          description: hashCode от state - состояния объекта
+          example: -1628796591
+          type: integer
+      required:
+      - cqrsVersion
+      - createdAt
+      - email
+      - id
+      - state
+      type: object
+    DigestResponse:
+      description: Дайджест для подписи
+      example:
+        digest: 0JLQvtGCINGN0YLQviDQvdGD0LbQvdC+INC/0L7QtNC/0LjRgdCw0YLRjA==
+      properties:
+        digest:
+          description: Контент для подписи в формате base64
+          example: 0JLQvtGCINGN0YLQviDQvdGD0LbQvdC+INC/0L7QtNC/0LjRgdCw0YLRjA==
+          type: string
+      type: object
+    ConditionContactState:
+      allOf:
+      - $ref: '#/components/schemas/State_2'
+      - properties:
+          status:
+            $ref: '#/components/schemas/ConditionContactStatus'
+        type: object
+      description: Состояние контакта условий обслуживания
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: CREATED
+      type: object
+    ParsedSupplyList:
+      example:
+      - buyerInn: '77777777'
+        buyerKpp: '77777777'
+        contractNumber: ДП-1
+        contractDate: '2025-07-10'
+        mainDocumentNumber: ОД-1
+        mainDocumentDate: '2026-01-01'
+        additionalDocumentNumber: ДД-1
+        additionalDocumentDate: '2026-01-01'
+        amount: 120.12
+        paymentDate: '2026-01-01'
+      items:
+        $ref: '#/components/schemas/ParsedSupply'
+      type: array
+    Condition:
+      description: Условия обслуживания
+      example:
+        id: 2c44306f-fc96-4780-9b37-6447273b190e
+        createdAt: '2025-07-10T06:53:37.433211'
+        contractNumber: ДП-1
+        contractDate: '2025-07-10'
+        client:
+          id: 2c44306f-fc96-4780-9b37-6447273b190e
+          createdAt: '2025-07-10T06:53:37.433211'
+          requisites:
+            ogrn: '123456789012345'
+            fullNameRus: Акционерное общество Ромашка
+            shortNameRus: АО Ромашка
+            address: address
+            opf: opf
+            inn: '1234567890'
+            kpp: '123456789'
+            shortNameEn: АО Ромашка
+            cnum: AAAAAA
+            fullNameEn: Акционерное общество Ромашка
+            okved: '11.11'
+          contacts:
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            createdAt: '2025-07-10T06:53:37.433211'
+            email: foobar@mail.ru
+            state:
+              statusDate: '2025-07-10T06:53:37.433211'
+              errors: []
+              status: CREATED
+            cqrsVersion: -1628796591
+          state:
+            statusDate: '2025-07-10T06:53:37.433211'
+            errors: []
+            status: APPROVED
+          cqrsVersion: -1628796591
+        buyer:
+          id: 2c44306f-fc96-4780-9b37-6447273b190e
+          createdAt: '2025-07-10T06:53:37.433211'
+          fullName: Акционерное общество Ромашка
+          shortName: АО Ромашка
+          inn: '1234567890'
+          kpp: '123456789'
+          ogrn: '123456789012345'
+          state:
+            statusDate: '2025-07-10T06:53:37.433211'
+            errors: []
+            status: APPROVED
+          cqrsVersion: -1628796591
+        contacts:
+        - id: 2c44306f-fc96-4780-9b37-6447273b190e
+          fullName: Иванов Иван Иванович
+          email: test@mail.ru
+          phoneNumber: +9 999 999 99 99
+          additionalNumber: '999'
+          workPosition: Бухгалтер
+          comment: Комментарий
+          state:
+            statusDate: '2025-07-10T06:53:37.433211'
+            errors: []
+            status: CREATED
+          cqrsVersion: -1628796591
+        tariffs:
+        - id: 2c44306f-fc96-4780-9b37-6447273b190e
+          tariffType: PRO
+          paymentPeriod: 60
+          startDate: '2025-01-01'
+          state:
+            statusDate: '2025-07-10T06:53:37.433211'
+            errors: []
+            status: APPROVED
+          cqrsVersion: -1628796591
+        wasApproved: true
+        state:
+          statusDate: '2025-07-10T06:53:37.433211'
+          errors: []
+          status: SENT_TO_SIGN
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: Идентификатор условий
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        createdAt:
+          description: Дата и время создания
+          example: '2025-07-10T06:53:37.433211'
+          pattern: ([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})
+          type: string
+        contractNumber:
+          description: Номер контракта
+          example: ДП-1
+          type: string
+        contractDate:
+          description: Дата контракта
+          example: '2025-07-10'
+          format: date
+          type: string
+        client:
+          $ref: '#/components/schemas/Client'
+        buyer:
+          $ref: '#/components/schemas/Buyer'
+        contacts:
+          description: Контакты
+          example:
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            fullName: Иванов Иван Иванович
+            email: test@mail.ru
+            phoneNumber: +9 999 999 99 99
+            additionalNumber: '999'
+            workPosition: Бухгалтер
+            comment: Комментарий
+            state:
+              statusDate: '2025-07-10T06:53:37.433111'
+              errors: []
+              status: CREATED
+            cqrsVersion: -1628796591
+          items:
+            $ref: '#/components/schemas/ConditionContact'
+          type: array
+        tariffs:
+          description: Тарифы
+          example:
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            tariffType: PRO
+            paymentPeriod: 60
+            startDate: '2025-01-01'
+            state:
+              statusDate: '2025-07-10T06:53:37.433111'
+              errors: []
+              status: APPROVED
+            cqrsVersion: -1628796591
+          items:
+            $ref: '#/components/schemas/Tariff'
+          type: array
+        wasApproved:
+          description: Признак, что ранее был подписан
+          example: true
+          type: boolean
+        cdcDocumentId:
+          description: Идентификатор документа в сервисе подписи
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        comment:
+          description: Комментарий
+          example: Комментарий
+          type: string
+        state:
+          $ref: '#/components/schemas/ConditionState'
+        cqrsVersion:
+          description: hashCode от state - состояния объекта
+          example: -1628796591
+          type: integer
+      required:
+      - buyer
+      - client
+      - contacts
+      - cqrsVersion
+      - createdAt
+      - id
+      - state
+      - tariffs
+      - wasApproved
+      type: object
+    ConditionState:
+      allOf:
+      - $ref: '#/components/schemas/State_2'
+      - properties:
+          status:
+            $ref: '#/components/schemas/ConditionStatus'
+        type: object
+      description: Состояние условий обслуживания
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: APPROVED
+      type: object
+    Buyer:
+      allOf:
+      - $ref: '#/components/schemas/BuyerRequisites'
+      - properties:
+          id:
+            description: Идентификатор покупателя
+            example: 2c44306f-fc96-4780-9b37-6447273b190e
+            format: uuid
+            type: string
+          createdAt:
+            description: Дата и время создания
+            example: '2025-07-10T06:53:37.433211'
+            pattern: ([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})
+            type: string
+          clients:
+            description: Клиенты связанные с покупателем
+            example:
+            - id: 2c44306f-fc96-4780-9b37-6447273b190e
+              createdAt: '2025-07-10T06:53:37.433211'
+              requisites:
+                ogrn: '123456789012345'
+                fullNameRus: Акционерное общество Ромашка
+                shortNameRus: АО Ромашка
+                address: address
+                opf: opf
+                inn: '1234567890'
+                kpp: '123456789'
+                shortNameEn: АО Ромашка
+                cnum: AAAAAA
+                fullNameEn: Акционерное общество Ромашка
+                okved: '11.11'
+              contacts:
+              - id: 2c44306f-fc96-4780-9b37-6447273b190e
+                createdAt: '2025-07-10T06:53:37.433211'
+                email: foobar@mail.ru
+                state:
+                  statusDate: '2021-07-10T06:53:37.433111'
+                  errors: []
+                  status: CREATED
+                cqrsVersion: -1628796591
+              state:
+                statusDate: '2021-07-10T06:53:37.433111'
+                errors: []
+                status: APPROVED
+              cqrsVersion: -1628796591
+            items:
+              $ref: '#/components/schemas/Client'
+            type: array
+          state:
+            $ref: '#/components/schemas/BuyerState'
+          cqrsVersion:
+            $ref: '#/components/schemas/CqrsVersion'
+        required:
+        - cqrsVersion
+        - id
+        - state
+        type: object
+      description: Покупатель
+      example:
+        ogrn: '123456789012345'
+        createdAt: '2025-07-10T06:53:37.433211'
+        clients:
+        - id: 2c44306f-fc96-4780-9b37-6447273b190e
+          createdAt: '2025-07-10T06:53:37.433211'
+          requisites:
+            ogrn: '123456789012345'
+            fullNameRus: Акционерное общество Ромашка
+            shortNameRus: АО Ромашка
+            address: address
+            opf: opf
+            inn: '1234567890'
+            kpp: '123456789'
+            shortNameEn: АО Ромашка
+            cnum: AAAAAA
+            fullNameEn: Акционерное общество Ромашка
+            okved: '11.11'
+          contacts:
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            createdAt: '2025-07-10T06:53:37.433211'
+            email: foobar@mail.ru
+            state:
+              statusDate: '2021-07-10T06:53:37.433111'
+              errors: []
+              status: CREATED
+            cqrsVersion: -1628796591
+          state:
+            statusDate: '2021-07-10T06:53:37.433111'
+            errors: []
+            status: APPROVED
+          cqrsVersion: -1628796591
+        cqrsVersion: -1628796591
+        inn: '1234567890'
+        fullName: Акционерное общество Ромашка
+        kpp: '123456789'
+        id: 2c44306f-fc96-4780-9b37-6447273b190e
+        state:
+          statusDate: '2025-07-10T06:53:37.433211'
+          errors: []
+          status: APPROVED
+        shortName: АО Ромашка
+    ParsedSupply:
+      allOf:
+      - $ref: '#/components/schemas/CreateSupplyRequest'
+      description: Результат парсинга
+    SupplyRegistryDigest:
+      description: Дайджест реестра поставок
+      example:
+        id: 2c44306f-fc96-4780-9b37-6447273b190e
+        digest: 0JLQvtGCINGN0YLQviDQvdGD0LbQvdC+INC/0L7QtNC/0LjRgdCw0YLRjA==
+      properties:
+        id:
+          description: Идентификатор реестра
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        digest:
+          description: Контент для подписи в формате base64
+          example: 0JLQvtGCINGN0YLQviDQvdGD0LbQvdC+INC/0L7QtNC/0LjRgdCw0YLRjA==
+          type: string
+      required:
+      - digest
+      - id
+      type: object
+    Direction:
+      description: Направление сортировки
+      enum:
+      - ASC
+      - DESC
+      example: DESC
+      type: string
+    ParseErrorMessage:
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes_2'
+        description:
+          description: Сообщение
+          example: General service error
+          type: string
+        traceId:
+          description: traceId
+          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
+          type: string
+        rowNumber:
+          description: Номер строки
+          example: 1
+          type: integer
+        columnNumber:
+          description: Номер колонки
+          example: 1
+          type: integer
+      required:
+      - code
+      - description
+      - traceId
+      type: object
+    ClientState:
+      allOf:
+      - $ref: '#/components/schemas/State_2'
+      - properties:
+          status:
+            $ref: '#/components/schemas/ClientStatus'
+      description: Состояние клиента
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: APPROVED
+      type: object
+    ClientStatus:
+      description: Статус клиента
+      enum:
+      - SENT_TO_CHECK
+      - APPROVED
+      - REJECTED
+      type: string
+    OrganizationRequisites:
+      description: Реквизиты организации
+      example:
+        ogrn: '123456789012345'
+        fullNameRus: Акционерное общество Ромашка
+        shortNameRus: АО Ромашка
+        address: address
+        opf: opf
+        inn: '1234567890'
+        kpp: '123456789'
+        shortNameEn: АО Ромашка
+        cnum: AAAAAA
+        fullNameEn: Акционерное общество Ромашка
+        okved: '11.11'
+      properties:
+        fullNameRus:
+          description: Полное наименование
+          example: Акционерное общество Ромашка
+          type: string
+        shortNameRus:
+          description: Краткое наименование
+          example: АО Ромашка
+          type: string
+        fullNameEn:
+          description: Полное наименование на английском языке
+          example: Акционерное общество Ромашка
+          type: string
+        shortNameEn:
+          description: Краткое наименование на английском языке
+          example: АО Ромашка
+          type: string
+        inn:
+          description: ИНН
+          example: '1234567890'
+          maxLength: 12
+          minLength: 10
+          type: string
+        ogrn:
+          description: ОГРН
+          example: '123456789012345'
+          maxLength: 15
+          minLength: 13
+          type: string
+        kpp:
+          description: КПП
+          example: '123456789'
+          maxLength: 9
+          minLength: 9
+          type: string
+        okved:
+          description: ОКВЭД
+          example: '11.11'
+          type: string
+        cnum:
+          description: Клиентский номер
+          example: AAAAAA
+          maxLength: 6
+          minLength: 6
+          type: string
+        opf:
+          description: Организационно правовая форма
+          example: OOO
+          type: string
+        address:
+          description: Адрес
+          example: address
+          type: string
+      required:
+      - address
+      - cnum
+      - fullNameEn
+      - fullNameRus
+      - inn
+      - ogrn
+      - okved
+      - opf
+      - shortNameEn
+      - shortNameRus
+      type: object
+    CreateSupplyListRequest:
+      description: Запрос на создание поставок
+      example:
+        cnum: AAAAAA
+        supplies:
+        - buyerInn: '77777777'
+          buyerKpp: '77777777'
+          contractNumber: ДП-1
+          contractDate: '2025-07-10'
+          mainDocumentNumber: ОД-1
+          mainDocumentDate: '2026-01-01'
+          additionalDocumentNumber: ДД-1
+          additionalDocumentDate: '2026-01-01'
+          amount: 120.12
+          debtSum: 120.12
+          paymentDate: '2026-01-01'
+      properties:
+        supplies:
+          description: Список поставок
+          example:
+          - buyerInn: '77777777'
+            buyerKpp: '77777777'
+            contractNumber: ДП-1
+            contractDate: '2025-07-10'
+            mainDocumentNumber: ОД-1
+            mainDocumentDate: '2026-01-01'
+            additionalDocumentNumber: ДД-1
+            additionalDocumentDate: '2026-01-01'
+            amount: 120.12
+            paymentDate: '2026-01-01'
+          items:
+            $ref: '#/components/schemas/CreateSupplyRequest'
+          type: array
+        cnum:
+          description: Клиентский номер
+          example: AAAAAA
+          maxLength: 6
+          minLength: 6
+          type: string
+      required:
+      - cnum
+      - supplies
+      type: object
+    ParseErrorResponse:
+      example:
+      - code: REST_ERROR_5001
+        description: General service error
+        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+        rowNumber: 1
+        columnNumber: 2
+      items:
+        $ref: '#/components/schemas/ParseErrorMessage'
+      type: array
+    SupplyStatus_2:
+      description: Статус поставки
+      enum:
+      - SENT_TO_CHECK
+      - REJECTED
+      - WAITING_FOR_SIGN
+      - WAITING_FOR_REGISTRY_SIGN
+      - WAITING_SIGN_CHECK
+      - PARTLY_SIGNED
+      - ON_CONTROL
+      - PAID
+      - PARTLY_PAID
+      - REMOVED_FROM_CONTROL
+      example: SENT_TO_CHECK
+      type: string
+    ConditionContactStatus:
+      description: Статус контакта условий обслуживания
+      enum:
+      - CREATED
+      example: CREATED
+      type: string
+    SupplySearchRequest_2:
+      description: Параметры для поиска поставок
+      example:
+        cnums:
+        - AAAAAA
+        - BBBBBB
+        statuses:
+        - SENT_TO_CHECK
+        - ON_CONTROL
+        search: Ромаш
+        sorting:
+        - sortBy: PAYMENT_DATE
+          orderBy: DESC
+        - sortBy: FULL_PAYMENT_DATE
+          orderBy: ASC
+        - sortBy: CONTROL_END_DATE
+          orderBy: DESC
+      properties:
+        cnums:
+          description: Клиентские номера
+          example:
+          - AAAAAA
+          - BBBBBB
+          items:
+            example: AAAAAA
+            maxLength: 6
+            minLength: 6
+            type: string
+          type: array
+        statuses:
+          description: Статусы поставок
+          example:
+          - SENT_TO_CHECK
+          - ON_CONTROL
+          items:
+            $ref: '#/components/schemas/SupplyStatus_2'
+          type: array
+        search:
+          description: Строка поиска (ИНН или наименование покупателя, номер поставки или сумма поставки)
+          example: Ромаш
+          type: string
+        sorting:
+          description: Сортировки списка поставок
+          example:
+          - sortBy: PAYMENT_DATE
+            orderBy: DESC
+          items:
+            $ref: '#/components/schemas/SupplySorting'
+          type: array
+      type: object
+    ConditionContact:
+      description: Контакты условий обслуживания
+      properties:
+        id:
+          description: Идентификатор контакта
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        fullName:
+          description: Имя
+          example: Иванов Иван Иванович
+          type: string
+        email:
+          description: email
+          example: test@mail.ru
+          type: string
+        phoneNumber:
+          description: Номер телефона
+          example: +9 999 999 99 99
+          type: string
+        additionalNumber:
+          description: Добавочный номер
+          example: '999'
+          type: string
+        workPosition:
+          description: Должность
+          example: Бухгалтер
+          type: string
+        comment:
+          description: Комментарий
+          example: Комментарий
+          type: string
+        state:
+          $ref: '#/components/schemas/ConditionContactState'
+        cqrsVersion:
+          description: hashCode от state - состояния объекта
+          example: -1628796591
+          type: integer
+      required:
+      - cqrsVersion
+      - email
+      - id
+      - state
+      type: object
+    ActionStatus:
+      description: Статус действия
+      enum:
+      - CREATED
+      example: CREATED
+      type: string
+    SupplyState_2:
+      allOf:
+      - $ref: '#/components/schemas/State_2'
+      - properties:
+          status:
+            $ref: '#/components/schemas/SupplyStatus_2'
+        type: object
+      description: Состояние поставки
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: SENT_TO_CHECK
+      type: object
+    ChangeSuppliesStatusToRetiredRequest:
+      description: Список поставок для массового перевода в статус RETIRED
+      example:
+      - id: 2c44306f-fc96-4780-9b37-6447273b190e
+        cqrsVersion: -1628796591
+      - id: 6f143f0a-5393-4e37-a5c7-2d21d0778f4e
+        cqrsVersion: -1628796592
+      items:
+        $ref: '#/components/schemas/ChangeSuppliesStatusToRetiredRequest_inner'
+      minItems: 1
+      type: array
+    ContactState:
+      allOf:
+      - $ref: '#/components/schemas/State_2'
+      - properties:
+          status:
+            $ref: '#/components/schemas/ContactStatus'
+      description: Состояние контакта
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: CREATED
+      type: object
+    ErrorCodes:
+      description: '| code       | description                                                  |
+
+        |------------|--------------------------------------------------------------|
+
+        | ERROR_2000 | General service error                                        |
+
+        | ERROR_2001 | Buyer not found                                              |
+
+        | ERROR_2002 | Condition not found                                          |
+
+        | ERROR_2003 | Duplicate supply                                             |
+
+        | ERROR_2004 | Payment date must be after then current date                 |
+
+        | ERROR_2005 | Main document date must be after or equal then contract date |
+
+        | ERROR_2006 | Buyer not valid                                              |
+
+        | ERROR_2007 | Additional document date must be after or equal then contract date                                              |
+
+        '
+      enum:
+      - ERROR_2000
+      - ERROR_2001
+      - ERROR_2002
+      - ERROR_2003
+      - ERROR_2004
+      - ERROR_2005
+      - ERROR_2006
+      - ERROR_2007
+      example: ERROR_2000
+      type: string
+    SupplySortField:
+      description: Поле сортировки списка поставок
+      enum:
+      - PAYMENT_DATE
+      - FULL_PAYMENT_DATE
+      - CONTROL_END_DATE
+      example: PAYMENT_DATE
+      type: string
+    ConditionStatus:
+      description: Статус условий обслуживания
+      enum:
+      - DRAFT
+      - SENT_TO_SIGN
+      - PARTLY_SIGN
+      - APPROVED
+      example: APPROVED
+      type: string
+    ChangeSuppliesStatusToRetiredRequest_inner:
+      description: Поставка для удаления
+      example:
+        cqrsVersion: -1628796591
+        id: 2c44306f-fc96-4780-9b37-6447273b190e
+      properties:
+        id:
+          description: Идентификатор поставки
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        cqrsVersion:
+          description: hashCode от state - состояния объекта
+          example: -1628796591
+          type: integer
+      required:
+      - cqrsVersion
+      - id
+      type: object
+    parseSupplies_request:
+      properties:
+        file:
+          description: Файл списка поставок в формате xlsx
+          format: binary
+          type: string
+      required:
+      - file
+      type: object
+    ActionState:
+      allOf:
+      - $ref: '#/components/schemas/State_2'
+      - properties:
+          status:
+            $ref: '#/components/schemas/ActionStatus'
+        type: object
+      description: Состояние действия
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: CREATED
+      type: object
+    BuyerRequisites:
+      description: Реквизиты покупателя
+      example:
+        fullName: АО Ромашка
+        inn: '1234567890'
+        ogrn: '123456789012345'
+        kpp: '123456789'
+      properties:
+        fullName:
+          description: Полное наименование
+          example: Акционерное общество Ромашка
+          type: string
+        shortName:
+          description: Краткое наименование
+          example: АО Ромашка
+          type: string
+        inn:
+          description: ИНН
+          example: '1234567890'
+          maxLength: 12
+          minLength: 10
+          type: string
+        ogrn:
+          description: ОГРН
+          example: '123456789012345'
+          maxLength: 15
+          minLength: 13
+          type: string
+        kpp:
+          description: КПП
+          example: '123456789'
+          maxLength: 9
+          minLength: 9
+          type: string
+      required:
+      - fullName
+      - inn
+      - ogrn
+      type: object
+    CqrsVersion:
+      description: hashCode от state - состояния объекта
+      example: -1628796591
+      type: integer
+    State_2:
+      description: Состояние объекта
+      properties:
+        statusDate:
+          description: yyyy-MM-dd'T'HH:mm:ss.SSSSSS
+          format: date-time
+          pattern: ([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})
+          type: string
+        errors:
+          description: Ошибки
+          items:
+            $ref: '#/components/schemas/Error'
+          type: array
+      required:
+      - statusDate
+      type: object
+    TariffType:
+      description: Тип тарифа
+      enum:
+      - LITE
+      - STANDARD
+      - PRO
+      example: LITE
+      type: string
+    RestErrorCodes_3:
+      description: '| code            | description                                                      |
+
+        |-----------------|------------------------------------------------------------------|
+
+        | REST_ERROR_5001 | General service error                                            |
+
+        | REST_ERROR_5002 | Current CQRS version is different                                |
+
+        | REST_ERROR_0001 | inn not valid                                                    |
+
+        | REST_ERROR_0002 | ogrn not valid                                                   |
+
+        | REST_ERROR_0003 | okved not valid                                                  |
+
+        | REST_ERROR_0004 | opf not valid                                                    |
+
+        | REST_ERROR_0005 | fullNameRus not valid                                            |
+
+        | REST_ERROR_0006 | shortNameRus not valid                                           |
+
+        | REST_ERROR_0007 | fullNameEn not valid                                             |
+
+        | REST_ERROR_0008 | shortNameEn not valid                                            |
+
+        | REST_ERROR_0009 | address not valid                                                |
+
+        | REST_ERROR_0010 | you can`t use product                                            |
+
+        | REST_ERROR_0011 | buyer already exists                                             |
+
+        | REST_ERROR_0012 | can''t fetched buyer requisites from DaData                       |
+
+        | REST_ERROR_0013 | can''t find data for buyer requisites                             |
+
+        | REST_ERROR_0014 | client not valid                                                 |
+
+        | REST_ERROR_0015 | agreement not valid                                              |
+
+        | REST_ERROR_0016 | buyer not valid                                                  |
+
+        | REST_ERROR_0017 | condition with contract number and date already exists           |
+
+        | REST_ERROR_0018 | for the PRO tariff, at least one contact must be fully filled in |
+
+        | REST_ERROR_0019 | for the PRO newTariff, payment period must be filled             |
+
+        | REST_ERROR_0020 | for the PRO newTariff, payment period must be less then max      |
+
+        | REST_ERROR_0021 | contract date must be after then current date                    |
+
+        | REST_ERROR_0022 | agreement already exists for client                              |
+
+        | REST_ERROR_0023 | condition with current contract number and date already exist    |
+
+        | REST_ERROR_1000 | Unexpected error. Call to support team - paycontrol.support@raiffeisen.ru. |
+
+        | REST_ERROR_1001 | File contains viruses                                            |
+
+        | REST_ERROR_1002 | Incorrect file format                                            |
+
+        | REST_ERROR_1003 | Supplies number exceeds limit                                    |
+
+        | REST_ERROR_1004 | The file size exceeds 1 MB                                       |
+
+        | REST_ERROR_1005 | Invalid cell type (row %d, column %d)                            |
+
+        | REST_ERROR_1006 | Incorrect number of columns, expected: %d, found: %d             |
+
+        | REST_ERROR_1007 | Invalid header, expected: %s, found: %s                          |
+
+        | REST_ERROR_1008 | INN must contain 10 or 12 digits                                 |
+
+        | REST_ERROR_1009 | INN cannot be empty                                              |
+
+        | REST_ERROR_1010 | contract number cannot be empty                                  |
+
+        | REST_ERROR_1011 | contract date cannot be empty                                    |
+
+        | REST_ERROR_1012 | primary document number is empty                                 |
+
+        | REST_ERROR_1013 | primary document date is empty                                   |
+
+        | REST_ERROR_1014 | Supply sum cannot be empty                                       |
+
+        | REST_ERROR_1015 | Invalid KPP                                                      |
+
+        | REST_ERROR_1016 | payment date is empty                                            |
+
+        | REST_ERROR_1017 | payment date is not found in calendar                            |
+
+        | REST_ERROR_1018 | Supply already exists in file                                    |
+
+        | REST_ERROR_1019 | Date cannot be in the future: supply date                        |
+
+        | REST_ERROR_1020 | Date cannot be in the future: additional document date           |
+
+        | REST_ERROR_1021 | File is empty                                                    |
+
+        | REST_ERROR_2000 | Supply with this number/date already exists                      |
+
+        | REST_ERROR_2001 | payment date must be later than contract date                    |
+
+        | REST_ERROR_2002 | payment date must be later than the primary document date        |
+
+        | REST_ERROR_2003 | primary document date cannot be earlier than contract date       |
+
+        | REST_ERROR_2004 | additional document date cannot be earlier than contract date    |
+
+        | REST_ERROR_2005 | Supply amount cannot be less than payment amount                 |
+
+        | REST_ERROR_3000 | Posting amount cannot be more than remaining amount              |
+
+        | REST_ERROR_3001 | Debt sum cannot be less than posting amount                      |
+
+        | REST_ERROR_3002 | Supply already repaid                                            |
+
+        | REST_ERROR_4000 | Out payment order already exists for incoming payment            |
+
+        | REST_ERROR_4001 | Remaining amount must be equal zero                              |
+
+        '
+      enum:
+      - REST_ERROR_5001
+      - REST_ERROR_1000
+      - REST_ERROR_1001
+      - REST_ERROR_1002
+      - REST_ERROR_1003
+      - REST_ERROR_1004
+      - REST_ERROR_1005
+      - REST_ERROR_1006
+      - REST_ERROR_1007
+      - REST_ERROR_1008
+      - REST_ERROR_1009
+      - REST_ERROR_1010
+      - REST_ERROR_1011
+      - REST_ERROR_1012
+      - REST_ERROR_1013
+      - REST_ERROR_1014
+      - REST_ERROR_1015
+      - REST_ERROR_1016
+      - REST_ERROR_1017
+      - REST_ERROR_1018
+      - REST_ERROR_1019
+      - REST_ERROR_1020
+      - REST_ERROR_1021
+      - REST_ERROR_2000
+      - REST_ERROR_2001
+      - REST_ERROR_2002
+      - REST_ERROR_2003
+      - REST_ERROR_2004
+      - REST_ERROR_2005
+      example: REST_ERROR_5001
+      type: string
+    ErrorMessage_3:
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes_3'
+        description:
+          description: Сообщение
+          example: General service error
+          type: string
+        traceId:
+          description: traceId
+          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
+          type: string
+      required:
+      - code
+      - description
+      type: object
+    SupplyList_2:
+      example:
+      - id: 2c44306f-fc96-4780-9b37-6447273b190e
+        condition:
+          id: 2c44306f-fc96-4780-9b37-6447273b190e
+          createdAt: '2025-07-10T06:53:37.433211'
+          contractNumber: ДП-1
+          contractDate: '2025-07-10'
+          client:
+            id: 2c44306f-fc96-4780-9b37-6447273b190e
+            createdAt: '2025-07-10T06:53:37.433211'
+            requisites:
+              ogrn: '123456789012345'
+              fullNameRus: Акционерное общество Ромашка
+              shortNameRus: АО Ромашка
+              address: address
+              opf: opf
+              inn: '1234567890'
+              kpp: '123456789'
+              shortNameEn: АО Ромашка
+              cnum: AAAAAA
+              fullNameEn: Акционерное общество Ромашка
+              okved: '11.11'
+            contacts:
+            - id: 2c44306f-fc96-4780-9b37-6447273b190e
+              createdAt: '2025-07-10T06:53:37.433211'
+              email: foobar@mail.ru
+              state:
+                statusDate: '2021-07-10T06:53:37.433111'
+                errors: []
+                status: CREATED
+              cqrsVersion: -1628796591
+            state:
+              statusDate: '2021-07-10T06:53:37.433111'
+              errors: []
+              status: APPROVED
+            cqrsVersion: -1628796591
+          buyer:
+            id: 2c44306f-fc96-4780-9b37-6447273b190e
+            createdAt: '2025-07-10T06:53:37.433211'
+            fullName: Акционерное общество Ромашка
+            shortName: АО Ромашка
+            inn: '1234567890'
+            kpp: '123456789'
+            ogrn: '123456789012345'
+            state:
+              statusDate: '2021-07-10T06:53:37.433111'
+              errors: []
+              status: APPROVED
+            cqrsVersion: -1628796591
+          contacts:
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            fullName: Иванов Иван Иванович
+            email: test@mail.ru
+            phoneNumber: +9 999 999 99 99
+            additionalNumber: '999'
+            workPosition: Бухгалтер
+            comment: Комментарий
+            state:
+              statusDate: '2025-07-10T06:53:37.433111'
+              errors: []
+              status: CREATED
+            cqrsVersion: -1628796591
+          tariffs:
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            tariffType: PRO
+            paymentPeriod: 60
+            startDate: '2025-01-01'
+            state:
+              statusDate: '2025-07-10T06:53:37.433111'
+              errors: []
+              status: APPROVED
+            cqrsVersion: -1628796591
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            tariffType: LITE
+            paymentPeriod: 0
+            startDate: '2025-01-10'
+            state:
+              statusDate: '2025-07-10T06:53:37.433111'
+              errors: []
+              status: CREATED
+            cqrsVersion: -1628796591
+          wasApproved: true
+          state:
+            statusDate: '2025-07-10T06:53:37.433111'
+            errors: []
+            status: SENT_TO_SIGN
+          cqrsVersion: -1628796591
+        createdAt: '2025-07-10T06:53:37.433211'
+        mainDocumentNumber: ОД-1
+        mainDocumentDate: '2026-01-01'
+        additionalDocumentNumber: ДД-1
+        additionalDocumentDate: '2026-01-01'
+        amount: 120.12
+        debtSum: 120.12
+        paymentDate: '2026-01-01'
+        comment: Комментарий
+        state:
+          statusDate: '2025-07-10T06:53:37.433211'
+          errors: []
+          status: SENT_TO_CHECK
+        cqrsVersion: -1628796591
+      items:
+        $ref: '#/components/schemas/Supply_3'
+      type: array
+    BuyerState_2:
+      allOf:
+      - $ref: '#/components/schemas/State_3'
+      - properties:
+          status:
+            $ref: '#/components/schemas/BuyerStatus'
+        type: object
+      description: Состояние покупателя
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: APPROVED
+      type: object
+    ErrorResponse_3:
+      example:
+      - code: REST_ERROR_5001
+        description: General service error
+        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+      items:
+        $ref: '#/components/schemas/ErrorMessage_3'
+      type: array
+    Supply_3:
+      description: Поставка
+      example:
+        id: 2c44306f-fc96-4780-9b37-6447273b190e
+        condition:
+          id: 2c44306f-fc96-4780-9b37-6447273b190e
+          createdAt: '2025-07-10T06:53:37.433211'
+          contractNumber: ДП-1
+          contractDate: '2025-07-10'
+          client:
+            id: 2c44306f-fc96-4780-9b37-6447273b190e
+            createdAt: '2025-07-10T06:53:37.433211'
+            requisites:
+              ogrn: '123456789012345'
+              fullNameRus: Акционерное общество Ромашка
+              shortNameRus: АО Ромашка
+              address: address
+              opf: opf
+              inn: '1234567890'
+              kpp: '123456789'
+              shortNameEn: АО Ромашка
+              cnum: AAAAAA
+              fullNameEn: Акционерное общество Ромашка
+              okved: '11.11'
+            contacts:
+            - id: 2c44306f-fc96-4780-9b37-6447273b190e
+              createdAt: '2025-07-10T06:53:37.433211'
+              email: foobar@mail.ru
+              state:
+                statusDate: '2021-07-10T06:53:37.433111'
+                errors: []
+                status: CREATED
+              cqrsVersion: -1628796591
+            state:
+              statusDate: '2021-07-10T06:53:37.433111'
+              errors: []
+              status: APPROVED
+            cqrsVersion: -1628796591
+          buyer:
+            id: 2c44306f-fc96-4780-9b37-6447273b190e
+            createdAt: '2025-07-10T06:53:37.433211'
+            fullName: Акционерное общество Ромашка
+            shortName: АО Ромашка
+            inn: '1234567890'
+            kpp: '123456789'
+            ogrn: '123456789012345'
+            state:
+              statusDate: '2021-07-10T06:53:37.433111'
+              errors: []
+              status: APPROVED
+            cqrsVersion: -1628796591
+          contacts:
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            fullName: Иванов Иван Иванович
+            email: test@mail.ru
+            phoneNumber: +9 999 999 99 99
+            additionalNumber: '999'
+            workPosition: Бухгалтер
+            comment: Комментарий
+            state:
+              statusDate: '2025-07-10T06:53:37.433111'
+              errors: []
+              status: CREATED
+            cqrsVersion: -1628796591
+          tariffs:
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            tariffType: PRO
+            paymentPeriod: 60
+            startDate: '2025-01-01'
+            state:
+              statusDate: '2025-07-10T06:53:37.433111'
+              errors: []
+              status: APPROVED
+            cqrsVersion: -1628796591
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            tariffType: LITE
+            paymentPeriod: 0
+            startDate: '2025-01-10'
+            state:
+              statusDate: '2025-07-10T06:53:37.433111'
+              errors: []
+              status: CREATED
+            cqrsVersion: -1628796591
+          wasApproved: true
+          state:
+            statusDate: '2025-07-10T06:53:37.433111'
+            errors: []
+            status: SENT_TO_SIGN
+          cqrsVersion: -1628796591
+        createdAt: '2025-07-10T06:53:37.433211'
+        mainDocumentNumber: ОД-1
+        mainDocumentDate: '2026-01-01'
+        additionalDocumentNumber: ДД-1
+        additionalDocumentDate: '2026-01-01'
+        amount: 120.12
+        debtSum: 120.12
+        paymentDate: '2026-01-01'
+        actions:
+        - id: 2c44306f-fc96-4780-9b37-6447273b190e
+          comment: Комментарий
+          createdAt: '2025-07-10T06:53:37.433211'
+          state:
+            statusDate: '2025-07-10T06:53:37.433211'
+            errors: []
+            status: CREATED
+          cqrsVersion: -1628796591
+        state:
+          statusDate: '2025-07-10T06:53:37.433211'
+          errors: []
+          status: SENT_TO_CHECK
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: Идентификатор поставки
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        condition:
+          $ref: '#/components/schemas/Condition'
+        createdAt:
+          description: Дата и время создания
+          example: '2025-07-10T06:53:37.433211'
+          pattern: ([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})
+          type: string
+        mainDocumentNumber:
+          description: Номер основного документа
+          example: ОД-1
+          type: string
+        mainDocumentDate:
+          description: Дата основного документа
+          example: '2026-01-01'
+          format: date
+          type: string
+        additionalDocumentNumber:
+          description: Номер дополнительного документа
+          example: ДД-1
+          type: string
+        additionalDocumentDate:
+          description: Дата дополнительного документа
+          example: '2026-01-01'
+          format: date
+          type: string
+        amount:
+          description: Сумма требований
+          example: 120.12
+          type: number
+        debtSum:
+          description: Сумма долга
+          example: 120.12
+          type: number
+        paymentDate:
+          description: Дата оплаты требований
+          example: '2026-01-01'
+          format: date
+          type: string
+        controlEndDate:
+          description: Дата истечения контроля
+          example: '2026-01-01'
+          format: date
+          type: string
+        fullPaymentDate:
+          description: Фактическая дата оплата
+          example: '2026-01-01'
+          format: date
+          type: string
+        actions:
+          description: Действия по поставке
+          example:
+          - id: 2c44306f-fc96-4780-9b37-6447273b190e
+            comment: Комментарий
+            createdAt: '2025-07-10T06:53:37.433211'
+            state:
+              statusDate: '2025-07-10T06:53:37.433211'
+              errors: []
+              status: CREATED
+            cqrsVersion: -1628796591
+          items:
+            $ref: '#/components/schemas/Action'
+          type: array
+        registry:
+          allOf:
+          - $ref: '#/components/schemas/SupplyRegistryDigest'
+          description: Дайджест реестра поставки. Возвращается только при получении поставки по идентификатору
+          example:
+            id: 2c44306f-fc96-4780-9b37-6447273b190e
+            digest: 0JLQvtGCINGN0YLQviDQvdGD0LbQvdC+INC/0L7QtNC/0LjRgdCw0YLRjA==
+        state:
+          $ref: '#/components/schemas/SupplyState_3'
+        cqrsVersion:
+          description: hashCode от state - состояния объекта
+          example: -1628796591
+          type: integer
+      required:
+      - amount
+      - cqrsVersion
+      - createdAt
+      - debtSum
+      - id
+      - mainDocumentDate
+      - mainDocumentNumber
+      - state
+      type: object
+    TariffState_2:
+      allOf:
+      - $ref: '#/components/schemas/State_3'
+      - properties:
+          status:
+            $ref: '#/components/schemas/TariffStatus'
+        type: object
+      description: Состояние тарифа условий обслуживания
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: APPROVED
+      type: object
+    ConditionContactState_2:
+      allOf:
+      - $ref: '#/components/schemas/State_3'
+      - properties:
+          status:
+            $ref: '#/components/schemas/ConditionContactStatus'
+        type: object
+      description: Состояние контакта условий обслуживания
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: CREATED
+      type: object
+    ConditionState_2:
+      allOf:
+      - $ref: '#/components/schemas/State_3'
+      - properties:
+          status:
+            $ref: '#/components/schemas/ConditionStatus'
+        type: object
+      description: Состояние условий обслуживания
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: APPROVED
+      type: object
+    ParseErrorMessage_2:
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes_3'
+        description:
+          description: Сообщение
+          example: General service error
+          type: string
+        traceId:
+          description: traceId
+          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
+          type: string
+        rowNumber:
+          description: Номер строки
+          example: 1
+          type: integer
+        columnNumber:
+          description: Номер колонки
+          example: 1
+          type: integer
+      required:
+      - code
+      - description
+      - traceId
+      type: object
+    ClientState_2:
+      allOf:
+      - $ref: '#/components/schemas/State_3'
+      - properties:
+          status:
+            $ref: '#/components/schemas/ClientStatus'
+      description: Состояние клиента
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: APPROVED
+      type: object
+    SupplyStatus_3:
+      description: Статус поставки
+      enum:
+      - SENT_TO_CHECK
+      - REJECTED
+      - WAITING_FOR_SIGN
+      - WAITING_FOR_REGISTRY_SIGN
+      - WAITING_SIGN_CHECK
+      - PARTLY_SIGNED
+      - ON_CONTROL
+      - PAID
+      - PARTLY_PAID
+      - REMOVED_FROM_CONTROL
+      example: SENT_TO_CHECK
+      type: string
+    SupplySearchRequest_3:
+      description: Параметры для поиска поставок
+      example:
+        cnums:
+        - AAAAAA
+        - BBBBBB
+        statuses:
+        - SENT_TO_CHECK
+        - ON_CONTROL
+        search: Ромаш
+        sorting:
+        - sortBy: PAYMENT_DATE
+          orderBy: DESC
+        - sortBy: FULL_PAYMENT_DATE
+          orderBy: ASC
+        - sortBy: CONTROL_END_DATE
+          orderBy: DESC
+      properties:
+        cnums:
+          description: Клиентские номера
+          example:
+          - AAAAAA
+          - BBBBBB
+          items:
+            example: AAAAAA
+            maxLength: 6
+            minLength: 6
+            type: string
+          type: array
+        statuses:
+          description: Статусы поставок
+          example:
+          - SENT_TO_CHECK
+          - ON_CONTROL
+          items:
+            $ref: '#/components/schemas/SupplyStatus_3'
+          type: array
+        search:
+          description: Строка поиска (ИНН или наименование покупателя, номер поставки или сумма поставки)
+          example: Ромаш
+          type: string
+        sorting:
+          description: Сортировки списка поставок
+          example:
+          - sortBy: PAYMENT_DATE
+            orderBy: DESC
+          items:
+            $ref: '#/components/schemas/SupplySorting'
+          type: array
+      type: object
+    SupplyState_3:
+      allOf:
+      - $ref: '#/components/schemas/State_3'
+      - properties:
+          status:
+            $ref: '#/components/schemas/SupplyStatus_3'
+        type: object
+      description: Состояние поставки
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: SENT_TO_CHECK
+      type: object
+    ContactState_2:
+      allOf:
+      - $ref: '#/components/schemas/State_3'
+      - properties:
+          status:
+            $ref: '#/components/schemas/ContactStatus'
+      description: Состояние контакта
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: CREATED
+      type: object
+    ActionState_2:
+      allOf:
+      - $ref: '#/components/schemas/State_3'
+      - properties:
+          status:
+            $ref: '#/components/schemas/ActionStatus'
+        type: object
+      description: Состояние действия
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: CREATED
+      type: object
+    State_3:
+      description: Состояние объекта
+      properties:
+        statusDate:
+          description: yyyy-MM-dd'T'HH:mm:ss.SSSSSS
+          format: date-time
+          pattern: ([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})
+          type: string
+        errors:
+          description: Ошибки
+          items:
+            $ref: '#/components/schemas/Error'
+          type: array
+      required:
+      - statusDate
+      type: object
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена
+x-refined-from:
+- raiffeisen-ru-factoring-openapi.yml
+- raiffeisen-ru-payment-control-openapi.yml
+- raiffeisen-ru-factoring-openapi.yml
+- raiffeisen-ru-payment-control-openapi.yml

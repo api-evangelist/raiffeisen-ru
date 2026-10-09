@@ -1,0 +1,44 @@
+name: Raiffeisenbank (Russia) MCP to OpenAPI Tool Crosswalk
+type: ToolCrosswalk
+generated: '2026-10-09'
+method: derived
+source:
+- mcp/raiffeisen-ru-mcp.yml
+- openapi/
+description: No tool on the Raiffeisen developer-portal MCP server invokes a banking REST operation in the 53 saved OpenAPI
+  contracts. The seven tools read the developer portal catalog (scenarios, documents, APIs, variants, operations, specifications).
+  The portal serves specifications at developer.raif.ru/api/v1/public-apis/{apiId}/variants/{variantCode}/spec, which suggests
+  get_public_api_specification is backed by that portal endpoint, but no OpenAPI for the portal API itself is published, so
+  nothing is bound.
+crosswalk: []
+mcp_only:
+- tool: get_public_documentation
+  reason: Developer-portal discovery tool (public documentation/catalog); no public OpenAPI operation backs it in openapi/.
+- tool: list_public_documentation
+  reason: Developer-portal discovery tool (public documentation/catalog); no public OpenAPI operation backs it in openapi/.
+- tool: get_public_api_specification
+  reason: Developer-portal discovery tool (public documentation/catalog); no public OpenAPI operation backs it in openapi/.
+- tool: list_public_api_operations
+  reason: Developer-portal discovery tool (public documentation/catalog); no public OpenAPI operation backs it in openapi/.
+- tool: list_public_api_variants
+  reason: Developer-portal discovery tool (public documentation/catalog); no public OpenAPI operation backs it in openapi/.
+- tool: list_public_apis
+  reason: Developer-portal discovery tool (public documentation/catalog); no public OpenAPI operation backs it in openapi/.
+- tool: list_public_scenarios
+  reason: Developer-portal discovery tool (public documentation/catalog); no public OpenAPI operation backs it in openapi/.
+rest_only:
+  count: 444
+  note: All operations across the 53 openapi/ contracts (banking, Raif Pay, trade finance, FX, etc.) have no MCP tool; the
+    MCP server can fetch their specifications via get_public_api_specification but not call them.
+surfaces:
+  openapi: openapi/ (53 contracts)
+  graphql: null
+  mcp:
+    url: https://api.raiffeisen.ru/developer-portal/public/mcp
+    tools_list: anonymous, not gated
+coverage:
+  tools_named: 7
+  tools_bound: 0
+  mcp_only: 7
+  rest_ops_total: 444
+  rest_ops_with_tool: 0

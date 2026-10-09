@@ -1,0 +1,229 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-webinars-v2-resources-schema.json",
+  "title": "WebinarsV2Resources",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-content-webinars-openapi.yml#/components/schemas/WebinarsV2Resources",
+  "type": "object",
+  "properties": {
+    "content": {
+      "type": "array",
+      "description": "Список вебинаров",
+      "items": {
+        "$ref": "#/$defs/WebinarV2Resource"
+      }
+    },
+    "offset": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Смещение относительно начала списка"
+    },
+    "limit": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Максимальное количество записей"
+    },
+    "totalCount": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Общее количество записей"
+    }
+  },
+  "required": [
+    "content",
+    "limit",
+    "offset",
+    "totalCount"
+  ],
+  "$defs": {
+    "ButtonResource": {
+      "type": "object",
+      "description": "",
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "Название кнопки"
+        },
+        "url": {
+          "type": "string",
+          "description": "URL адрес, на который ссылается кнопка"
+        }
+      },
+      "required": [
+        "label",
+        "url"
+      ]
+    },
+    "ColorStyleOpenApi": {
+      "type": "object",
+      "description": "",
+      "properties": {
+        "backgroundColor": {
+          "type": "string",
+          "description": "Цвет слайдов"
+        },
+        "contentBackgroundColor": {
+          "type": "string",
+          "description": "Цвет фона для текста"
+        },
+        "accentColor": {
+          "type": "string",
+          "description": "Цвет текста"
+        }
+      },
+      "required": [
+        "accentColor",
+        "backgroundColor",
+        "contentBackgroundColor"
+      ]
+    },
+    "WebinarAttachmentResource": {
+      "type": "object",
+      "description": "",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Id вложения"
+        },
+        "name": {
+          "type": "string",
+          "description": "Название"
+        },
+        "url": {
+          "type": "string",
+          "description": "Ссылка для скачивания"
+        },
+        "type": {
+          "type": "string",
+          "description": "Тип вложения",
+          "enum": [
+            "VIDEO",
+            "PDF",
+            "PPT",
+            "PPTX",
+            "XLS",
+            "XLSX"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type"
+      ]
+    },
+    "WebinarMediaResource": {
+      "type": "object",
+      "description": "",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Ссылка для скачивания"
+        },
+        "type": {
+          "type": "string",
+          "description": "Тип медиа",
+          "enum": [
+            "IMAGE"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "url"
+      ]
+    },
+    "WebinarV2Resource": {
+      "type": "object",
+      "description": "",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Id контента"
+        },
+        "new": {
+          "type": "boolean",
+          "description": "Статус прочитанности"
+        },
+        "status": {
+          "type": "string",
+          "description": "Статус публикации",
+          "enum": [
+            "SCHEDULED",
+            "PUBLISHED"
+          ]
+        },
+        "eventStatus": {
+          "type": "string",
+          "description": "Статус вебинара",
+          "enum": [
+            "PLANNED",
+            "STARTED",
+            "ENDED",
+            "ATTACHMENTS_PROVIDED"
+          ]
+        },
+        "eventStatusLabel": {
+          "type": "string",
+          "description": "Название статуса вебинара"
+        },
+        "title": {
+          "type": "string",
+          "description": "Заголовок"
+        },
+        "body": {
+          "type": "string",
+          "description": "Описание"
+        },
+        "publishDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Дата публикации"
+        },
+        "startEventDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Дата старта вебинара"
+        },
+        "finishEventDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Дата завершения вебинара"
+        },
+        "image": {
+          "$ref": "#/$defs/WebinarMediaResource",
+          "description": "Информация о картинке"
+        },
+        "button": {
+          "$ref": "#/$defs/ButtonResource",
+          "description": "Информация о кнопке"
+        },
+        "style": {
+          "$ref": "#/$defs/ColorStyleOpenApi",
+          "description": "Цвет"
+        },
+        "attachments": {
+          "type": "array",
+          "description": "Вложения",
+          "items": {
+            "$ref": "#/$defs/WebinarAttachmentResource"
+          }
+        }
+      },
+      "required": [
+        "body",
+        "eventStatus",
+        "eventStatusLabel",
+        "finishEventDate",
+        "image",
+        "new",
+        "publishDate",
+        "startEventDate",
+        "status",
+        "style",
+        "title"
+      ]
+    }
+  }
+}

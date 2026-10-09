@@ -1,0 +1,1386 @@
+---
+openapi: "3.0.3"
+info:
+  title: "Письма"
+  description: "API Входящих писем в банк"
+  version: "1.0.0"
+servers:
+- url: "https://api.raiffeisen.ru/letters"
+tags:
+- name: "Correspondences"
+  description: "Переписка"
+- name: "Mails"
+  description: "Письма"
+- name: "Topics"
+  description: "Темы переписок"
+paths:
+  /v1/topics:
+    get:
+      summary: "Получение тем переписок"
+      description: "Метод получения тем переписок"
+      tags:
+      - "Topics"
+      operationId: "getTopics"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExternalTopicsResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/correspondences:
+    post:
+      summary: "Создание переписки"
+      description: "Метод создания переписки"
+      tags:
+      - "Correspondences"
+      operationId: "createCorrespondence"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateExternalCorrespondenceRequest"
+            example:
+              docExtId: "123456"
+              topicId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+              text: "Текст письма"
+              docData:
+                orgName: "ООО Компания"
+                docNumber: "12345"
+                docDate: "2021-07-10"
+                account: "12345678901234567000"
+                bic: "123456789"
+                inn: "123412341234"
+                kpp: "123456789"
+      responses:
+        "201":
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateExternalCorrespondenceResponse"
+              example:
+                correspondenceId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                mailId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: "Conflict"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/correspondences/query:
+    post:
+      summary: "Получение списка переписок"
+      description: "Метод получения списка переписок организации с фильтрацией, со\
+        ртировкой и постраничной навигацией. Письма и вложения в ответе не возвращ\
+        аются, статус прочтения писем не изменяется."
+      tags:
+      - "Correspondences"
+      operationId: "searchCorrespondences"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchCorrespondencesRequest"
+            example:
+              filter:
+                organization:
+                  inn: "7707083893"
+                directions:
+                - "TO_BANK"
+                createdAt:
+                  from: "2026-07-01T00:00:00Z"
+                  to: "2026-08-01T00:00:00Z"
+                accounts:
+                - "12345678901234567890"
+                statuses:
+                - "OPEN"
+              sort:
+                field: "UPDATED_AT"
+                direction: "DESC"
+              paging:
+                offset: 0
+                limit: 50
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchCorrespondencesResponse"
+              example:
+                items:
+                - id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                  direction: "TO_BANK"
+                  status: "OPEN"
+                  topic:
+                    product: "Торговое финансирование"
+                    theme: "Заявки"
+                    clarification: "Другие вопросы"
+                  createdAt: "2026-07-10T06:53:37Z"
+                  updatedAt: "2026-07-11T09:15:02Z"
+                  account: "12345678901234567890"
+                  senderFirstName: "Иван"
+                  senderMiddleName: "Иванович"
+                  senderLastName: "Иванов"
+                paging:
+                  offset: 0
+                  limit: 50
+                  hasNext: false
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/correspondences/{id}:
+    get:
+      summary: "Получение переписки из банка"
+      description: "Метод получения переписки из банка по идентификатору. Устарел\
+        , используйте GET /api/external/v2/correspondences/{id}"
+      deprecated: true
+      tags:
+      - "Correspondences"
+      operationId: "getCorrespondence"
+      parameters:
+      - name: "id"
+        schema:
+          type: "string"
+          format: "uuid"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        description: "Идентификатор переписки"
+        in: "path"
+        required: true
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetExternalCorrespondenceResponse"
+              example:
+                id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                status: "CLOSED"
+                topicId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                createdAt: "2021-07-10T06:53:37Z"
+                updatedAt: "2021-07-10T06:53:37Z"
+                account: "123456789"
+                senderFirstName: "Иван"
+                senderMiddleName: "Иванович"
+                senderLastName: "Иванов"
+                correspondenceMails:
+                - id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+                  type: "TO_BANK"
+                  text: "Текст письма"
+                  number: 1
+                  createdAt: "2021-07-10T06:53:37Z"
+                  updatedAt: "2021-07-10T06:53:37Z"
+                  senderFirstName: "Иван"
+                  senderMiddleName: "Иванович"
+                  senderLastName: "Иванов"
+                  attachments:
+                  - number: 1
+                    name: "file.txt"
+        "404":
+          description: "Not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/correspondences/{id}:
+    get:
+      summary: "Получение переписки"
+      description: "Метод получения переписки по идентификатору с поддержкой произ\
+        вольной тематики и переписок без счета"
+      tags:
+      - "Correspondences"
+      operationId: "getCorrespondenceV2"
+      parameters:
+      - name: "id"
+        schema:
+          type: "string"
+          format: "uuid"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        description: "Идентификатор переписки"
+        in: "path"
+        required: true
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetExternalCorrespondenceV2Response"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/mails:
+    post:
+      summary: "Создание письма в переписке"
+      description: "Метод создания письма в переписке"
+      tags:
+      - "Mails"
+      operationId: "createMail"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateExternalMailRequest"
+            example:
+              correspondenceId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+              parentMailId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+              docExtId: "123456"
+              text: "Текст письма"
+      responses:
+        "201":
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateExternalMailResponse"
+              example:
+                mailId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: "Conflict"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/mails/{mailId}/attachments:
+    post:
+      summary: "Загрузка вложений по идентификатору письма"
+      description: "Метод загрузки вложений по идентификатору письма (ограничение\
+        \ 50 MB)"
+      tags:
+      - "Mails"
+      operationId: "uploadAttachments"
+      parameters:
+      - name: "mailId"
+        in: "path"
+        required: true
+        description: "Идентификатор письма"
+        schema:
+          type: "string"
+          format: "uuid"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: "object"
+              properties:
+                files:
+                  type: "array"
+                  items:
+                    type: "string"
+                    format: "binary"
+                  description: "Список файлов для загрузки"
+              required:
+              - "files"
+      responses:
+        "201":
+          description: "Created"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: "Conflict"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/mails/{mailId}/attachments/{fileName}:
+    get:
+      summary: "Получение вложения письма по идентификатору письма и имени файла в\
+        ложения"
+      description: "Метод получения вложения письма по идентификатору письма и име\
+        ни файла вложения"
+      tags:
+      - "Mails"
+      operationId: "getAttachment"
+      parameters:
+      - name: "mailId"
+        in: "path"
+        required: true
+        description: "Идентификатор письма"
+        schema:
+          type: "string"
+          format: "uuid"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+      - name: "fileName"
+        in: "path"
+        required: true
+        description: "Имя файла вложения"
+        schema:
+          type: "string"
+          example: "file.pdf"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      responses:
+        "200":
+          description: "OK"
+          headers:
+            Content-Disposition:
+              schema:
+                type: "string"
+                example: "attachment; filename=example.txt"
+              required: true
+            Content-Type:
+              schema:
+                type: "string"
+                example: "application/pdf"
+              required: true
+          content:
+            application/octet-stream:
+              schema:
+                type: "string"
+                format: "binary"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    head:
+      summary: "Получить информацию о вложении без загрузки содержимого"
+      description: "Метод получения информации о вложении без загрузки содержимого"
+      tags:
+      - "Mails"
+      operationId: "getAttachmentInfo"
+      parameters:
+      - name: "mailId"
+        in: "path"
+        required: true
+        description: "Идентификатор письма"
+        schema:
+          type: "string"
+          format: "uuid"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+      - name: "fileName"
+        in: "path"
+        required: true
+        description: "Имя файла вложения"
+        schema:
+          type: "string"
+          example: "file.pdf"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      responses:
+        "200":
+          description: "Файл найден, возвращены только заголовки"
+          headers:
+            Content-Type:
+              description: "Тип файла"
+              schema:
+                type: "string"
+                example: "application/pdf"
+            Content-Length:
+              description: "Размер файла в байтах"
+              schema:
+                type: "integer"
+                example: 1024
+        "400":
+          description: "Bad Request"
+        "404":
+          description: "Not found"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/mails/{mailId}/submit:
+    post:
+      summary: "Отправление письма"
+      description: "Метод отправления письма"
+      deprecated: true
+      tags:
+      - "Mails"
+      operationId: "submitMail"
+      parameters:
+      - name: "mailId"
+        in: "path"
+        required: true
+        description: "Идентификатор письма"
+        schema:
+          type: "string"
+          format: "uuid"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitExternalMailRequest"
+            example:
+              serialNumber: "123456789"
+              value: "SGVsbG8="
+              issuer: "E=IdleCA, C=RU, S=Idle CA, L=Idle CA, O=Idle CA, OU=Idle CA,\
+                \ CN=Idle CA"
+              digestName: "SHA-256"
+              digestVersion: "v1"
+              fio: "Иванов Иван Иванович"
+              position: "Генеральный директор"
+      responses:
+        "201":
+          description: "Created"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/mails/{mailId}/submit:
+    post:
+      summary: "Отправление письма"
+      description: "Метод отправления письма"
+      tags:
+      - "Mails"
+      operationId: "submitMailV2"
+      parameters:
+      - name: "mailId"
+        in: "path"
+        required: true
+        description: "Идентификатор письма"
+        schema:
+          type: "string"
+          format: "uuid"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitExternalMailRequest"
+            example:
+              serialNumber: "123456789"
+              value: "SGVsbG8="
+              issuer: "E=IdleCA, C=RU, S=Idle CA, L=Idle CA, O=Idle CA, OU=Idle CA,\
+                \ CN=Idle CA"
+              digestName: "SHA-256"
+              digestVersion: "v1"
+              fio: "Иванов Иван Иванович"
+              position: "Генеральный директор"
+      responses:
+        "201":
+          description: "Created"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+  schemas:
+    CreateExternalCorrespondenceRequest:
+      type: "object"
+      properties:
+        docExtId:
+          type: "string"
+          description: "Идентификатор документа"
+          example: "123456"
+        topicId:
+          type: "string"
+          format: "uuid"
+          description: "Идентификатор темы письма"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        text:
+          type: "string"
+          description: "Текст письма"
+          minLength: 1
+          maxLength: 4000
+          pattern: ".*(\\S|\\n).*"
+          example: "Текст письма"
+        docData:
+          $ref: "#/components/schemas/ExternalDocData"
+      required:
+      - "docData"
+      - "docExtId"
+      - "topicId"
+      - "text"
+    CreateExternalCorrespondenceResponse:
+      properties:
+        correspondenceId:
+          type: "string"
+          format: "uuid"
+          description: "Идентификатор переписки"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        mailId:
+          type: "string"
+          format: "uuid"
+          description: "Идентификатор первого письма"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+      required:
+      - "correspondenceId"
+      - "mailId"
+    GetExternalCorrespondenceResponse:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          description: "Идентификатор переписки"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        status:
+          description: "Статус переписки"
+          $ref: "#/components/schemas/ExternalCorrespondenceStatus"
+        topicId:
+          type: "string"
+          format: "uuid"
+          description: "Идентификатор темы переписки"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        createdAt:
+          description: "Время создания переписки"
+          $ref: "#/components/schemas/DateTime"
+        updatedAt:
+          description: "Время обновления переписки"
+          $ref: "#/components/schemas/DateTime"
+        account:
+          type: "string"
+          description: "Номер счета"
+          example: "123456789"
+        senderFirstName:
+          type: "string"
+          description: "Имя инициатора"
+          example: "Иван"
+        senderMiddleName:
+          type: "string"
+          description: "Отчетсво инициатора"
+          example: "Иванович"
+        senderLastName:
+          type: "string"
+          description: "Фамилия инициатора"
+          example: "Иванов"
+        correspondenceMails:
+          type: "array"
+          description: "Письма переписки"
+          example: []
+          items:
+            $ref: "#/components/schemas/ExternalCorrespondenceMail"
+      required:
+      - "id"
+      - "topicId"
+      - "createdAt"
+      - "updatedAt"
+      - "senderFirstName"
+      - "senderLastName"
+      - "correspondenceMails"
+    GetExternalCorrespondenceV2Response:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          description: "Идентификатор переписки"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        direction:
+          description: "Направление переписки"
+          $ref: "#/components/schemas/ExternalCorrespondenceDirection"
+        status:
+          description: "Статус переписки"
+          $ref: "#/components/schemas/ExternalCorrespondenceStatus"
+        topic:
+          $ref: "#/components/schemas/ExternalCorrespondenceTopic"
+        createdAt:
+          description: "Время создания переписки"
+          $ref: "#/components/schemas/DateTime"
+        updatedAt:
+          description: "Время обновления переписки"
+          $ref: "#/components/schemas/DateTime"
+        account:
+          type: "string"
+          nullable: true
+          description: "Номер счета"
+          example: "123456789"
+        senderFirstName:
+          type: "string"
+          description: "Имя инициатора"
+          example: "Иван"
+        senderMiddleName:
+          type: "string"
+          nullable: true
+          description: "Отчество инициатора"
+          example: "Иванович"
+        senderLastName:
+          type: "string"
+          description: "Фамилия инициатора"
+          example: "Иванов"
+        correspondenceMails:
+          type: "array"
+          description: "Письма переписки"
+          items:
+            $ref: "#/components/schemas/ExternalCorrespondenceMail"
+          example: []
+      required:
+      - "id"
+      - "direction"
+      - "status"
+      - "topic"
+      - "createdAt"
+      - "updatedAt"
+      - "account"
+      - "senderFirstName"
+      - "senderMiddleName"
+      - "senderLastName"
+      - "correspondenceMails"
+    SearchCorrespondencesRequest:
+      type: "object"
+      description: "Запрос на получение списка переписок"
+      properties:
+        filter:
+          description: "Условия отбора переписок"
+          $ref: "#/components/schemas/ExternalCorrespondenceFilter"
+        sort:
+          description: "Параметры сортировки. По умолчанию сортировка по времени о\
+            бновления по убыванию"
+          $ref: "#/components/schemas/ExternalCorrespondenceSort"
+        paging:
+          description: "Параметры постраничной навигации. По умолчанию offset = 0,\
+            \ limit = 50"
+          $ref: "#/components/schemas/ExternalPagingRequest"
+      required:
+      - "filter"
+      - "paging"
+    ExternalCorrespondenceFilter:
+      type: "object"
+      description: "Условия отбора переписок"
+      example:
+        organization:
+          inn: "7707083893"
+        directions:
+        - "TO_BANK"
+        accounts:
+        - "12345678901234567890"
+        statuses:
+        - "OPEN"
+      properties:
+        organization:
+          description: "Идентификатор организации. Необходимо передать хотя бы одн\
+            о из полей — ИНН/КИО или CNUM"
+          $ref: "#/components/schemas/ExternalOrganizationFilter"
+        directions:
+          type: "array"
+          description: "Направления переписок. Пустой список или отсутствие поля —\
+            \ отбираются оба направления"
+          items:
+            $ref: "#/components/schemas/ExternalCorrespondenceDirection"
+          example:
+          - "TO_BANK"
+        createdAt:
+          description: "Диапазон времени создания переписки"
+          $ref: "#/components/schemas/DateTimeRange"
+        updatedAt:
+          description: "Диапазон времени последнего обновления переписки"
+          $ref: "#/components/schemas/DateTimeRange"
+        accounts:
+          type: "array"
+          description: "Номера счетов. Пустой список или отсутствие поля — фильтра\
+            ция по счёту не выполняется. При непустом списке переписки без счёта н\
+            е возвращаются. Если хотя бы один из указанных счетов недоступен польз\
+            ователю, запрос завершается с ошибкой 403"
+          items:
+            type: "string"
+            example: "12345678901234567890"
+          example:
+          - "12345678901234567890"
+        statuses:
+          type: "array"
+          description: "Статусы переписок. Пустой список или отсутствие поля — фил\
+            ьтрация по статусу не выполняется"
+          items:
+            $ref: "#/components/schemas/ExternalCorrespondenceStatus"
+          example:
+          - "OPEN"
+      required:
+      - "organization"
+    ExternalOrganizationFilter:
+      type: "object"
+      description: "Идентификатор организации для поиска переписок. Необходимо пер\
+        едать хотя бы одно из полей `inn` или `cnum`. Если переданы оба, они должн\
+        ы относиться к одной организации. КПП допустим только вместе с ИНН/КИО"
+      example:
+        inn: "7707083893"
+        kpp: "773601001"
+      properties:
+        inn:
+          type: "string"
+          description: "ИНН/КИО организации. Для КИО допустимо 5 цифр, для ИНН — 10\
+            \ или 12 цифр"
+          pattern: "(0|[0-9]{5})|([0-9]{10})|([0-9]{12})"
+          maxLength: 12
+          example: "7707083893"
+        cnum:
+          type: "string"
+          description: "Внутренний идентификатор организации (CNUM)"
+          pattern: "(.*\\S.*|)"
+          minLength: 1
+          example: "CB1234567"
+        kpp:
+          type: "string"
+          description: "КПП организации. Необязателен, если организация однозначно\
+            \ определяется по ИНН/КИО"
+          pattern: "(.*\\S.*|)"
+          minLength: 1
+          example: "773601001"
+    DateTimeRange:
+      type: "object"
+      description: "Диапазон дат. Граница from включается в выборку, граница to —\
+        \ исключается"
+      example:
+        from: "2026-07-01T00:00:00Z"
+        to: "2026-08-01T00:00:00Z"
+      properties:
+        from:
+          description: "Начало диапазона (включительно)"
+          $ref: "#/components/schemas/DateTimeWithOffset"
+        to:
+          description: "Конец диапазона (исключительно)"
+          $ref: "#/components/schemas/DateTimeWithOffset"
+    ExternalCorrespondenceSort:
+      type: "object"
+      description: "Параметры сортировки"
+      example:
+        field: "UPDATED_AT"
+        direction: "DESC"
+      properties:
+        field:
+          type: "string"
+          description: "Поле сортировки"
+          default: "UPDATED_AT"
+          enum:
+          - "CREATED_AT"
+          - "UPDATED_AT"
+          example: "UPDATED_AT"
+        direction:
+          type: "string"
+          description: "Порядок сортировки"
+          default: "DESC"
+          enum:
+          - "ASC"
+          - "DESC"
+          example: "DESC"
+    ExternalPagingRequest:
+      type: "object"
+      description: "Параметры постраничной навигации"
+      example:
+        offset: 0
+        limit: 50
+      properties:
+        offset:
+          type: "integer"
+          format: "int32"
+          description: "Количество пропускаемых записей"
+          minimum: 0
+          default: 0
+          example: 0
+        limit:
+          type: "integer"
+          format: "int32"
+          description: "Максимальное количество записей в ответе"
+          minimum: 1
+          maximum: 100
+          default: 50
+          example: 50
+    SearchCorrespondencesResponse:
+      type: "object"
+      description: "Список переписок"
+      properties:
+        items:
+          type: "array"
+          description: "Переписки, удовлетворяющие условиям отбора"
+          example: []
+          items:
+            $ref: "#/components/schemas/ExternalCorrespondenceCard"
+        paging:
+          description: "Параметры постраничной навигации"
+          $ref: "#/components/schemas/ExternalPagingResponse"
+      required:
+      - "items"
+      - "paging"
+    ExternalPagingResponse:
+      type: "object"
+      description: "Параметры постраничной навигации"
+      example:
+        offset: 0
+        limit: 50
+        hasNext: false
+      properties:
+        offset:
+          type: "integer"
+          format: "int32"
+          description: "Количество пропущенных записей"
+          example: 0
+        limit:
+          type: "integer"
+          format: "int32"
+          description: "Максимальное количество записей в ответе"
+          example: 50
+        hasNext:
+          type: "boolean"
+          description: "Признак наличия следующей страницы"
+          example: false
+        totalCount:
+          type: "integer"
+          format: "int64"
+          description: "Общее количество записей, удовлетворяющих условиям отбора"
+          example: 128
+      required:
+      - "offset"
+      - "limit"
+      - "hasNext"
+    ExternalCorrespondenceCard:
+      type: "object"
+      description: "Краткая карточка переписки без писем и вложений"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          description: "Идентификатор переписки"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        direction:
+          description: "Направление переписки"
+          $ref: "#/components/schemas/ExternalCorrespondenceDirection"
+        status:
+          description: "Статус переписки"
+          $ref: "#/components/schemas/ExternalCorrespondenceStatus"
+        topic:
+          $ref: "#/components/schemas/ExternalCorrespondenceTopic"
+        createdAt:
+          description: "Время создания переписки"
+          $ref: "#/components/schemas/ExternalSearchDateTime"
+        updatedAt:
+          description: "Время последнего обновления переписки"
+          $ref: "#/components/schemas/ExternalSearchDateTime"
+        account:
+          type: "string"
+          description: "Номер счёта. Отсутствует, если переписка создана без привя\
+            зки к счёту"
+          nullable: true
+          example: "12345678901234567890"
+        senderFirstName:
+          type: "string"
+          description: "Имя инициатора переписки"
+          example: "Иван"
+        senderMiddleName:
+          type: "string"
+          description: "Отчество инициатора переписки"
+          nullable: true
+          example: "Иванович"
+        senderLastName:
+          type: "string"
+          description: "Фамилия инициатора переписки"
+          example: "Иванов"
+      required:
+      - "id"
+      - "direction"
+      - "status"
+      - "topic"
+      - "createdAt"
+      - "updatedAt"
+      - "account"
+      - "senderFirstName"
+      - "senderMiddleName"
+      - "senderLastName"
+    ExternalCorrespondenceTopic:
+      type: "object"
+      nullable: true
+      description: "Названия составляющих тематики переписки; null, если тематичес\
+        кие данные не заполнены"
+      example:
+        product: "Торговое финансирование"
+        theme: "Заявки"
+        clarification: "Другие вопросы"
+      properties:
+        product:
+          type: "string"
+          description: "Продукт"
+          nullable: true
+          example: "Торговое финансирование"
+        theme:
+          type: "string"
+          description: "Тема"
+          nullable: true
+          example: "Заявки"
+        clarification:
+          type: "string"
+          description: "Уточнение"
+          nullable: true
+          example: "Другие вопросы"
+    ExternalCorrespondenceDirection:
+      type: "string"
+      description: "Направление переписки относительно клиента. TO_BANK — от клиен\
+        та в банк, FROM_BANK — из банка клиенту"
+      enum:
+      - "FROM_BANK"
+      - "TO_BANK"
+      example: "TO_BANK"
+    CreateExternalMailRequest:
+      type: "object"
+      properties:
+        correspondenceId:
+          type: "string"
+          format: "uuid"
+          description: "Идентификатор переписки"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        parentMailId:
+          type: "string"
+          format: "uuid"
+          description: "Идентификатор родительского письма"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        docExtId:
+          type: "string"
+          description: "Идентификатор документа"
+          example: "123456"
+        text:
+          type: "string"
+          description: "Текст письма"
+          minLength: 1
+          maxLength: 4000
+          pattern: ".*(\\S|\\n).*"
+          example: "Текст письма"
+      required:
+      - "correspondenceId"
+      - "parentMailId"
+      - "text"
+      - "docExtId"
+    CreateExternalMailResponse:
+      type: "object"
+      properties:
+        mailId:
+          type: "string"
+          format: "uuid"
+          description: "Идентификатор письма"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+      required:
+      - "mailId"
+    ExternalTopic:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          description: "Идентификатор темы"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        theme:
+          type: "string"
+          description: "Тема"
+          example: "Заявки"
+        product:
+          type: "string"
+          description: "Продукт"
+          example: "Торговое финансирование"
+        clarification:
+          type: "string"
+          description: "Уточнение"
+          example: "Другие вопросы"
+      required:
+      - "id"
+      - "theme"
+      - "product"
+      - "clarification"
+    ExternalTopicsResponse:
+      type: "array"
+      description: "Список доступных тематик переписок"
+      example:
+      - id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        theme: "Заявки"
+        product: "Торговое финансирование"
+        clarification: "Другие вопросы"
+      items:
+        $ref: "#/components/schemas/ExternalTopic"
+    ExternalDocData:
+      type: "object"
+      description: "Общие реквизиты платёжного документа ДБО"
+      example:
+        orgName: "ООО Компания"
+        docNumber: "12345"
+        docDate: "2021-07-10"
+        account: "12345678901234567890"
+        bic: "123456789"
+        inn: "123412341234"
+        kpp: "123456789"
+      properties:
+        orgName:
+          type: "string"
+          description: "Наименование организации"
+          minLength: 1
+          maxLength: 160
+          example: "ООО Компания"
+        docNumber:
+          type: "string"
+          description: "Номер документа"
+          pattern: "([1-9][0-9]{0,5})"
+          maxLength: 6
+          example: "12345"
+        docDate:
+          description: "Дата составления документа"
+          $ref: "#/components/schemas/Date"
+        account:
+          type: "string"
+          description: "Номер счёта или корр. счёта, 20 цифр"
+          pattern: "([0-9]{20})"
+          maxLength: 20
+          example: "12345678901234567890"
+        bic:
+          type: "string"
+          description: "БИК, 9 цифр"
+          pattern: "([0-9]{9})"
+          maxLength: 9
+          example: "123456789"
+        inn:
+          type: "string"
+          description: "ИНН/КИО юридического или физического лица РФ, для КИО допу\
+            стимо 5 символов, для ИНН 10 или 12 цифр"
+          pattern: "(0|[0-9]{5})|([0-9]{10})|([0-9]{12})"
+          maxLength: 12
+          example: "123412341234"
+        kpp:
+          type: "string"
+          description: "КПП, 9 цифр, 6-я позиция м.б. буква лат. буква 12 цифр"
+          pattern: "(.*\\S.*|)"
+          example: "123456789"
+      required:
+      - "docNumber"
+      - "docDate"
+      - "account"
+      - "bic"
+      - "inn"
+    SubmitExternalMailRequest:
+      type: "object"
+      description: "ЭП клиента"
+      properties:
+        serialNumber:
+          type: "string"
+          description: "Серийный номер сертификата"
+          minLength: 1
+          maxLength: 255
+          example: "123456789"
+        value:
+          type: "string"
+          format: "base64"
+          description: "Значение ЭП"
+          example: "SGVsbG8="
+        issuer:
+          type: "string"
+          description: "Идентификатор поставщика сертификата"
+          minLength: 1
+          maxLength: 1024
+          example: "E=IdleCA, C=RU, S=Idle CA, L=Idle CA, O=Idle CA, OU=Idle CA, CN=Idle\
+            \ CA"
+        digestName:
+          type: "string"
+          description: "Имя схемы подписи"
+          example: "SHA-256"
+        digestVersion:
+          type: "string"
+          description: "Версия схемы подписи"
+          example: "v1"
+        fio:
+          type: "string"
+          description: "ФИО УЛК, наложившего данную подпись"
+          example: "Иванов Иван Иванович"
+        position:
+          type: "string"
+          description: "Должность УЛК, наложившего подпись"
+          example: "Генеральный директор"
+      required:
+      - "serialNumber"
+      - "value"
+    ExternalCorrespondenceMail:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          description: "Идентификатор письма"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        type:
+          description: "Тип письма"
+          $ref: "#/components/schemas/ExternalMailType"
+        text:
+          type: "string"
+          description: "Текст письма"
+          example: "Текст письма"
+        number:
+          type: "integer"
+          description: "Номер письма"
+          example: 1
+        createdAt:
+          description: "Время создания письма"
+          $ref: "#/components/schemas/DateTime"
+        updatedAt:
+          description: "Время обновления письма"
+          $ref: "#/components/schemas/DateTime"
+        senderFirstName:
+          type: "string"
+          description: "Имя отправителя"
+          example: "Иван"
+        senderMiddleName:
+          type: "string"
+          description: "Отчетсво отправителя"
+          example: "Иванович"
+        senderLastName:
+          type: "string"
+          description: "Фамилия отправителя"
+          example: "Иванов"
+        attachments:
+          type: "array"
+          description: "Информация о вложениях"
+          items:
+            $ref: "#/components/schemas/ExternalMailAttachment"
+      required:
+      - "id"
+      - "type"
+      - "text"
+      - "number"
+      - "createdAt"
+      - "updatedAt"
+      - "senderFirstName"
+      - "senderLastName"
+      - "attachments"
+    ExternalMailType:
+      type: "string"
+      description: "Направление письма относительно клиента"
+      example: "TO_BANK"
+      enum:
+      - "TO_BANK"
+      - "FROM_BANK"
+    ExternalMailAttachment:
+      type: "object"
+      properties:
+        number:
+          type: "integer"
+          description: "Номер вложения"
+          example: 1
+        name:
+          type: "string"
+          description: "Название вложения"
+          example: "file.txt"
+      required:
+      - "number"
+      - "name"
+    ErrorResponse:
+      type: "object"
+      description: "Ошибка обработки запроса"
+      example:
+        message: "Validation failed"
+        error:
+          code: "BAD_REQUEST"
+          message: "Validation failed"
+      properties:
+        message:
+          type: "string"
+          description: "Текст ошибки в устаревшем формате, сохранённый для обратно\
+            й совместимости"
+          example: "Validation failed"
+        error:
+          type: "object"
+          description: "Структурированная информация об ошибке"
+          example:
+            code: "VALIDATION_ERROR"
+            message: "Validation failed"
+          properties:
+            code:
+              type: "string"
+              description: "Машиночитаемый код ошибки"
+              example: "VALIDATION_ERROR"
+            message:
+              type: "string"
+              description: "Описание ошибки"
+              example: "Validation failed"
+          required:
+          - "code"
+          - "message"
+      required:
+      - "error"
+    Date:
+      type: "string"
+      pattern: "([0-9]{4})-([0-9]{2})-([0-9]{2})"
+      description: "yyyy-MM-dd"
+      example: "2021-07-10"
+    DateTime:
+      type: "string"
+      pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+      description: "Дата и время в UTC в формате yyyy-MM-dd'T'HH:mm:ss'Z'"
+      example: "2021-07-10T06:53:37Z"
+    DateTimeWithOffset:
+      type: "string"
+      pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\\
+        d{2})$"
+      description: "Дата и время в формате ISO 8601 с обязательным указанием часов\
+        ого пояса — UTC (`Z`) или смещения (`±hh:mm`). Дробная часть секунды необя\
+        зательна"
+      example: "2026-07-10T09:53:37.123456+03:00"
+    ExternalSearchDateTime:
+      type: "string"
+      pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+      description: "Дата и время в формате ISO 8601, строго UTC (`Z`), без дробной\
+        \ части"
+      example: "2026-07-10T06:53:37Z"
+    ExternalCorrespondenceStatus:
+      type: "string"
+      description: "Статус переписки; промежуточные статусы закрытия относятся к OPEN"
+      enum:
+      - "OPEN"
+      - "CLOSED"
+      example: "OPEN"
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"

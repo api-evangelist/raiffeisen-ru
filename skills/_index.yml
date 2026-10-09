@@ -1,0 +1,26 @@
+name: Raiffeisenbank (Russia) Agent Skills
+generated: '2026-10-09'
+method: generated
+source: openapi/
+note: No provider-published skills or AGENTS.md found; llms.txt lists none.
+skills:
+- name: raiffeisen-ru-authorization
+  file: skills/raiffeisen-ru-authorization.md
+  api: openapi/raiffeisen-ru-authorization-openapi.yml
+  operations: 5
+- name: raiffeisen-ru-bank-statements
+  file: skills/raiffeisen-ru-bank-statements.md
+  api: openapi/raiffeisen-ru-bank-statements-openapi.yml
+  operations: 7
+- name: raiffeisen-ru-domestic-payments-import
+  file: skills/raiffeisen-ru-domestic-payments-import.md
+  api: openapi/raiffeisen-ru-domestic-payments-import-openapi.yml
+  operations: 7
+- name: raiffeisen-ru-raif-pay-sbp-qr
+  file: skills/raiffeisen-ru-raif-pay-sbp-qr.md
+  api: openapi/raiffeisen-ru-raif-pay-sbp-openapi.yml
+  operations: 9
+- name: raiffeisen-ru-raif-pay-payouts
+  file: skills/raiffeisen-ru-raif-pay-payouts.md
+  api: openapi/raiffeisen-ru-raif-pay-payouts-openapi.yml
+  operations: 8

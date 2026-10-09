@@ -1,0 +1,273 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-bill-request-schema.json",
+  "title": "BillRequest",
+  "description": "Корневая модель входящего документа",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-invoices-openapi.yml#/components/schemas/BillRequest",
+  "type": "object",
+  "properties": {
+    "goods": {
+      "$ref": "#/$defs/GoodsRequest",
+      "description": "Модель с товарами"
+    },
+    "invoice": {
+      "$ref": "#/$defs/Invoice",
+      "description": "Модель выставленного счёта"
+    },
+    "payer": {
+      "$ref": "#/$defs/PayerRequest",
+      "description": "Модель с данными плательщика"
+    },
+    "payee": {
+      "$ref": "#/$defs/PayeeRequest",
+      "description": "Модель с данными получателя"
+    },
+    "closingDocuments": {
+      "type": "array",
+      "description": "Связанные со счетом закрывающие документы",
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "uniqueItems": true
+    },
+    "receipts": {
+      "type": "array",
+      "description": "Связанные со счетом чеки самозанятых",
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "goods",
+    "invoice",
+    "payee",
+    "payer"
+  ],
+  "$defs": {
+    "AccountRequest": {
+      "type": "object",
+      "description": "Счёт получателя",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Наименование счёта"
+        },
+        "num": {
+          "type": "string",
+          "description": "Номер счёта"
+        },
+        "bic": {
+          "type": "string",
+          "description": "БИК получателя"
+        },
+        "branchName": {
+          "type": "string",
+          "description": "Наименование отделения банка получателя"
+        },
+        "corrAcc": {
+          "type": "string",
+          "description": "Корреспондентский счёт"
+        }
+      },
+      "required": [
+        "bic",
+        "name",
+        "num"
+      ]
+    },
+    "GoodsRequest": {
+      "type": "object",
+      "description": "Товары",
+      "properties": {
+        "items": {
+          "type": "array",
+          "description": "Список товаров",
+          "items": {
+            "$ref": "#/$defs/ItemRequest"
+          },
+          "maxItems": 2147483647,
+          "minItems": 1
+        }
+      },
+      "required": [
+        "items"
+      ]
+    },
+    "Invoice": {
+      "type": "object",
+      "description": "Счёт на оплату",
+      "properties": {
+        "num": {
+          "type": "string",
+          "description": "Номер счёта в буквенно-цифровом формате (может содержать латиницу, кириллицу, цифры, дефис и слэш)",
+          "pattern": "^(?=[A-Za-zА-Яа-я0-9/-]{1,30})(?=.*[1-9]+).*$"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата выставления счёта"
+        },
+        "cause": {
+          "type": "string",
+          "description": "Основание для выставления счёта"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Комментарий"
+        }
+      },
+      "required": [
+        "date",
+        "num"
+      ]
+    },
+    "ItemRequest": {
+      "type": "object",
+      "description": "Модель единицы товара",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Наименование единицы товара"
+        },
+        "count": {
+          "type": "number",
+          "description": "Количество"
+        },
+        "price": {
+          "type": "number",
+          "description": "Цена единицы товара"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Единица измерения товара",
+          "enum": [
+            "PIECE",
+            "MINUTE",
+            "HOUR",
+            "DAY",
+            "CENTIMETER",
+            "DECIMETER",
+            "METER",
+            "KILOMETER",
+            "SQUARE_METER",
+            "HECTARE",
+            "CUBIC_METER",
+            "LITER",
+            "GRAM",
+            "KILOGRAM",
+            "TON",
+            "KIT",
+            "BOX",
+            "KILOWATT_HOUR",
+            "GIGA_CALORIES",
+            "STANDARD_UNIT",
+            "LINEAR_METER",
+            "PACKAGE",
+            "SERVICE",
+            "PAIR",
+            "MACHINE_HOUR",
+            "MONTH",
+            "EMPTY"
+          ]
+        },
+        "vat": {
+          "type": "string",
+          "description": "НДС",
+          "enum": [
+            "VAT_0",
+            "NO_VAT",
+            "VAT_22",
+            "VAT_20",
+            "VAT_18",
+            "VAT_10",
+            "VAT_7",
+            "VAT_5"
+          ]
+        }
+      },
+      "required": [
+        "count",
+        "name",
+        "price",
+        "unit",
+        "vat"
+      ]
+    },
+    "PayeeRequest": {
+      "type": "object",
+      "description": "Модель получателя платежа.",
+      "properties": {
+        "inn": {
+          "type": "string",
+          "description": "ИНН получателя платежа"
+        },
+        "kpp": {
+          "type": "string",
+          "description": "КПП получателя платежа"
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование получателя платежа"
+        },
+        "lawType": {
+          "type": "string",
+          "description": "Организационно-правовая форма"
+        },
+        "juridicalAddress": {
+          "type": "string",
+          "description": "Юридический адрес получателя платежа"
+        },
+        "account": {
+          "$ref": "#/$defs/AccountRequest",
+          "description": "Банковский счёт получателя платежа."
+        }
+      },
+      "required": [
+        "account",
+        "inn",
+        "juridicalAddress"
+      ]
+    },
+    "PayerRequest": {
+      "type": "object",
+      "description": "Модель плательщика",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Тип плательщика.",
+          "enum": [
+            "INDIVIDUAL",
+            "LEGAL",
+            "NONE"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование плательщика."
+        },
+        "inn": {
+          "type": "string",
+          "description": "ИНН плательщика."
+        },
+        "kpp": {
+          "type": "string",
+          "description": "КПП плательщика."
+        },
+        "address": {
+          "type": "string",
+          "description": "Адрес плательщика."
+        }
+      },
+      "required": [
+        "type"
+      ]
+    }
+  }
+}

@@ -1,0 +1,115 @@
+generated: '2026-10-09'
+method: derived
+generator: derive-problem-types.py
+source:
+- openapi/raiffeisen-ru-adm-deposit-codes-openapi.yml
+- openapi/raiffeisen-ru-agency-factoring-openapi.yml
+- openapi/raiffeisen-ru-audit-reports-openapi.yml
+- openapi/raiffeisen-ru-authorization-openapi.yml
+- openapi/raiffeisen-ru-bank-statements-openapi.yml
+- openapi/raiffeisen-ru-brokerage-payment-orders-openapi.yml
+- openapi/raiffeisen-ru-brokerage-reports-openapi.yml
+- openapi/raiffeisen-ru-cbr-exchange-rates-openapi.yml
+- openapi/raiffeisen-ru-client-tariffs-openapi.yml
+- openapi/raiffeisen-ru-content-dictionaries-openapi.yml
+- openapi/raiffeisen-ru-content-interactions-openapi.yml
+- openapi/raiffeisen-ru-content-macroeconomic-reviews-openapi.yml
+format: custom
+envelope:
+  media_type: application/json
+  schema: ErrorResponse
+coverage:
+  operations: 449
+  statuses_declared: 12
+problems:
+- status: 400
+  title: Bad Request
+  description: Bad Request
+  operations: 344
+  media_types:
+  - application/json
+  - application/xml
+  - text/plain
+  schema: ErrorResponse
+- status: 401
+  title: Unauthorized
+  description: Аутентификация не пройдена
+  operations: 329
+  media_types:
+  - application/json
+  schema: Error401Response
+- status: 403
+  title: Forbidden
+  description: Forbidden
+  operations: 135
+  media_types:
+  - application/json
+  - application/json;charset=UTF-8
+  schema: ErrorResponseDto
+- status: 404
+  title: Not Found
+  description: Not Found
+  operations: 143
+  media_types:
+  - application/json
+  - text/plain
+  - application/json;charset=UTF-8
+  schema: ErrorResponseDto
+- status: 409
+  title: Conflict
+  description: Conflict
+  operations: 15
+  media_types:
+  - application/json
+  - text/plain
+  - application/json;charset=UTF-8
+  schema: error
+- status: 410
+  title: Gone
+  description: Истёк срок доступности невостребованного файла (FILE_EXPIRED) или файл удалён (FILE_DELETED)
+  operations: 2
+  media_types:
+  - application/json
+  schema: Error
+- status: 413
+  title: Content Too Large
+  description: Размер запроса превышает максимальное ограничение
+  operations: 9
+  media_types:
+  - application/json
+  schema: Error413Response
+- status: 415
+  title: Unsupported Media Type
+  description: Unsupported Media Type.
+  operations: 14
+  media_types:
+  - application/json
+  schema: 415response
+- status: 422
+  title: Unprocessable Content
+  description: Unprocessable Entity
+  operations: 21
+  media_types:
+  - application/json
+  schema: ErrorResponseDto
+- status: 424
+  title: Failed Dependency
+  description: Некорректный подписант
+  operations: 2
+  media_types:
+  - application/json
+  schema: null
+- status: 500
+  title: Internal Server Error
+  description: Внутренняя ошибка
+  operations: 366
+  media_types:
+  - application/json
+  - application/json;charset=UTF-8
+  schema: ErrorResponseDto
+- status: 503
+  title: Service Unavailable
+  description: Проверка токена временно недоступна
+  operations: 1
+  media_types: []
+  schema: null

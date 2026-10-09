@@ -1,0 +1,189 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Report API
+  version: 1.0.0
+  description: 'Operations tagged Report across 2 of this provider''s published API definitions: raiffeisen-ru-factoring-openapi.yml, raiffeisen-ru-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/factoring
+tags:
+- description: Отчет
+  name: Report
+paths:
+  /v1/reports/registered-supplies:
+    get:
+      description: Метод генерации и получения отчета о зарегистрированных поставках
+      operationId: getRegisteredSuppliesReport
+      parameters:
+      - description: Допустимый MIME-тип ответа
+        in: header
+        name: Accept
+        required: true
+        schema:
+          enum:
+          - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+          example: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+          type: string
+      - description: Идентификатор Договора Факторинга
+        in: query
+        name: agreementId
+        required: true
+        schema:
+          example: ba705955-3e0f-4956-84e0-e12616e84e2b
+          format: uuid
+          type: string
+      - description: Начальная дата включения поставок в отчет (по дате регистрации в системе) включительно
+        in: query
+        name: startDate
+        required: true
+        schema:
+          example: '2025-12-01'
+          format: date
+          type: string
+      - description: Конечная дата включения поставок в отчет (по дате регистрации в системе) включительно
+        in: query
+        name: endDate
+        required: true
+        schema:
+          example: '2026-01-01'
+          format: date
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: object
+          description: Файл отчета в формате xlsx
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Ошибка
+                  value:
+                  - code: REST_ERROR_5001
+                    message: General service error
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Генерация и получение отчета о зарегистрированных поставках
+      tags:
+      - Report
+    servers:
+    - url: https://api.raiffeisen.ru/factoring
+components:
+  schemas:
+    RestErrorCodes:
+      description: '| code            | description                                          |
+
+        |-----------------|------------------------------------------------------|
+
+        | REST_ERROR_5001 | General service error                                |
+
+        | REST_ERROR_5004 | Agreement does not exist                             |
+
+        | REST_ERROR_5017 | DealConditions does not exist                        |
+
+        | REST_ERROR_5024 | Action is available at working hour                  |
+
+        | REST_ERROR_5025 | Supplies are not found                               |
+
+        | REST_ERROR_5026 | Approved contract does not exist                     |
+
+        | REST_ERROR_5027 | Supplies must be selected on only one deal condition |
+
+        | REST_ERROR_5028 | Approved deal conditions do not exist                |
+
+        | REST_ERROR_5029 | Approved agreement does not exist                    |
+
+        | REST_ERROR_5031 | Account for financing cannot be empty                |
+
+        | REST_ERROR_5032 | Data validation failed                               |
+
+        | REST_ERROR_5033 | File is infected                                     |
+
+        | REST_ERROR_5034 | Invalid type of file                                 |
+
+        | REST_ERROR_5035 | File is empty                                        |
+
+        | REST_ERROR_5036 | Failed to read file                                  |
+
+        | REST_ERROR_5037 | Supplier are not found                               |
+
+        | SELECTED_ORGANIZATION_REQUIRED | selectedCnum is required when several organizations are available |
+
+        | SELECTED_ORGANIZATION_NOT_ALLOWED | selectedCnum is not included in allowed organizations |
+
+        '
+      enum:
+      - REST_ERROR_5001
+      - REST_ERROR_5004
+      - REST_ERROR_5017
+      - REST_ERROR_5024
+      - REST_ERROR_5025
+      - REST_ERROR_5026
+      - REST_ERROR_5027
+      - REST_ERROR_5028
+      - REST_ERROR_5029
+      - REST_ERROR_5031
+      - REST_ERROR_5032
+      - REST_ERROR_5033
+      - REST_ERROR_5034
+      - REST_ERROR_5035
+      - REST_ERROR_5036
+      - SELECTED_ORGANIZATION_REQUIRED
+      - SELECTED_ORGANIZATION_NOT_ALLOWED
+      example: REST_ERROR_5001
+      type: string
+    ErrorMessage:
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    ErrorResponse:
+      example:
+      - code: REST_ERROR_5001
+        message: General service error
+      items:
+        $ref: '#/components/schemas/ErrorMessage'
+      type: array
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-factoring-openapi.yml
+- raiffeisen-ru-factoring-openapi.yml

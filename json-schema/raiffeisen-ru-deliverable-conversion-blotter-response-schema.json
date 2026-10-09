@@ -1,0 +1,256 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-deliverable-conversion-blotter-response-schema.json",
+  "title": "DeliverableConversionBlotterResponse",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-fx-openapi.yml#/components/schemas/DeliverableConversionBlotterResponse",
+  "type": "object",
+  "required": [
+    "result",
+    "requestId"
+  ],
+  "properties": {
+    "result": {
+      "type": "object",
+      "description": "Объект с результатом исполнения запроса",
+      "required": [
+        "hasMore",
+        "list"
+      ],
+      "properties": {
+        "hasMore": {
+          "type": "boolean",
+          "description": "Признак наличия других записей в истории, удовлетворяющих параметрам запроса"
+        },
+        "list": {
+          "type": "array",
+          "description": "Массив истории подтверждений сделок",
+          "items": {
+            "$ref": "#/$defs/DeliverableConversionBlotterItem"
+          }
+        }
+      }
+    },
+    "requestId": {
+      "type": "string",
+      "description": "Идентификатор запроса"
+    }
+  },
+  "$defs": {
+    "DeliverableConversionBlotterItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Идентификатор записи"
+        },
+        "clientBuyAccount": {
+          "type": "object",
+          "description": "Объект с информацией о счете покупки",
+          "required": [
+            "number",
+            "currency",
+            "accountType",
+            "trustManagementName"
+          ],
+          "properties": {
+            "number": {
+              "type": "string",
+              "description": "Номер счета покупки"
+            },
+            "currency": {
+              "type": "object",
+              "description": "Валюта счета покупки",
+              "required": [
+                "isoCode",
+                "numericCode"
+              ],
+              "properties": {
+                "isoCode": {
+                  "type": "string"
+                },
+                "numericCode": {
+                  "type": "string"
+                }
+              }
+            },
+            "accountType": {
+              "type": "string",
+              "description": "Тип счета (INTERNAL/EXTERNAL)"
+            },
+            "trustManagementName": {
+              "type": "string",
+              "description": "Наименование управляющей компании"
+            }
+          }
+        },
+        "clientSellAccount": {
+          "type": "object",
+          "description": "Объект с информацией о счете продажи",
+          "required": [
+            "number",
+            "currency",
+            "accountType",
+            "trustManagementName"
+          ],
+          "properties": {
+            "number": {
+              "type": "string",
+              "description": "Номер счета продажи"
+            },
+            "currency": {
+              "type": "object",
+              "description": "Валюта счета продажи",
+              "required": [
+                "isoCode",
+                "numericCode"
+              ],
+              "properties": {
+                "isoCode": {
+                  "type": "string"
+                },
+                "numericCode": {
+                  "type": "string"
+                }
+              }
+            },
+            "accountType": {
+              "type": "string",
+              "description": "Тип счета (INTERNAL/EXTERNAL)"
+            },
+            "trustManagementName": {
+              "type": "string",
+              "description": "Наименование управляющей компании"
+            }
+          }
+        },
+        "clientSellAmount": {
+          "type": "string",
+          "description": "Сумма продажи"
+        },
+        "clientBuyAmount": {
+          "type": "string",
+          "description": "Сумма покупки"
+        },
+        "creationDate": {
+          "type": "string",
+          "description": "Дата создания подтверждения (ISO 8601)"
+        },
+        "tradeDate": {
+          "type": "string",
+          "description": "Дата заключения сделки (ISO 8601)"
+        },
+        "valueDate": {
+          "type": "string",
+          "description": "Дата расчетов по сделке (ISO 8601)"
+        },
+        "sendDate": {
+          "type": "string",
+          "description": "Дата подписания подтверждения (ISO 8601)"
+        },
+        "processingDate": {
+          "type": "string",
+          "description": "Дата исполнения подтверждения (ISO 8601)"
+        },
+        "price": {
+          "type": "string",
+          "description": "Обменный курс"
+        },
+        "creator": {
+          "type": "object",
+          "description": "Информация о создателе сделки",
+          "required": [
+            "id",
+            "name"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Идентификатор создателя"
+            },
+            "name": {
+              "type": "string",
+              "description": "ФИО создателя"
+            }
+          }
+        },
+        "traders": {
+          "type": "array",
+          "description": "Список подписантов сделки",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Идентификатор подписанта"
+              },
+              "name": {
+                "type": "string",
+                "description": "ФИО подписанта"
+              }
+            }
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "Статус подтверждения"
+        },
+        "resultComment": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Комментарий при отклонении подтверждения"
+        },
+        "comment": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Комментарий к подтверждению"
+        },
+        "conversionAgreementNumber": {
+          "type": "string",
+          "description": "Номер подтверждения"
+        },
+        "confirmDeal": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "Признак, что подтверждение формируется на основании соглашения об условиях совершения конверсионной сделки"
+        },
+        "client": {
+          "type": "object",
+          "description": "Объект с информацией о клиенте",
+          "required": [
+            "id",
+            "name",
+            "shortName",
+            "clientType"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Идентификатор клиента"
+            },
+            "name": {
+              "type": "string",
+              "description": "Наименование клиента"
+            },
+            "shortName": {
+              "type": "string",
+              "description": "Короткое наименование клиента"
+            },
+            "clientType": {
+              "type": "string",
+              "description": "Тип клиента"
+            }
+          }
+        }
+      }
+    }
+  }
+}

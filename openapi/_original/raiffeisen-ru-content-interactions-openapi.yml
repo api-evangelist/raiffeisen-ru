@@ -1,0 +1,293 @@
+---
+openapi: "3.0.3"
+info:
+  title: "Контент. Взаимодействие с контентом"
+  version: "1.0.0"
+paths:
+  /v1/contents/{newsType}/{id}/stat:
+    post:
+      tags:
+      - "Новости и события"
+      summary: "Отметить новость прочитанной и оценить ее"
+      operationId: "v1RegisterStat_(3)"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+      - name: "newsType"
+        in: "path"
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+          enum:
+          - "PRODUCT"
+          - "DIGEST"
+          - "WEBINAR"
+          - "INSIGHT"
+          - "STORY"
+          - "SURVEY"
+      - name: "Raiff-App-Version"
+        in: "header"
+        description: "Версия приложения"
+        required: true
+        schema:
+          default: "4.0.0"
+        example: "4.0.0"
+      - name: "Accept-Language"
+        in: "header"
+        description: "Язык приложения, ru или en"
+        required: false
+        schema:
+          default: "ru"
+        example: "ru"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StatResource"
+        required: true
+      responses:
+        "400":
+          description: "CNT-115 - Контент с типом [${contentType}] не найден<br/>CNT-122\
+            \ - Контент с типом [${type}] не поддерживается"
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: "integer"
+                    format: "int32"
+                  error:
+                    type: "string"
+                  message:
+                    type: "string"
+              example:
+                code: 400
+                error: "CNT-115"
+                message: "Контент с типом [${contentType}] не найден"
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/contents/{newsType}/{id}/read:
+    post:
+      tags:
+      - "Новости и события"
+      summary: "Отметить контент прочитанным"
+      operationId: "v1SetReadStatusNews_(1)"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+      - name: "newsType"
+        in: "path"
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+          enum:
+          - "PRODUCT"
+          - "DIGEST"
+          - "WEBINAR"
+          - "INSIGHT"
+          - "STORY"
+          - "SURVEY"
+      - name: "cnum"
+        in: "query"
+        required: false
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+      - name: "Raiff-App-Version"
+        in: "header"
+        description: "Версия приложения"
+        required: true
+        schema:
+          default: "4.0.0"
+        example: "4.0.0"
+      - name: "Accept-Language"
+        in: "header"
+        description: "Язык приложения, ru или en"
+        required: false
+        schema:
+          default: "ru"
+        example: "ru"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "400":
+          description: "CNT-122 - Контент с типом [${type}] не поддерживается<br/>CNT-115\
+            \ - Контент с типом [${contentType}] не найден"
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: "integer"
+                    format: "int32"
+                  error:
+                    type: "string"
+                  message:
+                    type: "string"
+              example:
+                code: 400
+                error: "CNT-122"
+                message: "Контент с типом [${type}] не поддерживается"
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadStatusResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/contents/count/new:
+    get:
+      tags:
+      - "Новости и события"
+      summary: "Получить счетчик нового контента"
+      operationId: "v1GetNewsContentCount"
+      parameters:
+      - name: "Raiff-App-Version"
+        in: "header"
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          $ref: "#/components/schemas/Version"
+      - name: "Accept-Language"
+        in: "header"
+        description: "Язык приложения, ru или en"
+        required: false
+        schema:
+          default: "ru"
+        example: "ru"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsContentCounterResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  schemas:
+    StatResource:
+      type: "object"
+      description: ""
+      example:
+        rating: 1
+      properties:
+        rating:
+          type: "integer"
+          format: "int32"
+          description: "Оценка контента"
+      required:
+      - "rating"
+    ReadStatusResource:
+      type: "object"
+      description: ""
+      example:
+        read: true
+      properties:
+        read:
+          type: "boolean"
+          description: "Статус прочитанности"
+      required:
+      - "read"
+    Version:
+      type: "object"
+      properties:
+        version:
+          type: "string"
+      required:
+      - "version"
+    NewsContentCounterResource:
+      type: "object"
+      description: ""
+      example:
+        count: 1
+        digestCount: 1
+        productCount: 1
+        webinarCount: 1
+        insightCount: 1
+      properties:
+        count:
+          type: "integer"
+          format: "int64"
+          description: "Общее число нового контента"
+        digestCount:
+          type: "integer"
+          format: "int64"
+          description: "Число новых обзоров макроэкономики"
+        productCount:
+          type: "integer"
+          format: "int64"
+          description: "Число новых продуктовых новостей"
+        webinarCount:
+          type: "integer"
+          format: "int64"
+          description: "Число новых вебинароа"
+        insightCount:
+          type: "integer"
+          format: "int64"
+          description: "Число новых инсайтов (API инсайтов пока недоступно)"
+      required:
+      - "count"
+      - "digestCount"
+      - "insightCount"
+      - "productCount"
+      - "webinarCount"
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+servers:
+- url: "https://api.raiffeisen.ru/media-content"

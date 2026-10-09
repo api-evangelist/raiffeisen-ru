@@ -1,0 +1,1309 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Deals history API
+  version: 1.0.0
+  description: 'Operations tagged Deals history across 2 of this provider''s published API definitions: raiffeisen-ru-fx-openapi.yml, raiffeisen-ru-fx-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/fx
+tags:
+- name: Deals history
+paths:
+  /v1/trades/blotter:
+    post:
+      tags:
+      - Deals history
+      summary: Запрос для получения истории спотовых и форвардных сделок
+      operationId: tradesBlotter
+      description: Чтобы запросить историю сделок заполните параметры фильтрации и сортировки и получите в ответе историю ранее заключенных сделок с их параметрами
+      parameters:
+      - in: header
+        name: CNUM
+        description: Уникальный идентификатор клиента (CNUM)
+        required: true
+        schema:
+          type: string
+          example: U12345
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Запросить историю сделок
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                offset:
+                  type: integer
+                  description: Значение смещения строк со сделками из истории сделок
+                limit:
+                  type: integer
+                  description: Ограничение на количество строк со сделками из истории сделок
+                filter:
+                  type: array
+                  description: Объект с параметрами фильтрации
+                  items:
+                    type: object
+                    properties:
+                      property:
+                        type: string
+                        description: Параметры фильтрации
+                      clause:
+                        type: array
+                        description: Массив со значениями параметров, по которым необходимо производить фильтрацию
+                        items:
+                          type: string
+                sort:
+                  type: array
+                  description: Объект с параметрами фильтрации
+                  items:
+                    type: object
+                    properties:
+                      direction:
+                        type: string
+                        description: Направление сортировки, с возможными значениями "ASC" или "DESC"
+                      property:
+                        type: string
+                        description: Параметр по которому необходимо сортировать
+            examples:
+              Запрос с фильтраций и сортировкой:
+                summary: Запрос с фильтраций и сортировкой
+                value:
+                  offset: 0
+                  limit: 60
+                  sort:
+                  - property: tradeDate
+                    direction: DESC
+                  filter:
+                  - property: currencyPair
+                    clause:
+                    - USD/RUB
+                    - AUD/RUB
+                    - USD/CNH
+              Запрос с фильтрацией:
+                summary: Запрос с фильтрацией
+                value:
+                  offset: 0
+                  limit: 60
+                  filter:
+                  - property: currencyPair
+                    clause:
+                    - USD/RUB
+                    - AUD/RUB
+                    - USD/CNH
+              Запрос с сортировкой:
+                summary: Запрос с сортировкой
+                value:
+                  offset: 0
+                  limit: 60
+                  sort:
+                  - property: tradeDate
+                    direction: DESC
+        required: true
+      responses:
+        '200':
+          description: История сделок
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - result
+                - requestId
+                properties:
+                  result:
+                    type: object
+                    description: Объект с результатом исполнения запроса
+                    required:
+                    - hasMore
+                    - list
+                    properties:
+                      hasMore:
+                        type: boolean
+                        description: Признак наличия записей удовлетворяющие параметры запросы
+                      list:
+                        type: array
+                        description: Массив истории сделок
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: Идентификатор записи в истории сделок
+                              example: 1765
+                            orderId:
+                              type: string
+                              description: Идентификатор сделки
+                              example: 0000000004480
+                            buyAccount:
+                              type: object
+                              description: Объект с информацией о счете покупки
+                              required:
+                              - currency
+                              - externalAccount
+                              - number
+                              - trustManagementName
+                              properties:
+                                currency:
+                                  type: string
+                                  description: Валюта счета покупки
+                                  example: USD
+                                externalAccount:
+                                  type: boolean
+                                  description: Признак внешнего счета
+                                  example: true
+                                number:
+                                  type: string
+                                  description: Номер счета покупки
+                                  example: EXTERNAL_ACCOUNT_USD
+                                trustManagementName:
+                                  type: string
+                                  description: Наименование управляющей компании
+                                  example: null
+                            buyAmount:
+                              type: string
+                              description: Объем покупки
+                              example: 84596.4
+                            sellAccount:
+                              type: object
+                              description: Объект с информацией о счете продажи
+                              required:
+                              - currency
+                              - externalAccount
+                              - number
+                              - trustManagementName
+                              properties:
+                                currency:
+                                  type: string
+                                  description: Валюта счета продажи
+                                  example: RUB
+                                externalAccount:
+                                  type: boolean
+                                  description: Признак внешнего счета
+                                  example: true
+                                number:
+                                  type: string
+                                  description: Номер счета продажи
+                                  example: EXTERNAL_ACCOUNT_RUB
+                                trustManagementName:
+                                  type: string
+                                  description: Наименование управляющей компании
+                                  example: null
+                            sellAmount:
+                              type: string
+                              description: Объем продажи
+                              example: 1000
+                            price:
+                              type: string
+                              description: Курс сделки
+                              example: 84.5964
+                            priceDecimalPlaces:
+                              type: integer
+                              description: Количество цифр в курсе после запятой
+                              example: 4
+                            currencyPair:
+                              type: string
+                              description: Валютная пара
+                              example: USD/RUB
+                            tenor:
+                              type: string
+                              description: Значение определяющее дату расчета по сделке, возможные значения TOD - сегодня, TOM - завтра, SPOT - после завтра
+                              example: TOD
+                            tradeMode:
+                              type: string
+                              description: Режим кредитования сделки
+                              example: DVP
+                            clientSide:
+                              type: string
+                              description: Сторона сделки
+                              example: SELL
+                            traders:
+                              type: object
+                              description: Объект с информацией о подписантах сделки
+                              required:
+                              - id
+                              - name
+                              properties:
+                                id:
+                                  type: string
+                                  description: Идентификтор подписанта
+                                  example: 1
+                                name:
+                                  type: string
+                                  description: ФИО подписанта
+                                  example: Вячеславов Александр Михайлович
+                            client:
+                              type: object
+                              description: Объект с информацией о клиенте
+                              required:
+                              - id
+                              - name
+                              - clientType
+                              properties:
+                                id:
+                                  type: string
+                                  description: Идентификтор клиента
+                                  example: 304086
+                                name:
+                                  type: string
+                                  description: Наименование клиента
+                                  example: Рога и копыта
+                                clientType:
+                                  type: string
+                                  description: Тип клиента
+                                  example: REAL
+                            valueDate:
+                              type: string
+                              description: Дата расчетов по сделке
+                              example: '2024-05-22T00:00:00Z'
+                            tradeDate:
+                              type: string
+                              description: Дата заключения сделки
+                              example: '2024-05-22T20:30:21Z'
+                            debitDate:
+                              type: string
+                              description: Дата списания средств по сделке
+                              example: '2024-05-22T00:00:00Z'
+                            product:
+                              type: string
+                              description: Режим заключения сделки
+                              example: RFQ
+                            useNetting:
+                              type: boolean
+                              description: Признак использования неттинга
+                              example: false
+                            externalConfirmation:
+                              type: boolean
+                              description: Признак внешнего способа подтверждения сделки
+                              example: false
+                            settlMethod:
+                              type: string
+                              description: Метод поставки по сделке
+                              example: DELIVERABLE
+                            proposalId:
+                              type: string
+                              description: Идентификатор заявки на конверсию в режиме множесвтенной подписи
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+                    example: e0e70833c68e3c32
+              examples:
+                Успешный ответ:
+                  summary: Успешный ответ
+                  value:
+                    result:
+                      hasMore: true
+                      list:
+                      - id: 1765
+                        orderId: 0000000004480
+                        buyAccount:
+                          number: EXTERNAL_ACCOUNT_RUB
+                          currency: RUB
+                          trustManagementName: null
+                          externalAccount: true
+                        buyAmount: '84596.4'
+                        sellAccount:
+                          number: EXTERNAL_ACCOUNT_EUR
+                          currency: EUR
+                          trustManagementName: null
+                          externalAccount: true
+                        sellAmount: 1000
+                        price: 84.5964
+                        priceDecimalPlaces: 4
+                        currencyPair: EUR/RUB
+                        tenor: TOD
+                        tradeMode: DVP
+                        useNetting: false
+                        clientSide: SELL
+                        traders:
+                        - id: '111111'
+                          name: Вячеславов Александр Михайлович
+                        client:
+                          id: 409387
+                          name: ООО Рога и Копыта
+                          clientType: REAL
+                        valueDate: '2024-05-22T00:00:00Z'
+                        tradeDate: '2024-05-22T20:30:21Z'
+                        debitDate: '2024-05-22T00:00:00Z'
+                        product: RFQ
+                        externalConfirmation: false
+                        settlMethod: DELIVERABLE
+                        proposalId: null
+                    requestId: e0e70833c68e3c32
+        '400':
+          description: Плохой запрос
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                - requestId
+                properties:
+                  error:
+                    type: object
+                    description: Объект с кодом ошибки
+                    required:
+                    - code
+                    properties:
+                      code:
+                        type: string
+                        description: Значение кода ошибки
+                      message:
+                        type: string
+                        description: Описание кода ошибки
+                      data:
+                        type: array
+                        description: Дополнительная информация об ошибке
+                        items:
+                          type: object
+                          properties:
+                            field:
+                              type: string
+                              description: Параметр
+                            value:
+                              type: string
+                              description: Значение пармаметра
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+              examples:
+                Некорректная страница истории сделок:
+                  summary: Некорректная страница истории сделок
+                  value:
+                    error:
+                      code: blotter.page.number.invalid
+                      message: ''
+                      data:
+                      - field: pageNumber
+                        value: '0'
+                    requestId: e0e70833c68e3c32
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/fx
+  /v1/swaps/blotter:
+    post:
+      tags:
+      - Deals history
+      summary: Запрос для получения истории своповых сделок
+      operationId: swapsBlotter
+      description: Чтобы запросить историю сделок заполните параметры фильтрации и сортировки и получите в ответе историю ранее заключенных сделок с их параметрами
+      parameters:
+      - in: header
+        name: CNUM
+        description: Уникальный идентификатор клиента (CNUM)
+        required: true
+        schema:
+          type: string
+          example: U12345
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Запросить историю своповых сделок
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                offset:
+                  type: integer
+                  description: Значение смещения строк со сделками из истории сделок
+                  example: 0
+                limit:
+                  type: integer
+                  description: Ограничение на количество строк со сделками из истории сделок
+                  example: 10
+                sort:
+                  type: array
+                  description: Объект с параметрами сортировки
+                  items:
+                    type: object
+                    properties:
+                      property:
+                        type: string
+                        description: Параметр, по которому необходимо сортировать
+                        enum:
+                        - nearLeg.sellAmount
+                        - nearLeg.buyAmount
+                        - farLeg.buyAmount
+                        - farLeg.sellAmount
+                        - tradeDate
+                        - signer.name
+                        example: tradeDate
+                      direction:
+                        type: string
+                        description: Направление сортировки, с возможными значениями ASC или DESC
+                        enum:
+                        - ASC
+                        - DESC
+                        example: DESC
+                filter:
+                  type: array
+                  description: Объект с параметрами фильтрации
+                  items:
+                    type: object
+                    properties:
+                      property:
+                        type: string
+                        description: Параметр фильтрации
+                        enum:
+                        - dealId
+                        - tradeDate
+                        - swapSide
+                        - nearLeg.valueDate
+                        - farLeg.valueDate
+                        - nearLeg.tenor
+                        - farLeg.tenor
+                        - nearLeg.buyAmount
+                        - farLeg.buyAmount
+                        - nearLeg.sellAmount
+                        - farLeg.sellAmount
+                        - nearLeg.buyAmount.currency
+                        - farLeg.buyAmount.currency
+                        - nearLeg.sellAmount.currency
+                        - farLeg.sellAmount.currency
+                        - nearLeg.price
+                        - farLeg.price
+                        - swapPoints
+                        - marketCurrencyPair
+                        - baseAccount.number
+                        - quotedAccount.number
+                        - signer.name
+                      clause:
+                        type: array
+                        description: Массив значений параметра, по которым необходимо производить фильтрацию
+                        items:
+                          type: string
+            examples:
+              Запрос с сортировкой:
+                summary: Запрос с сортировкой
+                value:
+                  offset: 0
+                  limit: 10
+                  sort:
+                  - property: tradeDate
+                    direction: DESC
+                  filter: []
+        required: true
+      responses:
+        '200':
+          description: История своповых сделок
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - result
+                - requestId
+                properties:
+                  result:
+                    type: object
+                    description: Объект с результатом исполнения запроса
+                    required:
+                    - result
+                    - hasMorePages
+                    properties:
+                      result:
+                        type: array
+                        description: Массив истории своповых сделок
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              description: Идентификатор записи в истории сделок
+                              example: 18
+                            dealId:
+                              type: string
+                              description: Идентификатор сделки
+                              example: 3097
+                            signer:
+                              type: object
+                              description: Объект с информацией о подписанте сделки
+                              properties:
+                                id:
+                                  type: string
+                                  description: Идентификатор подписанта
+                                  example: organization.user.authority.external.id
+                                name:
+                                  type: string
+                                  description: ФИО подписанта
+                                  example: Вячеславов Александр Михайлович
+                            marketCurrencyPair:
+                              type: string
+                              description: Валютная пара
+                              example: EUR/RUB
+                            swapSide:
+                              type: string
+                              description: Сторона своповой сделки
+                              example: SELL
+                            baseAccount:
+                              type: object
+                              description: Объект с информацией о счете в базовой валюте
+                              properties:
+                                number:
+                                  type: string
+                                  description: Номер счета
+                                  example: 40817840000000382769
+                                currency:
+                                  type: string
+                                  description: Валюта счета
+                                  example: EUR
+                                trustManagementName:
+                                  type: string
+                                  description: Наименование управляющей компании
+                                  example: null
+                                externalAccount:
+                                  type: boolean
+                                  description: Признак внешнего счета
+                                  example: true
+                            quotedAccount:
+                              type: object
+                              description: Объект с информацией о счете в котируемой валюте
+                              properties:
+                                number:
+                                  type: string
+                                  description: Номер счета
+                                  example: 40817840000000382769
+                                currency:
+                                  type: string
+                                  description: Валюта счета
+                                  example: RUB
+                                trustManagementName:
+                                  type: string
+                                  description: Наименование управляющей компании
+                                  example: null
+                                externalAccount:
+                                  type: boolean
+                                  description: Признак внешнего счета
+                                  example: true
+                            clientAmount:
+                              type: object
+                              description: Объем, от которого задавалась сделка
+                              properties:
+                                value:
+                                  type: string
+                                  description: Значение объема
+                                  example: '10000'
+                                currency:
+                                  type: string
+                                  description: Валюта объема
+                                  example: EUR
+                            swapPoints:
+                              type: object
+                              description: Своп-разница
+                              properties:
+                                value:
+                                  type: string
+                                  description: Значение своп-разницы
+                                  example: '-4.0275'
+                                decimalPlaces:
+                                  type: integer
+                                  description: Количество знаков после запятой
+                                  example: 4
+                            externalConfirmation:
+                              type: boolean
+                              description: Признак внешнего способа подтверждения сделки
+                              example: true
+                            tradeDate:
+                              type: string
+                              format: date
+                              description: Дата заключения сделки
+                              example: '2026-04-29'
+                            client:
+                              type: object
+                              description: Объект с информацией о клиенте
+                              properties:
+                                id:
+                                  type: string
+                                  description: Идентификатор клиента
+                                  example: 409387
+                                name:
+                                  type: string
+                                  description: Наименование клиента
+                                  example: ООО Рога и Копыта
+                                clientType:
+                                  type: string
+                                  description: Тип клиента
+                                  example: REAL
+                            nearLeg:
+                              type: object
+                              description: Ближняя нога своповой сделки
+                              properties:
+                                valueDate:
+                                  type: string
+                                  format: date
+                                  description: Дата расчетов
+                                  example: '2026-04-30'
+                                tenor:
+                                  type: string
+                                  description: Тенор
+                                  example: TOM
+                                sellAmount:
+                                  type: object
+                                  description: Сумма продажи
+                                  properties:
+                                    value:
+                                      type: string
+                                      description: Объем суммы продажи
+                                      example: '1043152.00'
+                                    currency:
+                                      type: string
+                                      description: Валюта суммы продажи
+                                      example: RUB
+                                buyAmount:
+                                  type: object
+                                  description: Сумма покупки
+                                  properties:
+                                    value:
+                                      type: string
+                                      description: Объем суммы покупки
+                                      example: '10000'
+                                    currency:
+                                      type: string
+                                      description: Валюта суммы покупки
+                                      example: EUR
+                                price:
+                                  type: object
+                                  description: Курс
+                                  properties:
+                                    value:
+                                      type: string
+                                      description: Значение курса
+                                      example: '104.3152'
+                                    decimalPlaces:
+                                      type: integer
+                                      description: Количество знаков после запятой
+                                      example: 4
+                                tradeMode:
+                                  type: string
+                                  description: Режим кредитования сделки
+                                  example: DVP
+                                predelivery:
+                                  type: boolean
+                                  description: Признак предпоставки
+                                  example: true
+                                useNetting:
+                                  type: boolean
+                                  description: Признак использования неттинга
+                                  example: false
+                                debitDate:
+                                  type: string
+                                  format: date
+                                  description: Дата расчетов первой ноги
+                                  example: '2026-04-30'
+                            farLeg:
+                              type: object
+                              description: Дальняя нога своповой сделки
+                              properties:
+                                valueDate:
+                                  type: string
+                                  format: date
+                                  description: Дата расчетов
+                                  example: '2026-05-04'
+                                tenor:
+                                  type: string
+                                  description: Тенор
+                                  example: SPOT
+                                sellAmount:
+                                  type: object
+                                  description: Сумма продажи
+                                  properties:
+                                    value:
+                                      type: string
+                                      description: Объем суммы продажи
+                                      example: '10000'
+                                    currency:
+                                      type: string
+                                      description: Валюта суммы продажи
+                                      example: EUR
+                                buyAmount:
+                                  type: object
+                                  description: Сумма покупки
+                                  properties:
+                                    value:
+                                      type: string
+                                      description: Объем суммы покупки
+                                      example: '1002877.00'
+                                    currency:
+                                      type: string
+                                      description: Валюта суммы покупки
+                                      example: RUB
+                                price:
+                                  type: object
+                                  description: Курс
+                                  properties:
+                                    value:
+                                      type: string
+                                      description: Значение курса
+                                      example: '100.2877'
+                                    decimalPlaces:
+                                      type: integer
+                                      description: Количество знаков после запятой
+                                      example: 4
+                                tradeMode:
+                                  type: string
+                                  description: Режим кредитования сделки
+                                  example: DVP
+                                predelivery:
+                                  type: boolean
+                                  description: Признак предпоставки
+                                  example: true
+                                useNetting:
+                                  type: boolean
+                                  description: Признак использования неттинга
+                                  example: false
+                                debitDate:
+                                  type: string
+                                  format: date
+                                  description: Дата расчетов по второй ноге
+                                  example: '2026-05-04'
+                      hasMorePages:
+                        type: boolean
+                        description: Признак наличия следующих страниц истории сделок
+                        example: true
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+                    example: 6a1000513f41198d3a9f3f274812156f
+              examples:
+                Успешный ответ:
+                  summary: Успешный ответ
+                  value:
+                    result:
+                      result:
+                      - id: 18
+                        dealId: 3097
+                        signer:
+                          id: organization.user.authority.external.id
+                          name: Вячеславов Александр Михайлович
+                        marketCurrencyPair: EUR/RUB
+                        swapSide: SELL
+                        baseAccount:
+                          number: EXTERNAL_ACCOUNT_EUR
+                          currency: EUR
+                          trustManagementName: null
+                          externalAccount: true
+                        quotedAccount:
+                          number: EXTERNAL_ACCOUNT_RUB
+                          currency: RUB
+                          trustManagementName: null
+                          externalAccount: true
+                        clientAmount:
+                          value: '10000'
+                          currency: EUR
+                        swapPoints:
+                          value: '-4.0275'
+                          decimalPlaces: 4
+                        externalConfirmation: true
+                        tradeDate: '2026-04-29'
+                        client:
+                          id: 409387
+                          name: ООО Рога и Копыта
+                          clientType: REAL
+                        nearLeg:
+                          valueDate: '2026-04-30'
+                          tenor: TOM
+                          sellAmount:
+                            value: '1043152.00'
+                            currency: RUB
+                          buyAmount:
+                            value: '10000'
+                            currency: EUR
+                          price:
+                            value: '104.3152'
+                            decimalPlaces: 4
+                          tradeMode: DVP
+                          predelivery: true
+                          useNetting: false
+                          debitDate: '2026-04-30'
+                        farLeg:
+                          valueDate: '2026-05-04'
+                          tenor: SPOT
+                          sellAmount:
+                            value: '10000'
+                            currency: EUR
+                          buyAmount:
+                            value: '1002877.00'
+                            currency: RUB
+                          price:
+                            value: '100.2877'
+                            decimalPlaces: 4
+                          tradeMode: DVP
+                          predelivery: true
+                          useNetting: false
+                          debitDate: '2026-05-04'
+                      hasMorePages: true
+                    requestId: 6a1000513f41198d3a9f3f274812156f
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                - requestId
+                properties:
+                  error:
+                    type: object
+                    description: Объект с кодом ошибки и описанием
+                    required:
+                    - code
+                    properties:
+                      code:
+                        type: string
+                        description: Значение кода ошибки
+                      message:
+                        type: string
+                        description: Описание кода ошибки
+                      data:
+                        type: array
+                        description: Дополнительная информация об ошибке
+                        items:
+                          type: object
+                          properties:
+                            field:
+                              type: string
+                              description: Параметр, вызвавший ошибку
+                            value:
+                              type: string
+                              description: Значение параметра
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/fx
+  /v1/deliverable/conversion/blotter:
+    post:
+      tags:
+      - Deals history
+      summary: Запрос для получения истории подтверждений сделок
+      operationId: deliverableConversionBlotter
+      description: Чтобы запросить историю подтверждений сделок заполните параметры фильтрации и сортировки и получите в ответе историю ранее созданных подтверждений сделок с их параметрами
+      parameters:
+      - in: header
+        name: CNUM
+        description: Уникальный идентификатор клиента (CNUM)
+        required: true
+        schema:
+          type: string
+          example: U12345
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Запросить историю подтверждений сделок
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliverableConversionBlotterRequest'
+            examples:
+              Запрос с фильтрацией и сортировкой:
+                summary: Запрос с фильтрацией по статусу "Исполнен" и Дате создания
+                value:
+                  offset: 0
+                  limit: 10
+                  sort:
+                  - property: creationDate
+                    direction: DESC
+                  filter:
+                  - property: status
+                    clause:
+                    - DONE
+                  - property: creationDate
+                    clause:
+                      from:
+                        value: 1769979600000
+                        inclusive: true
+                      to:
+                        value: 1770238799999
+                        inclusive: true
+      responses:
+        '200':
+          description: История подтверждений сделок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliverableConversionBlotterResponse'
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                - requestId
+                properties:
+                  error:
+                    type: object
+                    description: Объект с кодом ошибки и описанием
+                    required:
+                    - code
+                    properties:
+                      code:
+                        type: string
+                        description: Значение кода ошибки
+                      message:
+                        type: string
+                        description: Описание кода ошибки
+                      data:
+                        type: array
+                        description: Дополнительная информация об ошибке
+                        items:
+                          type: object
+                          properties:
+                            field:
+                              type: string
+                              description: Параметр, вызвавший ошибку
+                            value:
+                              type: string
+                              description: Значение параметра
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/fx
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  schemas:
+    DeliverableConversionBlotterResponse:
+      type: object
+      required:
+      - result
+      - requestId
+      properties:
+        result:
+          type: object
+          description: Объект с результатом исполнения запроса
+          required:
+          - hasMore
+          - list
+          properties:
+            hasMore:
+              type: boolean
+              description: Признак наличия других записей в истории, удовлетворяющих параметрам запроса
+            list:
+              type: array
+              description: Массив истории подтверждений сделок
+              items:
+                $ref: '#/components/schemas/DeliverableConversionBlotterItem'
+        requestId:
+          type: string
+          description: Идентификатор запроса
+    BlotterSortItem:
+      type: object
+      properties:
+        property:
+          type: string
+          description: 'Объект с параметрами сортировки.
+
+            Доступные паарметры (property):
+
+            - creationDate
+
+            - sendDate
+
+            - processingDate
+
+            - creator.signer.name'
+        direction:
+          type: string
+          description: Направление сортировки, с возможными значениями "ASC" или "DESC"
+          enum:
+          - ASC
+          - DESC
+    DeliverableConversionBlotterItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Идентификатор записи
+        clientBuyAccount:
+          type: object
+          description: Объект с информацией о счете покупки
+          required:
+          - number
+          - currency
+          - accountType
+          - trustManagementName
+          properties:
+            number:
+              type: string
+              description: Номер счета покупки
+              example: 12334
+            currency:
+              type: object
+              description: Валюта счета покупки
+              required:
+              - isoCode
+              - numericCode
+              properties:
+                isoCode:
+                  type: string
+                  example: RUB
+                numericCode:
+                  type: string
+                  example: 643
+            accountType:
+              type: string
+              description: Тип счета (INTERNAL/EXTERNAL)
+              example: EXTERNAL
+            trustManagementName:
+              type: string
+              description: Наименование управляющей компании
+              example: null
+        clientSellAccount:
+          type: object
+          description: Объект с информацией о счете продажи
+          required:
+          - number
+          - currency
+          - accountType
+          - trustManagementName
+          properties:
+            number:
+              type: string
+              description: Номер счета продажи
+              example: 40817840000000382729
+            currency:
+              type: object
+              description: Валюта счета продажи
+              required:
+              - isoCode
+              - numericCode
+              properties:
+                isoCode:
+                  type: string
+                  example: USD
+                numericCode:
+                  type: string
+                  example: 840
+            accountType:
+              type: string
+              description: Тип счета (INTERNAL/EXTERNAL)
+              example: INTERNAL
+            trustManagementName:
+              type: string
+              description: Наименование управляющей компании
+              example: null
+        clientSellAmount:
+          type: string
+          description: Сумма продажи
+        clientBuyAmount:
+          type: string
+          description: Сумма покупки
+        creationDate:
+          type: string
+          description: Дата создания подтверждения (ISO 8601)
+          example: '2025-07-22T13:23:13.507701Z'
+        tradeDate:
+          type: string
+          description: Дата заключения сделки (ISO 8601)
+          example: '2025-07-22T13:23:13.507701Z'
+        valueDate:
+          type: string
+          description: Дата расчетов по сделке (ISO 8601)
+          example: '2025-07-22T13:23:13.507701Z'
+        sendDate:
+          type: string
+          description: Дата подписания подтверждения (ISO 8601)
+          example: '2025-07-22T13:23:13.507701Z'
+        processingDate:
+          type: string
+          description: Дата исполнения подтверждения (ISO 8601)
+          example: '2025-07-22T13:27:04.747733Z'
+        price:
+          type: string
+          description: Обменный курс
+        creator:
+          type: object
+          description: Информация о создателе сделки
+          required:
+          - id
+          - name
+          properties:
+            id:
+              type: string
+              description: Идентификатор создателя
+              example: organization.user.authority.external.id
+            name:
+              type: string
+              description: ФИО создателя
+              example: Вячеславов Александр Михайлович
+        traders:
+          type: array
+          description: Список подписантов сделки
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Идентификатор подписанта
+                example: organization.user.authority.external.id
+              name:
+                type: string
+                description: ФИО подписанта
+                example: Вячеславов Александр Михайлович
+        status:
+          type: string
+          description: Статус подтверждения
+        resultComment:
+          type:
+          - string
+          - 'null'
+          description: Комментарий при отклонении подтверждения
+        comment:
+          type:
+          - string
+          - 'null'
+          description: Комментарий к подтверждению
+        conversionAgreementNumber:
+          type: string
+          description: Номер подтверждения
+        confirmDeal:
+          type:
+          - boolean
+          - 'null'
+          description: Признак, что подтверждение формируется на основании соглашения об условиях совершения конверсионной сделки
+        client:
+          type: object
+          description: Объект с информацией о клиенте
+          required:
+          - id
+          - name
+          - shortName
+          - clientType
+          properties:
+            id:
+              type: string
+              description: Идентификатор клиента
+              example: 409387
+            name:
+              type: string
+              description: Наименование клиента
+              example: Авилекс ООО
+            shortName:
+              type: string
+              description: Короткое наименование клиента
+              example: Авилекс
+            clientType:
+              type: string
+              description: Тип клиента
+              example: REAL
+    DeliverableConversionBlotterRequest:
+      type: object
+      required:
+      - offset
+      - limit
+      properties:
+        offset:
+          type: integer
+          description: Значение смещения строк из истории
+        limit:
+          type: integer
+          description: Ограничение на количество строк из истории, не более 1000 записей в одном запросе
+        filter:
+          type: array
+          description: 'Объект с параметрами фильтрации.
+
+            Доступные фильтры (property):
+
+            - id — номер заявки
+
+            - creationDate — дата создания (from/to)
+
+            - processingDate — дата обработки (from/to)
+
+            - sendDate — дата отправления (from/to)
+
+            - creator.signer.name — автор
+
+            - tradeDate — дата заключения сделки (from/to)
+
+            - clientBuyAccount.currency — валюта зачисления
+
+            - clientSellAccount.currency — валюта списания
+
+            - clientBuyAmount — сумма зачисления
+
+            - clientSellAmount — сумма списания
+
+            - price — обменный курс
+
+            - participant.signer.name — подписант
+
+            - comment — заметка
+
+            - status — статус'
+          items:
+            $ref: '#/components/schemas/BlotterFilterItem'
+        sort:
+          type: array
+          description: Объект с параметрами сортировки
+          items:
+            $ref: '#/components/schemas/BlotterSortItem'
+    BlotterFilterItem:
+      type: object
+      required:
+      - property
+      - clause
+      properties:
+        property:
+          type: string
+          description: Параметр фильтрации
+          enum:
+          - id
+          - creationDate
+          - processingDate
+          - sendDate
+          - creator.signer.name
+          - tradeDate
+          - clientBuyAccount.currency
+          - clientSellAccount.currency
+          - clientBuyAmount
+          - clientSellAmount
+          - price
+          - participant.signer.name
+          - comment
+          - status
+        clause:
+          type: array
+          description: Значение фильтра
+x-refined-from:
+- raiffeisen-ru-fx-openapi.yml
+- raiffeisen-ru-fx-openapi.yml

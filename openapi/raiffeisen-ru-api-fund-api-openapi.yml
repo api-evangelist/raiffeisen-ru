@@ -1,0 +1,109 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru API - Fund API
+  version: 1.0.1
+  description: 'Operations tagged API - Fund across 2 of this provider''s published API definitions: raiffeisen-ru-rcam-openapi.yml, raiffeisen-ru-rcam-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/rcam-insurance
+tags:
+- name: API - Fund
+paths:
+  /v1/fund/{fundId}:
+    get:
+      description: Получение информации о стоимости пая фонда.
+      operationId: getFundInfo
+      parameters:
+      - name: fundId
+        description: ID фонда
+        required: true
+        in: path
+        schema:
+          example: a4baea02-7af9-11db-a626-0040ca6957f7
+          type: string
+      - name: date
+        required: false
+        in: query
+        description: Дата запроса (YYYY-MM-DD). Если не передана, вернется последняя рассчитанная стоимость пая
+        schema:
+          example: '2026-03-31'
+          format: date
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Информация о фонде
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FundInfoDto'
+        '400':
+          description: Невалидные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+        '404':
+          description: Фонд не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundException'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Получение информации о фонде
+      tags:
+      - API - Fund
+    servers:
+    - url: https://api.raiffeisen.ru/rcam-insurance
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  schemas:
+    BadRequestException:
+      type: object
+    NotFoundException:
+      type: object
+    FundInfoDto:
+      type: object
+      properties:
+        costShare:
+          type: number
+          example: 17800.34
+          description: Стоимость пая, Руб.
+        costDate:
+          type: string
+          description: Дата рассчета стоимости пая (YYYY-MM-DD)
+          example: '2026-02-09'
+          format: date
+      required:
+      - costShare
+      - costDate
+x-refined-from:
+- raiffeisen-ru-rcam-openapi.yml
+- raiffeisen-ru-rcam-openapi.yml

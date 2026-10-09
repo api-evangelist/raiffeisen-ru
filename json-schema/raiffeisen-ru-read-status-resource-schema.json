@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-read-status-resource-schema.json",
+  "title": "ReadStatusResource",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-content-interactions-openapi.yml#/components/schemas/ReadStatusResource",
+  "type": "object",
+  "properties": {
+    "read": {
+      "type": "boolean",
+      "description": "Статус прочитанности"
+    }
+  },
+  "required": [
+    "read"
+  ]
+}

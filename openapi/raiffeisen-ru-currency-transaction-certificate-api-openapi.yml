@@ -1,0 +1,293 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Currency Transaction Certificate API
+  version: 1.10.0
+  description: 'Operations tagged currency-transaction-certificate across 2 of this provider''s published API definitions: raiffeisen-ru-currency-operations-information-openapi.yml, raiffeisen-ru-currency-operations-information-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/foreign-trade
+tags:
+- name: currency-transaction-certificate
+  description: Сведения о валютных операциях
+paths:
+  /v2/currency-transaction-certificate/iso20022/unsigned:
+    post:
+      tags:
+      - currency-transaction-certificate
+      summary: Импорт неподписанных сведений о валютной операции
+      description: 'Отправка XML-файла с неподписанными сведениями о валютных операциях.
+
+
+        Документация по неподписанным сведениям о валютных операциях,
+
+
+        XSD-схема для валидации (XSD validation scheme),
+
+
+        Документация API по ISO XML.'
+      operationId: unsignedCurrencyTransactionCertificate
+      parameters:
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Информация с сведениями о валютной операции в XML-формате
+        content:
+          application/xml:
+            schema:
+              type: string
+        required: true
+      responses:
+        '202':
+          description: Задача импорта сведений о валютной операции успешно создана
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/DuplicateMessage'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+  /v2/currency-transaction-certificate/iso20022/signed:
+    post:
+      tags:
+      - currency-transaction-certificate
+      summary: Отправка подписанных сведений о валютной операции
+      description: 'Отправка XML-файла с подписанными сведениями о валютных операциях.
+
+
+        Документация по подписанным сведениям о валютных операциях,
+
+
+        XSD-схема для валидации (XSD validation scheme),
+
+
+        Документация API по ISO XML.'
+      operationId: signedCurrencyTransactionCertificate
+      parameters:
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Информация о сведениях о валютной операции в XML-формате
+        content:
+          application/xml:
+            schema:
+              type: string
+        required: true
+      responses:
+        '202':
+          description: Задача импорта сведений о валютной операции успешно создана
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/DuplicateMessage'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+  /v2/currency-transaction-certificate/iso20022/{msgId}/status:
+    get:
+      tags:
+      - currency-transaction-certificate
+      summary: Получение статуса группового сообщения со сведениями о валютных операциях
+      description: 'Получение статуса группового сообщения со сведениями о валютных операциях.
+
+        XSD-схема для валидации (XSD validation scheme),
+
+        Документация API по ISO XML.'
+      operationId: currencyTransactionCertificateStatus
+      parameters:
+      - name: msgId
+        in: path
+        required: true
+        schema:
+          type: string
+        example: ORCRUWIRE0170202229000030
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Статус успешно получен
+          content:
+            application/xml:
+              schema:
+                type: string
+              examples:
+                ACSC:
+                  summary: ACSC - Все сведения исполнены
+                  description: ACSC
+                  value: <Document>...<GrpSts><Sts>ACSC</Sts></GrpSts>...</Document>
+                PDNG:
+                  summary: PDNG - Сведения обрабатываются
+                  description: PDNG
+                  value: <Document>...<GrpSts><Sts>PDNG</Sts></GrpSts>...</Document>
+                RJCT:
+                  summary: RJCT - Все сведения отклонены
+                  description: RJCT
+                  value: <Document>...<GrpSts><Sts>RJCT</Sts></GrpSts>...</Document>
+                CANC:
+                  summary: CANC - Все сведения отозваны
+                  description: CANC
+                  value: <Document>...<GrpSts><Sts>CANC</Sts></GrpSts>...</Document>
+                DELT:
+                  summary: DELT - Все сведения помечены к удалению
+                  description: DELT
+                  value: <Document>...<GrpSts><Sts>DELT</Sts></GrpSts>...</Document>
+                ACWC:
+                  summary: ACWC - Сведения содержат ошибки
+                  description: ACWC
+                  value: <Document>...<GrpSts><Sts>ACWC</Sts></GrpSts>...</Document>
+                PART:
+                  summary: PART - Часть сведений исполнена
+                  description: PART
+                  value: <Document>...<GrpSts><Sts>PART</Sts></GrpSts>...</Document>
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/DocumentNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+  /v2/currency-transaction-certificate/iso20022/{msgId}/certificate/{txId}/status:
+    get:
+      tags:
+      - currency-transaction-certificate
+      summary: Получение статуса сведений о валютной операции в формате ISO20022
+      description: 'Получение статуса сведений о валютной операции.
+
+        XSD-схема для валидации (XSD validation scheme),
+
+        Документация API по ISO XML.'
+      operationId: currencyTransactionCertificatePaymentStatus
+      parameters:
+      - name: msgId
+        in: path
+        required: true
+        schema:
+          type: string
+        example: ORCRUWIRE0170202229000030
+      - name: txId
+        in: path
+        required: true
+        schema:
+          type: string
+        example: ORCRUWIRE0040203219700010
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Статус успешно получен
+          content:
+            application/xml:
+              schema:
+                type: string
+              examples:
+                ACWC:
+                  summary: ACWC - Документ создан, найдены ошибки
+                  description: ACWC
+                  value: <Document> ... <PackgSts><Sts>ACWC</Sts></PackgSts> ... </Document>
+                ACCP:
+                  summary: ACCP - Документ ждет подписи
+                  description: ACCP
+                  value: <Document>...<PackgSts><Sts>ACCP</Sts></PackgSts>...</Document>
+                PSGN:
+                  summary: PSGN - Документ ждет доп. подписи
+                  description: PSGN
+                  value: <Document> ... <PackgSts><Sts>PSGN</Sts></PackgSts> ... </Document>
+                FSGN:
+                  summary: FSGN - Документ ждет отправки
+                  description: FSGN
+                  value: <Document> ... <PackgSts><Sts>FSGN</Sts></PackgSts> ... </Document>
+                ACSP:
+                  summary: ACSP - Документ в работе у банка
+                  description: ACSP
+                  value: <Document> ... <PackgSts><Sts>ACSP</Sts></PackgSts> ... </Document>
+                ACSC:
+                  summary: ACSC - Документ исполнен
+                  description: ACSC
+                  value: <Document> ... <PackgSts><Sts>ACSC</Sts></PackgSts> ... </Document>
+                CANC:
+                  summary: CANC - Документ отклонен
+                  description: CANC
+                  value: <Document> ... <PackgSts><Sts>CANC</Sts></PackgSts> ... </Document>
+                RJCT:
+                  summary: RJCT - Документ отклонен
+                  description: RJCT
+                  value: <Document> ... <PackgSts><Sts>RJCT</Sts></PackgSts> ... </Document>
+                PDNG:
+                  summary: PDNG - Документ обрабатывается
+                  description: PDNG
+                  value: <Document> ... <PackgSts><Sts>PDNG</Sts></PackgSts> ... </Document>
+                PERR:
+                  summary: PERR - Документ имеет ошибку ожидания
+                  description: PERR
+                  value: <Document> ... <PackgSts><Sts>PERR</Sts></PackgSts> ... </Document>
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/DocumentNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    DuplicateMessage:
+      description: Дубликат сообщения
+      content:
+        text/plain:
+          schema:
+            type: string
+            description: Сообщение об ошибке
+          example: Duplicate message id or payment id
+    Forbidden:
+      description: Доступ запрещён
+    ValidationError:
+      description: Ошибки валидации
+      content:
+        text/plain:
+          schema:
+            type: string
+            description: Сообщение об ошибке
+          example: XML validation error
+    DocumentNotFound:
+      description: Документ не найден
+      content:
+        text/plain:
+          schema:
+            type: string
+            description: Сообщение об ошибке
+          example: Message not found with id = ... for current user
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-currency-operations-information-openapi.yml
+- raiffeisen-ru-currency-operations-information-openapi.yml

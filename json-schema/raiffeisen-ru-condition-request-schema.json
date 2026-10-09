@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-condition-request-schema.json",
+  "title": "ConditionRequest",
+  "description": "Запрос на обновление или создание условий обслуживания",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-payment-control-openapi.yml#/components/schemas/ConditionRequest",
+  "properties": {
+    "id": {
+      "description": "Идентификатор условий",
+      "format": "uuid",
+      "type": "string"
+    },
+    "contractNumber": {
+      "description": "Номер контракта",
+      "type": "string"
+    },
+    "contractDate": {
+      "description": "Дата контракта",
+      "format": "date",
+      "type": "string"
+    },
+    "clientId": {
+      "description": "Идентификатора клиента",
+      "format": "uuid",
+      "type": "string"
+    },
+    "buyerId": {
+      "description": "Идентификатор покупателя",
+      "format": "uuid",
+      "type": "string"
+    },
+    "comment": {
+      "description": "Комментарий",
+      "type": "string"
+    },
+    "contacts": {
+      "description": "Контакты",
+      "items": {
+        "$ref": "#/$defs/ConditionContactRequest"
+      },
+      "type": "array"
+    },
+    "newTariff": {
+      "$ref": "#/$defs/TariffRequest"
+    },
+    "cqrsVersion": {
+      "description": "hashCode от state - состояния объекта",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "buyerId",
+    "clientId",
+    "contacts",
+    "newTariff"
+  ],
+  "type": "object",
+  "$defs": {
+    "ConditionContactRequest": {
+      "description": "Контакты условий обслуживания",
+      "properties": {
+        "id": {
+          "description": "Идентификатор контакта",
+          "format": "uuid",
+          "type": "string"
+        },
+        "fullName": {
+          "description": "Имя",
+          "type": "string"
+        },
+        "email": {
+          "description": "email",
+          "type": "string"
+        },
+        "phoneNumber": {
+          "description": "Номер телефона",
+          "type": "string"
+        },
+        "additionalNumber": {
+          "description": "Добавочный номер",
+          "type": "string"
+        },
+        "workPosition": {
+          "description": "Должность",
+          "type": "string"
+        },
+        "comment": {
+          "description": "Комментарий",
+          "type": "string"
+        },
+        "cqrsVersion": {
+          "description": "hashCode от state - состояния объекта",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "email"
+      ],
+      "type": "object"
+    },
+    "TariffRequest": {
+      "description": "Контакты условий обслуживания",
+      "properties": {
+        "id": {
+          "description": "Идентификатор контакта",
+          "format": "uuid",
+          "type": "string"
+        },
+        "tariffType": {
+          "$ref": "#/$defs/TariffType"
+        },
+        "paymentPeriod": {
+          "description": "Период оплаты",
+          "type": "integer"
+        },
+        "cqrsVersion": {
+          "description": "hashCode от state - состояния объекта",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "tariffType"
+      ],
+      "type": "object"
+    },
+    "TariffType": {
+      "description": "Тип тарифа",
+      "enum": [
+        "LITE",
+        "STANDARD",
+        "PRO"
+      ],
+      "type": "string"
+    }
+  }
+}

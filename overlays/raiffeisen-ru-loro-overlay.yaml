@@ -1,0 +1,21 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist overlay for Loro API
+  version: 1.0.0
+extends: ../openapi/_original/raiffeisen-ru-loro-openapi.yml
+x-generated: '2026-10-09'
+x-method: generated
+actions:
+- target: $.info
+  description: Catalog provenance (API Evangelist).
+  update:
+    x-apis-json-aid: raiffeisen-ru
+    x-provider: Raiffeisenbank (Russia)
+    x-api-name: Loro API
+    x-mcp-discovery: https://api.raiffeisen.ru/developer-portal/public/mcp
+- target: $
+  description: Link the provider documentation page for this API (from apis.yml humanURL).
+  update:
+    externalDocs:
+      description: Provider documentation (developer.raiffeisen.ru)
+      url: https://developer.raiffeisen.ru/docs/api/6adfcfe1-d74e-4a72-8f98-edd9de31010a

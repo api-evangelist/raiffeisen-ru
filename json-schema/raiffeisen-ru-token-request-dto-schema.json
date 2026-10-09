@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-token-request-dto-schema.json",
+  "title": "TokenRequestDTO",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-authorization-openapi.yml#/components/schemas/TokenRequestDTO",
+  "type": "object",
+  "required": [
+    "grant_type"
+  ],
+  "properties": {
+    "grant_type": {
+      "type": "string",
+      "enum": [
+        "authorization_code",
+        "refresh_token"
+      ],
+      "description": "Тип взаимодействия, в рамках которого происходит получение токенов:\n- `authorization_code` для получения токенов по Authorization Code (Code Flow);\n- `refresh_token` для получения новых токенов по Refresh токену."
+    },
+    "code": {
+      "type": "string",
+      "description": "Authorization Code (обязательный параметр для grant_type=authorization_code), \nзначение переданное в параметре code после успешной аутентификации пользователя и \nперенаправлении на redirect_uri клиентского приложения."
+    },
+    "code_verifier": {
+      "type": "string",
+      "description": "Криптографически стойкая случайно сгенерированная строка,\nкоторая согласно стандарту PKCE (RFC 7636) использовалась для генерации значения `code_challenge`\nв запросе GET /oauth2/authorize (обязательный параметр для grant_type=authorization_code)."
+    },
+    "client_id": {
+      "type": "string",
+      "description": "Идентификатор клиента (выдается Райффайзен Банком после подачи заявления на подключение)."
+    },
+    "client_secret": {
+      "type": "string",
+      "description": "Пароль клиента (указывается при подключении системы клиента к Райффайзен Банку)."
+    },
+    "redirect_uri": {
+      "type": "string",
+      "description": "URI, на который сервис аутентификации перенаправляет пользователя после прохождения аутентификации \n(указывается при подключении системы клиента к Райффайзен Банку)."
+    },
+    "refresh_token": {
+      "type": "string",
+      "description": "Refresh токен (обязательный параметр для grant_type=refresh_token)."
+    }
+  }
+}

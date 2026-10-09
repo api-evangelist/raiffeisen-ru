@@ -1,0 +1,792 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Forward API
+  version: 1.0.0
+  description: 'Operations tagged Forward across 2 of this provider''s published API definitions: raiffeisen-ru-fx-openapi.yml, raiffeisen-ru-fx-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/fx
+tags:
+- name: Forward
+paths:
+  /v1/securities/{product}/calendar/valuedates:
+    post:
+      tags:
+      - Forward
+      summary: Получение форвардных дат расчетов по тенору
+      operationId: getForwardValueDates
+      description: Получение дат расчетов для форвардов по массиву инструментов с базовой валютой, котируемой валютой и тенором
+      parameters:
+      - in: header
+        name: CNUM
+        description: Уникальный идентификатор клиента (CNUM)
+        required: true
+        schema:
+          type: string
+          example: U12345
+      - in: path
+        name: product
+        description: Продукт, для которого запрашиваются даты расчетов
+        required: true
+        schema:
+          type: string
+          example: rfq
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Запрос дат расчетов для форвардов
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - instruments
+              properties:
+                instruments:
+                  type: array
+                  description: Массив инструментов
+                  items:
+                    type: object
+                    required:
+                    - base
+                    - quoted
+                    - tenor
+                    properties:
+                      base:
+                        type: string
+                        description: Базовая валюта
+                        example: USD
+                      quoted:
+                        type: string
+                        description: Котируемая валюта
+                        example: RUB
+                      tenor:
+                        type: string
+                        description: Форвардный тенор
+                        example: W1
+                        enum:
+                        - W1
+                        - W2
+                        - W3
+                        - M1
+                        - M2
+                        - M3
+                        - M4
+                        - M5
+                        - M6
+                        - M7
+                        - M8
+                        - M9
+                        - M10
+                        - M11
+                        - Y1
+            examples:
+              Пример запроса:
+                summary: Пример запроса
+                value:
+                  instruments:
+                  - base: USD
+                    quoted: RUB
+                    tenor: W1
+        required: true
+      responses:
+        '200':
+          description: Даты расчетов для запрошенных форвардных теноров
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - result
+                - requestId
+                properties:
+                  result:
+                    type: object
+                    description: Объект с результатом исполнения запроса
+                    required:
+                    - instruments
+                    - errors
+                    properties:
+                      instruments:
+                        type: array
+                        description: Массив инструментов с рассчитанными датами расчетов
+                        items:
+                          type: object
+                          required:
+                          - base
+                          - quoted
+                          - tenor
+                          - valueDate
+                          properties:
+                            base:
+                              type: string
+                              description: Базовая валюта
+                              example: USD
+                            quoted:
+                              type: string
+                              description: Котируемая валюта
+                              example: RUB
+                            tenor:
+                              type: string
+                              description: Форвардный тенор
+                              example: W1
+                            valueDate:
+                              type: string
+                              format: date
+                              description: Дата расчетов
+                              example: '2026-05-27'
+                      errors:
+                        type: array
+                        description: Массив ошибок, если по какому-то инструменту не удалось определить дату расчетов
+                        items:
+                          type: object
+                          required:
+                          - base
+                          - quoted
+                          - tenor
+                          - message
+                          properties:
+                            base:
+                              type: string
+                              description: Базовая валюта
+                              example: USD
+                            quoted:
+                              type: string
+                              description: Котируемая валюта
+                              example: RUB
+                            tenor:
+                              type: string
+                              description: Форвардный тенор
+                              example: W1
+                            message:
+                              type: string
+                              description: Сообщение об ошибке
+                              example: Value date undefined
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса для трейсинга
+                    example: 6a0e086258fb68d75a32237a1e58f441
+              examples:
+                Успешный ответ:
+                  summary: Успешный ответ
+                  value:
+                    result:
+                      instruments:
+                      - base: RUB
+                        quoted: USD
+                        tenor: W1
+                        valueDate: '2026-05-27'
+                      errors: []
+                    requestId: 6a0e086258fb68d75a32237a1e58f441
+                Частично успешный ответ:
+                  summary: Частично успешный ответ
+                  value:
+                    result:
+                      instruments:
+                      - base: RUB
+                        quoted: USD
+                        tenor: W1
+                        valueDate: '2026-05-27'
+                      errors:
+                      - base: RUB
+                        quoted: USD
+                        tenor: M1
+                        message: Value date undefined
+                    requestId: 6a0e086258fb68d75a32237a1e58f441
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                required:
+                - error
+                - requestId
+                type: object
+                properties:
+                  error:
+                    type: object
+                    description: Объект с кодом ошибки
+                    required:
+                    - code
+                    properties:
+                      code:
+                        type: string
+                        description: Значение кода ошибки
+                        example: app.invalid.request
+                      message:
+                        type: string
+                        description: Описание ошибки
+                        example: Bad Request
+                      data:
+                        type: object
+                        description: Дополнительная информация об ошибке
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+                    example: 6a0e086258fb68d75a32237a1e58f441
+              examples:
+                Некорректный запрос:
+                  summary: Некорректный запрос
+                  value:
+                    error:
+                      code: app.invalid.request
+                      message: Bad Request
+                    requestId: 6a0e086258fb68d75a32237a1e58f441
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/fx
+  /v1/securities/{product}/ndf/calendar/fixing-references:
+    post:
+      tags:
+      - Forward
+      summary: Получение доступного способа определения курса спот
+      operationId: getNdfFixingReferences
+      description: Получение источника данных, по которому в дату оценки банк определит курс фиксинга, с которым сравнивается курс форварда для расчета курсовой разницы
+      parameters:
+      - in: header
+        name: CNUM
+        description: Уникальный идентификатор клиента (CNUM)
+        required: true
+        schema:
+          type: string
+          example: U12345
+      - in: path
+        name: product
+        description: Продукт, для которого запрашиваются доступные способы определения курса спот
+        required: true
+        schema:
+          type: string
+          example: rfq
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Запрос доступных способов определения курса спот
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - base
+              - quoted
+              - valueDate
+              properties:
+                base:
+                  type: string
+                  description: Базовая валюта
+                  example: USD
+                quoted:
+                  type: string
+                  description: Котируемая валюта
+                  example: RUB
+                valueDate:
+                  type: string
+                  format: date
+                  description: Дата расчетов
+                  example: '2026-05-28'
+            examples:
+              Пример запроса:
+                summary: Пример запроса
+                value:
+                  base: USD
+                  quoted: RUB
+                  valueDate: '2026-05-28'
+        required: true
+      responses:
+        '200':
+          description: Доступные способы определения курса спот
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - result
+                - requestId
+                properties:
+                  result:
+                    type: object
+                    description: Объект с результатом исполнения запроса
+                    required:
+                    - fixingReferences
+                    properties:
+                      fixingReferences:
+                        type: array
+                        description: Массив доступных источников данных для определения курса фиксинга
+                        items:
+                          type: object
+                          required:
+                          - type
+                          - fixingDate
+                          properties:
+                            type:
+                              type: string
+                              description: Источник данных для определения курса фиксинга
+                              example: RAIF_FIXING
+                            fixingDate:
+                              type: string
+                              format: date
+                              description: Дата оценки
+                              example: '2026-05-27'
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса для трейсинга
+                    example: 6a0ee4780b5058561de931f2aad90b2d
+              examples:
+                Успешный ответ:
+                  summary: Успешный ответ
+                  value:
+                    result:
+                      fixingReferences:
+                      - type: RAIF_FIXING
+                        fixingDate: '2026-05-27'
+                    requestId: 6a0ee4780b5058561de931f2aad90b2d
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                required:
+                - error
+                - requestId
+                type: object
+                properties:
+                  error:
+                    type: object
+                    description: Объект с кодом ошибки
+                    required:
+                    - code
+                    properties:
+                      code:
+                        type: string
+                        description: Значение кода ошибки
+                        example: app.invalid.request
+                      message:
+                        type: string
+                        description: Описание ошибки
+                        example: Bad Request
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+                    example: 6a0ee4780b5058561de931f2aad90b2d
+              examples:
+                Некорректный запрос:
+                  summary: Некорректный запрос
+                  value:
+                    error:
+                      code: app.invalid.request
+                      message: Bad Request
+                    requestId: 6a0ee4780b5058561de931f2aad90b2d
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/fx
+  /v1/rfq/forward:
+    get:
+      tags:
+      - Forward
+      summary: Получение обменного курса для поставочного/беспоставочного форварда
+      operationId: getForwardRfq
+      description: 'Чтоб запросить обменный курс валют, введите обязательные параметры и получите в ответе:
+
+        - идентификатор квоты
+
+        - курс на указанную сторону'
+      parameters:
+      - in: header
+        name: CNUM
+        description: Уникальный идентификатор клиента (CNUM)
+        required: true
+        schema:
+          type: string
+          example: U12345
+      - in: query
+        name: baseCurrency
+        description: Базовая валюта
+        required: true
+        schema:
+          type: string
+          example: USD
+      - in: query
+        name: quotedCurrency
+        description: Котируемая валюта
+        required: true
+        schema:
+          type: string
+          example: RUB
+      - in: query
+        name: amount
+        description: Объем, на который запрашивается цена
+        required: true
+        schema:
+          type: string
+          example: 5000
+      - in: query
+        name: side
+        description: Сторона сделки
+        required: true
+        schema:
+          type: string
+          enum:
+          - BUY
+          - SELL
+          example: SELL
+      - in: query
+        name: endorsement
+        description: Способ подтверждения сделки
+        required: true
+        schema:
+          type: string
+          example: CRYPTO_PRO
+      - in: query
+        name: valueDate
+        description: Дата расчетов по форвардной сделке
+        required: true
+        schema:
+          type: string
+          format: date
+          example: '2026-05-28'
+      - in: query
+        name: settlMethod
+        description: Тип расчетов по сделке
+        required: true
+        schema:
+          type: string
+          enum:
+          - DELIVERABLE
+          - NON_DELIVERABLE
+        examples:
+          Поставочный форвард:
+            summary: Поставочный форвард
+            value: DELIVERABLE
+          Беспоставочный форвард:
+            summary: Беспоставочный форвард
+            value: NON_DELIVERABLE
+      - in: query
+        name: fixingType
+        description: Способ определения курса спот для беспоставочного форварда. Его можно определить по ответу соответствующего API
+        required: false
+        schema:
+          type: string
+          enum:
+          - RAIF_FIXING
+          - CBRF_FIXING
+        examples:
+          Поставочный форвард:
+            summary: Поставочный форвард
+            value: Не указывать
+          Беспоставочный форвард:
+            summary: Беспоставочный форвард
+            value: RAIF_FIXING
+      - in: query
+        name: initialMarginCurrency
+        description: Валюта первоначальной маржевой суммы. Указывается, если нужен курс для форварда под обеспечение
+        required: false
+        schema:
+          type: string
+          enum:
+          - RUB
+        examples:
+          Поставочный форвард:
+            summary: Форвард не под обеспечение
+            value: Не указывать
+          Беспоставочный форвард:
+            summary: Форвард под обеспечение
+            value: RUB
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Обменный курс для поставочного/беспоставочного форварда
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - result
+                - requestId
+                properties:
+                  result:
+                    type: object
+                    description: Объект с результатом исполнения запроса
+                    required:
+                    - rfqId
+                    - buyAmount
+                    - buyCurrency
+                    - sellAmount
+                    - sellCurrency
+                    - clientSide
+                    - price
+                    - priceDecimalPlaces
+                    - initialMargin
+                    - currencyPair
+                    - tenor
+                    - valueDate
+                    - tradeDate
+                    - ttl
+                    - enableTrading
+                    properties:
+                      rfqId:
+                        type: string
+                        description: Идентификатор запроса цены
+                        example: dc037808550811f18473e3d33f213b47
+                      buyAmount:
+                        type: string
+                        description: Сумма покупки
+                        example: '468560'
+                      buyCurrency:
+                        type: string
+                        description: Валюта покупки
+                        example: RUB
+                      sellAmount:
+                        type: string
+                        description: Сумма продажи
+                        example: '5000'
+                      sellCurrency:
+                        type: string
+                        description: Валюта продажи
+                        example: USD
+                      clientSide:
+                        type: string
+                        description: Сторона сделки
+                        example: SELL
+                      price:
+                        type: string
+                        description: Курс сделки
+                        example: '93.712'
+                      priceDecimalPlaces:
+                        type: integer
+                        description: Количество знаков после запятой для курса
+                        example: 3
+                      initialMargin:
+                        type: object
+                        description: Первоначальная маржевая сумма по форвардной сделке
+                        required:
+                        - amount
+                        - percent
+                        - currency
+                        properties:
+                          amount:
+                            type: string
+                            description: Сумма первоначальной маржевой суммы
+                            example: '1000.00'
+                          percent:
+                            type: string
+                            description: Процент первоначальной маржевой суммы
+                            example: '10.00'
+                          currency:
+                            type: string
+                            description: Валюта первоначальной маржевой суммы
+                            example: RUB
+                      currencyPair:
+                        type: string
+                        description: Валютная пара
+                        example: USD/RUB
+                      tenor:
+                        type: string
+                        description: Тенор сделки
+                        example: BRD
+                      valueDate:
+                        type: string
+                        description: Дата расчетов по сделке
+                        example: '2026-05-28T00:00:00Z'
+                      tradeDate:
+                        type: string
+                        description: Дата совершения операции
+                        example: '2026-05-21'
+                      ttl:
+                        type: integer
+                        description: Время жизни обменного курса в миллисекундах
+                        example: 10000
+                      enableTrading:
+                        type: boolean
+                        description: Признак доступности заключения сделки по полученной котировке
+                        example: true
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса для трейсинга
+                    example: 6a0eed7ca78a443595f7be90b8acac88
+              examples:
+                Успешный ответ:
+                  summary: Успешный ответ
+                  value:
+                    result:
+                      rfqId: dc037808550811f18473e3d33f213b47
+                      buyAmount: '468560'
+                      buyCurrency: RUB
+                      sellAmount: '5000'
+                      sellCurrency: USD
+                      clientSide: SELL
+                      price: '93.712'
+                      priceDecimalPlaces: 3
+                      initialMargin:
+                        amount: '1000.00'
+                        percent: '10.00'
+                        currency: RUB
+                      currencyPair: USD/RUB
+                      tenor: BRD
+                      valueDate: '2026-05-28T00:00:00Z'
+                      tradeDate: '2026-05-21'
+                      ttl: 10000
+                      enableTrading: true
+                    requestId: 6a0eed7ca78a443595f7be90b8acac88
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                required:
+                - error
+                - requestId
+                type: object
+                properties:
+                  error:
+                    type: object
+                    description: Объект с кодом ошибки
+                    required:
+                    - code
+                    properties:
+                      code:
+                        type: string
+                        description: Значение кода ошибки
+                      message:
+                        type: string
+                        description: Описание ошибки
+                      data:
+                        type: array
+                        description: Дополнительные данные об ошибке
+                        items:
+                          type: object
+                          properties:
+                            field:
+                              type: string
+                              description: Параметр
+                            value:
+                              type: string
+                              description: Значение параметра
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+                    example: 6a0eed7ca78a443595f7be90b8acac88
+              examples:
+                Некорректный запрос:
+                  summary: Некорректный запрос
+                  value:
+                    error:
+                      code: app.invalid.request
+                      message: Bad Request
+                    requestId: 6a0eed7ca78a443595f7be90b8acac88
+                Недоступный инструмент:
+                  summary: Недоступный инструмент
+                  value:
+                    error:
+                      code: unavailable.instrument
+                    requestId: 6a0eed7ca78a443595f7be90b8acac88
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          description: Бизнес ошибки
+          content:
+            application/json:
+              schema:
+                required:
+                - error
+                - requestId
+                type: object
+                properties:
+                  error:
+                    type: object
+                    description: Объект с кодом ошибки
+                    required:
+                    - code
+                    properties:
+                      code:
+                        type: string
+                        description: Значение кода ошибки
+                      message:
+                        type: string
+                        description: Описание ошибки
+                      data:
+                        type: object
+                        description: Дополнительная информация об ошибке
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+                    example: 6a0eed7ca78a443595f7be90b8acac88
+              examples:
+                Запрос курсов выключен:
+                  summary: Запрос курсов выключен
+                  value:
+                    error:
+                      code: rfq.disabled
+                      message: null
+                    requestId: 6a0eed7ca78a443595f7be90b8acac88
+                Запрос был произведен вне часов торговли:
+                  summary: Запрос был произведен вне часов торговли
+                  value:
+                    error:
+                      code: rfq.market.data.invalid.trading.time.outside.trading.hours
+                      message: null
+                    requestId: 6a0eed7ca78a443595f7be90b8acac88
+                Запрос был произведен в праздник или нерабочий день:
+                  summary: Запрос был произведен в праздник или нерабочий день
+                  value:
+                    error:
+                      code: rfq.market.data.invalid.trading.time.holiday
+                      message: null
+                    requestId: 6a0eed7ca78a443595f7be90b8acac88
+                Запрошенная сумма превышает допустимый порог:
+                  summary: Запрошенная сумма превышает допустимый порог
+                  value:
+                    error:
+                      code: rfq.quote.exceeds.limits
+                      message: null
+                    requestId: 6a0eed7ca78a443595f7be90b8acac88
+                Нет ликвидности для предоставления цены:
+                  summary: Нет ликвидности для предоставления цены
+                  value:
+                    error:
+                      code: rfq.market.data.not.available
+                      message: null
+                    requestId: 6a0eed7ca78a443595f7be90b8acac88
+                Инструмент выключен:
+                  summary: Инструмент выключен
+                  value:
+                    error:
+                      code: rfq.market.data.disabled
+                      message: null
+                    requestId: 6a0eed7ca78a443595f7be90b8acac88
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/fx
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-fx-openapi.yml
+- raiffeisen-ru-fx-openapi.yml

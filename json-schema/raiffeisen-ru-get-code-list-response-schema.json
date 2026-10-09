@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-get-code-list-response-schema.json",
+  "title": "GetCodeListResponse",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-adm-deposit-codes-openapi.yml#/components/schemas/GetCodeListResponse",
+  "type": "object",
+  "required": [
+    "data",
+    "offset",
+    "limit",
+    "totalCount"
+  ],
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Code"
+      }
+    },
+    "offset": {
+      "type": "integer",
+      "description": "Смещение от начала списка"
+    },
+    "limit": {
+      "type": "integer",
+      "description": "Максимальное количество возвращаемых записей"
+    },
+    "totalCount": {
+      "type": "integer",
+      "description": "Общее количество записей"
+    }
+  },
+  "$defs": {
+    "Code": {
+      "type": "object",
+      "required": [
+        "id",
+        "available",
+        "createDate",
+        "updateDate",
+        "customer",
+        "person"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Идентификатор кода"
+        },
+        "available": {
+          "type": "boolean",
+          "description": "Доступен ли код"
+        },
+        "createDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Дата создания записи"
+        },
+        "updateDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Дата последнего обновления"
+        },
+        "customer": {
+          "$ref": "#/$defs/Customer"
+        },
+        "person": {
+          "$ref": "#/$defs/Person"
+        }
+      }
+    },
+    "Customer": {
+      "type": "object",
+      "required": [
+        "cnum",
+        "name",
+        "inn"
+      ],
+      "properties": {
+        "cnum": {
+          "type": "string",
+          "description": "Клиентский номер компании"
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование компании"
+        },
+        "inn": {
+          "type": "string",
+          "description": "ИНН компании",
+          "pattern": "^[0-9]{10}$|^$"
+        }
+      }
+    },
+    "Person": {
+      "type": "object",
+      "required": [
+        "surname",
+        "name",
+        "birthDate",
+        "cnum"
+      ],
+      "properties": {
+        "surname": {
+          "type": "string",
+          "description": "Фамилия"
+        },
+        "name": {
+          "type": "string",
+          "description": "Имя"
+        },
+        "patronymic": {
+          "type": "string",
+          "description": "Отчество"
+        },
+        "birthDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата рождения"
+        },
+        "email": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "email",
+          "description": "Email плательщика"
+        },
+        "cnum": {
+          "type": "string",
+          "description": "Клиентский номер плательщика"
+        }
+      }
+    }
+  }
+}

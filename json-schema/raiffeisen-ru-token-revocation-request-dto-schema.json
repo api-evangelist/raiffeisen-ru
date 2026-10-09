@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-token-revocation-request-dto-schema.json",
+  "title": "TokenRevocationRequestDTO",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-authorization-openapi.yml#/components/schemas/TokenRevocationRequestDTO",
+  "type": "object",
+  "required": [
+    "token"
+  ],
+  "properties": {
+    "token": {
+      "type": "string",
+      "description": "Access Token или Refresh Token, который нужно отозвать."
+    },
+    "token_type_hint": {
+      "type": "string",
+      "enum": [
+        "access_token",
+        "refresh_token"
+      ],
+      "description": "Подсказка о типе переданного токена."
+    },
+    "client_id": {
+      "type": "string",
+      "description": "Идентификатор клиента (выдается Райффайзен Банком после подачи заявления на подключение)."
+    },
+    "client_secret": {
+      "type": "string",
+      "description": "Пароль клиента (указывается при подключении системы клиента к Райффайзен Банку)."
+    }
+  }
+}

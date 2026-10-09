@@ -1,0 +1,740 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Financing Request API
+  version: 1.0.0
+  description: 'Operations tagged FinancingRequest across 2 of this provider''s published API definitions: raiffeisen-ru-factoring-openapi.yml, raiffeisen-ru-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/factoring
+tags:
+- description: Запрос на финансирование
+  name: FinancingRequest
+paths:
+  /v1/financing-requests:
+    get:
+      description: Метод получения запросов на финансирование по переданным параметрам
+      operationId: getFinancingRequests
+      parameters:
+      - description: Идентификатор Договора Факторинга
+        in: query
+        name: agreementId
+        required: false
+        schema:
+          example: ba705955-3e0f-4956-84e0-e12616e84e2b
+          format: uuid
+          type: string
+      - description: Список статусов запросов на финансирование
+        in: query
+        name: statuses
+        required: false
+        schema:
+          example:
+          - SENT_TO_CDC_SIGN
+          - REJECTED
+          items:
+            example: SENT_TO_CDC_SIGN
+            type: string
+          type: array
+      - description: Число записей для смещения для формирования страницы ответа
+        in: query
+        name: offset
+        required: false
+        schema:
+          example: 10
+          type: integer
+      - description: Ограничение количества элементов на странице ответа
+        in: query
+        name: limit
+        required: false
+        schema:
+          example: 2
+          type: integer
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Запросы на финансирование
+                  value:
+                    financingRequests:
+                    - id: e05f8afe-a72e-4a6f-8292-7edb51a724ec
+                      creationDate: '2025-10-16'
+                      amount: 123456.78
+                      financedAmount: 0.0
+                      isPartiallyFinanceable: true
+                      financingAccount:
+                        cbaNumber: '40702810400000053038'
+                      comment: Комментарий
+                      suppliesQuantity: 145
+                      number: 1
+                      digest: eyJjbnVtIjoiQ0FDSkVXIfQ==
+                      debtor:
+                        fullNameRus: АО Ромашка
+                      supplier:
+                        cnum: CACJEW
+                        fullNameRus: АО Ромашка
+                      state:
+                        status: SENT_TO_CDC_SIGN
+                        statusDate: '2025-10-16T10:53:37.433531'
+                        errors: []
+                        cqrsVersion: -1628796591
+                    - id: 617edfe1-83a9-48b6-9cd8-10afb03a2181
+                      creationDate: '2025-10-16'
+                      amount: 567890.12
+                      financedAmount: 0.0
+                      isPartiallyFinanceable: true
+                      financingAccount:
+                        cbaNumber: '40702810400000053038'
+                      comment: Комментарий
+                      suppliesQuantity: 31
+                      number: 1
+                      digest: eyJjbnVtIjoiQ0FxxxTLDfQ==
+                      debtor:
+                        fullNameRus: АО Ромашка
+                      supplier:
+                        cnum: CACJEW
+                        fullNameRus: АО Ромашка
+                      state:
+                        status: REJECTED
+                        statusDate: '2025-10-18T13:11:51.123581'
+                        errors: []
+                        cqrsVersion: 5732813345
+                    offset: 0
+                    limit: 2
+                    totalCount: 100
+              schema:
+                $ref: '#/components/schemas/FinancingRequestPageResponse'
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Ошибка
+                  value:
+                  - code: REST_ERROR_5001
+                    message: General service error
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Получение запросов на финансирование
+      tags:
+      - FinancingRequest
+    post:
+      description: Метод создания запроса на финансирование по переданным поставкам
+      operationId: createFinancingRequest
+      requestBody:
+        content:
+          application/json:
+            examples:
+              simple:
+                summary: Создание запроса на финансирование
+                value:
+                  suppliesToInclude:
+                  - id: 5675c400-9835-491d-8489-d42ea7ed551c
+                    cqrsVersion: -1628796591
+                  - id: 5d5417d0-edd5-4910-8ae4-43706287a203
+                    cqrsVersion: 513571264
+                  isPartiallyFinanceable: true
+                  financingAccountId: 0a587aa4-bad9-47ea-beee-6e7775c879f0
+            schema:
+              $ref: '#/components/schemas/FinancingRequestCreationRequest'
+        description: Параметры для создания запроса на финансирование
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Запрос на финансирование
+                  value:
+                    id: e05f8afe-a72e-4a6f-8292-7edb51a724ec
+                    creationDate: '2025-10-16'
+                    amount: 123456.78
+                    financedAmount: 0.0
+                    isPartiallyFinanceable: true
+                    financingAccount:
+                      cbaNumber: '40702810400000053038'
+                    suppliesQuantity: 145
+                    number: 1
+                    digest: eyJjbnVtIjoiQ0FDSkVXIfQ==
+                    debtor:
+                      fullNameRus: АО Черемуха
+                    supplier:
+                      cnum: CACJEW
+                      fullNameRus: АО Ромашка
+                    state:
+                      status: SENT_TO_CDC_SIGN
+                      statusDate: '2025-10-16T10:53:37.433531'
+                      errors: []
+                      cqrsVersion: -1628796591
+              schema:
+                $ref: '#/components/schemas/FinancingRequest'
+          description: CREATED
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Ошибка
+                  value:
+                  - code: REST_ERROR_5027
+                    message: Supplies must be selected on only one deal condition
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Создание запроса на финансирование
+      tags:
+      - FinancingRequest
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/factoring
+  /v1/financing-requests/{id}:
+    delete:
+      description: Перевод запроса на финансирование в архив (удаление запроса на финансирование)
+      operationId: deleteFinancingRequest
+      parameters:
+      - description: Идентификатор запроса на финансирование
+        in: path
+        name: id
+        required: true
+        schema:
+          example: e05f8afe-a72e-4a6f-8292-7edb51a724ec
+          format: uuid
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Ошибка
+                  value:
+                  - code: REST_ERROR_5001
+                    message: General service error
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Удаление запроса на финансирование
+      tags:
+      - FinancingRequest
+    get:
+      description: Метод получения запроса на финансирование по идентификатору
+      operationId: getFinancingRequestById
+      parameters:
+      - description: Идентификатор запроса на финансирование
+        in: path
+        name: id
+        required: true
+        schema:
+          example: e05f8afe-a72e-4a6f-8292-7edb51a724ec
+          format: uuid
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Запрос на финансирование
+                  value:
+                    id: e05f8afe-a72e-4a6f-8292-7edb51a724ec
+                    creationDate: '2025-10-16'
+                    amount: 123456.78
+                    financedAmount: 0.0
+                    isPartiallyFinanceable: true
+                    financingAccount:
+                      cbaNumber: '40702810400000053038'
+                    comment: Комментарий
+                    suppliesQuantity: 145
+                    number: 1
+                    digest: eyJjbnVtIjoiQ0FDSkVXIfQ==
+                    debtor:
+                      fullNameRus: АО Черемуха
+                    supplier:
+                      fullNameRus: АО Ромашка
+                      cnum: CACJEW
+                    state:
+                      status: SENT_TO_CDC_SIGN
+                      statusDate: '2025-10-16T10:53:37.433531'
+                      errors: []
+                      cqrsVersion: -1628796591
+              schema:
+                $ref: '#/components/schemas/FinancingRequest'
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Ошибка
+                  value:
+                  - code: REST_ERROR_5001
+                    message: General service error
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Получение запроса на финансирование по идентификатору
+      tags:
+      - FinancingRequest
+    servers:
+    - url: https://api.raiffeisen.ru/factoring
+components:
+  schemas:
+    RestErrorCodes:
+      description: '| code            | description                                          |
+
+        |-----------------|------------------------------------------------------|
+
+        | REST_ERROR_5001 | General service error                                |
+
+        | REST_ERROR_5004 | Agreement does not exist                             |
+
+        | REST_ERROR_5017 | DealConditions does not exist                        |
+
+        | REST_ERROR_5024 | Action is available at working hour                  |
+
+        | REST_ERROR_5025 | Supplies are not found                               |
+
+        | REST_ERROR_5026 | Approved contract does not exist                     |
+
+        | REST_ERROR_5027 | Supplies must be selected on only one deal condition |
+
+        | REST_ERROR_5028 | Approved deal conditions do not exist                |
+
+        | REST_ERROR_5029 | Approved agreement does not exist                    |
+
+        | REST_ERROR_5031 | Account for financing cannot be empty                |
+
+        | REST_ERROR_5032 | Data validation failed                               |
+
+        | REST_ERROR_5033 | File is infected                                     |
+
+        | REST_ERROR_5034 | Invalid type of file                                 |
+
+        | REST_ERROR_5035 | File is empty                                        |
+
+        | REST_ERROR_5036 | Failed to read file                                  |
+
+        | REST_ERROR_5037 | Supplier are not found                               |
+
+        | SELECTED_ORGANIZATION_REQUIRED | selectedCnum is required when several organizations are available |
+
+        | SELECTED_ORGANIZATION_NOT_ALLOWED | selectedCnum is not included in allowed organizations |
+
+        '
+      enum:
+      - REST_ERROR_5001
+      - REST_ERROR_5004
+      - REST_ERROR_5017
+      - REST_ERROR_5024
+      - REST_ERROR_5025
+      - REST_ERROR_5026
+      - REST_ERROR_5027
+      - REST_ERROR_5028
+      - REST_ERROR_5029
+      - REST_ERROR_5031
+      - REST_ERROR_5032
+      - REST_ERROR_5033
+      - REST_ERROR_5034
+      - REST_ERROR_5035
+      - REST_ERROR_5036
+      - SELECTED_ORGANIZATION_REQUIRED
+      - SELECTED_ORGANIZATION_NOT_ALLOWED
+      example: REST_ERROR_5001
+      type: string
+    ErrorMessage:
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    FinancingRequestCreationRequest:
+      description: Запрос на создание запроса на финансирование
+      example:
+        suppliesToInclude:
+        - id: 5675c400-9835-491d-8489-d42ea7ed551c
+          cqrsVersion: -1628796591
+        - id: 5d5417d0-edd5-4910-8ae4-43706287a203
+          cqrsVersion: 513571264
+        isPartiallyFinanceable: true
+        financingAccountId: 0a587aa4-bad9-47ea-beee-6e7775c879f0
+      properties:
+        suppliesToInclude:
+          description: Список идентификаторов поставок для включения в запрос на финансирование
+          example:
+          - id: 5675c400-9835-491d-8489-d42ea7ed551c
+            cqrsVersion: -1628796591
+          - id: 5d5417d0-edd5-4910-8ae4-43706287a203
+            cqrsVersion: 513571264
+          items:
+            $ref: '#/components/schemas/SupplyToIncludeInFinancingRequest'
+          minItems: 1
+          type: array
+        isPartiallyFinanceable:
+          description: 'Допустимость частичного финансирования для создаваемого запроса - может ли финансирование быть выполнено не в полном объеме суммы переданных поставок
+
+            '
+          example: true
+          type: boolean
+        financingAccountId:
+          description: 'Идентификатор счета, на который необходимо зачислить денежные средства. Могут быть указаны как счета в Райффайзенбанке, так и счета во внешних банках  с признаком isForFinancing = true
+
+            '
+          example: 0a587aa4-bad9-47ea-beee-6e7775c879f0
+          format: uuid
+          type: string
+      required:
+      - financingAccountId
+      - isPartiallyFinanceable
+      - suppliesToInclude
+      type: object
+    FinancingRequest:
+      description: Запрос на финансирование
+      example:
+        id: e05f8afe-a72e-4a6f-8292-7edb51a724ec
+        creationDate: '2025-10-16'
+        amount: 123456.78
+        financedAmount: 0.0
+        isPartiallyFinanceable: true
+        financingAccount:
+          cbaNumber: '40702810400000053038'
+        comment: Комментарий
+        suppliesQuantity: 145
+        number: 1
+        digest: eyJjbnVtIjoiQ0FDSkVXIfQ==
+        debtor:
+          fullNameRus: АО Черемуха
+        supplier:
+          fullNameRus: АО Ромашка
+          cnum: CACJEW
+        state:
+          status: SENT_TO_CDC_SIGN
+          statusDate: '2025-10-16T10:53:37.433531'
+          errors: []
+          cqrsVersion: -1628796591
+      properties:
+        id:
+          description: Идентификатор запроса на финансирование
+          example: e05f8afe-a72e-4a6f-8292-7edb51a724ec
+          format: uuid
+          type: string
+        creationDate:
+          description: Дата создания запроса на финансирование
+          example: '2025-10-16'
+          format: date
+          type: string
+        amount:
+          description: Сумма запроса на финансирование
+          example: 123456.78
+          type: number
+        financedAmount:
+          description: Профинансированная сумма
+          example: 0.0
+          type: number
+        isPartiallyFinanceable:
+          description: 'Допустимость частичного финансирования для создаваемого запроса - может ли финансирование быть выполнено не в полном объеме суммы переданных поставок
+
+            '
+          example: true
+          type: boolean
+        financingAccount:
+          $ref: '#/components/schemas/FinancingRequestAccountProjection'
+        comment:
+          description: Комментарий к запросу. Заполняется в случае отказа по запросу
+          example: Запрос отклонен из-за стоп-фактора
+          type: string
+        suppliesQuantity:
+          description: Количество поставок в запросе
+          example: 145
+          type: number
+        number:
+          description: Номер запроса
+          example: 1
+          type: integer
+        digest:
+          description: Дайджест запроса на финансирование. Закодированный в base64 json с ключевыми полями запроса на финансирование
+          example: eyJjbnVtIjoiQ0FDSkVXIfQ==
+          type: string
+        debtor:
+          $ref: '#/components/schemas/DebtorFullNameRusProjection'
+        supplier:
+          $ref: '#/components/schemas/SupplierFinancingRequestProjection'
+        state:
+          allOf:
+          - $ref: '#/components/schemas/FinancingRequestState'
+          description: Состояние запроса на финансирование
+          type: object
+      required:
+      - amount
+      - creationDate
+      - debtor
+      - digest
+      - financedAmount
+      - financingAccount
+      - id
+      - isPartiallyFinanceable
+      - number
+      - state
+      - supplier
+      - suppliesQuantity
+      type: object
+    DebtorFullNameRusProjection:
+      description: 'Проекция дебитора с полным наименованием '
+      example:
+        fullNameRus: АО Ромашка
+      properties:
+        fullNameRus:
+          description: Полное наименование дебитора на русском языке
+          example: АО Ромашка
+          type: string
+      required:
+      - fullNameRus
+      type: object
+    SupplierFinancingRequestProjection:
+      description: Проекция поставщика для запроса на финансирование
+      example:
+        cnum: CACJEW
+        fullNameRus: АО Ромашка
+      properties:
+        cnum:
+          description: Клиентский номер
+          example: CACJEW
+          type: string
+        fullNameRus:
+          description: Полное наименование поставщика на русском языке
+          example: АО Ромашка
+          type: string
+      required:
+      - cnum
+      - fullNameRus
+      type: object
+    FinancingRequestStatus:
+      description: Статус запроса на финансирование
+      enum:
+      - SENT_TO_CDC_SIGN
+      - PARTIALLY_SIGNED
+      - REJECTED
+      - SIGNED
+      - IN_PROGRESS
+      - FINANCED
+      example: IN_PROGRESS
+      type: string
+    FinancingRequestState:
+      allOf:
+      - $ref: '#/components/schemas/State'
+      - properties:
+          status:
+            $ref: '#/components/schemas/FinancingRequestStatus'
+        required:
+        - status
+        type: object
+      description: Состояние запроса на финансирование
+      example:
+        status: SENT_TO_CDC_SIGN
+        statusDate: '2025-05-05T12:13:40.433531'
+        errors: []
+        cqrsVersion: 5911126589
+      type: object
+    FinancingRequestAccountProjection:
+      description: Проекция счета с номером ЦБ
+      example:
+        cbaNumber: '40702810400000053038'
+      properties:
+        cbaNumber:
+          description: ЦБ номер счета
+          example: '40702810400000053038'
+          maxLength: 20
+          minLength: 20
+          type: string
+      required:
+      - cbaNumber
+      type: object
+    State:
+      description: Состояние объекта
+      properties:
+        statusDate:
+          description: Дата последнего изменения состояния объекта yyyy-MM-dd'T'HH:mm:ss.SSSSSS
+          format: date-time
+          pattern: ([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})
+          type: string
+        errors:
+          description: Список ошибок в объекте. Может быть пустым списком или null
+          items:
+            $ref: '#/components/schemas/ErrorMessage'
+          type: array
+        cqrsVersion:
+          description: hashCode от statusDate, status и errors
+          example: -1628796591
+          type: integer
+      required:
+      - cqrsVersion
+      - statusDate
+      type: object
+    FinancingRequestPageResponse:
+      allOf:
+      - properties:
+          financingRequests:
+            description: Запросы на финансирование
+            items:
+              $ref: '#/components/schemas/FinancingRequest'
+            type: array
+        type: object
+      - $ref: '#/components/schemas/PaginationResponse'
+      example:
+        financingRequests:
+        - id: e05f8afe-a72e-4a6f-8292-7edb51a724ec
+          creationDate: '2025-10-16'
+          amount: 123456.78
+          financedAmount: 0.0
+          isPartiallyFinanceable: true
+          financingAccount:
+            cbaNumber: '40702810400000053038'
+          comment: Комментарий
+          suppliesQuantity: 145
+          number: 1
+          digest: eyJjbnVtIjoiQ0FDSkVXIfQ==
+          debtor:
+            fullNameRus: АО Черемуха
+          supplier:
+            cnum: CACJEW
+            fullNameRus: АО Ромашка
+          state:
+            status: SENT_TO_CDC_SIGN
+            statusDate: '2025-10-16T10:53:37.433531'
+            errors: []
+            cqrsVersion: -1628796591
+        - id: 617edfe1-83a9-48b6-9cd8-10afb03a2181
+          creationDate: '2025-10-16'
+          amount: 567890.12
+          financedAmount: 0.0
+          isPartiallyFinanceable: true
+          financingAccount:
+            cbaNumber: '40702810400000053038'
+          comment: Комментарий
+          suppliesQuantity: 31
+          number: 1
+          digest: eyJjbnVtIjoiQ0FxxxTLDfQ==
+          debtor:
+            fullNameRus: АО Черемуха
+          supplier:
+            cnum: CACJEW
+            fullNameRus: АО Ромашка
+          state:
+            status: REJECTED
+            statusDate: '2025-10-18T13:11:51.123581'
+            errors: []
+            cqrsVersion: 5732813345
+        offset: 0
+        limit: 2
+        totalCount: 100
+      type: object
+    SupplyToIncludeInFinancingRequest:
+      description: Информация о поставке для включения в запрос на финансирование
+      example:
+        id: 5675c400-9835-491d-8489-d42ea7ed551c
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: Идентификатор поставки
+          example: 5675c400-9835-491d-8489-d42ea7ed551c
+          format: uuid
+          type: string
+        cqrsVersion:
+          description: cqrsVersion поставки
+          example: -1628796591
+          type: integer
+      required:
+      - cqrsVersion
+      - id
+      type: object
+    PaginationResponse:
+      example:
+        offset: 0
+        limit: 10
+        totalCount: 100
+      properties:
+        offset:
+          description: Число записей для смещения для формирования страницы ответа
+          example: 1
+          type: integer
+        limit:
+          description: Итоговое количество элементов на странице ответа
+          example: 10
+          type: integer
+        totalCount:
+          description: Общее количество элементов
+          example: 100
+          type: integer
+      required:
+      - limit
+      - offset
+      - totalCount
+      type: object
+    ErrorResponse:
+      example:
+      - code: REST_ERROR_5001
+        message: General service error
+      items:
+        $ref: '#/components/schemas/ErrorMessage'
+      type: array
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-factoring-openapi.yml
+- raiffeisen-ru-factoring-openapi.yml

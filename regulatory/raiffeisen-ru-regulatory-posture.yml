@@ -1,0 +1,107 @@
+generated: '2026-10-09'
+method: searched
+probe: true
+source: https://www.raiffeisen.ru/static/common/about/disclaimer/policy_processing_of_personal_data.pdf
+description: >-
+  Horizontal regulatory signals HARVESTED from what AO Raiffeisenbank publishes; nothing here
+  decides which regime applies. The only legal page in the dossier is the Russian-language
+  "Политика в отношении обработки персональных данных АО «Райффайзенбанк», версия 1.1" (PDF, 15 pages,
+  HTTP 200, fetched 2026-10-09), written against Federal Law No. 152-FZ. Quotes are copied from
+  the PDF text with line breaks joined by single spaces. The policy names data-subject request
+  rights with a ten-day response duty, Russian-territory database localization, cross-border
+  transfer, retention limits and processing by third parties on the Bank's instruction (no list
+  of those processors is published). Incident handling appears only as an internal security
+  measure (detection and response), not a notification commitment, so no incident_notification
+  signal is recorded. No pages speak to AI transparency, accessibility, SBOM, transparency
+  reports, GPC, exit assistance, age assurance or support lifetime.
+signals:
+  data_subject_request:
+    url: https://www.raiffeisen.ru/static/common/about/disclaimer/policy_processing_of_personal_data.pdf
+    section: '3.2.2 Права субъектов персональных данных; 3.2.3 Основные обязанности Банка; 6.1 Запросы субъектов'
+    response_time: 10 days
+    channels: [post to the Bank's address, Bank branch, email from the client's registered address, '"Bank-Client" remote banking (sole proprietors)', contact centre plus scanned copy]
+    note: >-
+      Establishes rights to information, rectification/blocking/destruction, consent withdrawal
+      with deletion, and complaint to the authority or court; the Bank commits to answer within ten
+      days of a request, and section 6.1.2.1 lists the channels for submitting one.
+    evidence:
+      - source: https://www.raiffeisen.ru/static/common/about/disclaimer/policy_processing_of_personal_data.pdf
+        http_status: 200
+        fetched: '2026-10-09'
+        quote: >-
+          Банк обязан в течение десяти дней с момента получения запроса или обращения субъекта
+          персональных данных или его представителя предоставить информацию о наличии персональных
+          данных, относящихся непосредственно к этому субъекту персональных данных, а также
+          предоставить возможность ознакомления с этими персональными данными;
+      - source: https://www.raiffeisen.ru/static/common/about/disclaimer/policy_processing_of_personal_data.pdf
+        http_status: 200
+        fetched: '2026-10-09'
+        quote: >-
+          Субъект имеет право отозвать свое согласие на обработку персональных данных и потребовать
+          удалить свои персональные данные, если персональные данные больше не требуются для целей,
+          в которых они были получены, и у Банка отсутствуют законные основания для обработки
+          персональных данных субъекта;
+  data_residency:
+    url: https://www.raiffeisen.ru/static/common/about/disclaimer/policy_processing_of_personal_data.pdf
+    section: '3.2.4 Банк имеет право; 3.6 Трансграничная передача персональных данных'
+    region: Russian Federation
+    note: >-
+      Personal data of Russian citizens collected over the Internet is recorded and stored in
+      databases located in Russia; the Bank says it may still transfer data cross-border under
+      152-FZ, subject to restrictions set by state authorities.
+    evidence:
+      - source: https://www.raiffeisen.ru/static/common/about/disclaimer/policy_processing_of_personal_data.pdf
+        http_status: 200
+        fetched: '2026-10-09'
+        quote: >-
+          При сборе персональных данных посредством информационно- телекоммуникационной сети
+          Интернет, Банк обязан обеспечивать запись, систематизацию, накопление, хранение,
+          уточнение (обновление, изменение), извлечение персональных данных граждан Российской
+          Федерации с использованием баз данных, находящихся на территории Российской Федерации.
+      - source: https://www.raiffeisen.ru/static/common/about/disclaimer/policy_processing_of_personal_data.pdf
+        http_status: 200
+        fetched: '2026-10-09'
+        quote: >-
+          В ходе своей деятельности Банк может осуществлять трансграничную передачу персональных
+          данных в соответствии с требованиями ФЗ №152.
+  data_retention:
+    url: https://www.raiffeisen.ru/static/common/about/disclaimer/policy_processing_of_personal_data.pdf
+    section: '5. Сроки обработки, хранения и уничтожения персональных данных'
+    note: >-
+      Data is kept in identifiable form only as long as the processing purposes require, unless a
+      federal law or contract sets the period. Section 5.1 lists when processing stops. No specific
+      retention periods are published.
+    evidence:
+      - source: https://www.raiffeisen.ru/static/common/about/disclaimer/policy_processing_of_personal_data.pdf
+        http_status: 200
+        fetched: '2026-10-09'
+        quote: >-
+          Хранение персональных данных осуществляется в форме, позволяющей определить субъекта
+          персональных данных не дольше, чем этого требуют цели обработки персональных данных,
+          кроме случаев, когда срок хранения персональных данных установлен федеральным законом,
+          договором, стороной которого, выгодоприобретателем или поручителем по которому является
+          субъект персональных данных.
+  subprocessors:
+    url: https://www.raiffeisen.ru/static/common/about/disclaimer/policy_processing_of_personal_data.pdf
+    section: '3.2.4 Банк имеет право'
+    list_published: false
+    note: >-
+      The Bank may have third parties process data on its instruction, with the subject's consent,
+      and binds them to 152-FZ confidentiality. No processor list is published. Data subjects can
+      ask for the name and address of a processor (section 6.1.1).
+    evidence:
+      - source: https://www.raiffeisen.ru/static/common/about/disclaimer/policy_processing_of_personal_data.pdf
+        http_status: 200
+        fetched: '2026-10-09'
+        quote: >-
+          Лицо, осуществляющее обработку персональных данных по поручению Банка, обязано соблюдать
+          принципы и правила обработки персональных данных, предусмотренных в ФЗ № 152, соблюдать
+          конфиденциальность персональных данных, принимать необходимые меры, направленные на
+          обеспечение выполнения обязанностей, предусмотренных ФЗ № 152;
+      - source: https://www.raiffeisen.ru/static/common/about/disclaimer/policy_processing_of_personal_data.pdf
+        http_status: 200
+        fetched: '2026-10-09'
+        quote: >-
+          наименование или фамилию, имя, отчество и адрес лица, осуществляющего обработку
+          персональных данных по поручению Банка, если обработка поручена или будет поручена
+          такому лицу;

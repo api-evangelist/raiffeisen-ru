@@ -1,0 +1,383 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-updrequest-schema.json",
+  "title": "UPDRequest",
+  "description": "Модель УПД",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-invoices-openapi.yml#/components/schemas/UPDRequest",
+  "allOf": [
+    {
+      "$ref": "#/$defs/AbstractClosingDocumentRequest"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "description": "Список товаров/работ/услуг",
+          "items": {
+            "$ref": "#/$defs/ItemRequest"
+          },
+          "maxItems": 2147483647,
+          "minItems": 1
+        },
+        "additionalInfo": {
+          "$ref": "#/$defs/UPDAdditionalInfoRequest",
+          "description": "Дополнительная информация"
+        },
+        "transferInfo": {
+          "$ref": "#/$defs/TransferInfoRequest",
+          "description": "Информация о передаче/приемке"
+        },
+        "buyer": {
+          "$ref": "#/$defs/Participant",
+          "description": "Покупатель"
+        },
+        "shipper": {
+          "$ref": "#/$defs/Participant",
+          "description": "Грузоотправитель. Если поле отсутствует, грузоотправителем считается продавец"
+        },
+        "receiver": {
+          "$ref": "#/$defs/Participant",
+          "description": "Грузополучатель. Если поле отсутствует, грузополучателем считается покупатель"
+        },
+        "bills": {
+          "type": "array",
+          "description": "Связанные счета",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "uniqueItems": true
+        }
+      }
+    }
+  ],
+  "required": [
+    "additionalInfo",
+    "buyer",
+    "items",
+    "transferInfo",
+    "type"
+  ],
+  "$defs": {
+    "AbstractClosingDocumentRequest": {
+      "type": "object",
+      "description": "Базовая модель запроса на создание закрывающего документа",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Тип закрывающего документа",
+          "enum": [
+            "BILL",
+            "WORK_ACT",
+            "CONSIGNMENT_NOTE",
+            "UPD",
+            "INVOICE_FACTURA"
+          ]
+        },
+        "bills": {
+          "type": "array",
+          "description": "Связанные счета",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "DocumentBaseRequest": {
+      "type": "object",
+      "description": "Документ-основание/связанный документ",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Наименование"
+        },
+        "number": {
+          "type": "string",
+          "description": "Номер"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата"
+        }
+      },
+      "required": [
+        "date",
+        "name",
+        "number"
+      ]
+    },
+    "ItemRequest": {
+      "type": "object",
+      "description": "Модель единицы товара",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Наименование единицы товара"
+        },
+        "count": {
+          "type": "number",
+          "description": "Количество"
+        },
+        "price": {
+          "type": "number",
+          "description": "Цена единицы товара"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Единица измерения товара",
+          "enum": [
+            "PIECE",
+            "MINUTE",
+            "HOUR",
+            "DAY",
+            "CENTIMETER",
+            "DECIMETER",
+            "METER",
+            "KILOMETER",
+            "SQUARE_METER",
+            "HECTARE",
+            "CUBIC_METER",
+            "LITER",
+            "GRAM",
+            "KILOGRAM",
+            "TON",
+            "KIT",
+            "BOX",
+            "KILOWATT_HOUR",
+            "GIGA_CALORIES",
+            "STANDARD_UNIT",
+            "LINEAR_METER",
+            "PACKAGE",
+            "SERVICE",
+            "PAIR",
+            "MACHINE_HOUR",
+            "MONTH",
+            "EMPTY"
+          ]
+        },
+        "vat": {
+          "type": "string",
+          "description": "НДС",
+          "enum": [
+            "VAT_0",
+            "NO_VAT",
+            "VAT_22",
+            "VAT_20",
+            "VAT_18",
+            "VAT_10",
+            "VAT_7",
+            "VAT_5"
+          ]
+        }
+      },
+      "required": [
+        "count",
+        "name",
+        "price",
+        "unit",
+        "vat"
+      ]
+    },
+    "Name": {
+      "type": "object",
+      "description": "ФИО",
+      "properties": {
+        "lastName": {
+          "type": "string",
+          "description": "Фамилия",
+          "minLength": 1
+        },
+        "firstName": {
+          "type": "string",
+          "description": "Имя",
+          "minLength": 1
+        },
+        "middleName": {
+          "type": "string",
+          "description": "Отчество"
+        }
+      },
+      "required": [
+        "firstName",
+        "lastName"
+      ]
+    },
+    "Participant": {
+      "type": "object",
+      "description": "Участник УПД",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Тип участника. INDIVIDUAL (ФЛ) / IE (ИП) / COMPANY (ООО)",
+          "enum": [
+            "INDIVIDUAL",
+            "IE",
+            "COMPANY"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование участника"
+        },
+        "fio": {
+          "$ref": "#/$defs/Name",
+          "description": "ФИО участника"
+        },
+        "inn": {
+          "type": "string",
+          "description": "ИНН"
+        },
+        "address": {
+          "type": "string",
+          "description": "Адрес участника"
+        },
+        "kpp": {
+          "type": "string",
+          "description": "КПП"
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "SignatoryRequest": {
+      "type": "object",
+      "description": "Подписант/ответственный",
+      "properties": {
+        "position": {
+          "type": "string",
+          "description": "Должность",
+          "minLength": 1
+        },
+        "fio": {
+          "$ref": "#/$defs/Name",
+          "description": "ФИО"
+        }
+      },
+      "required": [
+        "fio",
+        "position"
+      ]
+    },
+    "TransferInfoRequest": {
+      "type": "object",
+      "description": "Информация о передаче/приемке УПД",
+      "properties": {
+        "document": {
+          "$ref": "#/$defs/DocumentBaseRequest",
+          "description": "Документ-основание передачи"
+        },
+        "transportationInfo": {
+          "type": "string",
+          "description": "Данные о транспортировке и грузе"
+        },
+        "shippingDocumentNumber": {
+          "type": "string",
+          "description": "Номер документа об отгрузке"
+        },
+        "shippingDocumentDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата документа об отгрузке"
+        },
+        "sellerTransferEmployee": {
+          "$ref": "#/$defs/SignatoryRequest",
+          "description": "Представитель продавца, передавший товар/услуги"
+        },
+        "transferDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата отгрузки, передачи"
+        },
+        "sellerAdditionalInfo": {
+          "type": "string",
+          "description": "Иные сведения об отгрузке, передаче"
+        },
+        "sellerResponsiblePerson": {
+          "$ref": "#/$defs/SignatoryRequest",
+          "description": "Ответственный продавца за правильность оформления"
+        },
+        "buyerReceiptEmployee": {
+          "$ref": "#/$defs/SignatoryRequest",
+          "description": "Представитель покупателя, принявший товар/услуги"
+        },
+        "receiptDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата получения, приемки"
+        },
+        "buyerAdditionalInfo": {
+          "type": "string",
+          "description": "Иные сведения о получении, приемке"
+        },
+        "buyerResponsiblePerson": {
+          "$ref": "#/$defs/SignatoryRequest",
+          "description": "Ответственный покупателя за правильность оформления"
+        },
+        "sellerEconomicSubject": {
+          "type": "string",
+          "description": "Наименование экономического субъекта - составителя документа продавца"
+        },
+        "buyerEconomicSubject": {
+          "type": "string",
+          "description": "Наименование экономического субъекта - составителя документа покупателя"
+        }
+      },
+      "required": [
+        "document",
+        "transferDate"
+      ]
+    },
+    "UPDAdditionalInfoRequest": {
+      "type": "object",
+      "description": "Дополнительная информация УПД",
+      "properties": {
+        "documentNumber": {
+          "type": "string",
+          "description": "Номер документа"
+        },
+        "documentDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата документа"
+        },
+        "operationType": {
+          "type": "string",
+          "description": "Тип операции"
+        },
+        "correctionNumber": {
+          "type": "string",
+          "description": "Номер исправления"
+        },
+        "correctionDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата исправления"
+        },
+        "paymentDocumentNumber": {
+          "type": "string",
+          "description": "Номер платежно-расчетного документа"
+        },
+        "paymentDocumentDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата платежно-расчетного документа"
+        }
+      },
+      "required": [
+        "documentDate",
+        "documentNumber"
+      ]
+    }
+  }
+}

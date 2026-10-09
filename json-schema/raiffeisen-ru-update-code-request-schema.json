@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-update-code-request-schema.json",
+  "title": "UpdateCodeRequest",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-adm-deposit-codes-openapi.yml#/components/schemas/UpdateCodeRequest",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "email",
+      "description": "Новый email плательщика"
+    }
+  }
+}

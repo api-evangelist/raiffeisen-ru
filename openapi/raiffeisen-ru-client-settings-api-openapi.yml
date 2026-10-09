@@ -1,0 +1,167 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Client settings API
+  version: 1.0.0
+  description: 'Operations tagged Client settings across 2 of this provider''s published API definitions: raiffeisen-ru-fx-openapi.yml, raiffeisen-ru-fx-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/fx
+tags:
+- name: Client settings
+paths:
+  /v1/trades/securities:
+    get:
+      tags:
+      - Client settings
+      summary: Запрос для получения списка доступных инструментов для спота и форварда
+      operationId: tradesSecurities
+      description: Чтобы запросить список инструментов вызовите метод и получите в ответе список доступных инструментов
+      parameters:
+      - in: header
+        name: CNUM
+        description: Уникальный идентификатор клиента (CNUM)
+        required: true
+        schema:
+          type: string
+          example: U12345
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Массив со списком доступных инструментов
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - result
+                - requestId
+                properties:
+                  result:
+                    type: array
+                    description: Массив со списком досутпных инструментов
+                    required:
+                    - currencies
+                    - tenor
+                    items:
+                      type: object
+                      properties:
+                        currencies:
+                          type: object
+                          description: Объект с информацией о базовой и котируемой валютой из инструмента
+                          required:
+                          - base
+                          - quoted
+                          properties:
+                            base:
+                              type: string
+                              description: Базовая валют инструмента
+                            quoted:
+                              type: string
+                              description: Котируемая валюта инструмента
+                        tenor:
+                          type: string
+                          description: Значение определяющее дату расчета по сделке, возможные значения TOD - сегодня, TOM - завтра, SPOT - после завтра, BRD - форвардный тенор
+                        valueDate:
+                          type: string
+                          description: Дата расчета для инструмента с теноромами TOD - сегодня, TOM - завтра, SPOT - после завтра
+                        minSettlementDate:
+                          type: string
+                          description: Минимальная дата расчета для форвардного тенора, иначе null
+                        maxSettlementDate:
+                          type: string
+                          description: Максимальная дата расчета для форвардного тенора, иначе null
+                        decimalPlaces:
+                          type: integer
+                          description: Количество знаков после запятой для курсов валюты
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса для трейсинга
+              examples:
+                Успешный ответ:
+                  summary: Успешный ответ
+                  value:
+                    result:
+                    - currencies:
+                        base: USD
+                        quoted: RUB
+                      tenor: TOD
+                      valueDate: '2024-05-19'
+                      minSettlementDate: null
+                      maxSettlementDate: null
+                      decimalPlaces: 4
+                    - currencies:
+                        base: USD
+                        quoted: RUB
+                      tenor: BRD
+                      valueDate: null
+                      minSettlementDate: '2024-05-19'
+                      maxSettlementDate: '2025-05-19'
+                      decimalPlaces: 3
+                    requestId: e0e70833c68e3c32
+        '400':
+          description: Плохой запрос
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                - requestId
+                properties:
+                  error:
+                    type: object
+                    description: Объект с кодом ошибки
+                    required:
+                    - code
+                    properties:
+                      code:
+                        type: string
+                        description: Значение кода ошибки
+                        example: app.invalid.request
+                      message:
+                        type: string
+                        description: Описание кода ошибки
+                        example: Bad Request
+                      data:
+                        type: array
+                        description: Дополнительная информация об ошибке
+                        items:
+                          type: string
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+                    example: 58286c252677a6
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/fx
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-fx-openapi.yml
+- raiffeisen-ru-fx-openapi.yml

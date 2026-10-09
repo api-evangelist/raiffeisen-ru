@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-agreements-response-schema.json",
+  "title": "AgreementsResponse",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-trade-finance-agreements-openapi.yml#/components/schemas/AgreementsResponse",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/AgreementResponse"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/$defs/Pagination"
+    }
+  ],
+  "$defs": {
+    "AgreementResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Идентификатор версии соглашения",
+          "format": "int64"
+        },
+        "number": {
+          "type": "string",
+          "description": "Номер соглашения"
+        },
+        "status": {
+          "type": "string",
+          "description": "Статус соглашения (системное наименование)"
+        },
+        "statusName": {
+          "type": "string",
+          "description": "Статус соглашения (наименование для статуса)"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "amount": {
+          "type": "number",
+          "format": "decimal"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "deadLineDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "agreementDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "guaranteeTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "guaranteeTypeCodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Pagination": {
+      "required": [
+        "limit",
+        "offset",
+        "totalCount"
+      ],
+      "type": "object",
+      "properties": {
+        "offset": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    }
+  }
+}

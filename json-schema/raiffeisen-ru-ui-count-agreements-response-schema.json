@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-ui-count-agreements-response-schema.json",
+  "title": "UiCountAgreementsResponse",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-trade-finance-agreements-openapi.yml#/components/schemas/UiCountAgreementsResponse",
+  "type": "object",
+  "properties": {
+    "activeCount": {
+      "type": "integer",
+      "description": "Количество активных соглашений",
+      "format": "int32"
+    },
+    "expiredCount": {
+      "type": "integer",
+      "description": "Количество истекших соглашений",
+      "format": "int32"
+    }
+  }
+}

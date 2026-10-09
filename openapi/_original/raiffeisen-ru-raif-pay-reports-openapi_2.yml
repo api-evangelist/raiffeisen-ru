@@ -1,0 +1,539 @@
+# x-archived-from: raiffeisen-ru-raif-pay-reports-openapi.yml
+# x-archived-on: 2026-10-09
+---
+openapi: "3.0.3"
+info:
+  title: "Отчеты"
+  version: "1.0.0"
+  description: "Методы получения информации об операциях и проводках\n"
+tags:
+- name: "rpreporter"
+paths:
+  /v1/transactions/summary:
+    get:
+      summary: "Сверка по транзакциям за указанный период"
+      description: "Отчёт по транзакциям за указанный период (не более трёх дней)"
+      tags:
+      - "cashReconciliation"
+      operationId: "get-report-v1-transactions-summary"
+      parameters:
+      - schema:
+          type: "string"
+          pattern: "YYYY-MM-DD ТHH24:MM:SS±HH:MM"
+          format: "URL encoded"
+        in: "query"
+        name: "from"
+        required: true
+        description: "Дата и время начала выборки"
+      - schema:
+          type: "string"
+          pattern: "YYYY-MM-DD ТHH24:MM:SS±HH:MM"
+          format: "URL encoded"
+        in: "query"
+        name: "to"
+        description: "Дата и время окончания выборки"
+        required: true
+      - schema:
+          type: "string"
+          enum:
+          - "Payment"
+          - "Refund"
+        in: "query"
+        name: "operationTypes"
+        description: "Фильтр по типу операции. Если значение не передано - выгружа\
+          ются все типы операций"
+      - schema:
+          type: "string"
+        in: "query"
+        name: "qrId"
+        description: "Фильтр по QR-коду. Если значение не передано - выгружаются в\
+          се операции по мерчанту"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/comparisonSummaryRep"
+              examples:
+                Example 1:
+                  summary: "Пример сводной информации о платежах"
+                  value:
+                    sbp:
+                      payments:
+                        sum: 21
+                        count: 2
+                      refunds:
+                        sum: 10
+                        count: 1
+                      total:
+                        sum: 11
+                        count: 3
+                    card:
+                      payments:
+                        sum: 23
+                        count: 2
+                      refunds:
+                        sum: 11
+                        count: 1
+                      total:
+                        sum: 12
+                        count: 3
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+              examples:
+                Выбранный период превышает трое суток:
+                  value:
+                    code: "ERROR.INVALID_REQUEST"
+                    message: "Даты from и to должны быть определены в хронологичес\
+                      ком порядке и интервалом не более 3х дней"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/transactions:
+    get:
+      summary: "Детализированный отчет транзакций за период"
+      tags:
+      - "cashReconciliation"
+      operationId: "get-report-v1-transactions"
+      description: "Получение детализированного отчёта по транзакциям за указанный\
+        \ период (не более трёх дней)"
+      parameters:
+      - schema:
+          type: "string"
+          pattern: " YYYY-MM-DD ТHH24:MM:SS±HH:MM"
+          format: "URL encoded"
+        in: "query"
+        name: "from"
+        description: "Дата и время начала выборки"
+        required: true
+      - schema:
+          type: "string"
+          pattern: " YYYY-MM-DD ТHH24:MM:SS±HH:MM"
+          format: "URL encoded"
+        in: "query"
+        name: "to"
+        description: "Дата и время окончания выборки"
+        required: true
+      - schema:
+          type: "string"
+          enum:
+          - "Payment"
+          - "Refund"
+        in: "query"
+        name: "operationTypes"
+        description: "Фильтр по типу операции. Если значение не передано - выгружа\
+          ются все типы операций"
+      - schema:
+          type: "string"
+        in: "query"
+        name: "qrId"
+        description: "Фильтр по QR-коду. Если значение не передано - выгружаются в\
+          се операции по мерчанту"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  sbp:
+                    type: "object"
+                    description: "Операции СБП"
+                    properties:
+                      payment:
+                        type: "array"
+                        description: "Массив платежей СБП"
+                        items:
+                          $ref: "#/components/schemas/reportPaymentSbpResponse"
+                      refund:
+                        type: "array"
+                        description: "Массив возвратов СБП"
+                        items:
+                          $ref: "#/components/schemas/reportRefundSbpResponse"
+                  card:
+                    type: "object"
+                    description: "Операции по интернет-эквайрингу"
+                    properties:
+                      payment:
+                        type: "array"
+                        description: "Массив платежей по интернет-эквайрингу"
+                        items:
+                          $ref: "#/components/schemas/reportPaymentCardResponse"
+                      refund:
+                        type: "array"
+                        description: "Массив возвратов по интернет-эквайрингу"
+                        items:
+                          $ref: "#/components/schemas/reportRefundCardResponse"
+              examples:
+                Example 1:
+                  summary: "Пример информации по платежам и возвратам"
+                  value:
+                    sbp:
+                      payment:
+                      - orderId: "a3294_3FFERSer_RE"
+                        amount: 77
+                        transactionDate: "2022-12-08T13:21:04.631543+03:00"
+                        paymentSystem: "Instant Payment QR"
+                        paymentDetails: "Благотворительное пожертвование"
+                        transactionId: 178657
+                        clientId: "007910******4567"
+                        qrId: "AS1A007L7B8IPA1F8CBQ8RK2D27FHST9"
+                        sbpTransactionId: "A23091339574920E000009529E6B66DF"
+                        orderComment: "Комментарий"
+                      refund:
+                      - orderId: "a3294_3FFERSer_RE"
+                        amount: 17
+                        transactionDate: "2022-12-09T13:17:04.631543+03:00"
+                        paymentSystem: "Instant Payment QR"
+                        paymentDetails: "Возврат денежных средств"
+                        transactionId: 178658
+                        clientId: "007910******4567"
+                        qrId: "AS1A007L7B8IPA1F8CBQ8RK2D27FHST9"
+                        sbpTransactionId: "B229701403532102000016268EEA632B"
+                        refundId: "refundOrder1"
+                    card:
+                      payment:
+                      - orderId: "xU5q5XG8m3oaDGKOTWg01671000652444"
+                        amount: 14
+                        transactionDate: "2022-12-14T09:51:02.339+03:00"
+                        paymentSystem: "VISA"
+                        paymentDetails: "Назначение платежа"
+                        transactionId: 5252420
+                        clientId: "200043****823"
+                        authCode: "259AA"
+                        rrn: "935014591810"
+                        orderComment: "Благотворительное пожертвование"
+                      refund:
+                      - orderId: "xU5q5XG8m3oaDGKOTWg01671000652444"
+                        amount: 13
+                        transactionDate: "2022-12-14T10:01:24.84+03:00"
+                        paymentSystem: "VISA"
+                        paymentDetails: "Назначение платежа"
+                        transactionId: 5252440
+                        clientId: "200043****823"
+                        authCode: "259AA"
+                        rrn: "935014591810"
+                        refundId: "refundId1"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+              examples:
+                Выбранный период превышает трое суток:
+                  value:
+                    code: "ERROR.INVALID_REQUEST"
+                    message: "Даты from и to должны быть определены в хронологичес\
+                      ком порядке и интервалом не более 3х дней"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  schemas:
+    error:
+      type: "object"
+      properties:
+        code:
+          type: "string"
+          description: "Код ошибки"
+        message:
+          type: "string"
+          description: "Описание ошибки"
+    comparisonSummaryRep:
+      title: "comparisonSummaryRep"
+      type: "object"
+      properties:
+        sbp:
+          type: "object"
+          description: "Операции СБП"
+          properties:
+            payments:
+              type: "object"
+              description: "Платежи СБП"
+              properties:
+                sum:
+                  type: "number"
+                  format: "float"
+                  description: "Сумма платежей СБП"
+                count:
+                  type: "integer"
+                  description: "Количество платежей СБП"
+            refunds:
+              type: "object"
+              description: "Возвраты СБП"
+              properties:
+                sum:
+                  type: "number"
+                  format: "float"
+                  description: "Сумма возвратов СБП"
+                count:
+                  type: "integer"
+                  description: "Количество возвратов СБП"
+            total:
+              type: "object"
+              description: "Общее количество операций СБП и итоговая сумма (Платеж\
+                \ - Возврат)"
+              properties:
+                sum:
+                  type: "number"
+                  format: "float"
+                  description: "Сумма прихода по СБП"
+                count:
+                  type: "integer"
+                  description: "Общее количество операций по СБП"
+        card:
+          type: "object"
+          description: "Операции по интернет-эквайрингу"
+          properties:
+            payments:
+              type: "object"
+              description: "Платежи по интернет-эквайрингу"
+              properties:
+                sum:
+                  type: "number"
+                  format: "float"
+                  description: "Сумма платежей по интернет-эквайрингу"
+                count:
+                  type: "integer"
+                  description: "Количество платежей по интернет-эквайрингу"
+            refunds:
+              type: "object"
+              description: "Возвраты по интернет-эквайрингу"
+              properties:
+                sum:
+                  type: "number"
+                  format: "float"
+                  description: "Сумма возвратов по интернет-эквайрингу"
+                count:
+                  type: "integer"
+                  description: "Количество возвратов по интернет-эквайрингу"
+            total:
+              type: "object"
+              description: "Общее количество операций по интернет-эквайрингу и ито\
+                говая сумма (Платеж - Возврат)"
+              properties:
+                sum:
+                  type: "number"
+                  format: "float"
+                  description: "Сумма прихода по интернет-эквайрингу"
+                count:
+                  type: "integer"
+                  description: "Общее количество операций по интернет-эквайрингу"
+    reportPaymentSbpResponse:
+      title: "reportPaymentSbpResponse"
+      type: "object"
+      description: "Платеж СБП"
+      properties:
+        orderId:
+          type: "string"
+          description: "Уникальный идентификатор заказа в системе партнёра"
+        amount:
+          type: "number"
+          description: "Сумма операции"
+        transactionDate:
+          type: "string"
+          description: "Дата операции"
+        paymentSystem:
+          type: "string"
+          description: "Платежная система"
+        paymentDetails:
+          type: "string"
+          description: "Назначение платежа"
+        transactionId:
+          type: "integer"
+          description: "Идентификатор транзакции СБП в системе Банка"
+        clientId:
+          type: "string"
+          description: "Идентификатор клиента в системе НСПК"
+        qrId:
+          type: "string"
+          description: "Идентификатор QR-кода"
+        sbpTransactionId:
+          type: "string"
+          description: "Идентификатор операции в системе НСПК"
+        orderComment:
+          type: "string"
+          description: "Комментарий"
+    reportRefundSbpResponse:
+      title: "reportRefundSbpResponse"
+      type: "object"
+      description: "Возврат СБП"
+      properties:
+        orderId:
+          type: "string"
+          description: "Уникальный идентификатор заказа в системе партнёра"
+        amount:
+          type: "number"
+          description: "Сумма операции"
+        transactionDate:
+          type: "string"
+          description: "Дата операции"
+        paymentSystem:
+          type: "string"
+          description: "Платежная система"
+        paymentDetails:
+          type: "string"
+          description: "Назначение платежа"
+        transactionId:
+          type: "integer"
+          description: "Идентификатор транзакции СБП в системе Банка"
+        clientId:
+          type: "string"
+          description: "Идентификатор клиента в системе НСПК"
+        qrId:
+          type: "string"
+          description: "Идентификатор QR-кода"
+        sbpTransactionId:
+          type: "string"
+          description: "Идентификатор операции в системе НСПК"
+        refundId:
+          type: "string"
+          description: "Идентификатор запроса на возврат в системе партнера"
+    reportPaymentCardResponse:
+      title: "reportPaymentCardResponse"
+      type: "object"
+      properties:
+        orderId:
+          type: "string"
+          description: "Уникальный идентификатор заказа в системе партнёра"
+        amount:
+          type: "number"
+          description: "Сумма операции"
+        transactionDate:
+          type: "string"
+          description: "Дата операции"
+        paymentSystem:
+          type: "string"
+          description: "Платежная система"
+        paymentDetails:
+          type: "string"
+          description: "Назначение платежа"
+        transactionId:
+          type: "integer"
+          description: "Идентификатор операции в системе Банка"
+        clientId:
+          type: "string"
+          description: "Маскированный номер карты клиента"
+        authCode:
+          type: "string"
+          description: "Код авторизации платежа, полученный от Банка-эмитента"
+        rrn:
+          type: "string"
+          description: "Номер для идентификации"
+        orderComment:
+          type: "string"
+          description: "Комментарий"
+    reportRefundCardResponse:
+      title: "reportRefundCardResponse"
+      type: "object"
+      properties:
+        orderId:
+          type: "string"
+          description: "Идентификатор операции "
+        amount:
+          type: "number"
+          description: "Сумма операции"
+        transactionDate:
+          type: "string"
+          description: "Дата операции"
+        paymentSystem:
+          type: "string"
+          description: "Платежная система"
+        paymentDetails:
+          type: "string"
+          description: "Назначение платежа"
+        transactionId:
+          type: "integer"
+          description: "Идентификатор транзакции в системе Банка"
+        clientId:
+          type: "string"
+          description: "Маскированный номер карты клиента"
+        authCode:
+          type: "string"
+          description: "Код авторизации платежа, полученный от Банка-эмитента"
+        rrn:
+          type: "string"
+          description: "Номер для идентификации"
+        refundId:
+          type: "string"
+          description: "Идентификатор запроса на возврат в системе партнера"
+  parameters:
+    userType:
+      name: "userType"
+      in: "path"
+      required: true
+      schema:
+        type: "string"
+        enum:
+        - "RBO"
+        - "ACCOUNT"
+        - "ADMIN"
+        example: "ADMIN"
+        default: "ADMIN"
+      description: "Тип аутентификации"
+    cnum:
+      name: "cnum"
+      in: "path"
+      required: true
+      schema:
+        type: "string"
+      description: "Customer number компании"
+    authentication:
+      name: "X-USER-TOKEN"
+      in: "cookie"
+      required: false
+      schema:
+        type: "string"
+    roleToken:
+      name: "roleToken"
+      in: "header"
+      required: false
+      schema:
+        type: "string"
+    businessMessageId:
+      name: "businessMessageId"
+      in: "query"
+      description: "id операции НСПК"
+      required: true
+      explode: false
+      schema:
+        type: "string"
+        default: "B4007021352362010000120011150101"
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+servers:
+- url: "https://api.raiffeisen.ru/raif-pay"

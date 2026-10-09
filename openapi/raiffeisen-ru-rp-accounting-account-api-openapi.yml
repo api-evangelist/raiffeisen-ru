@@ -1,0 +1,213 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Rp Accounting Account API
+  version: '0.1'
+  contact:
+    email: ecom@raiffeisen.ru
+    name: Support e-mail
+    x-team-id: 932
+    x-short-team-name: FPS B2B
+  x-logo:
+    url: images/raifflogo.png
+    backgroundColor: '#FFFFFF'
+    altText: Raiff logo
+  description: 'Operations tagged rp-accounting-account across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-sbp-b2b-openapi.json, raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://pay-test.raif.ru
+  description: Sandbox
+- url: https://pay.raif.ru
+  description: Production
+tags:
+- name: rp-accounting-account
+paths:
+  /api/v1/accounts:
+    get:
+      tags:
+      - rp-accounting-account
+      operationId: get-v1-accounts
+      summary: Получение списка счетов
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: purpose
+        in: query
+        schema:
+          type: string
+          enum:
+          - COUNTERPARTY
+        description: Назначение счета
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponseArray'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+  /api/v1/accounts/{id}:
+    get:
+      tags:
+      - rp-accounting-account
+      operationId: get-v1-accounts-{id}
+      summary: Получение информации о счете
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          format: UUID
+        description: Идентификатор счета
+        required: true
+        example: 1b60b182-b20d-4271-aaeb-a554a0712cd0
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+        '404':
+          $ref: '#/components/responses/NotFound-2'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+components:
+  schemas:
+    AccountResponseArray:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          type: array
+          description: Список счетов
+          items:
+            $ref: '#/components/schemas/AccountResponse'
+    AccountResponse:
+      type: object
+      required:
+      - id
+      - purpose
+      - account
+      - corrAccount
+      - bic
+      - legalName
+      - inn
+      properties:
+        id:
+          type: string
+          format: UUID
+          description: Идентификатор счета
+          example: 1b60b182-b20d-4271-aaeb-a554a0712cd0
+        purpose:
+          type: string
+          description: Назначение счета
+          enum:
+          - COUNTERPARTY
+        account:
+          type: string
+          description: Номер счета
+          example: '12345678901234567890'
+          minLength: 20
+          maxLength: 20
+        corrAccount:
+          type: string
+          description: Номер корреспондентского счета
+          example: '12345678901234567890'
+          minLength: 20
+          maxLength: 20
+        bic:
+          type: string
+          description: БИК банка
+          example: '123456789'
+          minLength: 9
+          maxLength: 9
+        legalName:
+          type: string
+          description: Наименование юридического лица
+          example: ООО "Ромашка"
+        inn:
+          type: string
+          description: ИНН юридического лица
+          example: '1234567890'
+          minLength: 10
+          maxLength: 12
+        kpp:
+          type: string
+          description: КПП юридического лица
+          example: '123456789'
+          minLength: 9
+          maxLength: 9
+  responses:
+    InternalServer:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Код ошибки запроса
+              message:
+                type: string
+                description: Описание ошибки
+              traceId:
+                type: string
+                description: Идентификатор запроса
+          examples:
+            default:
+              value:
+                code: SYSTEM_ERROR
+                message: Internal server error
+                traceId: f48ea581c6fed304bae465de04b22ad9
+    NotFound-2:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Код ошибки запроса
+              message:
+                type: string
+                description: Описание ошибки
+              traceId:
+                type: string
+                description: Идентификатор запроса
+          examples:
+            default:
+              value:
+                code: ORDER_NOT_FOUND
+                message: По данному идентификатору Заказ не найден
+                traceId: f48ea581c6fed304bae465de04b22ad9
+  securitySchemes:
+    BearerAuth:
+      type: http
+      description: '[Bearer secretKey](#tag/authorization)
+
+
+        example: eyJ0eXA***
+
+        '
+      scheme: bearer
+      bearerFormat: JWT
+      x-internal: false
+x-refined-from:
+- raiffeisen-ru-raif-pay-sbp-b2b-openapi.json
+- raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml

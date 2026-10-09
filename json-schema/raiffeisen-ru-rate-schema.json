@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-rate-schema.json",
+  "title": "Rate",
+  "description": "Курс валют",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-cbr-exchange-rates-openapi.yml#/components/schemas/Rate",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Идентификатор"
+    },
+    "currencyFrom": {
+      "type": "string",
+      "description": "Базовая валюта (RUB, EUR и.т.д)",
+      "enum": [
+        "RUB"
+      ]
+    },
+    "currencyTo": {
+      "type": "string",
+      "description": "Целевая валюта (AUD,  и.т.д)",
+      "enum": [
+        "HUF",
+        "INR",
+        "USD",
+        "CZK",
+        "XDR",
+        "AUD",
+        "CAD",
+        "SEK",
+        "KRW",
+        "ZAR",
+        "BRL",
+        "UAH",
+        "UZS",
+        "AMD",
+        "SGD",
+        "AZN",
+        "BYR",
+        "NOK",
+        "CNY",
+        "PLN",
+        "JPY",
+        "DKK",
+        "TMT",
+        "BYN",
+        "TJS",
+        "CHF",
+        "TRY",
+        "MDL",
+        "BGN",
+        "KGS",
+        "KZT",
+        "HKD",
+        "GBP",
+        "RON",
+        "EUR",
+        "AED",
+        "THB",
+        "VND",
+        "RSD",
+        "NZD",
+        "GEL",
+        "IDR",
+        "EGP",
+        "QAR"
+      ]
+    },
+    "value": {
+      "type": "number",
+      "description": "Значение"
+    },
+    "date": {
+      "type": "string",
+      "description": "Дата",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string",
+      "description": "Источник курса",
+      "enum": [
+        "CBR"
+      ]
+    }
+  },
+  "required": [
+    "currencyFrom",
+    "currencyTo",
+    "date",
+    "id",
+    "source",
+    "value"
+  ]
+}

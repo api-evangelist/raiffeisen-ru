@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-closing-document-list-response-schema.json",
+  "title": "ClosingDocumentListResponse",
+  "description": "Ответ на запрос получения списка закрывающих документов",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-invoices-openapi.yml#/components/schemas/ClosingDocumentListResponse",
+  "type": "object",
+  "properties": {
+    "page": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Порядковый номер страницы, 0-based"
+    },
+    "maxPageSize": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Максимальное количество элементов на странице"
+    },
+    "totalPages": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Всего страниц"
+    },
+    "totalElements": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Всего документов"
+    },
+    "documents": {
+      "type": "array",
+      "description": "Список закрывающих документов",
+      "items": {
+        "$ref": "#/$defs/ClosingDocumentListItemResponse"
+      }
+    }
+  },
+  "required": [
+    "documents",
+    "maxPageSize",
+    "page",
+    "totalElements",
+    "totalPages"
+  ],
+  "$defs": {
+    "CDListLinkedDocumentResponse": {
+      "type": "object",
+      "description": "Список связанных документов",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Идентификатор связанного документа"
+        },
+        "type": {
+          "type": "string",
+          "description": "Тип связанного документа. Одно из значений BILL, WORK_ACT, CONSIGNMENT_NOTE, INVOICE_FACTURA"
+        },
+        "documentNumber": {
+          "type": "string",
+          "description": "Номер связанного документа"
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ]
+    },
+    "ClosingDocumentListItemResponse": {
+      "type": "object",
+      "description": "Список закрывающих документов",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Идентификатор документа"
+        },
+        "cnum": {
+          "type": "string",
+          "description": "CNUM организации"
+        },
+        "type": {
+          "type": "string",
+          "description": "Тип документа",
+          "enum": [
+            "BILL",
+            "WORK_ACT",
+            "CONSIGNMENT_NOTE",
+            "UPD",
+            "INVOICE_FACTURA"
+          ]
+        },
+        "number": {
+          "type": "string",
+          "description": "Номер документа"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата документа"
+        },
+        "customerName": {
+          "type": "string",
+          "description": "Наименование контрагента"
+        },
+        "customerInn": {
+          "type": "string",
+          "description": "ИНН контрагента"
+        },
+        "totalPrice": {
+          "type": "number",
+          "description": "Сумма услуг"
+        },
+        "totalVatAmount": {
+          "type": "number",
+          "description": "Суммарный НДС"
+        },
+        "numberOfPositions": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Количество позиций"
+        },
+        "numberOfRemainingLinkedDocuments": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Количество связанных документов, которые не вернулись в ответе"
+        },
+        "linkedDocuments": {
+          "type": "array",
+          "description": "Список связанных документов, количество документов ограничено",
+          "items": {
+            "$ref": "#/$defs/CDListLinkedDocumentResponse"
+          }
+        }
+      },
+      "required": [
+        "cnum",
+        "customerName",
+        "date",
+        "id",
+        "linkedDocuments",
+        "numberOfPositions",
+        "numberOfRemainingLinkedDocuments",
+        "totalPrice",
+        "type"
+      ]
+    }
+  }
+}

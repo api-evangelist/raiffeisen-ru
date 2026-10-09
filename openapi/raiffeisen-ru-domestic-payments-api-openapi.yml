@@ -1,0 +1,1025 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Domestic Payments API
+  version: '1.0'
+  description: 'Operations tagged domestic-payments across 4 of this provider''s published API definitions: raiffeisen-ru-domestic-payments-import-openapi.yml, raiffeisen-ru-domestic-payments-iso20022-openapi.yml, raiffeisen-ru-domestic-payments-import-openapi.yml, raiffeisen-ru-domestic-payments-iso20022-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/domestic-payments
+tags:
+- name: domestic-payments
+paths:
+  /v2/transfers/import/payment-orders/1C:
+    post:
+      tags:
+      - domestic-payments
+      summary: Импорт РПП в формате 1С
+      operationId: import1CDomesticPayment
+      description: 'ВАЖНО: Данный функционал недоступен для клиентов сегмента Финансовые институты!
+
+        Импорт платежных поручений из файла в формате 1С.'
+      parameters:
+      - name: notes
+        in: query
+        description: Дополнительные примечания
+        required: false
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Файлы в формате 1С
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Массив файлов в формате 1С
+        required: true
+      responses:
+        '201':
+          description: Файл сохранен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiShortProcessImportDto'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/domestic-payments
+  /v2/transfers/import/payment-orders/XML:
+    post:
+      tags:
+      - domestic-payments
+      summary: Импорт РПП в формате XML
+      operationId: importXmlDomesticPayment
+      description: 'ВАЖНО: Данный функционал недоступен для клиентов сегмента Финансовые институты!
+
+        Импорт платежных поручений из файла в формате XML.'
+      parameters:
+      - name: notes
+        in: query
+        description: Дополнительные примечания
+        required: false
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Файлы в формате XML
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Массив файлов в формате XML
+        required: true
+      responses:
+        '201':
+          description: Файл сохранен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiShortProcessImportDto'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/domestic-payments
+  /v2/transfers/import/payment-orders/MT103:
+    post:
+      tags:
+      - domestic-payments
+      summary: Импорт РПП в формате MT103
+      operationId: importMT103DomesticPayment
+      description: 'ВАЖНО: Данный функционал недоступен для клиентов сегмента Финансовые институты!
+
+        Импорт платежных поручений из файла в формате MT103.'
+      parameters:
+      - name: notes
+        in: query
+        description: Дополнительные примечания
+        required: false
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Файлы в формате MT103
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Массив файлов в формате MT103
+        required: true
+      responses:
+        '201':
+          description: Файл сохранен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiShortProcessImportDto'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/domestic-payments
+  /v2/transfers/import/payment-orders/CSV:
+    post:
+      tags:
+      - domestic-payments
+      summary: Импорт РПП в формате CSV
+      operationId: importCsvDomesticPayment
+      description: 'ВАЖНО: Данный функционал недоступен для клиентов сегмента Финансовые институты!
+
+        Импорт платежных поручений из файла в формате CSV.'
+      parameters:
+      - name: notes
+        in: query
+        description: Дополнительные примечания
+        required: false
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Файлы в формате CSV
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Массив файлов в формате CSV
+        required: true
+      responses:
+        '201':
+          description: Файл сохранен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiShortProcessImportDto'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/domestic-payments
+  /v2/transfers/import/mass-payment/1C:
+    post:
+      tags:
+      - domestic-payments
+      summary: Импорт массового платежа в формате 1С
+      operationId: import1CMassPayment
+      description: 'ВАЖНО: Данный функционал недоступен для клиентов сегмента Финансовые институты!
+
+        Импорт массового платежа из файла в формате 1С.'
+      parameters:
+      - name: notes
+        in: query
+        description: Дополнительные примечания
+        required: false
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Файлы в формате 1С
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Массив файлов в формате 1С
+        required: true
+      responses:
+        '201':
+          description: Файл сохранен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiShortProcessImportDto'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/domestic-payments
+  /v2/transfers/import/mass-payment/XML:
+    post:
+      tags:
+      - domestic-payments
+      summary: Импорт массового платежа в формате XML
+      operationId: importXmlMassPayment
+      description: 'ВАЖНО: Данный функционал недоступен для клиентов сегмента Финансовые институты!
+
+        Импорт массового платежа в формате XML.'
+      parameters:
+      - name: notes
+        in: query
+        description: Дополнительные примечания
+        required: false
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Файлы в формате XML
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Массив файлов в формате XML
+        required: true
+      responses:
+        '201':
+          description: Файл сохранен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiShortProcessImportDto'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/domestic-payments
+  /v2/transfers/import/mass-payment/MT103:
+    post:
+      tags:
+      - domestic-payments
+      summary: Импорт массового платежа в формате MT103
+      operationId: importMT103MassPayment
+      description: 'ВАЖНО: Данный функционал недоступен для клиентов сегмента Финансовые институты!
+
+        Импорт массового платежа в формате MT103.'
+      parameters:
+      - name: notes
+        in: query
+        description: Дополнительные примечания
+        required: false
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Файлы в формате MT103
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Массив файлов в формате MT103
+        required: true
+      responses:
+        '201':
+          description: Файл сохранен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiShortProcessImportDto'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/domestic-payments
+  /v2/transfers/import/mass-payment/CSV:
+    post:
+      tags:
+      - domestic-payments
+      summary: Импорт массового платежа в формате CSV
+      operationId: importCsvMassPayment
+      description: 'ВАЖНО: Данный функционал недоступен для клиентов сегмента Финансовые институты!
+
+        Импорт массового платежа из файла в формате CSV.'
+      parameters:
+      - name: notes
+        in: query
+        description: Дополнительные примечания
+        required: false
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Файлы в формате CSV
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Массив файлов в формате CSV
+        required: true
+      responses:
+        '201':
+          description: Файл сохранен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiShortProcessImportDto'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/domestic-payments
+  /v2/transfers/import/status/{importTaskId}:
+    get:
+      tags:
+      - domestic-payments
+      summary: Статус импорта
+      operationId: getImportStatus
+      description: 'ВАЖНО: Данный функционал недоступен для клиентов сегмента Финансовые институты!
+
+        Получение статуса импорта по идентификатору задачи.'
+      parameters:
+      - name: importTaskId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Идентификатор задачи импорта
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Результат импорта
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProcessImportDto'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/domestic-payments
+  /v2/transfers/import/status/{importTaskId}/full:
+    get:
+      tags:
+      - domestic-payments
+      summary: Статус импорта и всех документов
+      operationId: getImportStatusFull
+      description: 'ВАЖНО: Данный функционал недоступен для клиентов сегмента Финансовые институты!
+
+        Получение статуса импорта и статусов всех связанных документов.'
+      parameters:
+      - name: importTaskId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Идентификатор задачи импорта
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Результат импорта
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiProcessImportFullDto'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/domestic-payments
+  /v2/transfers/iso20022/unsigned:
+    post:
+      tags:
+      - domestic-payments
+      summary: Импорт неподписанного платежа в формате ISO20022
+      operationId: unsignedDomesticPayment
+      description: 'ВАЖНО: Данный функционал недоступен для клиентов сегмента Финансовые институты!
+
+        Отправка XML-файла с неподписанными платежами.
+
+        Документация по неподписанным платежам на английском,
+
+        Документация по неподписанным платежам на русском,
+
+        XSD-схема для валидации,
+
+        Документация API по ISO XML.'
+      parameters:
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: XML-документ установленного формата, представляющий данные неподписанного платежного поручения
+        content:
+          application/xml:
+            schema:
+              type: string
+        required: true
+      responses:
+        '202':
+          description: Задача для рублевого платежа успешно создана
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden_2'
+        '413':
+          $ref: '#/components/responses/FileIsTooLarge'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/domestic-payments
+  /v2/transfers/iso20022/signed:
+    post:
+      tags:
+      - domestic-payments
+      summary: Импорт подписанного с помощью XmlDSig платежа в формате ISO20022
+      operationId: signedDomesticPayment
+      description: 'ВАЖНО: Данный функционал недоступен для клиентов сегмента Финансовые институты!
+
+        Отправка XML-файла, подписанного с использованием **XmlDSig**.
+
+        API Документация на английском,
+
+        API Документация на русском,
+
+        XSD-схема для валидации,
+
+        Документация API по подписанным ISO XML,
+
+        Инструкция по подписи (Примеры на Java).'
+      parameters:
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: 'XML-документ установленного формата, представляющий данные подписанного платежного поручения
+
+          '
+        content:
+          application/xml:
+            schema:
+              type: string
+        required: true
+      responses:
+        '202':
+          description: Задача для рублевого платежа успешно создана
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden_2'
+        '413':
+          $ref: '#/components/responses/FileIsTooLarge'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/domestic-payments
+  /v2/transfers/iso20022/{msgId}/status:
+    get:
+      tags:
+      - domestic-payments
+      summary: Получение краткой квитанции по пакету платежей в формате ISO20022
+      operationId: domesticPackageStatus
+      description: 'ВАЖНО: Данный функционал недоступен для клиентов сегмента Финансовые институты!
+
+        Получение краткой квитанции по пакету платежей в формате ISO20022.
+
+        API Документация на английском,
+
+        API Документация на русском.'
+      parameters:
+      - name: msgId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Уникальный идентификатор пакета
+        example: ORCRUWIRE0170202229000030
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Статус успешно получен
+          content:
+            application/xml:
+              schema:
+                type: string
+              examples:
+                RJCT:
+                  summary: RJCT - Документ отклонен
+                  value: '<Document> ... <DtldSts>RJCT</DtldSts> ... </Document>
+
+                    '
+                PDNG:
+                  summary: PDNG - Документ в очереди на обработку
+                  value: '<Document>...<DtldSts>PDNG</DtldSts>...</Document>
+
+                    '
+                FSGN:
+                  summary: FSGN - Документ ждет отправки
+                  value: '<Document> ... <DtldSts>FSGN</DtldSts> ... </Document>
+
+                    '
+                ACSP:
+                  summary: ACSP - Документ в работе у банка
+                  value: '<Document> ... <DtldSts>ACSP</DtldSts> ... </Document>
+
+                    '
+                ATTN:
+                  summary: ATTN - Требует внимания
+                  value: '<Document> ... <DtldSts>ATTN</DtldSts> ... </Document>
+
+                    '
+                ACSC:
+                  summary: ACSC - Документ исполнен
+                  value: '<Document> ... <DtldSts>ACSC</DtldSts> ... </Document>
+
+                    '
+                CANC:
+                  summary: CANC - Документ отозван
+                  value: '<Document> ... <DtldSts>CANC</DtldSts> ... </Document>
+
+                    '
+                DBLC:
+                  summary: DBLC - Платеж не был создан так как является дубликатом
+                  value: '<Document> ... <DtldSts>DBLC</DtldSts> ... </Document>
+
+                    '
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden_2'
+        '404':
+          $ref: '#/components/responses/DocumentNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/domestic-payments
+  /v2/transfers/iso20022/{msgId}/status/full:
+    get:
+      tags:
+      - domestic-payments
+      summary: Получение полной квитанции по пакету и платежам внутри пакета в формате ISO20022
+      operationId: domesticPackageStatusFull
+      description: 'ВАЖНО: Данный функционал недоступен для клиентов сегмента Финансовые институты!
+
+        Получение полной квитанции по пакету и платежам внутри пакета в формате ISO20022, подробная информация по каждому платежу в пакете.
+
+        API Документация на английском,
+
+        API Документация на русском.'
+      parameters:
+      - name: msgId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Уникальный идентификатор пакета
+        example: ORCRUWIRE0170202229000030
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Статус успешно получен
+          content:
+            application/xml:
+              schema:
+                type: string
+              examples:
+                RJCT:
+                  summary: RJCT - Документ отклонен
+                  value: '<Document> ... <DtldSts>RJCT</DtldSts> ... </Document>
+
+                    '
+                PDNG:
+                  summary: PDNG - Документ в очереди на обработку
+                  value: '<Document>...<DtldSts>PDNG</DtldSts>...</Document>
+
+                    '
+                FSGN:
+                  summary: FSGN - Документ ждет отправки
+                  value: '<Document> ... <DtldSts>FSGN</DtldSts> ... </Document>
+
+                    '
+                ACSP:
+                  summary: ACSP - Документ в работе у банка
+                  value: '<Document> ... <DtldSts>ACSP</DtldSts> ... </Document>
+
+                    '
+                ATTN:
+                  summary: ATTN - Требует внимания
+                  value: '<Document> ... <DtldSts>ATTN</DtldSts> ... </Document>
+
+                    '
+                ACSC:
+                  summary: ACSC - Документ исполнен
+                  value: '<Document> ... <DtldSts>ACSC</DtldSts> ... </Document>
+
+                    '
+                CANC:
+                  summary: CANC - Документ отозван
+                  value: '<Document> ... <DtldSts>CANC</DtldSts> ... </Document>
+
+                    '
+                DBLC:
+                  summary: DBLC - Платеж не был создан так как является дубликатом
+                  value: '<Document> ... <DtldSts>DBLC</DtldSts> ... </Document>
+
+                    '
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden_2'
+        '404':
+          $ref: '#/components/responses/DocumentNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/domestic-payments
+  /v2/transfers/iso20022/{msgId}/payments/{pmtInfId}/status:
+    get:
+      tags:
+      - domestic-payments
+      summary: Получение статуса конкретного платежа по его идентификатору в рамках ранее…
+      operationId: domesticPaymentStatus
+      description: 'ВАЖНО: Данный функционал недоступен для клиентов сегмента Финансовые институты!
+
+        Получение статуса конкретного платежа по его идентификатору в рамках ранее загруженного пакета.
+
+        API Документация на английском,
+
+        API Документация на русском,
+
+        Примеры ответов: pain002_001_payments_status.'
+      parameters:
+      - name: msgId
+        in: path
+        required: true
+        schema:
+          type: string
+        example: ORCRUWIRE0170202229000030
+      - name: pmtInfId
+        in: path
+        required: true
+        schema:
+          type: string
+        example: ORCRUWIRE0040203219700010
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Статус успешно получен
+          content:
+            application/xml:
+              schema:
+                type: string
+              examples:
+                RJCT:
+                  summary: RJCT - Документ отклонен
+                  value: '<Document> ... <DtldSts>RJCT</DtldSts> ... </Document>
+
+                    '
+                PDNG:
+                  summary: PDNG - Документ в очереди на обработку
+                  value: '<Document>...<DtldSts>PDNG</DtldSts>...</Document>
+
+                    '
+                FSGN:
+                  summary: FSGN - Документ ждет отправки
+                  value: '<Document> ... <DtldSts>FSGN</DtldSts> ... </Document>
+
+                    '
+                ACSP:
+                  summary: ACSP - Документ в работе у банка
+                  value: '<Document> ... <DtldSts>ACSP</DtldSts> ... </Document>
+
+                    '
+                ATTN:
+                  summary: ATTN - Требует внимания
+                  value: '<Document> ... <DtldSts>ATTN</DtldSts> ... </Document>
+
+                    '
+                ACSC:
+                  summary: ACSC - Документ исполнен
+                  value: '<Document> ... <DtldSts>ACSC</DtldSts> ... </Document>
+
+                    '
+                CANC:
+                  summary: CANC - Документ отозван
+                  value: '<Document> ... <DtldSts>CANC</DtldSts> ... </Document>
+
+                    '
+                DBLC:
+                  summary: DBLC - Платеж не был создан так как является дубликатом
+                  value: '<Document> ... <DtldSts>DBLC</DtldSts> ... </Document>
+
+                    '
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden_2'
+        '404':
+          $ref: '#/components/responses/DocumentNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/domestic-payments
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    Forbidden:
+      description: Ошибка прав
+    ValidationError:
+      description: Ошибки валидации
+      content:
+        application/xml:
+          schema:
+            type: string
+    InternalError:
+      description: Внутренняя ошибка
+    FileIsTooLarge:
+      description: Размер файла превышает допустимый лимит
+    Forbidden_2:
+      description: Доступ запрещён
+    DocumentNotFound:
+      description: Документ не найден
+    Forbidden_3:
+      description: Доступ запрещён
+  schemas:
+    ApiShortProcessImportDto:
+      type: object
+      description: Краткая информация о задаче импорта
+      properties:
+        importTaskId:
+          type: string
+          description: Идентификатор процесса импорта
+    ApiMassPaymentStatus:
+      type: string
+      description: Статус массового платежа
+      enum:
+      - IMPORT_PROCESS
+      - IMPORTED
+      - DRAFT
+      - REJECTED
+    ImportDocumentFullInfoDto:
+      type: object
+      description: Информация по одному документу в файле импорта
+      properties:
+        paymentId:
+          type: string
+          description: Уникальный идентификатор импортированного платежа
+        documentNumber:
+          type: integer
+          description: Номер документа
+        documentDate:
+          type: integer
+          description: Дата документа
+        payerAccount:
+          type: string
+          description: Счет плательщика
+        receiverAccount:
+          type: string
+          description: Счет получателя
+        paymentAmount:
+          type: number
+          format: decimal
+          description: Сумма платежа
+        message:
+          type: string
+          description: Сообщение из банка
+        status:
+          $ref: '#/components/schemas/ImportDocumentFullInfoStatus'
+    ProcessImportStatus:
+      type: string
+      description: Статус процесса импорта
+      enum:
+      - IN_PROGRESS
+      - COMPLETED
+      - QUEUED
+      - ERROR
+    ImportDocumentInfoDto:
+      type: object
+      description: Информация по одному документу в файле импорта
+      properties:
+        documentListNumber:
+          type: integer
+          description: Порядковый номер документа (платежного поручения) в файле
+        fileName:
+          type: string
+          description: Имя файла, из которого импортирован платеж
+        paymentId:
+          type: string
+          description: Уникальный идентификатор импортированного платежа. Присваивается только при documentStatus IMPORTED или DRAFT
+        message:
+          type: string
+          description: Сообщение с ошибкой
+        documentNumber:
+          type: integer
+          description: Номер документа
+        documentStatus:
+          $ref: '#/components/schemas/ImportDocumentInfoStatus'
+    ApiProcessImportFullDto:
+      type: object
+      description: Подробная информация о задаче импорта
+      allOf:
+      - $ref: '#/components/schemas/ApiShortProcessImportDto'
+      properties:
+        message:
+          type: string
+          description: Сообщение, если не удалось целиком импортировать файл
+        startTime:
+          type: string
+          description: Время начала импорта (GMT+3)
+        endTime:
+          type: string
+          description: Время завершения импорта (GMT+3). Отображается только при importStatus COMPLETED или ERROR
+        importStatus:
+          $ref: '#/components/schemas/ProcessImportStatus'
+        massPaymentId:
+          type: string
+          description: Уникальный идентификатор массового платежа (отображается при импорте массового платежа)
+        massPaymentStatus:
+          $ref: '#/components/schemas/ApiMassPaymentStatus'
+        importFormat:
+          type: string
+          description: Формат импорта
+        documentsInfo:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImportDocumentFullInfoDto'
+          description: Информация и текущий статус по каждому документу (платежному поручению) в файле
+    ImportDocumentFullInfoStatus:
+      type: string
+      description: Возможные статусы платежа TEMP - черновик,  CREATED/IMPORTED - документ прошел все проверки и ожидает подписи SIGNED/PARTLY_SIGNED - документ частично или полностью подписан,  POSTPONED - отложена отправка, ACCEPTED_BY_ABS - документ подписан и отправлен на процессинг,   IN_PROGRESS_BY_ABS - документ поставлен в рейс на отправку в ЦБ,  INSUFFICIENT_FUNDS - недостаточно средств,  HOLD_ACCEPT_SPM - документ задержан противодействием мошенничеству,  HOLD_ACCEPT_UKK - документ задержан управлением комплаенс контроля,  PDC - документ отправлен в картотеку, т.е. денежные средства не поступили на оплату платежа до COT, нодокумент не отклонился, т.к. является обязательным к исполнению (зарплатный, алиментный итп),  PROCESSED - исполненный документ, INVALID_CHECKS/INVALID_SIGN - отклонен в сервисе из-за не пройденных контролей, DECLINED_BY_ABS - отказанный в банке,  DECLINED_BY_CBR - отказанный ЦБ документ,  REVOKED - отозванный документ,  DELETED - удалённый документ
+      enum:
+      - TEMP
+      - CREATED
+      - IMPORTED
+      - PARTLY_SIGNED
+      - SIGNED
+      - POSTPONED
+      - ACCEPTED_BY_ABS
+      - IN_PROGRESS_BY_ABS
+      - INSUFFICIENT_FUNDS
+      - HOLD_ACCEPT_SPM
+      - HOLD_ACCEPT_UKK
+      - PDC
+      - PROCESSED
+      - INVALID_CHECKS
+      - INVALID_SIGN
+      - DECLINED_BY_ABS
+      - DECLINED_BY_CBR
+      - REVOKED
+      - DELETED
+    ApiProcessImportDto:
+      type: object
+      description: Подробная информация о задаче импорта
+      allOf:
+      - $ref: '#/components/schemas/ApiShortProcessImportDto'
+      properties:
+        message:
+          type: string
+          description: Сообщение, если не удалось целиком импортировать файл
+        startTime:
+          type: string
+          description: Время начала импорта (GMT+3)
+        endTime:
+          type: string
+          description: Время завершения импорта (GMT+3). Отображается только при importStatus COMPLETED или ERROR
+        importStatus:
+          $ref: '#/components/schemas/ProcessImportStatus'
+        massPaymentId:
+          type: string
+          description: Уникальный идентификатор массового платежа (отображается при импорте массового платежа)
+        massPaymentStatus:
+          $ref: '#/components/schemas/ApiMassPaymentStatus'
+        importFormat:
+          type: string
+          description: Формат импорта
+        documentsInfo:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImportDocumentInfoDto'
+          description: Информация по ошибкам в документах (платежному поручению) в файле
+    ImportDocumentInfoStatus:
+      type: string
+      description: Статус документа
+      enum:
+      - IMPORTED
+      - DRAFT
+      - REJECTED
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-domestic-payments-import-openapi.yml
+- raiffeisen-ru-domestic-payments-iso20022-openapi.yml
+- raiffeisen-ru-domestic-payments-import-openapi.yml
+- raiffeisen-ru-domestic-payments-iso20022-openapi.yml

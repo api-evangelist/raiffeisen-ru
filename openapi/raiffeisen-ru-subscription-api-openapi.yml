@@ -1,0 +1,626 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Subscription API
+  version: '1.0'
+  contact:
+    email: ecom@raiffeisen.ru
+    name: Support e-mail
+    x-team-id: 178
+    x-short-team-name: PAPAS
+  x-description-i18n:
+    eng: "You can give your comments about current documentation in repository: https://github.com/Raiffeisen-DGTL/ecom-API/blob/master/sbp_en.yaml\n\n# Connect to SBP\n\nTo receive SBP payments, submit application on [site](https://www.rbo.raiffeisen.ru/sign-form/).\n\nRaiffeisenbank will complete the registration.\nAfter the process is completed, you will be notified by email.\n\n## SBP participants\n\n### Buyer\n* selects the services / goods in the partner software and the item “Payment via SBP” (optional)\n* scans the QR code provided by the partner and confirms the payment in the application of their bank\n* receives the result of payment and paid services / goods\n\n### Partner\n* requests the formation of a QR code for the selected goods / services (basket)\n* displays a QR code to the client for scanning and making payment\n* processes notifications of the results of SBP operations\n* requests payment data (optional)\n* ensures the delivery of goods / services to the buyer upon payment\n\n### Raiffeisenbank\n* provides an interface for requesting a QR code from a partner\n* provides money transfer to the partner's account upon settlements in SBP\n* defines the format of the notification of the fact of the SBP payment\n* provides an interface for receiving payment data\n\n## Support 54-FZ\n\nIn accordance with the Federal Law NO. 54-FZ of May 22, 2003 \"On the use of cash registers in implementation of settlements in the Russian Federation\",\nfor taxation purposes a fiscal receipt is required for making settlements for goods sold, work performed or services rendered, as well as transfer of the receipts to tax authorities.\n\nRaiffeisenbank provides generation of fiscal receipts and their transfer to tax authorities by integration via [API](https://pay.raif.ru/doc/fiscal.html).\n\n# General schemas of work\n\n## Working with a form\nTo accept payments online on the website or in the mobile application, you can use [QR code opening protocol in the form](https://pay.raif.ru/doc/ecom_en.html).\n\n<a href='images/SBP and ECOM EN. Working with a form.png' target='_blank'><img src='images/SBP and ECOM EN. Working with a form.png'></a>\n\n## White label SBP API\n\nThe figure below shows the schema of information exchange with a partner when making a payment using a QR code.\n\n<a href='images/SBP EN. White label SBP API.png' target='_blank'><img src='images/SBP EN. White label SBP API.png'></a>\n\n## Subscription schema\n\nYou can offer the client to link the SBP payment to the loyalty program or to an account in your service. To do this, you can generate a QR code and display it to the client or redirect it via a special link that is located in the response to the request to create a QR code for a subscription.\n\nAfter that, using the unique subscription identifier, you can apply for debiting funds from the client for your goods and services without the client's acceptance.\n\n<a href='images/SBP EN. Subscription schema.png' target='_blank'><img src='images/SBP EN. Subscription schema.png'></a>\n\n## Payment and subscription schema\n\nThere is also a schema in which one request receives a QR code to receive payment and subscription.\n\nIn this case, the client makes a payment, after which a window is displayed with a proposal to activate the subscription.\n\nThe customer can pay but unsubscribe. Also, the client can make a payment from a bank application that does not support subscriptions.\n\n<a href='images/SBP EN. Payment and subscription schema.png' target='_blank'><img src='images/SBP EN. Payment and subscription schema.png'></a>\n\n## Working with QRVariable\n\nThe diagram below depicts usage scenario for QRVariable. It is a new QR code type that is differentiated from QRStatic and QRDynamic.\n\n<a href='images/SBP EN. Working with QRVariable.png' target='_blank'><img src='images/SBP EN. Working with QRVariable.png'></a>\n\n## Subscription with recurring charges\nSubscriptions support automatic recurring charges made by bank on regular basis. As of now, only monthly charges are supported.\nIn case of unsuccessful payment another attempt is made on the same day. If the second attempt fails, charge will be repeated the next day and so on. Failed attempts do not cause subscription cancellation.<br><br>\nAutomatic recurring charges can be made for both of subscription scenarios listed above. To enable the feature, additional fields must be passed either in [QR creation method](#operation/post-sbp-v2-qrs) or in [subscription creation method](#operation/post-sbp-v1-subscriptions).<br><br>\nPayment notifications might be received by [callbacks](#tag/Callback). In this case subscriptionId will be passed in the [body message](#operation/сallbackPay). Subscription can be deactivated via [cancellation method](#operation/delete-sbp-v1-subscriptions-subscriptionId).\n<a href='images/SBP EN. Subscription with recurring payments.png' target='_blank'><img src='images/SBP EN. Subscription with recurring payments.png'></a>\n# Ready solutions\nYou can use our SDK for faster integration:\n* [Java](https://github.com/Raiffeisen-DGTL/sbp-sdk-java)\n[Our other solutions](https://pay.raif.ru/doc/solutions.html).\n# API description\nThe interaction is carried out using the HTTP protocol using the GET/POST/DELETE methods (the description of each request clearly indicates the required method and address).\n\nPOST requests use JSON arguments, GET/DELETE requests work with query strings.\n\nThe API always returns a response in JSON format, regardless of the type of request.\n\nThe response of any method contains a message code (code). If a logical error occurs during the processing of any request, the API will additionally return a description of the error (message).\n\n## Authorization\nRequests like:\n* receiving information on a QR code\n* receipt of payment information\n* processing a return on payment\n* receiving information on return\n\nare authorized using the API secret key (secretKey). The authorization parameter is specified in the Authorization header, the value of which is formed as \"Bearer secretKey\".\n\nYou can view your sbpMerchantId and generate keys in your [personal account](https://www.rbo.raiffeisen.ru/acquiring/mcp#/) in the \"Accept payments\" tab\n\n<div align=center><a href='images/createKey.png' target='_blank'><img src='images/createKey.png'></a></div>\n\nTo generate test data, please contact the Bank's support team by sending an email to ecom@raiffeisen.ru\n\nThe secret key must be stored in a trusted environment, since refunds can be made using it.<br><br>\nIt is our recommendation to create a single merchant for all trading locations owned by your company. If so, there will be no need to:\n- store a dictionary linking merchants with your trading locations\n- store a large amount of secret keys and set them up at each trading location individually\n- create additional merchants if new trading locations are opened by the company\n- make refunds strictly at the same store where items were purchased\n- make complicated reports based on various merchants\n- link QR codes with corresponding merchants (in case of using QRVariable)\n# Mobile version and application\nWe recommend using our [payment form](https://pay.raif.ru/doc/ecom_en.html), for working in the mobile version of the site or mobile application.\n\nIf you plan to use your form, then you need to implement a bank selection widget, for this you need to get its scheme for each bank:\n- [bank schemes for payment QR](https://qr.nspk.ru/proxyapp/c2bmembers.json )\n- [bank schemes for subscription QR codes](https://sub.nspk.ru/proxyapp/c2bmembers.json )\n\nAnd substitute it in the url from the payload parameter, instead of https.\n\nFor the correct choice of the bank's app, we recommend using the SDK from the NSPK:\n\nIOS , Android , Web - https://sbp.nspk.ru/business_online/#widget-business\n\nOr you can use our SDK:\nAndroid - https://github.com/Raiffeisen-DGTL/sbp-sdk-android\nIOS - https://github.com/Raiffeisen-DGTL/payform-sdk-ios\n\n### Recommendations for working with deeplink in mobile applications\n\nFor correct deeplink handling in WebView, we recommend the following implementation:\n\n1. **Configure WebView:**\n   ```kotlin\n   webView.settings.javaScriptEnabled = true\n   webView.settings.setSupportMultipleWindows = false\n   ```\n\n2. **Create a custom WebViewClient:**\n   ```kotlin\n   webView.webViewClient = object : WebViewClient() {\n       override fun shouldOverrideUrlLoading(\n           view: WebView,\n           request: WebResourceRequest\n       ): Boolean {\n           val url = request.url.toString()\n\n           return if (url.startsWith(\"http://\") || url.startsWith(\"https://\")) {\n               false\n           } else {\n               try {\n                   val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))\n                   if (intent.resolveActivity(view.context.packageManager) != null) {\n                       view.context.startActivity(intent)\n                       true\n                   } else {\n                       // resolveActivity may return null on API 30+ due to package visibility\n                       // try launching directly as fallback\n                       view.context.startActivity(intent)\n                       true\n                   }\n               } catch (e: ActivityNotFoundException) {\n                   // No app available to handle this scheme\n                   false\n               } catch (e: Exception) {\n                   e.printStackTrace()\n                   false\n               }\n           }\n       }\n   }\n   ```\n\n3. **How it works:**\n   - `http://` and `https://` links → load inside WebView\n   - Other schemes (deeplinks) → open in installed apps via Intent\n\nThis approach ensures correct deeplink handling and keeps web pages within your app.\n\n# NFC and SBPay\nTo work with SBP via NFC, it is necessary to implement interaction via [\"QRVariable\"](#section/General-schemas-of-work/Working-with-QRVariable).\n\nYou need to generate a QR code with the QRVariable type for each cash register.\nFrom the response to the QR generation request, you need to get a link from the payload parameter, in the link to the beginning of the domain you need to add \"web.\" and the resulting link needs to be write into an NFC tag.\n\nExample:\n\nIn payload you got https://qr.nspk.ru/AS100004BAL7227F9BNP6KNE007J9B3K,\n\nthe NFC tag will need to be write https://web.qr.nspk.ru/AS100004BAL7227F9BNP6KNE007J9B3K\n\n# Testing\n\nFor a full payment testing cycle, Raiffeisenbank provides the opportunity to use a demo application for scanning QRC on behalf of the buyer at:\nhttps://pay.raif.ru/pay/rfuture/\n\nThe specified address can be opened in the browser of any device with a camera. No additional software / plugins need to be installed. Then click on the SBP icon (if necessary, allow the browser access to the camera) and bring the QR code image to it.\nIf the camera doesn't open, check the url, it has to have https.\n"
+  x-logo:
+    url: images/raifflogo.png
+    backgroundColor: '#FFFFFF'
+    altText: Raiff logo
+  description: 'Operations tagged Subscription across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-sbp-openapi.json, raiffeisen-ru-raif-pay-sbp-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://pay.raif.ru/api
+  description: Production
+- url: https://pay-test.raif.ru/api
+  description: Sandbox
+tags:
+- name: Subscription
+  x-displayName: Подписки
+  x-x-displayName-i18n:
+    eng: Subscription
+  description: Для включения подписок необходима дополнительная настройка.
+  x-description-i18n:
+    eng: "To enable the subscription, additional configuration is required. To do so, fill out a [digital application in RBO](https://www.rbo.raiffeisen.ru/sign-form/subscription).\n\nYou can view the user flow using our demo page - https://pay.raif.ru/pay/configurator/#/subscription\n\nThere are two possible scenarios for implementation:\n  * subscription\n    [Diagram](#section/General-schemas-of-work/Subscription-schema).\n\n  * Payment and subscription\n    [Diagram](#section/General-schemas-of-work/Payment-and-subscription-schema).\n\n## Widgets\n<iframe src=\"https://pay.raif.ru/widgets/?publicId=MA0000279719&subscriptionPurpose=%D0%91%D0%BB%D0%B0%D0%B3%D0%BE%D1%82%D0%B2%D0%BE%D1%80%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D0%BD%D0%BE%D0%B5%20%D0%BF%D0%BE%D0%B6%D0%B5%D1%80%D1%82%D0%B2%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5&logo=https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqiwtWhVXbOj0gImTuuRHXuDre7gr-MEdQOpsJU9pNy2TRhYDyIuqkPIzZ_0RSyDE2G-M&amp;usqp=CAU&widgetType=CHARITY&buttonColor=774098&textButtonColor=FFFFFF&offer=https://bfkh.ru/oferta_bfkh.pdf\" width=\"100%\" height=\"280\" style=\"border: 0; border-radius: 16px\" allowtransparency=\"true\" scrolling=\"no\" frameborder=\"0\"></iframe>\n\nTo place the widget on your website, you need to:\n  * сopy the widget code (iframe)\n  * edit the HTML code of your page\n  * paste the widget code in the appropriate place on the page\n  * save the HTML code of the page and refresh it on the site\n\n### Widget Parameters\nParameter | Description | Value\n---------|----------|---------\nsrc<font color = dark>*</font> | URL of the integrated page | Described below\nwidth<font color = dark>*</font> | Widget width <br> Can be set by the client, but the maximum size should not exceed 728 pixels | from 280 to 728 pixels\nheight<font color = dark>*</font> | Widget height <br> Fixed value | 280 pixels\nstyle<font color = dark>*</font> | Style for correct widget frame appearance | \"border: 0; border-radius: 16px\"\nallowtransparency<font color = dark>*</font> | Transparent widget background | true\nscrolling<font color = dark>*</font> | Scrollbars. Not used | no\nframeborder<font color = dark>*</font> | Three-dimensional border. Not displayed | 0\n\n### URL of the integrated page Parameters\nParameter | Description | Value\n---------|----------|---------\nHOST<font color = dark>*</font> | HOST | * https://pay.raif.ru (production host) <br> * https://pay-test.raif.ru (test host)\npublicId<font color = dark>*</font> | Identifier used to open the payment form and is not confidential |\nsubscriptionPurpose<font color = dark>*</font> | Subscription purpose (displayed on the widget) |\nlogo | Client logo URL (displayed on the widget) |\nwidgetType<font color = dark>*</font> | Widget type | * CHARITY <br> * PAYMENT\nbuttonColor<font color = dark>*</font> | Button color | Provide in hex format without the # symbol <br> For example, for the color #774098, use buttonColor=774098\ntextButtonColor<font color = dark>*</font> | Text color inside the button | Provide in hex format without the # symbol\noffer | Client offer link <br> If the parameter is not provided, the widget will display only the [link to the payment terms and subscription connection](https://www.raiffeisen.ru/static/common/SME-Documents/Widget_terms.pdf) | * If the parameter is not provided, the text will be: <br>\"Оплачивая, вы соглашаетесь с [условиями](https://www.raiffeisen.ru/static/common/SME-Documents/Widget_terms.pdf)\"<br><br>* If the parameter is provided, the text will be: <br>\"Оплачивая, вы соглашаетесь с [условиями](https://www.raiffeisen.ru/static/common/SME-Documents/Widget_terms.pdf) и [офертой](https://bfkh.ru/oferta_bfkh.pdf)\"\n\nIframe example for the widget on the test environment:\n<pre><code>&lt;iframe src=\"https://pay-test.raif.ru/widgets/?publicId=000001780049001-80049001&subscriptionPurpose=%D0%91%D0%BB%D0%B0%D0%B3%D0%BE%D1%82%D0%B2%D0%BE%D1%80%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D0%BD%D0%BE%D0%B5%20%D0%BF%D0%BE%D0%B6%D0%B5%D1%80%D1%82%D0%B2%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5&logo=https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqiwtWhVXbOj0gImTuuRHXuDre7gr-MEdQOpsJU9pNy2TRhYDyIuqkPIzZ_0RSyDE2G-M&amp;usqp=CAU&widgetType=CHARITY&buttonColor=774098&textButtonColor=FFFFFF&offer=https://bfkh.ru/oferta_bfkh.pdf\" width=\"630\" height=\"280\" style=\"border: 0; border-radius: 16px\" allowtransparency=\"true\" scrolling=\"no\" frameborder=\"0\"&gt;&lt;/iframe&gt;</code></pre>\nReplace the test host in the iframe with the production host, and include your company’s information in the URL parameters of the embedded page. Then, integrate it into your website.\n"
+paths:
+  /sbp/v1/subscriptions:
+    post:
+      summary: Создание QR для подписки
+      x-summary-i18n:
+        eng: Create QR for subscription
+      operationId: createSubscription
+      responses:
+        '200':
+          $ref: '#/components/responses/CreateSubscriptionResponse'
+      description: Метод позволяет зарегистрировать QR для последующей привязки счета клиента в выбранном банке. Для мобильного интерфейса используется диплинк, который возвращается в `payload`. Создание подписки выполняется без авторизации, что позволяет использовать метод на сайте и в мобильном приложении
+      x-description-i18n:
+        eng: Method allows to create subscription QR code. Use qr.payload for mobile version site or app.
+      requestBody:
+        $ref: '#/components/requestBodies/CreateSubscriptionRequest'
+      tags:
+      - Subscription
+    servers:
+    - url: https://pay.raif.ru/api
+      description: Production
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+  /sbp/v1/subscriptions/{subscriptionId}:
+    parameters:
+    - $ref: '#/components/parameters/subscriptionId'
+    get:
+      summary: Получение информации по подписке
+      x-summary-i18n:
+        eng: Get information of subscription
+      tags:
+      - Subscription
+      responses:
+        '200':
+          $ref: '#/components/responses/CreateSubscriptionResponse'
+      operationId: getSubscription
+      description: Метод позволяет получить данные по ранее созданной подписке
+      x-description-i18n:
+        eng: This method allows you to get data for a previously created subscription
+      security:
+      - secretKey: []
+    delete:
+      summary: Отмена подписки
+      x-summary-i18n:
+        eng: Cancel subscription
+      tags:
+      - Subscription
+      operationId: cancelSubscription
+      description: Метод позволяет отменить подписку. Если подписка включает регулярные автоматические списания, то они также будут отменены.
+      x-description-i18n:
+        eng: This method allows to cancel a subscription. In case of recurring charges, they will be cancelled as well.
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/components/responses/GeneralErrorResponse'
+      security:
+      - secretKey: []
+    servers:
+    - url: https://pay.raif.ru/api
+      description: Production
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+  /sbp/v1/subscriptions/{subscriptionId}/orders:
+    parameters:
+    - $ref: '#/components/parameters/subscriptionId'
+    post:
+      summary: Запрос на совершение платежа по подписке
+      x-summary-i18n:
+        eng: Request for payment about subscription
+      operationId: createSubscriptionPayment
+      responses:
+        '200':
+          $ref: '#/components/responses/SubscriptionPaymentStatusResponse'
+        '400':
+          description: Для данной подписки не разрешено списание по запросу
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    code: ERROR.SUBSCRIPTION_CHARGE_NOT_ALLOWED
+                    message: Для данной подписки не разрешено списание по запросу
+        '404':
+          description: Подписка с указанным id не доступна для оплаты
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    code: ERROR.AVAILABLE_SUBSCRIPTION_NOT_FOUND
+                    message: Подписка с ID d63e03a7-a283-4ba2-a95f-7a0f1fdb6b21 недоступна для оплаты
+      description: 'Метод позволяет создать заказ и инициировать списание со счета клиента в рамках созданной подписки. Метод предназначен для списания средств по подписке, у которой не настроено автоматическое списание `autoCharge`. При успешном списании будет направлено стандартное уведомление об оплате.
+
+
+        Для возврата средств по подписке используется метод [[Оформление возврата по платежу]](#tag/QR/operation/createRefundOld).'
+      x-description-i18n:
+        eng: Method for create payment about subscription. <br>For refund of subscription payment use - [Refund](#operation/post-payments-v2-orders-orderId-refunds-refundId)
+      requestBody:
+        $ref: '#/components/requestBodies/CreateSubscriptionPaymentRequest'
+      tags:
+      - Subscription
+      security:
+      - secretKey: []
+    servers:
+    - url: https://pay.raif.ru/api
+      description: Production
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+  /sbp/v1/subscriptions/{subscriptionId}/orders/{orderId}:
+    parameters:
+    - $ref: '#/components/parameters/subscriptionId'
+    - $ref: '#/components/parameters/orderId'
+    get:
+      summary: Проверка статуса платежа по подписке
+      x-summary-i18n:
+        eng: Check payment status with subscription
+      tags:
+      - Subscription
+      responses:
+        '200':
+          $ref: '#/components/responses/SubscriptionPaymentStatusResponse'
+      operationId: getSubscriptionPaymentStatus
+      description: Метод позволяет получить данные по платежу, сделанному по подписке
+      x-description-i18n:
+        eng: The method allows you to get data on the payment made by subscription
+      security:
+      - secretKey: []
+    servers:
+    - url: https://pay.raif.ru/api
+      description: Production
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+components:
+  schemas:
+    SubscriptionAutoCharge:
+      type: object
+      description: Данные автоматического списания по подписке. Объект передается, если по подписке необходимо взимать деньги на регуряной основе. Используется как альтернатива [методу списания по запросу](#operation/post-sbp-v1-subscriptions-subscriptionId-orders)
+      x-description-i18n:
+        eng: Automatic recurring charges. Required if subscription has to be paid on regular basis. Used as alternative to the [method of payment on request](#operation/post-sbp-v1-subscriptions-subscriptionId-orders)
+      properties:
+        frequency:
+          type: string
+          enum:
+          - MONTHLY
+          description: Периодичность списания по подписке<br>Если параметр передан, то банк будет автоматически проводить ежемесячное списание средств с клиента.
+          x-description-i18n:
+            eng: Frequency of recurring charges. If passed, the bank will automatically charge customer once a month. As of now, only monthly frequency is supported
+        firstChargeDate:
+          type: string
+          description: 'Дата первого списания по подписке<br>
+
+            Списание в указанную дату произойдет автоматически, далее – с заданной периодичностью начиная с этой даты. Переданное значение должно быть не меньше 7 дней от текущей даты. Например, при создании подписки 1 января firstChargeDate может быть 8 января или позже.<br>
+
+            Если параметр не передан, то при `frequency` равен `MONTHLY` первое списание по подписке произойдет через месяц после привязки счета клиентом.'
+          x-description-i18n:
+            eng: 'Date of first subscription charge<br>
+
+              The debit will be automatically debited on the specified date. Then, it will be debited at the specified frequency starting from that date. The value passed must be at least 7 days old. For example, if you create a subscription on January 1st, firstChargeDate could be January 8th or later.
+
+              If the parameter is not passed, then if `frequency` is equal to `MONTHLY`, the first subscription charge will occur one month after the client links the account.'
+          example: '2024-01-25'
+          format: date
+        amount:
+          type: number
+          description: Сумма ежемесячного списания в рублях. Для копеек доступно два знака после точки.
+          x-description-i18n:
+            eng: Amount of automatic recurring charges in rubles
+          example: 103.32
+          exclusiveMinimum: 1
+      required:
+      - frequency
+      - amount
+    PaymentStatus:
+      type: string
+      minLength: 1
+      enum:
+      - SUCCESS
+      - DECLINED
+      - NO_INFO
+      - IN_PROGRESS
+      description: Статус платежа. Возможные значения:<br>• SUCCESS – платеж прошел успешно<br>• DECLINED – платеж отклонен<br>• NO_INFO – не найдена информация о платеже<br>• IN_PROGRESS – платеж в процессе обработки
+      x-description-i18n:
+        eng: Payment status
+    AdditionalInfo:
+      type: string
+      description: "Дополнительная информация. <br>\nМожет быть доступна для пользователя в зависимости от банка, назначение платежа плательщика.\nПопадает в реестр в колонку \"Комментарий\".\nНе может быть пустым или содержать только пробелы. Может содержать:<br>\n  • Символы латиницы (A–Z и a–z) <br>\n  • Символы кириллицы (А-Я и а-я) <br>\n  • Цифры 0-9 <br>\n  • Спецсимволы: пробел и `!`, `\"`, `#`, `$`, `%`, `'`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`<br>"
+      x-description-i18n:
+        eng: 'Additional information to be filled out at the request of the partner when generating the QR code. Cannot be empty or contain only spaces. May contain:<br>
+
+          • Latin letters (A–Z and a–z) <br>
+
+          • Cyrillic letters (А–Я and а–я) <br>
+
+          • Digits 0-9 <br>
+
+          • Special characters: space and `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`<br>
+
+          '
+      maxLength: 140
+      pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
+      example: Дополнительная информация
+    CreatedSubscription:
+      title: CreatedSubscription
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: ^[A-Za-z0-9-_.]+$
+          description: Идентификатор подписки
+          minLength: 1
+        bank:
+          type: string
+          description: Идентификатор банка в котором осуществленна подписка. Будет заполнен в случае успешной подписки.
+        createDate:
+          type: string
+          format: date-time
+          description: Время формирования заявки
+          minLength: 1
+        status:
+          type: string
+          enum:
+          - INACTIVE
+          - SUBSCRIBED
+          - UNSUBSCRIBED
+          - CANCELLED
+          description: Статус подписки
+          minLength: 1
+        qr:
+          type: object
+          description: Данные по QR-подписки
+          properties:
+            id:
+              type: string
+              description: Идентификатор QR-кода
+              minLength: 1
+            payload:
+              type: string
+              description: Данные для самостоятельной генерации изображения зарегистрированного QR-кода в СБП. При открытии с мобильного устройства, запускает банковское приложение клиента или список выбора банка
+              minLength: 1
+            url:
+              type: string
+              description: URL с изображением зарегистрированного QR-кода в СБП
+              minLength: 1
+    CreatedSubscriptionPayment:
+      title: CreatedSubscriptionPayment
+      type: object
+      properties:
+        order:
+          $ref: '#/components/schemas/OrderId'
+        amount:
+          type: number
+          description: Сумма в рублях. Для копеек доступно два знака после точки.
+          exclusiveMinimum: 0
+        currency:
+          type: string
+          minLength: 1
+          enum:
+          - RUB
+        paymentDetails:
+          $ref: '#/components/schemas/PaymentDetails'
+        additionalInfo:
+          $ref: '#/components/schemas/AdditionalInfo'
+        paymentStatus:
+          $ref: '#/components/schemas/PaymentStatus'
+        qrId:
+          type: string
+          description: Идентификатор QR-кода
+          minLength: 1
+        sbpMerchantId:
+          type: string
+          description: Идентификатор зарегистрированного партнёра в СБП
+          minLength: 1
+        splits:
+          $ref: '#/components/schemas/Split'
+    PaymentDetails:
+      title: PaymentDetails
+      type: string
+      description: 'Назначение платежа. Отображается в выписке. Может содержать:<br>
+
+        - Символы латиницы (A–Z и a–z)
+
+        - Символы кириллицы (А-Я и а-я)
+
+        - Цифры 0-9
+
+        - Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`
+
+        - Спецсимвол `№`'
+      pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
+    OrderId:
+      title: OrderId
+      type: string
+      pattern: ^[A-Za-z0-9-_.]+$
+      description: Идентификатор заказа. Рекомендуем использовать длинный формат без возможности перебора, например, использовать формат [UUID v4](https://ru.wikipedia.org/wiki/UUID)
+    GeneralErrorResponse:
+      type: object
+      title: error
+      properties:
+        code:
+          type: string
+          description: Код ошибки
+          x-description-i18n:
+            eng: Error code
+        message:
+          type: string
+          description: Описание ошибки
+          x-description-i18n:
+            eng: Error description
+    Split:
+      title: Split
+      type: array
+      description: 'Набор параметров для сплитования платежа.<br>
+
+        Сплитование позволяет ТСП передавать параметры распределения суммы платежа или возврата между контрагентами.<br>
+
+        Сумма всех объектов сплита должна быть равна сумме операции.<br>
+
+        При взаиморасчетах суммы платежей, указанные в сплите, увеличивают суммы к перечислению контрагентам, а суммы возвратов — уменьшают их.<br>
+
+        Сплитование доступно только при агрегированной схеме взаиморасчетов. Чтобы настроить агрегированную схему, обратитесь в техническую поддержку банка: ecom@raiffeisen.ru. Подробнее см. в разделе [Схема взаиморасчетов](#tag/SettlementSchemes).'
+      x-description-i18n:
+        eng: 'Set of parameters for payment splitting.<br>
+
+          Payment splitting allows the merchant to pass parameters for distributing a payment or refund amount among counterparties.<br>
+
+          The total amount of all split objects must be equal to the operation amount.<br>
+
+          In settlements, payment amounts specified in the split increase the amounts to be transferred to counterparties, while refund amounts decrease them.<br>
+
+          Payment splitting is available only with the aggregated settlement scheme. To set up the aggregated scheme, contact bank technical support: ecom@raiffeisen.ru. See [Settlement schemes](#tag/SettlementSchemes).'
+      items:
+        type: object
+        properties:
+          accountId:
+            type: string
+            description: "\t\nstring\nИдентификтор реквизитов, которые были получены от поддержки."
+            x-description-i18n:
+              eng: ID of the bank account details obtained from support
+          amount:
+            type: number
+            description: Сумма зачисления
+            x-description-i18n:
+              eng: Crediting amount
+            format: float
+            exclusiveMinimum: 0
+        required:
+        - accountId
+        - amount
+    Extra:
+      title: Extra
+      type: object
+      additionalProperties:
+        type: string
+      description: Дополнительные поля для свободного заполнения по принципу key-value<br> В extra рекомендуется передавать параметры `apiClient` и `apiClientVersion`. Данная информация позволит Банку определять клиентское ПО, исправлять ошибки и улучшать сервис
+    RedirectUrl:
+      title: RedirectUrl
+      type: string
+      description: 'Ссылка, по котрой плательщик будет перенаправлен из приложения Банка в приложение или на сайт мерчанта в случае успешной оплаты по СБП<br>
+
+        * Допускается использование схемы `http` или `https`, за которой следует `://` и последовательность символов без пробелов.
+
+        * Допускается использование схемы, начинающейся с буквы латинского алфавита и содержащей цифры, за которыми следует `://` и непробельная последовательность символов.
+
+        '
+      pattern: ^[A-Za-z][A-Za-z0-9]*://\S+$
+  parameters:
+    subscriptionId:
+      name: subscriptionId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Идентификатор подписки
+    orderId:
+      name: orderId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Идентификатор заказа
+  requestBodies:
+    CreateSubscriptionPaymentRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              account:
+                type: number
+                description: Счет для зачисления. Параметр используется, если необходимо разносить платежи на разные счета. Не используется в тестовой среде
+                x-description-i18n:
+                  eng: Account for crediting. Don't use for test.
+              additionalInfo:
+                $ref: '#/components/schemas/AdditionalInfo'
+              amount:
+                type: number
+                description: Сумма в рублях. Для копеек доступно два знака после точки.
+                x-description-i18n:
+                  eng: Amount
+              currency:
+                type: string
+                description: Валюта платежа.
+                x-description-i18n:
+                  eng: Currency
+                enum:
+                - RUB
+              order:
+                type: string
+                description: Уникальный идентификатор заказа в системе партнёра. Рекомендуем использовать длинный формат без возможности перебора, например, использовать формат [UUID v4](https://ru.wikipedia.org/wiki/UUID)
+                x-description-i18n:
+                  eng: Unique identifier of the order in the partner system. We recommend using a long format, for example, using the [UUID v4 format](https://ru.wikipedia.org/wiki/UUID)
+                maxLength: 40
+                pattern: ^[A-Za-z0-9-_.]+$
+              paymentDetails:
+                $ref: '#/components/schemas/PaymentDetails'
+              splits:
+                $ref: '#/components/schemas/Split'
+            required:
+            - additionalInfo
+            - amount
+            - currency
+          examples:
+            Оплата по подписке:
+              value:
+                account: 40700000000000000000
+                additionalInfo: Доп. информация
+                amount: 1110
+                currency: RUB
+                order: 1-22-333
+                paymentDetails: Назначение платежа
+            Оплата по подписке со сплитованием:
+              value:
+                account: 40700000000000000000
+                additionalInfo: Доп. информация
+                amount: 1110
+                currency: RUB
+                order: 1-22-333
+                paymentDetails: Назначение платежа
+                splits:
+                - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
+                  amount: 10.23
+                - accountId: 484afd1e-eefa-4a98-881d-af166860f06c
+                  amount: 1009.77
+    CreateSubscriptionRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Идентификатор подписки на стороне партнера. Рекомендуем использовать длинный формат без возможности перебора, например, использовать формат [UUID v4](https://ru.wikipedia.org/wiki/UUID)
+                x-description-i18n:
+                  eng: Subscription id. We recommend using a long format, for example, using the [UUID v4 format](https://ru.wikipedia.org/wiki/UUID)
+                maxLength: 40
+                pattern: ^[A-Za-z0-9-_.]+$
+              subscriptionPurpose:
+                type: string
+                description: 'Описание подписки<br>
+
+                  Может содержать:<br>
+
+                  * Символы латиницы (A-Z и a-z)
+
+                  * Символы кириллицы (А-Я и а-я)
+
+                  * Цифры 0-9
+
+                  * Спецсимволы: `(`, `)`, `!`, `@`, `[`, `]`, `#`, `+`, `=`, `-`, `|`, `.`, `,`'
+                x-description-i18n:
+                  eng: Subscription info about client
+                maxLength: 140
+                pattern: ^[A-Za-zА-Яа-я0-9 ()!@\[\]#+=_\|.,-]+$
+              sbpMerchantId:
+                type: string
+                description: Идентификатор зарегистрированного партнёра в СБП
+                x-description-i18n:
+                  eng: ID of registered merchant in SBP
+                maxLength: 12
+              redirectUrl:
+                $ref: '#/components/schemas/RedirectUrl'
+              autoCharge:
+                $ref: '#/components/schemas/SubscriptionAutoCharge'
+              extra:
+                $ref: '#/components/schemas/Extra'
+            required:
+            - subscriptionPurpose
+            - sbpMerchantId
+          examples:
+            QR для подписки со списанием по запросу:
+              value:
+                id: '120059'
+                subscriptionPurpose: Подписка на услуги
+                redirectUrl: https://bfkh.ru/
+                sbpMerchantId: MA0000000552
+            QR для подписки с автоматическим списанием:
+              value:
+                id: '120059'
+                subscriptionPurpose: Подписка на услуги
+                redirectUrl: https://bfkh.ru/
+                sbpMerchantId: MA0000000552
+                autoCharge:
+                  frequency: MONTHLY
+                  firstChargeDate: '2023-12-31'
+                  amount: 299.99
+                extra:
+                  customParameter: additional subscription data
+  responses:
+    SubscriptionPaymentStatusResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreatedSubscriptionPayment'
+          examples:
+            '200':
+              value:
+                additionalInfo: Доп. информация
+                paymentDetails: Назначение платежа
+                amount: 1110
+                currency: RUB
+                order: 282a60f8-dd75-4286-bde0-af321dd081b3
+                paymentStatus: IN_PROGRESS
+                qrId: AD100051KNSNR64I98CRUJUASC9M72QT
+                sbpMerchantId: MA0000000552
+                splits:
+                - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
+                  amount: 10.23
+                - accountId: 484afd1e-eefa-4a98-881d-af166860f06c
+                  amount: 1009.77
+    CreateSubscriptionResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreatedSubscription'
+          examples:
+            200 (INACTIVE):
+              value:
+                id: '120059'
+                createDate: '2020-01-31T09:14:38.107227+03:00'
+                status: INACTIVE
+                qr:
+                  id: AD100004BAL7227F9BNP6KNE007J9B3K
+                  payload: https://sub.nspk.ru/AS3D33FC7B034DEEA8A365142E1DE737
+                  url: https://pay-test.raif.ru/api/sbp/v1/qr/AS3D33FC7B034DEEA8A365142E1DE737/image
+            200 (SUBSCRIBED):
+              value:
+                id: '120059'
+                bank: someBank
+                createDate: '2020-01-31T09:14:38.107227+03:00'
+                status: SUBSCRIBED
+                qr:
+                  id: AD100004BAL7227F9BNP6KNE007J9B3K
+                  payload: https://sub.nspk.ru/AS3D33FC7B034DEEA8A365142E1DE737
+                  url: https://pay-test.raif.ru/api/sbp/v1/qr/AS3D33FC7B034DEEA8A365142E1DE737/image
+    GeneralErrorResponse:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            properties:
+              code:
+                type: string
+                description: Код ошибки
+              value:
+                type: string
+                description: Поясняющее сообщение об ошибке
+          examples:
+            Невалидный номер заказа:
+              value:
+                code: ERROR.INVALID_REQUEST
+                message: Недопустимый идентификатор заказа
+            Заказ уже был оплачен:
+              value:
+                code: ERROR.ORDER_NUMBER_ALREADY_REGISTERED
+                message: QR-код с номером заказа 1-22-333 партнера MA0000000552 и успешными платежами уже зарегистрирован
+            Невалидная дата истечения QR:
+              value:
+                code: ERROR.QR_EXPIRATION_DATE_NOT_VALID
+                message: Неверная дата истечения QR-кода
+  securitySchemes:
+    secretKey:
+      type: http
+      scheme: bearer
+      description: 'Указывается в заголовке `Authorization` в формате `Bearer <secretKey>`.
+
+
+        Подробная информация содержится в разделе [Авторизация](#section/Avtorizaciya)'
+x-refined-from:
+- raiffeisen-ru-raif-pay-sbp-openapi.json
+- raiffeisen-ru-raif-pay-sbp-openapi.yml

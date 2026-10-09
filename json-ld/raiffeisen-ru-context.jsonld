@@ -1,0 +1,921 @@
+{
+  "@context": {
+    "@vocab": "https://raiffeisen.ru/schema#",
+    "schema": "https://schema.org/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "raiffeisen": "https://raiffeisen.ru/schema#",
+    "Customer": "raiffeisen:Customer",
+    "cnum": {
+      "@id": "raiffeisen:cnum",
+      "@type": "xsd:string"
+    },
+    "name": {
+      "@id": "raiffeisen:name",
+      "@type": "xsd:string"
+    },
+    "inn": {
+      "@id": "raiffeisen:inn",
+      "@type": "xsd:string"
+    },
+    "Person": "raiffeisen:Person",
+    "surname": {
+      "@id": "raiffeisen:surname",
+      "@type": "xsd:string"
+    },
+    "patronymic": {
+      "@id": "raiffeisen:patronymic",
+      "@type": "xsd:string"
+    },
+    "birthDate": {
+      "@id": "raiffeisen:birthDate",
+      "@type": "xsd:date"
+    },
+    "email": {
+      "@id": "raiffeisen:email",
+      "@type": "xsd:string"
+    },
+    "Code": "raiffeisen:Code",
+    "id": {
+      "@id": "raiffeisen:id",
+      "@type": "xsd:string"
+    },
+    "available": {
+      "@id": "raiffeisen:available",
+      "@type": "xsd:boolean"
+    },
+    "createDate": {
+      "@id": "raiffeisen:createDate",
+      "@type": "xsd:dateTime"
+    },
+    "updateDate": {
+      "@id": "raiffeisen:updateDate",
+      "@type": "xsd:dateTime"
+    },
+    "customer": {
+      "@id": "raiffeisen:customer",
+      "@type": "@id"
+    },
+    "person": {
+      "@id": "raiffeisen:person",
+      "@type": "@id"
+    },
+    "DeactivateCodeRequest": "raiffeisen:DeactivateCodeRequest",
+    "code": {
+      "@id": "raiffeisen:code",
+      "@type": "xsd:string"
+    },
+    "DeactivateCodeResponse": "raiffeisen:DeactivateCodeResponse",
+    "GetCodeListResponse": "raiffeisen:GetCodeListResponse",
+    "data": {
+      "@id": "raiffeisen:data",
+      "@container": "@list"
+    },
+    "offset": {
+      "@id": "raiffeisen:offset",
+      "@type": "xsd:integer"
+    },
+    "limit": {
+      "@id": "raiffeisen:limit",
+      "@type": "xsd:integer"
+    },
+    "totalCount": {
+      "@id": "raiffeisen:totalCount",
+      "@type": "xsd:integer"
+    },
+    "UpdateCodeRequest": "raiffeisen:UpdateCodeRequest",
+    "BadRequestErrorResponse": "raiffeisen:BadRequestErrorResponse",
+    "message": {
+      "@id": "raiffeisen:message",
+      "@type": "xsd:string"
+    },
+    "traceId": {
+      "@id": "raiffeisen:traceId",
+      "@type": "xsd:string"
+    },
+    "NotFoundErrorResponse": "raiffeisen:NotFoundErrorResponse",
+    "ForbiddenErrorResponse": "raiffeisen:ForbiddenErrorResponse",
+    "InternalServerError": "raiffeisen:InternalServerError",
+    "CreditorStatus": "raiffeisen:CreditorStatus",
+    "GetOrderRequest": "raiffeisen:GetOrderRequest",
+    "agreementNumber": {
+      "@id": "raiffeisen:agreementNumber",
+      "@type": "xsd:string"
+    },
+    "packetIds": {
+      "@id": "raiffeisen:packetIds",
+      "@container": "@list"
+    },
+    "packetNumbers": {
+      "@id": "raiffeisen:packetNumbers",
+      "@container": "@list"
+    },
+    "statuses": {
+      "@id": "raiffeisen:statuses",
+      "@container": "@list"
+    },
+    "dateFrom": {
+      "@id": "raiffeisen:dateFrom",
+      "@type": "xsd:date"
+    },
+    "dateTo": {
+      "@id": "raiffeisen:dateTo",
+      "@type": "xsd:date"
+    },
+    "creditorNameOrInn": {
+      "@id": "raiffeisen:creditorNameOrInn",
+      "@type": "xsd:string"
+    },
+    "paging": {
+      "@id": "raiffeisen:paging",
+      "@type": "@id"
+    },
+    "sorting": {
+      "@id": "raiffeisen:sorting",
+      "@container": "@list"
+    },
+    "OrderTotalDebtResponse": "raiffeisen:OrderTotalDebtResponse",
+    "totalDebt": {
+      "@id": "raiffeisen:totalDebt",
+      "@type": "xsd:string"
+    },
+    "overDebt": {
+      "@id": "raiffeisen:overDebt",
+      "@type": "xsd:string"
+    },
+    "maturityTodayDebt": {
+      "@id": "raiffeisen:maturityTodayDebt",
+      "@type": "xsd:string"
+    },
+    "GetPaymentOrdersReportArchiveRequest": "raiffeisen:GetPaymentOrdersReportArchiveRequest",
+    "ids": {
+      "@id": "raiffeisen:ids",
+      "@container": "@list"
+    },
+    "PacketStatus": "raiffeisen:PacketStatus",
+    "CreatePacketRequest": "raiffeisen:CreatePacketRequest",
+    "orders": {
+      "@id": "raiffeisen:orders",
+      "@container": "@list"
+    },
+    "PacketResponse": "raiffeisen:PacketResponse",
+    "referenceId": {
+      "@id": "raiffeisen:referenceId",
+      "@type": "xsd:string"
+    },
+    "number": {
+      "@id": "raiffeisen:number",
+      "@type": "xsd:string"
+    },
+    "packetDate": {
+      "@id": "raiffeisen:packetDate",
+      "@type": "xsd:date"
+    },
+    "financedDate": {
+      "@id": "raiffeisen:financedDate",
+      "@type": "xsd:date"
+    },
+    "packetSum": {
+      "@id": "raiffeisen:packetSum",
+      "@type": "xsd:decimal"
+    },
+    "ordersCount": {
+      "@id": "raiffeisen:ordersCount",
+      "@type": "xsd:integer"
+    },
+    "financedSum": {
+      "@id": "raiffeisen:financedSum",
+      "@type": "xsd:string"
+    },
+    "state": {
+      "@id": "raiffeisen:state"
+    },
+    "cqrsVersion": {
+      "@id": "raiffeisen:cqrsVersion",
+      "@type": "xsd:integer"
+    },
+    "AccountForWithdrawalResponse": "raiffeisen:AccountForWithdrawalResponse",
+    "accounts": {
+      "@id": "raiffeisen:accounts",
+      "@container": "@list"
+    },
+    "SearchPropositionRequest": "raiffeisen:SearchPropositionRequest",
+    "propositionIds": {
+      "@id": "raiffeisen:propositionIds",
+      "@container": "@list"
+    },
+    "CreatePropositionRequest": "raiffeisen:CreatePropositionRequest",
+    "repaidOrdersMetaData": {
+      "@id": "raiffeisen:repaidOrdersMetaData",
+      "@container": "@list"
+    },
+    "paymentDate": {
+      "@id": "raiffeisen:paymentDate",
+      "@type": "xsd:date"
+    },
+    "creationDate": {
+      "@id": "raiffeisen:creationDate",
+      "@type": "xsd:date"
+    },
+    "accountNumber": {
+      "@id": "raiffeisen:accountNumber",
+      "@type": "xsd:string"
+    },
+    "ChangePropositionStatusRequest": "raiffeisen:ChangePropositionStatusRequest",
+    "PropositionsDigestRequest": "raiffeisen:PropositionsDigestRequest",
+    "PropositionSignRequest": "raiffeisen:PropositionSignRequest",
+    "sign": {
+      "@id": "raiffeisen:sign",
+      "@type": "xsd:string"
+    },
+    "FeeInvoicesDebtResponse": "raiffeisen:FeeInvoicesDebtResponse",
+    "feeInvoicesOverDebt": {
+      "@id": "raiffeisen:feeInvoicesOverDebt",
+      "@type": "xsd:string"
+    },
+    "feeInvoicesCurrentDebt": {
+      "@id": "raiffeisen:feeInvoicesCurrentDebt",
+      "@type": "xsd:string"
+    },
+    "WorkingTimeResponse": "raiffeisen:WorkingTimeResponse",
+    "isWorkingDateTime": {
+      "@id": "raiffeisen:isWorkingDateTime",
+      "@type": "xsd:boolean"
+    },
+    "Agreement": "raiffeisen:Agreement",
+    "principal": {
+      "@id": "raiffeisen:principal",
+      "@type": "@id"
+    },
+    "autoprolongation": {
+      "@id": "raiffeisen:autoprolongation",
+      "@type": "xsd:boolean"
+    },
+    "compensationPeriod": {
+      "@id": "raiffeisen:compensationPeriod",
+      "@type": "xsd:integer"
+    },
+    "maxCompensationPeriod": {
+      "@id": "raiffeisen:maxCompensationPeriod",
+      "@type": "xsd:integer"
+    },
+    "startDate": {
+      "@id": "raiffeisen:startDate",
+      "@type": "xsd:date"
+    },
+    "expirationDate": {
+      "@id": "raiffeisen:expirationDate",
+      "@type": "xsd:date"
+    },
+    "startWorkingDayFeeInvoice": {
+      "@id": "raiffeisen:startWorkingDayFeeInvoice",
+      "@type": "xsd:integer"
+    },
+    "endWorkingDayFeeInvoice": {
+      "@id": "raiffeisen:endWorkingDayFeeInvoice",
+      "@type": "xsd:integer"
+    },
+    "nonAcceptanceWithdrawal": {
+      "@id": "raiffeisen:nonAcceptanceWithdrawal",
+      "@type": "xsd:boolean"
+    },
+    "nonAcceptanceWithdrawalFee": {
+      "@id": "raiffeisen:nonAcceptanceWithdrawalFee",
+      "@type": "xsd:boolean"
+    },
+    "isBkiAccepted": {
+      "@id": "raiffeisen:isBkiAccepted",
+      "@type": "xsd:boolean"
+    },
+    "bkiAcceptanceDate": {
+      "@id": "raiffeisen:bkiAcceptanceDate",
+      "@type": "xsd:date"
+    },
+    "isTaxAvailable": {
+      "@id": "raiffeisen:isTaxAvailable",
+      "@type": "xsd:boolean"
+    },
+    "taxCompensationPeriod": {
+      "@id": "raiffeisen:taxCompensationPeriod",
+      "@type": "xsd:boolean"
+    },
+    "ErrorMessage": "raiffeisen:ErrorMessage",
+    "Limit": "raiffeisen:Limit",
+    "amount": {
+      "@id": "raiffeisen:amount",
+      "@type": "xsd:decimal"
+    },
+    "used": {
+      "@id": "raiffeisen:used",
+      "@type": "xsd:decimal"
+    },
+    "rest": {
+      "@id": "raiffeisen:rest",
+      "@type": "xsd:decimal"
+    },
+    "currencyCode": {
+      "@id": "raiffeisen:currencyCode",
+      "@type": "@id"
+    },
+    "CreditorRequisites": "raiffeisen:CreditorRequisites",
+    "fullNameRus": {
+      "@id": "raiffeisen:fullNameRus",
+      "@type": "xsd:string"
+    },
+    "ogrn": {
+      "@id": "raiffeisen:ogrn",
+      "@type": "xsd:string"
+    },
+    "kpp": {
+      "@id": "raiffeisen:kpp",
+      "@type": "xsd:string"
+    },
+    "PaginationResponse": "raiffeisen:PaginationResponse",
+    "OrderStatus": "raiffeisen:OrderStatus",
+    "PaginationRequest": "raiffeisen:PaginationRequest",
+    "SortingOrder": "raiffeisen:SortingOrder",
+    "sortBy": {
+      "@id": "raiffeisen:sortBy",
+      "@type": "@id"
+    },
+    "orderBy": {
+      "@id": "raiffeisen:orderBy",
+      "@type": "@id"
+    },
+    "PaymentRequisites": "raiffeisen:PaymentRequisites",
+    "account": {
+      "@id": "raiffeisen:account",
+      "@type": "xsd:string"
+    },
+    "correspondentAccount": {
+      "@id": "raiffeisen:correspondentAccount",
+      "@type": "xsd:string"
+    },
+    "bic": {
+      "@id": "raiffeisen:bic",
+      "@type": "xsd:string"
+    },
+    "recipientBankName": {
+      "@id": "raiffeisen:recipientBankName",
+      "@type": "xsd:string"
+    },
+    "purpose": {
+      "@id": "raiffeisen:purpose",
+      "@type": "xsd:string"
+    },
+    "TaxRequisites": "raiffeisen:TaxRequisites",
+    "taxPayerStatus": {
+      "@id": "raiffeisen:taxPayerStatus",
+      "@type": "xsd:string"
+    },
+    "kppPayer": {
+      "@id": "raiffeisen:kppPayer",
+      "@type": "xsd:string"
+    },
+    "uin": {
+      "@id": "raiffeisen:uin",
+      "@type": "xsd:string"
+    },
+    "cbc": {
+      "@id": "raiffeisen:cbc",
+      "@type": "xsd:string"
+    },
+    "oktmo": {
+      "@id": "raiffeisen:oktmo",
+      "@type": "xsd:string"
+    },
+    "paymentReason": {
+      "@id": "raiffeisen:paymentReason",
+      "@type": "xsd:string"
+    },
+    "taxPeriod": {
+      "@id": "raiffeisen:taxPeriod",
+      "@type": "xsd:string"
+    },
+    "docNumberPaymentReason": {
+      "@id": "raiffeisen:docNumberPaymentReason",
+      "@type": "xsd:string"
+    },
+    "docDatePaymentReason": {
+      "@id": "raiffeisen:docDatePaymentReason",
+      "@type": "xsd:string"
+    },
+    "receiverName": {
+      "@id": "raiffeisen:receiverName",
+      "@type": "xsd:string"
+    },
+    "Payment": "raiffeisen:Payment",
+    "date": {
+      "@id": "raiffeisen:date",
+      "@type": "xsd:string"
+    },
+    "OrderType": "raiffeisen:OrderType",
+    "CurrencyCode": "raiffeisen:CurrencyCode",
+    "ParsedOrderResponse": "raiffeisen:ParsedOrderResponse",
+    "creditorRequisite": {
+      "@id": "raiffeisen:creditorRequisite",
+      "@type": "@id"
+    },
+    "paymentRequisite": {
+      "@id": "raiffeisen:paymentRequisite",
+      "@type": "@id"
+    },
+    "taxRequisite": {
+      "@id": "raiffeisen:taxRequisite",
+      "@type": "@id"
+    },
+    "maturityDate": {
+      "@id": "raiffeisen:maturityDate",
+      "@type": "xsd:date"
+    },
+    "orderSum": {
+      "@id": "raiffeisen:orderSum",
+      "@type": "xsd:string"
+    },
+    "ParserError": "raiffeisen:ParserError",
+    "lineNumber": {
+      "@id": "raiffeisen:lineNumber",
+      "@type": "xsd:integer"
+    },
+    "Account": "raiffeisen:Account",
+    "agreementId": {
+      "@id": "raiffeisen:agreementId",
+      "@type": "xsd:string"
+    },
+    "cbaNumber": {
+      "@id": "raiffeisen:cbaNumber",
+      "@type": "xsd:string"
+    },
+    "balanceAmount": {
+      "@id": "raiffeisen:balanceAmount",
+      "@type": "xsd:integer"
+    },
+    "PropositionStatus": "raiffeisen:PropositionStatus",
+    "PropositionSortingRequest": "raiffeisen:PropositionSortingRequest",
+    "Proposition": "raiffeisen:Proposition",
+    "orderId": {
+      "@id": "raiffeisen:orderId",
+      "@type": "xsd:string"
+    },
+    "accountId": {
+      "@id": "raiffeisen:accountId",
+      "@type": "xsd:string"
+    },
+    "isFull": {
+      "@id": "raiffeisen:isFull",
+      "@type": "xsd:boolean"
+    },
+    "PropositionOrderMetaData": "raiffeisen:PropositionOrderMetaData",
+    "PropositionDigestResponse": "raiffeisen:PropositionDigestResponse",
+    "digest": {
+      "@id": "raiffeisen:digest",
+      "@type": "xsd:string"
+    },
+    "Principal": "raiffeisen:Principal",
+    "shortNameRus": {
+      "@id": "raiffeisen:shortNameRus",
+      "@type": "xsd:string"
+    },
+    "fullNameEng": {
+      "@id": "raiffeisen:fullNameEng",
+      "@type": "xsd:string"
+    },
+    "RestErrorCodes": "raiffeisen:RestErrorCodes",
+    "OrderSortFields": "raiffeisen:OrderSortFields",
+    "Direction": "raiffeisen:Direction",
+    "State": "raiffeisen:State",
+    "statusDate": {
+      "@id": "raiffeisen:statusDate",
+      "@type": "xsd:dateTime"
+    },
+    "errors": {
+      "@id": "raiffeisen:errors",
+      "@container": "@list"
+    },
+    "PropositionSortFields": "raiffeisen:PropositionSortFields",
+    "AgreementStatus": "raiffeisen:AgreementStatus",
+    "LimitStatus": "raiffeisen:LimitStatus",
+    "Error": "raiffeisen:Error",
+    "AccountStatus": "raiffeisen:AccountStatus",
+    "PrincipalStatus": "raiffeisen:PrincipalStatus",
+    "ErrorCodes": "raiffeisen:ErrorCodes",
+    "SourceSystem": "raiffeisen:SourceSystem",
+    "CreateAuditOrderResponse": "raiffeisen:CreateAuditOrderResponse",
+    "docNum": {
+      "@id": "raiffeisen:docNum",
+      "@type": "xsd:string"
+    },
+    "createdAt": {
+      "@id": "raiffeisen:createdAt",
+      "@type": "xsd:dateTime"
+    },
+    "status": {
+      "@id": "raiffeisen:status",
+      "@type": "@id"
+    },
+    "orgName": {
+      "@id": "raiffeisen:orgName",
+      "@type": "xsd:string"
+    },
+    "auditEmail": {
+      "@id": "raiffeisen:auditEmail",
+      "@type": "xsd:string"
+    },
+    "auditDate": {
+      "@id": "raiffeisen:auditDate",
+      "@type": "xsd:date"
+    },
+    "auditComment": {
+      "@id": "raiffeisen:auditComment",
+      "@type": "xsd:string"
+    },
+    "AuditStatus": "raiffeisen:AuditStatus",
+    "AuditRequest": "raiffeisen:AuditRequest",
+    "AuditOrderResponse": "raiffeisen:AuditOrderResponse",
+    "results": {
+      "@id": "raiffeisen:results",
+      "@container": "@list"
+    },
+    "LoginStepRequestDTO": "raiffeisen:LoginStepRequestDTO",
+    "credentials": {
+      "@id": "raiffeisen:credentials",
+      "@type": "xsd:string"
+    },
+    "selected_scope_groups": {
+      "@id": "raiffeisen:selected_scope_groups",
+      "@type": "xsd:string"
+    },
+    "smart-token": {
+      "@id": "raiffeisen:smart-token",
+      "@type": "xsd:string"
+    },
+    "_csrf": {
+      "@id": "raiffeisen:_csrf",
+      "@type": "xsd:string"
+    },
+    "TokenRevocationRequestDTO": "raiffeisen:TokenRevocationRequestDTO",
+    "token": {
+      "@id": "raiffeisen:token",
+      "@type": "xsd:string"
+    },
+    "token_type_hint": {
+      "@id": "raiffeisen:token_type_hint",
+      "@type": "xsd:string"
+    },
+    "client_id": {
+      "@id": "raiffeisen:client_id",
+      "@type": "xsd:string"
+    },
+    "client_secret": {
+      "@id": "raiffeisen:client_secret",
+      "@type": "xsd:string"
+    },
+    "PublicJwksResponseDTO": "raiffeisen:PublicJwksResponseDTO",
+    "keys": {
+      "@id": "raiffeisen:keys",
+      "@container": "@list"
+    },
+    "TokenRequestDTO": "raiffeisen:TokenRequestDTO",
+    "grant_type": {
+      "@id": "raiffeisen:grant_type",
+      "@type": "xsd:string"
+    },
+    "code_verifier": {
+      "@id": "raiffeisen:code_verifier",
+      "@type": "xsd:string"
+    },
+    "redirect_uri": {
+      "@id": "raiffeisen:redirect_uri",
+      "@type": "xsd:string"
+    },
+    "refresh_token": {
+      "@id": "raiffeisen:refresh_token",
+      "@type": "xsd:string"
+    },
+    "TokenResponseDTO": "raiffeisen:TokenResponseDTO",
+    "access_token": {
+      "@id": "raiffeisen:access_token",
+      "@type": "xsd:string"
+    },
+    "expires_in": {
+      "@id": "raiffeisen:expires_in",
+      "@type": "xsd:integer"
+    },
+    "token_type": {
+      "@id": "raiffeisen:token_type",
+      "@type": "xsd:string"
+    },
+    "scope": {
+      "@id": "raiffeisen:scope",
+      "@type": "xsd:string"
+    },
+    "id_token": {
+      "@id": "raiffeisen:id_token",
+      "@type": "xsd:string"
+    },
+    "refresh_expires_at": {
+      "@id": "raiffeisen:refresh_expires_at",
+      "@type": "xsd:integer"
+    },
+    "OAuth2ErrorDTO": "raiffeisen:OAuth2ErrorDTO",
+    "error": {
+      "@id": "raiffeisen:error",
+      "@type": "xsd:string"
+    },
+    "error_description": {
+      "@id": "raiffeisen:error_description",
+      "@type": "xsd:string"
+    },
+    "SupportedLocale": "raiffeisen:SupportedLocale",
+    "LoginViewDataDTO": "raiffeisen:LoginViewDataDTO",
+    "pageType": {
+      "@id": "raiffeisen:pageType",
+      "@type": "xsd:string"
+    },
+    "pageData": {
+      "@id": "raiffeisen:pageData"
+    },
+    "locale": {
+      "@id": "raiffeisen:locale"
+    },
+    "UsernamePasswordStepViewDataDTO": "raiffeisen:UsernamePasswordStepViewDataDTO",
+    "stepType": {
+      "@id": "raiffeisen:stepType",
+      "@type": "xsd:string"
+    },
+    "viewType": {
+      "@id": "raiffeisen:viewType",
+      "@type": "xsd:string"
+    },
+    "phoneNumberView": {
+      "@id": "raiffeisen:phoneNumberView",
+      "@type": "xsd:string"
+    },
+    "captchaRequired": {
+      "@id": "raiffeisen:captchaRequired",
+      "@type": "xsd:boolean"
+    },
+    "PasswordStepViewDataDTO": "raiffeisen:PasswordStepViewDataDTO",
+    "PhoneStepViewDataDTO": "raiffeisen:PhoneStepViewDataDTO",
+    "SmsOtpStepViewDataDTO": "raiffeisen:SmsOtpStepViewDataDTO",
+    "smsOtpAddressView": {
+      "@id": "raiffeisen:smsOtpAddressView",
+      "@type": "xsd:string"
+    },
+    "smsOtpProcessId": {
+      "@id": "raiffeisen:smsOtpProcessId",
+      "@type": "xsd:string"
+    },
+    "emailDeliveryAvailable": {
+      "@id": "raiffeisen:emailDeliveryAvailable",
+      "@type": "xsd:boolean"
+    },
+    "EmailOtpStepViewDataDTO": "raiffeisen:EmailOtpStepViewDataDTO",
+    "emailOtpProcessId": {
+      "@id": "raiffeisen:emailOtpProcessId",
+      "@type": "xsd:string"
+    },
+    "ConsentStepViewDataDTO": "raiffeisen:ConsentStepViewDataDTO",
+    "clientName": {
+      "@id": "raiffeisen:clientName",
+      "@type": "xsd:string"
+    },
+    "availableScopeGroups": {
+      "@id": "raiffeisen:availableScopeGroups",
+      "@type": "xsd:string"
+    },
+    "SupportDrawerByLocaleDTO": "raiffeisen:SupportDrawerByLocaleDTO",
+    "ru": {
+      "@id": "raiffeisen:ru",
+      "@type": "@id"
+    },
+    "en": {
+      "@id": "raiffeisen:en",
+      "@type": "@id"
+    },
+    "SystemMessagesByLocaleDTO": "raiffeisen:SystemMessagesByLocaleDTO",
+    "SystemMessageDTO": "raiffeisen:SystemMessageDTO",
+    "title": {
+      "@id": "raiffeisen:title",
+      "@type": "xsd:string"
+    },
+    "SupportDrawerHeaderDTO": "raiffeisen:SupportDrawerHeaderDTO",
+    "description": {
+      "@id": "raiffeisen:description",
+      "@type": "xsd:string"
+    },
+    "chatButtonText": {
+      "@id": "raiffeisen:chatButtonText",
+      "@type": "xsd:string"
+    },
+    "SupportDrawerContentDTO": "raiffeisen:SupportDrawerContentDTO",
+    "sections": {
+      "@id": "raiffeisen:sections",
+      "@container": "@list"
+    },
+    "infoBannerText": {
+      "@id": "raiffeisen:infoBannerText",
+      "@type": "xsd:string"
+    },
+    "SupportDrawerSectionDTO": "raiffeisen:SupportDrawerSectionDTO",
+    "subtitle": {
+      "@id": "raiffeisen:subtitle",
+      "@type": "xsd:string"
+    },
+    "items": {
+      "@id": "raiffeisen:items",
+      "@container": "@list"
+    },
+    "SupportDrawerItemDTO": "raiffeisen:SupportDrawerItemDTO",
+    "icon": {
+      "@id": "raiffeisen:icon",
+      "@type": "xsd:string"
+    },
+    "value": {
+      "@id": "raiffeisen:value",
+      "@type": "xsd:string"
+    },
+    "ErrorPageDataDTO": "raiffeisen:ErrorPageDataDTO",
+    "ErrorActionItemDTO": "raiffeisen:ErrorActionItemDTO",
+    "action": {
+      "@id": "raiffeisen:action",
+      "@type": "xsd:string"
+    },
+    "url": {
+      "@id": "raiffeisen:url",
+      "@type": "xsd:string"
+    },
+    "LoginFormErrorDetails": "raiffeisen:LoginFormErrorDetails",
+    "principalError": {
+      "@id": "raiffeisen:principalError",
+      "@type": "xsd:string"
+    },
+    "credentialsError": {
+      "@id": "raiffeisen:credentialsError",
+      "@type": "xsd:string"
+    },
+    "otherError": {
+      "@id": "raiffeisen:otherError",
+      "@type": "xsd:string"
+    },
+    "CreateExcelReportRequest": "raiffeisen:CreateExcelReportRequest",
+    "accountKeys": {
+      "@id": "raiffeisen:accountKeys",
+      "@type": "@id"
+    },
+    "from": {
+      "@id": "raiffeisen:from",
+      "@type": "@id"
+    },
+    "to": {
+      "@id": "raiffeisen:to",
+      "@type": "@id"
+    },
+    "zero": {
+      "@id": "raiffeisen:zero",
+      "@type": "@id"
+    },
+    "fileName": {
+      "@id": "raiffeisen:fileName",
+      "@type": "@id"
+    },
+    "sort": {
+      "@id": "raiffeisen:sort",
+      "@type": "@id"
+    },
+    "intraday": {
+      "@id": "raiffeisen:intraday",
+      "@type": "@id"
+    },
+    "debitCreditFilter": {
+      "@id": "raiffeisen:debitCreditFilter",
+      "@type": "@id"
+    },
+    "counterpartyInn": {
+      "@id": "raiffeisen:counterpartyInn",
+      "@type": "@id"
+    },
+    "counterpartyAccounts": {
+      "@id": "raiffeisen:counterpartyAccounts",
+      "@type": "@id"
+    },
+    "splitBy": {
+      "@id": "raiffeisen:splitBy",
+      "@type": "@id"
+    },
+    "showVat": {
+      "@id": "raiffeisen:showVat",
+      "@type": "@id"
+    },
+    "CreatePdfAttachmentsReportRequest": "raiffeisen:CreatePdfAttachmentsReportRequest",
+    "CreatePdfReportRequest": "raiffeisen:CreatePdfReportRequest",
+    "withAttachments": {
+      "@id": "raiffeisen:withAttachments",
+      "@type": "@id"
+    },
+    "Create1CReportRequest": "raiffeisen:Create1CReportRequest",
+    "includeHolds": {
+      "@id": "raiffeisen:includeHolds",
+      "@type": "@id"
+    },
+    "encoding": {
+      "@id": "raiffeisen:encoding",
+      "@type": "@id"
+    },
+    "zeroIfNoStatementExpected": {
+      "@id": "raiffeisen:zeroIfNoStatementExpected",
+      "@type": "@id"
+    },
+    "Create1CReportRequestV2": "raiffeisen:Create1CReportRequestV2",
+    "excludedOperations": {
+      "@id": "raiffeisen:excludedOperations",
+      "@type": "@id"
+    },
+    "CreateCamt053ReportRequest": "raiffeisen:CreateCamt053ReportRequest",
+    "CreateMt942ReportRequest": "raiffeisen:CreateMt942ReportRequest",
+    "showHeader": {
+      "@id": "raiffeisen:showHeader",
+      "@type": "@id"
+    },
+    "field25": {
+      "@id": "raiffeisen:field25",
+      "@type": "@id"
+    },
+    "field86": {
+      "@id": "raiffeisen:field86",
+      "@type": "@id"
+    },
+    "transliteration": {
+      "@id": "raiffeisen:transliteration",
+      "@type": "@id"
+    },
+    "replacements": {
+      "@id": "raiffeisen:replacements",
+      "@type": "@id"
+    },
+    "CreateMt942DeltaReportRequest": "raiffeisen:CreateMt942DeltaReportRequest",
+    "accountKey": {
+      "@id": "raiffeisen:accountKey",
+      "@type": "@id"
+    },
+    "lastStatementNumber": {
+      "@id": "raiffeisen:lastStatementNumber",
+      "@type": "@id"
+    },
+    "CreateMt940ReportRequest": "raiffeisen:CreateMt940ReportRequest",
+    "CreateCamt052ReportRequest": "raiffeisen:CreateCamt052ReportRequest",
+    "CreateXmlReportRequest": "raiffeisen:CreateXmlReportRequest",
+    "DebitCreditFilter": "raiffeisen:DebitCreditFilter",
+    "ExcludedOperations": "raiffeisen:ExcludedOperations",
+    "Encoding1C": "raiffeisen:Encoding1C",
+    "EncodingMt": "raiffeisen:EncodingMt",
+    "SplitByAccountDate": "raiffeisen:SplitByAccountDate",
+    "SplitByAccountDateMT": "raiffeisen:SplitByAccountDateMT",
+    "SplitByAccount": "raiffeisen:SplitByAccount",
+    "SplitByExcel": "raiffeisen:SplitByExcel",
+    "SplitByOperation": "raiffeisen:SplitByOperation",
+    "SplitByPdf": "raiffeisen:SplitByPdf",
+    "Field25": "raiffeisen:Field25",
+    "format": {
+      "@id": "raiffeisen:format",
+      "@type": "@id"
+    },
+    "customValue": {
+      "@id": "raiffeisen:customValue",
+      "@type": "@id"
+    },
+    "Field25Format": "raiffeisen:Field25Format",
+    "Field86": "raiffeisen:Field86",
+    "ServiceSortReportSortFields": "raiffeisen:ServiceSortReportSortFields",
+    "SortBy": "raiffeisen:SortBy",
+    "OrderBy": "raiffeisen:OrderBy",
+    "ReportGenerationRequestResponse": "raiffeisen:ReportGenerationRequestResponse",
+    "reportId": {
+      "@id": "raiffeisen:reportId",
+      "@type": "@id"
+    },
+    "ReportGenerationStatusResponse": "raiffeisen:ReportGenerationStatusResponse",
+    "ErrorResponse": "raiffeisen:ErrorResponse",
+    "ErrorType": "raiffeisen:ErrorType",
+    "PaymentOrderCreateRequest": "raiffeisen:PaymentOrderCreateRequest",
+    "accountFrom": {
+      "@id": "raiffeisen:accountFrom",
+      "@type": "xsd:string"
+    },
+    "accountTo": {
+      "@id": "raiffeisen:accountTo",
+      "@type": "xsd:string"
+    }
+  },
+  "@type": "schema:Dataset",
+  "schema:name": "Raiffeisenbank (Russia) API JSON-LD context",
+  "schema:description": "A JSON-LD @context for the objects Raiffeisenbank (Russia)'s own API contract declares: one class per component schema, one property per declared field, typed from the contract. Derived by script (derive-json-ld.py, 2026-10-09) from openapi/raiffeisen-ru-adm-deposit-codes-openapi.yml, openapi/raiffeisen-ru-agency-factoring-openapi.yml, openapi/raiffeisen-ru-audit-reports-openapi.yml.",
+  "dcterms:created": "2026-10-09",
+  "dcterms:source": [
+    "openapi/raiffeisen-ru-adm-deposit-codes-openapi.yml",
+    "openapi/raiffeisen-ru-agency-factoring-openapi.yml",
+    "openapi/raiffeisen-ru-audit-reports-openapi.yml",
+    "openapi/raiffeisen-ru-authorization-openapi.yml",
+    "openapi/raiffeisen-ru-bank-statements-openapi.yml"
+  ]
+}

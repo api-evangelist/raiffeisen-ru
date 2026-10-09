@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-eligible-companies-response-schema.json",
+  "title": "EligibleCompaniesResponse",
+  "description": "Список компаний",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-treasury-digital-connection-openapi.yml#/components/schemas/EligibleCompaniesResponse",
+  "type": "object",
+  "required": [
+    "companies",
+    "offset",
+    "limit",
+    "totalCount"
+  ],
+  "properties": {
+    "companies": {
+      "items": {
+        "$ref": "#/$defs/Company"
+      },
+      "type": "array",
+      "description": "Компании"
+    },
+    "offset": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Смещение, с которого взяты элементы"
+    },
+    "limit": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Количество переданных элементов"
+    },
+    "totalCount": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Общее количество элементов"
+    }
+  },
+  "$defs": {
+    "Company": {
+      "type": "object",
+      "required": [
+        "cnum",
+        "companyName",
+        "inn"
+      ],
+      "properties": {
+        "cnum": {
+          "type": "string",
+          "description": "Уникальный идентификатор клиента"
+        },
+        "companyName": {
+          "type": "string",
+          "description": "Наименование компании"
+        },
+        "inn": {
+          "type": "string",
+          "description": "ИНН компании"
+        },
+        "kpp": {
+          "type": "string",
+          "description": "КПП компании"
+        }
+      }
+    }
+  }
+}

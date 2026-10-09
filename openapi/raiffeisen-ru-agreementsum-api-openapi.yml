@@ -1,0 +1,331 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Agreement Sum API
+  version: 1.0.0
+  description: 'Operations tagged AgreementSum across 2 of this provider''s published API definitions: raiffeisen-ru-factoring-openapi.yml, raiffeisen-ru-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/factoring
+tags:
+- description: Сумма договора Факторинга
+  name: AgreementSum
+paths:
+  /v1/agreement-sums:
+    get:
+      description: Метод получения сумм договоров Факторинга по параметрам
+      operationId: getAgreementSums
+      parameters:
+      - description: 'Идентификатор договора Факторинга. Если указан, в ответе будет возвращен список, содержащий не более одного элемента
+
+          '
+        in: query
+        name: agreementId
+        required: false
+        schema:
+          example: 5d4ee077-09ad-4d60-953d-845055187941
+          format: uuid
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                single:
+                  description: Сумма одного договора. Такой результат возможен при указании agreementId
+                  summary: Сумма одного договора
+                  value:
+                    agreementSums:
+                    - id: 5d4ee077-09ad-4d60-953d-845055187941
+                      agreementId: ba705955-3e0f-4956-84e0-e12616e84e2b
+                      amount: 2000000.0
+                      availableAmount: 500000.68
+                      utilizedAmount: 1000000.53
+                      state:
+                        status: ACTIVE
+                        statusDate: '2025-10-16T12:00:01.024991'
+                        errors: []
+                        cqrsVersion: 1742767789
+                multiple:
+                  description: Несколько сумм договоров. Такой результат возможен без указания agreementId
+                  summary: Суммы нескольких договоров
+                  value:
+                    agreementSums:
+                    - id: 5d4ee077-09ad-4d60-953d-845055187941
+                      agreementId: ba705955-3e0f-4956-84e0-e12616e84e2b
+                      amount: 2000000.0
+                      availableAmount: 500000.68
+                      utilizedAmount: 1000000.53
+                      state:
+                        status: ACTIVE
+                        statusDate: '2025-10-16T12:00:01.024991'
+                        errors: []
+                        cqrsVersion: 1742767789
+                    - id: 35a20a89-decc-456c-a63b-a4dddda197ef
+                      agreementId: 033bbe3b-eb5e-4cd2-b8bd-4b42433e3d77
+                      amount: 1.23456789E8
+                      availableAmount: 1.2345178888E8
+                      utilizedAmount: 5000.12
+                      state:
+                        status: ACTIVE
+                        statusDate: '2026-01-16T08:12:51.053201'
+                        errors: []
+                        cqrsVersion: 612360112
+              schema:
+                $ref: '#/components/schemas/AgreementSumListResponse'
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Ошибка
+                  value:
+                  - code: REST_ERROR_5001
+                    message: General service error
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Получение сумм договоров Факторинга
+      tags:
+      - AgreementSum
+    servers:
+    - url: https://api.raiffeisen.ru/factoring
+components:
+  schemas:
+    RestErrorCodes:
+      description: '| code            | description                                          |
+
+        |-----------------|------------------------------------------------------|
+
+        | REST_ERROR_5001 | General service error                                |
+
+        | REST_ERROR_5004 | Agreement does not exist                             |
+
+        | REST_ERROR_5017 | DealConditions does not exist                        |
+
+        | REST_ERROR_5024 | Action is available at working hour                  |
+
+        | REST_ERROR_5025 | Supplies are not found                               |
+
+        | REST_ERROR_5026 | Approved contract does not exist                     |
+
+        | REST_ERROR_5027 | Supplies must be selected on only one deal condition |
+
+        | REST_ERROR_5028 | Approved deal conditions do not exist                |
+
+        | REST_ERROR_5029 | Approved agreement does not exist                    |
+
+        | REST_ERROR_5031 | Account for financing cannot be empty                |
+
+        | REST_ERROR_5032 | Data validation failed                               |
+
+        | REST_ERROR_5033 | File is infected                                     |
+
+        | REST_ERROR_5034 | Invalid type of file                                 |
+
+        | REST_ERROR_5035 | File is empty                                        |
+
+        | REST_ERROR_5036 | Failed to read file                                  |
+
+        | REST_ERROR_5037 | Supplier are not found                               |
+
+        | SELECTED_ORGANIZATION_REQUIRED | selectedCnum is required when several organizations are available |
+
+        | SELECTED_ORGANIZATION_NOT_ALLOWED | selectedCnum is not included in allowed organizations |
+
+        '
+      enum:
+      - REST_ERROR_5001
+      - REST_ERROR_5004
+      - REST_ERROR_5017
+      - REST_ERROR_5024
+      - REST_ERROR_5025
+      - REST_ERROR_5026
+      - REST_ERROR_5027
+      - REST_ERROR_5028
+      - REST_ERROR_5029
+      - REST_ERROR_5031
+      - REST_ERROR_5032
+      - REST_ERROR_5033
+      - REST_ERROR_5034
+      - REST_ERROR_5035
+      - REST_ERROR_5036
+      - SELECTED_ORGANIZATION_REQUIRED
+      - SELECTED_ORGANIZATION_NOT_ALLOWED
+      example: REST_ERROR_5001
+      type: string
+    AgreementSum:
+      description: Сумма договора Факторинга
+      example:
+        id: 5d4ee077-09ad-4d60-953d-845055187941
+        agreementId: ba705955-3e0f-4956-84e0-e12616e84e2b
+        amount: 2000000.0
+        availableAmount: 500000.68
+        utilizedAmount: 1000000.53
+        state:
+          status: ACTIVE
+          statusDate: '2025-10-16T12:00:01.024991'
+          errors: []
+          cqrsVersion: 1742767789
+      properties:
+        id:
+          description: Идентификатор суммы договора Факторинга
+          example: 5d4ee077-09ad-4d60-953d-845055187941
+          format: uuid
+          type: string
+        agreementId:
+          description: Идентификатор договора Факторинга
+          example: ba705955-3e0f-4956-84e0-e12616e84e2b
+          format: uuid
+          type: string
+        amount:
+          description: Сумма всех сублимитов по договору Факторинга
+          example: 2000000.0
+          type: number
+        availableAmount:
+          description: Доступная сумма сублимитов по договору Факторинга
+          example: 500000.68
+          type: number
+        utilizedAmount:
+          description: Сумма утилизации всех сублимитов по договору Факторинга
+          example: 1000000.53
+          type: number
+        state:
+          allOf:
+          - $ref: '#/components/schemas/AgreementSumState'
+          description: Состояние суммы договора Факторинга
+          type: object
+      required:
+      - agreementId
+      - amount
+      - availableAmount
+      - id
+      - state
+      - utilizedAmount
+      type: object
+    AgreementSumListResponse:
+      allOf:
+      - properties:
+          agreementSums:
+            description: Суммы договоров
+            items:
+              $ref: '#/components/schemas/AgreementSum'
+            type: array
+        type: object
+      example:
+        agreementSums:
+        - id: 5d4ee077-09ad-4d60-953d-845055187941
+          agreementId: ba705955-3e0f-4956-84e0-e12616e84e2b
+          amount: 2000000.0
+          availableAmount: 500000.68
+          utilizedAmount: 1000000.53
+          state:
+            status: ACTIVE
+            statusDate: '2025-10-16T12:00:01.024991'
+            errors: []
+            cqrsVersion: 1742767789
+        - id: 35a20a89-decc-456c-a63b-a4dddda197ef
+          agreementId: 033bbe3b-eb5e-4cd2-b8bd-4b42433e3d77
+          amount: 1.23456789E8
+          availableAmount: 1.2345178888E8
+          utilizedAmount: 5000.12
+          state:
+            status: ACTIVE
+            statusDate: '2026-01-16T08:12:51.053201'
+            errors: []
+            cqrsVersion: 6123601121
+      type: object
+    ErrorMessage:
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    AgreementSumStatus:
+      description: Статус суммы договора Факторинга
+      enum:
+      - ACTIVE
+      example: ACTIVE
+      type: string
+    State:
+      description: Состояние объекта
+      properties:
+        statusDate:
+          description: Дата последнего изменения состояния объекта yyyy-MM-dd'T'HH:mm:ss.SSSSSS
+          format: date-time
+          pattern: ([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})
+          type: string
+        errors:
+          description: Список ошибок в объекте. Может быть пустым списком или null
+          items:
+            $ref: '#/components/schemas/ErrorMessage'
+          type: array
+        cqrsVersion:
+          description: hashCode от statusDate, status и errors
+          example: -1628796591
+          type: integer
+      required:
+      - cqrsVersion
+      - statusDate
+      type: object
+    AgreementSumState:
+      allOf:
+      - $ref: '#/components/schemas/State'
+      - properties:
+          status:
+            $ref: '#/components/schemas/AgreementSumStatus'
+        required:
+        - status
+        type: object
+      description: Состояние суммы договора Факторинга
+      example:
+        status: ACTIVE
+        statusDate: '2025-10-16T12:00:01.024991'
+        errors: []
+        cqrsVersion: 1742767789
+      type: object
+    ErrorResponse:
+      example:
+      - code: REST_ERROR_5001
+        message: General service error
+      items:
+        $ref: '#/components/schemas/ErrorMessage'
+      type: array
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+x-refined-from:
+- raiffeisen-ru-factoring-openapi.yml
+- raiffeisen-ru-factoring-openapi.yml

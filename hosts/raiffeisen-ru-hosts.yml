@@ -1,0 +1,167 @@
+generated: '2026-10-09'
+method: derived
+source: the pre-flight dossier, apis.yml pointers, spec servers, well-known, vendors -- nothing fetched here
+generator: derive-hosts.py
+summary:
+  hosts: 12
+  own: 9
+  other_domain: 2
+  platform: 1
+  roles:
+  - api
+  - identity
+  - other
+  - portal
+  - source
+  - website
+hosts:
+- host: api.raif.ru
+  found_by:
+  - contract-discovery
+  types: []
+  serves: []
+  registrable_domain: raif.ru
+  role: api
+  relation: other-domain
+- host: api.raiffeisen.ru
+  found_by:
+  - apis[]
+  - probed
+  - site-links
+  - namespace-probe
+  - well-known
+  types: []
+  serves:
+  - api
+  title: Райффайзенбанк Open API - портал разработчика
+  status: 200
+  registrable_domain: raiffeisen.ru
+  role: api
+  relation: own
+- host: career.raiffeisen.ru
+  found_by:
+  - probed
+  - site-links
+  - well-known
+  types: []
+  serves: []
+  registrable_domain: raiffeisen.ru
+  role: other
+  relation: own
+- host: developer.raiffeisen.ru
+  found_by:
+  - pointer
+  - apis[]
+  - probed
+  - site-links
+  - docs-index
+  - contract-discovery
+  - well-known
+  types:
+  - DeveloperPortal
+  - Documentation
+  - GettingStarted
+  - Sandbox
+  - Support
+  - News
+  serves:
+  - docs
+  registrable_domain: raiffeisen.ru
+  role: portal
+  relation: own
+- host: ecom-prev-int-balancer.raiffeisen.ru
+  found_by:
+  - apis[]
+  types: []
+  serves:
+  - api
+  registrable_domain: raiffeisen.ru
+  role: other
+  relation: own
+- host: fw.raiffeisen.ru
+  found_by:
+  - probed
+  - site-links
+  - well-known
+  types: []
+  serves: []
+  registrable_domain: raiffeisen.ru
+  role: other
+  relation: own
+- host: github.com
+  found_by:
+  - pointer
+  types:
+  - GitHubOrganization
+  - SpectralRules
+  serves: []
+  registrable_domain: github.com
+  role: source
+  relation: platform
+- host: id.business.raiffeisen.ru
+  found_by:
+  - apis[]
+  types: []
+  serves:
+  - api
+  registrable_domain: raiffeisen.ru
+  role: other
+  relation: own
+- host: online.raiffeisen.ru
+  found_by:
+  - pointer
+  - probed
+  - site-links
+  - contract-discovery
+  - well-known
+  types:
+  - Login
+  serves: []
+  registrable_domain: raiffeisen.ru
+  role: identity
+  relation: own
+- host: pay.raif.ru
+  found_by:
+  - pointer
+  - apis[]
+  - probed
+  - docs-index
+  - contract-discovery
+  - well-known
+  types:
+  - DeveloperPortal
+  serves:
+  - api
+  - docs
+  registrable_domain: raif.ru
+  role: portal
+  relation: other-domain
+- host: www.raiffeisen.ru
+  found_by:
+  - pointer
+  - probed
+  - docs-index
+  - well-known
+  types:
+  - ChangeLog
+  - Website
+  - PrivacyPolicy
+  - Newsroom
+  - Contact
+  serves:
+  - docs
+  registrable_domain: raiffeisen.ru
+  role: website
+  relation: own
+- host: www.rbo.raiffeisen.ru
+  found_by:
+  - pointer
+  - probed
+  - contract-discovery
+  - well-known
+  types:
+  - SignUp
+  serves: []
+  registrable_domain: raiffeisen.ru
+  role: identity
+  relation: own

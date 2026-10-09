@@ -1,0 +1,445 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Guarantee Renunciation API
+  version: 1.0.0
+  description: 'Operations tagged Guarantee Renunciation across 2 of this provider''s published API definitions: raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml, raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/trade-finance
+tags:
+- name: Guarantee Renunciation
+  description: Отказы от прав
+paths:
+  /v1/beneficiary/guarantees/renunciations/{id}:
+    get:
+      tags:
+      - Guarantee Renunciation
+      summary: Получение отказа от прав по банковской гарантии по id отказа
+      operationId: findById_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        explode: false
+        schema:
+          type: integer
+          format: int64
+        example: 23456
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuaranteeRenunciationDto'
+              examples:
+                simple:
+                  summary: Отказ гарантии по идентификатору
+                  description: Возвращает информацию об отказе гарантии по указанному идентификатору
+                  value:
+                    id: 23456
+                    number: 70690/GI/250911
+                    status: ACTIVE
+                    statusName: Действует
+                    issueDate: '2025-09-11'
+                    endDate: '2027-10-21'
+                    amount: 10115.0
+                    currency: EUR
+                    guaranteeTypeName: Гарантия возврата аванса
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/trade-finance
+  /v1/beneficiary/guarantees/{id}/renunciations/:
+    get:
+      tags:
+      - Guarantee Renunciation
+      summary: Получение отказов от прав по id гарантии
+      operationId: getRenunciationsByGuaranteeId
+      parameters:
+      - name: id
+        in: path
+        required: true
+        explode: false
+        schema:
+          type: integer
+          format: int64
+        example: 12345
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GuaranteeRenunciationDto'
+              examples:
+                simple:
+                  summary: Список отказов гарантии по идентификатору гарантии
+                  description: Возвращает список отказов гарантии по указанному идентификатору гарантии
+                  value:
+                  - id: 23456
+                    number: 70690/GI/250911
+                    status: ACTIVE
+                    statusName: Действует
+                    issueDate: '2025-09-11'
+                    endDate: '2027-10-21'
+                    amount: 10115.0
+                    currency: EUR
+                    guaranteeTypeName: Гарантия возврата аванса
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/trade-finance
+  /v1/beneficiary/guarantees/renunciations/count:
+    get:
+      tags:
+      - Guarantee Renunciation
+      summary: Получение количества отказов для текущих организаций
+      operationId: count_1
+      parameters:
+      - name: cnums
+        in: query
+        required: true
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+        example:
+        - '407016'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TfoCounterResult'
+              examples:
+                simple:
+                  summary: Количество отказов гарантий
+                  description: Возвращает количество отказов гарантий для указанных CNUM
+                  value:
+                    count: 35
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/trade-finance
+  /v1/beneficiary/guarantees/renunciations/{id}/statuses:
+    get:
+      tags:
+      - Guarantee Renunciation
+      summary: Получение истории изменения статусов отказа от прав
+      operationId: getStatusHistory
+      parameters:
+      - name: id
+        in: path
+        required: true
+        explode: false
+        schema:
+          type: integer
+          format: int64
+        example: 23456
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusHistoryResponse'
+              examples:
+                simple:
+                  summary: История статусов отказа гарантии
+                  description: Возвращает историю статусов отказа гарантии по указанному идентификатору
+                  value:
+                    statuses:
+                    - status: DRAFT
+                      statusName: Черновик
+                      date: '2025-09-11T10:00:00.000+00:00'
+                      userName: Иванов И.И.
+                    - status: CONFIRMED
+                      statusName: Подтвержден
+                      date: '2025-09-11T11:00:00.000+00:00'
+                      userName: Иванов И.И.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/trade-finance
+components:
+  schemas:
+    StatusHistoryResponse:
+      required:
+      - statuses
+      type: object
+      properties:
+        statuses:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusChangeDto'
+    ActionDto:
+      required:
+      - actionType
+      - permissionType
+      type: object
+      properties:
+        actionType:
+          type: string
+          example: EDIT
+        permissionType:
+          $ref: '#/components/schemas/PermissionType'
+    PermissionType:
+      type: string
+      enum:
+      - ALLOWED
+      - DENIED
+    RenunciationType:
+      type: string
+      enum:
+      - PARTLY
+      - FULL
+    ErrorResponseItemDto:
+      required:
+      - code
+      - detail
+      - id
+      type: object
+      properties:
+        code:
+          type: string
+        detail:
+          type: string
+        meta:
+          type: object
+        id:
+          type: string
+        source:
+          $ref: '#/components/schemas/ErrorSource'
+    GuaranteeRenunciationDto:
+      required:
+      - id
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 23456
+        guaranteeId:
+          type: integer
+          format: int64
+          example: 22799
+        number:
+          type: string
+          example: 70669/GI/250911
+        amount:
+          type: number
+          example: 10000000
+        amountOutstanding:
+          type: number
+          example: 5000000
+        currency:
+          type: string
+          example: RUR
+        currencyOutstanding:
+          type: string
+          example: RUR
+        date:
+          type: string
+          format: date
+          example: '2025-09-11'
+        status:
+          $ref: '#/components/schemas/RenunciationStatus'
+        type:
+          $ref: '#/components/schemas/RenunciationType'
+        reason:
+          $ref: '#/components/schemas/RenunciationReason'
+        cnum:
+          type: string
+          example: '407016'
+        version:
+          type: integer
+          format: int64
+          example: 1
+        beneficiary:
+          type: string
+          example: АО "ТЕСТ-КОНСАЛТИНГ"
+        createdDate:
+          type: string
+          format: date-time
+          example: '2025-09-11T10:00:00Z'
+        availableActions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActionDto'
+    RenunciationStatus:
+      type: string
+      enum:
+      - DRAFT
+      - ON_SIGN
+      - PARTIALLY_SIGNED
+      - SIGNED
+      - ON_PENDING_BANK
+      - BANK_PROCESSING
+      - APPROVED
+      - DECLINED
+      - DELETED
+    TfoCounterResult:
+      required:
+      - count
+      type: object
+      properties:
+        count:
+          type: integer
+          format: int64
+          example: 4243
+          default: 0
+    ErrorSource:
+      required:
+      - pointer
+      type: object
+      properties:
+        pointer:
+          type: string
+    ErrorResponseDto:
+      required:
+      - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseItemDto'
+    StatusChangeDto:
+      required:
+      - applicationId
+      - changed
+      - clientName
+      - comment
+      - toStatus
+      type: object
+      properties:
+        applicationId:
+          type: integer
+          description: ID заявления
+          format: int64
+          example: 23456
+        toStatus:
+          type: string
+          description: Новый статус
+          example: APPROVED
+        comment:
+          type: string
+          description: Комментарий к действию
+          example: Заявление одобрено
+        clientName:
+          type: string
+          description: ФИО инициатора действия
+          example: John Doe
+        changed:
+          type: string
+          format: date-time
+          example: '2025-09-11T10:00:00Z'
+    RenunciationReason:
+      type: string
+      enum:
+      - FULFILLMENT_OBLIGATION
+      - OTHER_OBLIGATION
+      - CONTRACT_TERMINATION
+  responses:
+    UnprocessableEntity:
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml
+- raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml

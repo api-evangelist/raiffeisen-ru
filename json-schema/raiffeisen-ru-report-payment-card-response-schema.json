@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-report-payment-card-response-schema.json",
+  "title": "reportPaymentCardResponse",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-raif-pay-reports-openapi.yml#/components/schemas/reportPaymentCardResponse",
+  "type": "object",
+  "properties": {
+    "orderId": {
+      "type": "string",
+      "description": "Уникальный идентификатор заказа в системе партнёра"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Сумма операции"
+    },
+    "transactionDate": {
+      "type": "string",
+      "description": "Дата операции"
+    },
+    "paymentSystem": {
+      "type": "string",
+      "description": "Платежная система"
+    },
+    "paymentDetails": {
+      "type": "string",
+      "description": "Назначение платежа"
+    },
+    "transactionId": {
+      "type": "integer",
+      "description": "Идентификатор операции в системе Банка"
+    },
+    "clientId": {
+      "type": "string",
+      "description": "Маскированный номер карты клиента"
+    },
+    "authCode": {
+      "type": "string",
+      "description": "Код авторизации платежа, полученный от Банка-эмитента"
+    },
+    "rrn": {
+      "type": "string",
+      "description": "Номер для идентификации"
+    },
+    "orderComment": {
+      "type": "string",
+      "description": "Комментарий"
+    }
+  }
+}

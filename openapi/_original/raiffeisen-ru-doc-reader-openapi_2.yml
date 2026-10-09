@@ -1,0 +1,261 @@
+# x-archived-from: raiffeisen-ru-doc-reader-openapi.yml
+# x-archived-on: 2026-10-09
+---
+openapi: "3.0.3"
+info:
+  title: "Doc Reader [Черновик]"
+  description: "Сервис обработки PDF-документов через LLM\n"
+  version: "1.0.0"
+tags:
+- name: "documents"
+  description: "documents recognition"
+servers:
+- url: "https://api.raiffeisen.ru/doc-recognition"
+paths:
+  /v1/documents:
+    post:
+      tags:
+      - "documents"
+      summary: "Загрузка PDF-документа на обработку"
+      description: "Принимает бинарный PDF-файл.\nВалидирует сигнатуру файла, разм\
+        ер (макс 30MB) и токен авторизации.\nВозвращает ID задачи для последующего\
+        \ опроса статуса."
+      operationId: "uploadDocument"
+      parameters:
+      - name: "promptType"
+        in: "query"
+        description: "Тип промпта для обработки документа."
+        schema:
+          $ref: "#/components/schemas/PromptType"
+        example: "COMMON_OUTPUT"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        required: true
+        content:
+          application/pdf:
+            schema:
+              type: "string"
+              format: "binary"
+              description: "PDF файл (максимум 30 MB)."
+      responses:
+        "202":
+          description: "Задача принята в обработку."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentIdResponse"
+              examples:
+                acceptedExample:
+                  value:
+                    documentId: "550e8400-e29b-41d4-a716-446655440000"
+        "400":
+          description: "Некорректный запрос."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+              examples:
+                invalidFileExample:
+                  summary: "Пустой файл, неверная сигнатура PDF или не прошел пров\
+                    ерку"
+                  value:
+                    error:
+                      code: "INVALID_FILE"
+                      message: "Файл не может быть обработан. Загрузите другой фай\
+                        л"
+                missedBodyExample:
+                  summary: "Отсутствует тело запроса"
+                  value:
+                    error:
+                      code: "MISSED_BODY"
+                      message: "Отсутствует тело запроса"
+                invalidParamExample:
+                  summary: "Некорректное значение параметра запроса"
+                  value:
+                    error:
+                      code: "INVALID_PARAM"
+                      message: "Некорректное значение параметра запроса: promptType"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "413":
+          description: "Размер файла превышает лимит (30 MB)."
+        "415":
+          description: "Неверный Content-Type запроса (ожидается application/pdf)."
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/documents/{documentId}:
+    get:
+      tags:
+      - "documents"
+      summary: "Получение статуса и результата обработки"
+      description: "Возвращает текущий статус документа"
+      operationId: "getDocumentStatus"
+      parameters:
+      - name: "documentId"
+        in: "path"
+        required: true
+        schema:
+          $ref: "#/components/schemas/DocumentId"
+        description: "ID документа, полученный при загрузке."
+        example: "550e8400-e29b-41d4-a716-446655440000"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Статус получен успешно."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentStatusResponse"
+              examples:
+                successExample:
+                  value:
+                    documentId: "550e8400-e29b-41d4-a716-446655440000"
+                    status: "SUCCESS"
+                    result:
+                      data: "Внимание! Оплата данного счета означает согласие с ус\
+                        ловиями поставки товара. Уведомление об оплате обязательно\
+                        , в противном случае не гарантируется наличие товара на ск\
+                        ладе."
+                successExamplePaymentOrder:
+                  value:
+                    documentId: "550e8400-e29b-41d4-a716-446655440020"
+                    status: "SUCCESS"
+                    result:
+                      formCode: "0401060"
+                      paymentOrderNumber: "123"
+                      paymentOrderDate: "2023-11-15"
+                      amountInWords: "Двадцать пять тысяч рублей 00 копеек"
+                      amount: 25000.0
+                      payer:
+                        name: "ООО Ромашка"
+                        inn: "1234567890"
+                        kpp: "123456789"
+                      recipient:
+                        name: "ООО Вектор"
+                        inn: "0987654321"
+                        kpp: "987654321"
+                        accountNumber: "40702810123456789012"
+                        bank:
+                          name: "ПАО Сбербанк"
+                          bik: "044525225"
+                          bankAccountNumber: "30101810400000000225"
+                      paymentPurpose: "Оплата по договору №456 от 01.11.2023"
+        "400":
+          description: "Некорректный запрос."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+              examples:
+                invalidParamExample:
+                  value:
+                    error:
+                      code: "INVALID_PARAM"
+                      message: "Некорректный формат documentId"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: "Документ не найден."
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+  schemas:
+    DocumentId:
+      type: "string"
+      format: "uuid"
+      description: "Уникальный идентификатор документа."
+      example: "550e8400-e29b-41d4-a716-446655440000"
+    PromptType:
+      type: "string"
+      enum:
+      - "COMMON_OUTPUT"
+      - "PAYMENT_ORDER"
+      default: "COMMON_OUTPUT"
+      description: "Тип промпта для обработки документа."
+      example: "COMMON_OUTPUT"
+    DocumentIdResponse:
+      type: "object"
+      description: "Ответ с идентификатором созданной задачи обработки."
+      required:
+      - "documentId"
+      properties:
+        documentId:
+          $ref: "#/components/schemas/DocumentId"
+      example:
+        documentId: "550e8400-e29b-41d4-a716-446655440000"
+    BadRequestError:
+      type: "object"
+      description: "Некорректный запрос."
+      required:
+      - "error"
+      properties:
+        error:
+          type: "object"
+          description: "Детали ошибки."
+          required:
+          - "code"
+          - "message"
+          properties:
+            code:
+              type: "string"
+              description: "Код ошибки."
+              example: "INVALID_FILE"
+            message:
+              type: "string"
+              description: "Человеко-читаемое описание ошибки."
+              example: "Файл не может быть обработан. Загрузите другой файл"
+      example:
+        error:
+          code: "INVALID_FILE"
+          message: "Файл не может быть обработан. Загрузите другой файл"
+    DocumentStatusResponse:
+      type: "object"
+      description: "Ответ со статусом и результатом обработки документа. Поле `result`\
+        \ присутствует только при статусе SUCCESS."
+      required:
+      - "documentId"
+      - "status"
+      properties:
+        documentId:
+          $ref: "#/components/schemas/DocumentId"
+        status:
+          type: "string"
+          enum:
+          - "CREATED"
+          - "IN_PROGRESS"
+          - "SUCCESS"
+          - "ERROR"
+          description: "Текущий статус обработки документа."
+          example: "SUCCESS"
+        result:
+          type: "object"
+          description: "Результат обработки. Присутствует только если status == SUCCESS.\
+            \ Содержит JSON объект с извлечёнными данными. Может быть null для ста\
+            тусов CREATED, IN_PROGRESS, ERROR."
+          additionalProperties: true
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"

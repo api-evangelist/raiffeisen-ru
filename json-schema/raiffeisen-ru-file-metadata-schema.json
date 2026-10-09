@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-file-metadata-schema.json",
+  "title": "FileMetadata",
+  "description": "Метаданные файла; срок expiresAt применяется только к невостребованному файлу",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-currency-control-documents-openapi.yml#/components/schemas/FileMetadata",
+  "type": "object",
+  "required": [
+    "fileId",
+    "fileName",
+    "fileSize",
+    "contentType",
+    "category",
+    "uploadedAt",
+    "contentHash"
+  ],
+  "properties": {
+    "fileId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "ID сохранённого и проверенного файла"
+    },
+    "fileName": {
+      "type": "string",
+      "description": "Исходное имя файла из multipart-части file"
+    },
+    "fileSize": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 20971520,
+      "description": "Фактический размер содержимого в байтах"
+    },
+    "contentType": {
+      "type": "string",
+      "enum": [
+        "application/pdf",
+        "image/tiff",
+        "image/jpeg",
+        "image/gif",
+        "image/bmp",
+        "image/png"
+      ],
+      "description": "MIME-тип файла"
+    },
+    "category": {
+      "$ref": "#/$defs/FileCategory",
+      "description": "Переданная категория или OTHER"
+    },
+    "uploadedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Время завершения сохранения и проверок в UTC"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Время окончания доступности невостребованного файла в UTC.\n\nПоле присутствует только для файла, который ещё не прикреплён к документу. После успешного прикрепления, включая черновик, поле отсутствует в ответе: файл хранится вместе с документами, включая их финальные статусы.\n\n> **Примечание:** отсутствие поля не означает бессрочное хранение.\n"
+    },
+    "contentHash": {
+      "$ref": "#/$defs/FileContentHash"
+    }
+  },
+  "$defs": {
+    "FileCategory": {
+      "type": "string",
+      "description": "Категория содержимого файла.\n\n**В запросе:**\n- при отсутствии `category` используется `OTHER`;\n- сервер проверяет значение по поддерживаемому справочнику;\n- неподдерживаемая категория — `400 VALIDATION_ERROR` по полю `category`;\n- пустая строка и `null` не допускаются;\n- неподдерживаемое значение не преобразуется в `OTHER` автоматически.\n\n**В ответе:**\n- набор известных значений может расширяться;\n- клиент должен принимать и сохранять неизвестные ему значения категории.\n\n**Известные значения:**\n- `CONTRACT` — Контракт\n- `LOAN_AGREEMENT` — Кредитный договор или договор займа\n- `SUPPLEMENTARY_AGREEMENT` — Дополнительное соглашение к контракту или кредитному договору\n- `SUPPORTING_DOCUMENT` — Обосновывающий или подтверждающий документ (счёт, акт, накладная и т. п.)\n- `REGISTERED_DEAL_PASSPORT_REPORT` — Ведомость банковского контроля (ВБК)\n- `CURRENCY_TRANSACTION_INFORMATION` — Сведения о валютных операциях\n- `SUPPORTING_DOCUMENT_CERTIFICATE` — Справка о подтверждающих документах\n- `OTHER` — Иное или категория не определена\n",
+      "default": "OTHER"
+    },
+    "FileContentHash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 исходных байтов файла без multipart-обрамления и преобразований, в шестнадцатеричном виде, нижний регистр.\n\nАлгоритм фиксирован: SHA-256, отдельное поле не передаётся.\n"
+    }
+  }
+}

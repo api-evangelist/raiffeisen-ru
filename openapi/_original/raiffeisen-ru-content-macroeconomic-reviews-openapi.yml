@@ -1,0 +1,521 @@
+---
+openapi: "3.0.3"
+info:
+  title: "Контент. Обзоры макроэкономики"
+  version: "1.0.0"
+paths:
+  /v2/contents/digests/{id}/stat:
+    post:
+      tags:
+      - "Обзоры макроэкономики"
+      summary: "Отметить прочитанным или оценить обзор макроэкономики"
+      operationId: "v2RegisterStat"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+      - name: "Raiff-App-Version"
+        in: "header"
+        description: "Версия приложения"
+        required: true
+        schema:
+          default: "4.0.0"
+        example: "4.0.0"
+      - name: "Accept-Language"
+        in: "header"
+        description: "Язык приложения, ru или en"
+        required: false
+        schema:
+          default: "ru"
+        example: "ru"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DigestStatResource"
+        required: true
+      responses:
+        "400":
+          description: "CNT-115 - Контент с типом [${contentType}] не найден"
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: "integer"
+                    format: "int32"
+                  error:
+                    type: "string"
+                  message:
+                    type: "string"
+              example:
+                code: 400
+                error: "CNT-115"
+                message: "Контент с типом [${contentType}] не найден"
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DigestStatResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/contents/digests:
+    get:
+      tags:
+      - "Обзоры макроэкономики"
+      summary: "Получить список обзоров макроэкономики"
+      operationId: "v2GetDigests"
+      parameters:
+      - name: "offset"
+        in: "query"
+        required: true
+        style: "form"
+        explode: true
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "limit"
+        in: "query"
+        required: true
+        style: "form"
+        explode: true
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "Raiff-App-Version"
+        in: "header"
+        description: "Версия приложения"
+        required: true
+        schema:
+          default: "4.0.0"
+        example: "4.0.0"
+      - name: "Accept-Language"
+        in: "header"
+        description: "Язык приложения, ru или en"
+        required: false
+        schema:
+          default: "ru"
+        example: "ru"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DigestV2Resources"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/contents/digests/{id}:
+    get:
+      tags:
+      - "Обзоры макроэкономики"
+      summary: "Получить обзор макроэкономики по id"
+      operationId: "v2GetDigest"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+      - name: "Raiff-App-Version"
+        in: "header"
+        description: "Версия приложения"
+        required: true
+        schema:
+          default: "4.0.0"
+        example: "4.0.0"
+      - name: "Accept-Language"
+        in: "header"
+        description: "Язык приложения, ru или en"
+        required: false
+        schema:
+          default: "ru"
+        example: "ru"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "400":
+          description: "CNT-115 - Контент с типом [${contentType}] не найден"
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: "integer"
+                    format: "int32"
+                  error:
+                    type: "string"
+                  message:
+                    type: "string"
+              example:
+                code: 400
+                error: "CNT-115"
+                message: "Контент с типом [${contentType}] не найден"
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DigestResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/contents/digests/{id}/previous:
+    get:
+      tags:
+      - "Обзоры макроэкономики"
+      summary: "Получить предыдущий обзор макроэкономики"
+      operationId: "v2GetPreviousDigest"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+      - name: "Raiff-App-Version"
+        in: "header"
+        description: "Версия приложения"
+        required: true
+        schema:
+          default: "4.0.0"
+        example: "4.0.0"
+      - name: "Accept-Language"
+        in: "header"
+        description: "Язык приложения, ru или en"
+        required: false
+        schema:
+          default: "ru"
+        example: "ru"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "400":
+          description: "CNT-115 - Контент с типом [${contentType}] не найден"
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: "integer"
+                    format: "int32"
+                  error:
+                    type: "string"
+                  message:
+                    type: "string"
+              example:
+                code: 400
+                error: "CNT-115"
+                message: "Контент с типом [${contentType}] не найден"
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DigestResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/contents/digests/last:
+    get:
+      tags:
+      - "Обзоры макроэкономики"
+      summary: "Получить последний обзор макроэкономики"
+      operationId: "v2GetLastDigest"
+      parameters:
+      - name: "Raiff-App-Version"
+        in: "header"
+        description: "Версия приложения"
+        required: true
+        schema:
+          default: "4.0.0"
+        example: "4.0.0"
+      - name: "Accept-Language"
+        in: "header"
+        description: "Язык приложения, ru или en"
+        required: false
+        schema:
+          default: "ru"
+        example: "ru"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "400":
+          description: "CNT-115 - Контент с типом [${contentType}] не найден"
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: "integer"
+                    format: "int32"
+                  error:
+                    type: "string"
+                  message:
+                    type: "string"
+              example:
+                code: 400
+                error: "CNT-115"
+                message: "Контент с типом [${contentType}] не найден"
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DigestResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  schemas:
+    DigestStatResource:
+      type: "object"
+      description: ""
+      example:
+        read: true
+        rating: 1
+      properties:
+        read:
+          type: "boolean"
+          description: "Статус прочитанности"
+        rating:
+          type: "integer"
+          format: "int32"
+          description: "Оценка контента"
+    StatResource:
+      type: "object"
+      description: ""
+      example:
+        rating: 1
+      properties:
+        rating:
+          type: "integer"
+          format: "int32"
+          description: "Оценка контента"
+      required:
+      - "rating"
+    DigestResource:
+      type: "object"
+      description: ""
+      example:
+        id: "id"
+        new: false
+        publishDate: "2025-01-26T04:24:02.592Z"
+        rating: null
+        status: "PUBLISHED"
+        subtitle: "С 11 по 15 августа"
+        title: "Обзор недели по\_макроэкономике"
+        topics:
+        - body: "Министерство финансов размещает только 13-летний флоатер ОФЗ-ПК 29025."
+          id: "id-0"
+          link:
+            label: "Прочитать полный текст новости"
+            url: "https://www.raiffeisen.ru/about/press/news"
+          order: 0
+          title: "Результаты июльского заседания Центробанка вызвали очередной всп\
+            леск доходностей вдоль кривой ОФЗ"
+        - body: "Центробанк поднял ключевую ставку до 18%."
+          id: "id-1"
+          link:
+            label: "Прочитать полный текст новости"
+            url: "https://www.raiffeisen.ru/about/press/news"
+          order: 1
+          title: "Центробанк корректирует ожидания по ставкам вверх на всем горизо\
+            нте"
+        promo:
+          webinarId: "webinar-id-1"
+      properties:
+        id:
+          type: "string"
+          description: "Id контента"
+        new:
+          type: "boolean"
+          description: "Статус прочитанности"
+        status:
+          type: "string"
+          description: "Статус публикации"
+          enum:
+          - "SCHEDULED"
+          - "PUBLISHED"
+        rating:
+          type: "integer"
+          format: "int32"
+          description: "Оценка"
+        title:
+          type: "string"
+          description: "Заголовок"
+        subtitle:
+          type: "string"
+          description: "Подзаголовок"
+        publishDate:
+          type: "string"
+          format: "date-time"
+          description: "Дата публикации"
+        topics:
+          type: "array"
+          description: "Темы обзора"
+          items:
+            $ref: "#/components/schemas/DigestTopicResource"
+        promo:
+          $ref: "#/components/schemas/DigestPromoResource"
+          description: "Промо вебинара"
+      required:
+      - "new"
+      - "publishDate"
+      - "status"
+      - "subtitle"
+      - "title"
+      - "topics"
+    DigestV2Resources:
+      type: "object"
+      description: ""
+      example:
+        content:
+        - id: "id"
+          new: false
+          publishDate: "2025-01-26T04:24:02.592Z"
+          rating: null
+          status: "PUBLISHED"
+          subtitle: "С 11 по 15 августа"
+          title: "Обзор недели по\_макроэкономике"
+          topics:
+          - body: "Министерство финансов размещает только 13-летний флоатер ОФЗ-ПК\
+              \ 29025."
+            id: "id-0"
+            link:
+              label: "Прочитать полный текст новости"
+              url: "https://www.raiffeisen.ru/about/press/news"
+            order: 0
+            title: "Результаты июльского заседания Центробанка вызвали очередной в\
+              сплеск доходностей вдоль кривой ОФЗ"
+          - body: "Центробанк поднял ключевую ставку до 18%."
+            id: "id-1"
+            link:
+              label: "Прочитать полный текст новости"
+              url: "https://www.raiffeisen.ru/about/press/news"
+            order: 1
+            title: "Центробанк корректирует ожидания по ставкам вверх на всем гори\
+              зонте"
+          promo:
+            webinarId: "1"
+        offset: 0
+        limit: 100
+        totalCount: 1
+      properties:
+        content:
+          type: "array"
+          description: "Список обзоров макроэкономики"
+          items:
+            $ref: "#/components/schemas/DigestResource"
+        offset:
+          type: "integer"
+          format: "int32"
+          description: "Смещение, с которого начинается выборка данных"
+        limit:
+          type: "integer"
+          format: "int32"
+          description: "Максимальное количество записей"
+        totalCount:
+          type: "integer"
+          format: "int64"
+          description: "Общее количество записей по запросу"
+      required:
+      - "content"
+      - "limit"
+      - "offset"
+      - "totalCount"
+    DigestPromoResource:
+      type: "object"
+      description: ""
+      properties:
+        id:
+          type: "string"
+          description: "Id рекламы вебинара"
+        webinarId:
+          type: "string"
+          description: "Id вебинара"
+      required:
+      - "webinarId"
+    DigestTopicResource:
+      type: "object"
+      description: ""
+      properties:
+        id:
+          type: "string"
+          description: "Id темы обзора"
+        title:
+          type: "string"
+          description: "Заголовок"
+        body:
+          type: "string"
+          description: "Описание"
+        link:
+          $ref: "#/components/schemas/LinkResource"
+          description: "Ссылка на исходный текст"
+        order:
+          type: "integer"
+          format: "int64"
+          description: "Порядковый номер темы"
+      required:
+      - "body"
+      - "link"
+      - "order"
+      - "title"
+    LinkResource:
+      type: "object"
+      description: ""
+      properties:
+        url:
+          type: "string"
+          description: "Ссылка на статью"
+        label:
+          type: "string"
+          description: "Текст для гиперссылки"
+      required:
+      - "label"
+      - "url"
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+servers:
+- url: "https://api.raiffeisen.ru/media-content"

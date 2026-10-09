@@ -1,0 +1,711 @@
+# x-archived-from: raiffeisen-ru-brokerage-reports-openapi.yml
+# x-archived-on: 2026-10-09
+---
+openapi: "3.0.3"
+info:
+  title: "Брокерские отчёты"
+  description: "Заказ, просмотр и скачивание брокерских отчётов"
+  version: "1.0.0"
+servers:
+- url: "https://api.raiffeisen.ru/brokerage"
+paths:
+  /v1/reports/tasks:
+    post:
+      tags:
+      - "brokerage-reports"
+      operationId: "createReportTask"
+      summary: "Создание задачи на формирование отчёта"
+      description: "Метод создаёт задачу на формирование брокерского отчёта"
+      parameters:
+      - $ref: "#/components/parameters/CnumParam"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      requestBody:
+        description: "Параметры задачи на формирование отчёта"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportTaskCreateRequest"
+            examples:
+              simple:
+                $ref: "#/components/examples/ReportTaskCreateRequestExample"
+      responses:
+        "200":
+          description: "Созданная задача на формирование отчёта"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportTask"
+              examples:
+                simple:
+                  $ref: "#/components/examples/ReportTaskResponseExample"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    get:
+      tags:
+      - "brokerage-reports"
+      operationId: "getReportTasks"
+      summary: "Получение списка задач на формирование отчётов"
+      description: "Метод возвращает задачи на формирование брокерских отчётов с ф\
+        ильтрацией"
+      parameters:
+      - $ref: "#/components/parameters/CnumParam"
+      - $ref: "#/components/parameters/ReportTypeParam"
+      - $ref: "#/components/parameters/AgreementNumberParam"
+      - $ref: "#/components/parameters/AccountParam"
+      - $ref: "#/components/parameters/FromDateParam"
+      - $ref: "#/components/parameters/ToDateParam"
+      - $ref: "#/components/parameters/ReportTaskStatusParam"
+      - $ref: "#/components/parameters/PageNumberParam"
+      - $ref: "#/components/parameters/PageSizeParam"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      responses:
+        "200":
+          description: "Список задач на формирование отчётов"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ReportTask"
+              examples:
+                simple:
+                  $ref: "#/components/examples/ReportTaskListResponseExample"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/reports/tasks/{taskId}:
+    get:
+      tags:
+      - "brokerage-reports"
+      operationId: "getReportTask"
+      summary: "Получение задачи на формирование отчёта"
+      description: "Метод возвращает задачу на формирование отчёта по идентификато\
+        ру"
+      parameters:
+      - $ref: "#/components/parameters/ReportTaskIdPathParam"
+      - $ref: "#/components/parameters/CnumParam"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      responses:
+        "200":
+          description: "Задача на формирование отчёта"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportTask"
+              examples:
+                simple:
+                  $ref: "#/components/examples/ReportTaskResponseExample"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/reports/types:
+    get:
+      tags:
+      - "brokerage-reports"
+      operationId: "getReportTypes"
+      summary: "Получение типов отчётов"
+      description: "Метод возвращает доступные типы отчётов, признак обязательност\
+        и счёта, допустимые и используемые по умолчанию типы файлов"
+      parameters:
+      - $ref: "#/components/parameters/CnumParam"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      responses:
+        "200":
+          description: "Доступные типы отчётов"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ReportTaskType"
+              examples:
+                simple:
+                  $ref: "#/components/examples/ReportTypesResponseExample"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/reports/files/download/{fileId}:
+    get:
+      tags:
+      - "brokerage-reports"
+      operationId: "downloadReportFile"
+      summary: "Скачивание файла отчёта"
+      description: "Метод потоково возвращает содержимое сформированного файла отч\
+        ёта; имя файла передаётся в заголовке Content-Disposition"
+      parameters:
+      - $ref: "#/components/parameters/ReportFileIdPathParam"
+      - $ref: "#/components/parameters/CnumParam"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      responses:
+        "200":
+          description: "Содержимое файла отчёта"
+          content:
+            application/octet-stream:
+              schema:
+                type: "string"
+                format: "binary"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  parameters:
+    CnumParam:
+      name: "cnum"
+      in: "query"
+      description: "Идентификатор организации клиента; если не указан, используетс\
+        я единственная доступная организация"
+      required: false
+      schema:
+        type: "string"
+      example: "Z35146"
+    ReportTypeParam:
+      name: "reportType"
+      in: "query"
+      description: "Тип отчёта"
+      required: false
+      schema:
+        $ref: "#/components/schemas/ReportType"
+      example: "BROKERAGE_REPORT"
+    AgreementNumberParam:
+      name: "agreementNumber"
+      in: "query"
+      description: "Номер брокерского договора"
+      required: false
+      schema:
+        type: "string"
+      example: "35463"
+    AccountParam:
+      name: "account"
+      in: "query"
+      description: "Номер счёта"
+      required: false
+      schema:
+        type: "string"
+      example: "BROKER_ACCOUNT"
+    FromDateParam:
+      name: "fromDate"
+      in: "query"
+      description: "Начало периода отчёта"
+      required: false
+      schema:
+        type: "string"
+        format: "date"
+      example: "2026-09-01"
+    ToDateParam:
+      name: "toDate"
+      in: "query"
+      description: "Окончание периода отчёта"
+      required: false
+      schema:
+        type: "string"
+        format: "date"
+      example: "2026-09-25"
+    ReportTaskStatusParam:
+      name: "status"
+      in: "query"
+      description: "Статус задачи"
+      required: false
+      schema:
+        $ref: "#/components/schemas/ReportTaskStatus"
+      example: "DONE"
+    PageNumberParam:
+      name: "page"
+      in: "query"
+      description: "Номер страницы, начиная с нуля"
+      required: false
+      schema:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+        default: 0
+      example: 0
+    PageSizeParam:
+      name: "size"
+      in: "query"
+      description: "Количество элементов на странице"
+      required: false
+      schema:
+        type: "integer"
+        format: "int32"
+        minimum: 1
+        default: 10
+      example: 10
+    ReportTaskIdPathParam:
+      name: "taskId"
+      in: "path"
+      description: "Идентификатор задачи на формирование отчёта"
+      required: true
+      schema:
+        $ref: "#/components/schemas/ReportTaskId"
+      example: "19229514-5821-11f0-9fe2-0242ac120002"
+    ReportFileIdPathParam:
+      name: "fileId"
+      in: "path"
+      description: "Идентификатор файла отчёта"
+      required: true
+      schema:
+        $ref: "#/components/schemas/ReportFileId"
+      example: "30dcde3a-b26f-435b-93a5-2bbaaca1ddbf"
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+  schemas:
+    ReportTaskCreateRequest:
+      required:
+      - "reportType"
+      - "agreementNumber"
+      - "fromDate"
+      - "toDate"
+      type: "object"
+      properties:
+        reportType:
+          $ref: "#/components/schemas/ReportType"
+        agreementNumber:
+          type: "string"
+          description: "Номер брокерского договора"
+          example: "35463"
+        account:
+          type: "string"
+          nullable: true
+          description: "Номер счёта, если он требуется для выбранного типа отчёта"
+          example: "BROKER_ACCOUNT"
+        fromDate:
+          type: "string"
+          format: "date"
+          description: "Начало периода отчёта"
+          example: "2026-09-01"
+        toDate:
+          type: "string"
+          format: "date"
+          description: "Окончание периода отчёта"
+          example: "2026-09-25"
+        handleIfExists:
+          type: "boolean"
+          description: "Признак повторного формирования, если отчёт за тот же пери\
+            од уже был сформирован: false — новый отчёт не формируется, возвращает\
+            ся ранее сформированный результат; true — отчёт формируется заново"
+          default: false
+        fileTypes:
+          type: "array"
+          description: "Коды типов файлов из allowedFileTypes; если поле не задано\
+            \ или список пуст, используются defaultFileTypes"
+          items:
+            $ref: "#/components/schemas/ReportFileTypeCode"
+    ReportTask:
+      type: "object"
+      properties:
+        id:
+          $ref: "#/components/schemas/ReportTaskId"
+        reportType:
+          $ref: "#/components/schemas/ReportTypeInfo"
+        agreementNumber:
+          type: "string"
+          description: "Номер брокерского договора"
+          example: "35463"
+        account:
+          type: "string"
+          nullable: true
+          description: "Номер счёта"
+          example: "BROKER_ACCOUNT"
+        periodFrom:
+          type: "string"
+          format: "date"
+          description: "Начало периода отчёта"
+          example: "2026-09-01"
+        periodTo:
+          type: "string"
+          format: "date"
+          description: "Окончание периода отчёта"
+          example: "2026-09-25"
+        handleIfExists:
+          type: "boolean"
+          description: "Признак повторного формирования, применённый к задаче: false\
+            \ — при наличии отчёта за тот же период возвращается ранее сформирован\
+            ный результат; true — отчёт формируется заново"
+          example: false
+        status:
+          $ref: "#/components/schemas/ReportTaskStatus"
+        source:
+          $ref: "#/components/schemas/ReportTaskSource"
+        fileId:
+          type: "string"
+          format: "uuid"
+          deprecated: true
+          nullable: true
+          description: "Устаревший идентификатор основного файла; используйте files"
+          example: "30dcde3a-b26f-435b-93a5-2bbaaca1ddbf"
+        printedFormFileId:
+          type: "string"
+          format: "uuid"
+          deprecated: true
+          nullable: true
+          description: "Устаревший идентификатор печатной формы; используйте files"
+          example: null
+        files:
+          type: "array"
+          description: "Сформированные файлы отчёта"
+          items:
+            $ref: "#/components/schemas/ReportFile"
+        createdAt:
+          type: "string"
+          format: "date-time"
+          description: "Дата и время создания задачи"
+          example: "2026-09-28T10:15:30"
+        updatedAt:
+          type: "string"
+          format: "date-time"
+          description: "Дата и время последнего обновления задачи"
+          example: "2026-09-28T10:16:45"
+    ReportTypeInfo:
+      required:
+      - "type"
+      - "desc"
+      type: "object"
+      properties:
+        type:
+          $ref: "#/components/schemas/ReportType"
+        desc:
+          type: "string"
+          description: "Описание типа отчёта"
+          example: "Брокерский отчёт"
+    ReportTaskType:
+      required:
+      - "type"
+      - "desc"
+      type: "object"
+      properties:
+        type:
+          $ref: "#/components/schemas/ReportType"
+        desc:
+          type: "string"
+          description: "Описание типа отчёта"
+          example: "Брокерский отчёт"
+        isUseAccountParameter:
+          type: "boolean"
+          description: "Если true, поле account обязательно при создании задачи; е\
+            сли false, его можно не передавать"
+          example: false
+        allowedFileTypes:
+          type: "array"
+          description: "Допустимые типы файлов; значения type передаются в fileTypes\
+            \ при создании задачи"
+          items:
+            $ref: "#/components/schemas/ReportFileType"
+        defaultFileTypes:
+          type: "array"
+          description: "Типы файлов, формируемые по умолчанию, если fileTypes не з\
+            адан или передан пустым списком"
+          items:
+            $ref: "#/components/schemas/ReportFileType"
+    ReportFile:
+      type: "object"
+      properties:
+        id:
+          $ref: "#/components/schemas/ReportFileId"
+        fileType:
+          $ref: "#/components/schemas/ReportFileTypeCode"
+        nameRus:
+          type: "string"
+          description: "Название типа файла на русском языке"
+          example: "Основной документ"
+        nameEng:
+          type: "string"
+          description: "Название типа файла на английском языке"
+          example: "Main document"
+        fileName:
+          type: "string"
+          nullable: true
+          description: "Имя файла"
+          example: "brokerage-report.pdf"
+        signatureType:
+          $ref: "#/components/schemas/SignatureType"
+    ReportFileType:
+      type: "object"
+      properties:
+        type:
+          $ref: "#/components/schemas/ReportFileTypeCode"
+        nameRus:
+          type: "string"
+          description: "Название типа файла на русском языке"
+          example: "Основной документ"
+        nameEng:
+          type: "string"
+          description: "Название типа файла на английском языке"
+          example: "Main document"
+    SignatureType:
+      type: "object"
+      properties:
+        code:
+          $ref: "#/components/schemas/SignatureTypeCode"
+        nameRus:
+          type: "string"
+          description: "Название типа подписи на русском языке"
+          example: "Без подписи"
+        nameEng:
+          type: "string"
+          description: "Название типа подписи на английском языке"
+          example: "No signature"
+    ReportTaskId:
+      type: "string"
+      format: "uuid"
+      description: "Идентификатор задачи на формирование отчёта"
+      example: "19229514-5821-11f0-9fe2-0242ac120002"
+    ReportFileId:
+      type: "string"
+      format: "uuid"
+      description: "Идентификатор файла отчёта"
+      example: "30dcde3a-b26f-435b-93a5-2bbaaca1ddbf"
+    ReportType:
+      type: "string"
+      description: "Тип отчёта"
+      enum:
+      - "STATEMENT_FOR_1C"
+      - "BROKERAGE_REPORT"
+      example: "BROKERAGE_REPORT"
+    ReportTaskStatus:
+      type: "string"
+      description: "Статус задачи на формирование отчёта"
+      enum:
+      - "NEW"
+      - "IN_PROGRESS"
+      - "FAILED"
+      - "DONE"
+      example: "DONE"
+    ReportTaskSource:
+      type: "string"
+      description: "Источник создания задачи"
+      enum:
+      - "RBO"
+      - "PUBLIC_API_GATEWAY"
+      example: "PUBLIC_API_GATEWAY"
+    ReportFileTypeCode:
+      type: "string"
+      description: "Код типа файла отчёта"
+      enum:
+      - "SIMPLE_DOCUMENTARY"
+      - "PRINTED_FORM"
+      - "QES"
+      - "FACSIMILE"
+      example: "SIMPLE_DOCUMENTARY"
+    SignatureTypeCode:
+      type: "string"
+      description: "Код типа подписи"
+      enum:
+      - "NONE"
+      - "QES"
+      - "FACSIMILE"
+      example: "NONE"
+    ErrorResponse:
+      type: "object"
+      required:
+      - "code"
+      - "message"
+      properties:
+        code:
+          type: "string"
+          description: "Код ошибки"
+          example: "VALIDATION_ERROR"
+        message:
+          type: "string"
+          description: "Описание ошибки"
+          example: "Параметры запроса не прошли проверку"
+        traceId:
+          type: "string"
+          description: "Идентификатор трассировки запроса"
+          example: "4bf92f3577b34da6a3ce929d0e0e4736"
+        errors:
+          type: "object"
+          nullable: true
+          description: "Детали ошибок по полям"
+          additionalProperties:
+            type: "string"
+  responses:
+    BadRequest:
+      description: "Некорректный запрос"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            simple:
+              $ref: "#/components/examples/ErrorResponseExample"
+    Forbidden:
+      description: "Недостаточно прав для выполнения операции"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            simple:
+              $ref: "#/components/examples/ErrorResponseExample"
+    NotFound:
+      description: "Задача или файл отчёта не найдены"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            simple:
+              $ref: "#/components/examples/ErrorResponseExample"
+    InternalServerError:
+      description: "Внутренняя ошибка сервиса"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            simple:
+              $ref: "#/components/examples/ErrorResponseExample"
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+  examples:
+    ReportTaskCreateRequestExample:
+      summary: "Пример создания задачи на формирование отчёта"
+      description: "ReportTaskCreateRequest"
+      value:
+        reportType: "BROKERAGE_REPORT"
+        agreementNumber: "35463"
+        account: "BROKER_ACCOUNT"
+        fromDate: "2026-09-01"
+        toDate: "2026-09-25"
+        handleIfExists: false
+        fileTypes:
+        - "SIMPLE_DOCUMENTARY"
+        - "PRINTED_FORM"
+    ReportTaskResponseExample:
+      summary: "Пример задачи на формирование отчёта"
+      description: "ReportTask"
+      value:
+        id: "19229514-5821-11f0-9fe2-0242ac120002"
+        reportType:
+          type: "BROKERAGE_REPORT"
+          desc: "Брокерский отчёт"
+        agreementNumber: "35463"
+        account: "BROKER_ACCOUNT"
+        periodFrom: "2026-09-01"
+        periodTo: "2026-09-25"
+        handleIfExists: false
+        status: "DONE"
+        source: "PUBLIC_API_GATEWAY"
+        fileId: null
+        printedFormFileId: null
+        files:
+        - id: "30dcde3a-b26f-435b-93a5-2bbaaca1ddbf"
+          fileType: "SIMPLE_DOCUMENTARY"
+          nameRus: "Основной документ"
+          nameEng: "Main document"
+          fileName: "brokerage-report.pdf"
+          signatureType:
+            code: "NONE"
+            nameRus: "Без подписи"
+            nameEng: "No signature"
+        createdAt: "2026-09-28T10:15:30"
+        updatedAt: "2026-09-28T10:16:45"
+    ReportTaskListResponseExample:
+      summary: "Пример списка задач на формирование отчётов"
+      description: "ReportTaskList"
+      value:
+      - id: "19229514-5821-11f0-9fe2-0242ac120002"
+        reportType:
+          type: "BROKERAGE_REPORT"
+          desc: "Брокерский отчёт"
+        agreementNumber: "35463"
+        account: "BROKER_ACCOUNT"
+        periodFrom: "2026-09-01"
+        periodTo: "2026-09-25"
+        handleIfExists: false
+        status: "DONE"
+        source: "PUBLIC_API_GATEWAY"
+        fileId: null
+        printedFormFileId: null
+        files:
+        - id: "30dcde3a-b26f-435b-93a5-2bbaaca1ddbf"
+          fileType: "SIMPLE_DOCUMENTARY"
+          nameRus: "Основной документ"
+          nameEng: "Main document"
+          fileName: "brokerage-report.pdf"
+          signatureType:
+            code: "NONE"
+            nameRus: "Без подписи"
+            nameEng: "No signature"
+        createdAt: "2026-09-28T10:15:30"
+        updatedAt: "2026-09-28T10:16:45"
+    ReportTypesResponseExample:
+      summary: "Пример доступных типов отчётов"
+      description: "ReportTaskTypeList"
+      value:
+      - type: "BROKERAGE_REPORT"
+        desc: "Брокерский отчёт"
+        isUseAccountParameter: false
+        allowedFileTypes:
+        - type: "SIMPLE_DOCUMENTARY"
+          nameRus: "Основной документ"
+          nameEng: "Main document"
+        - type: "PRINTED_FORM"
+          nameRus: "Печатная форма"
+          nameEng: "Printed form"
+        defaultFileTypes:
+        - type: "SIMPLE_DOCUMENTARY"
+          nameRus: "Основной документ"
+          nameEng: "Main document"
+    ErrorResponseExample:
+      summary: "Пример ошибки"
+      description: "ErrorResponse"
+      value:
+        code: "VALIDATION_ERROR"
+        message: "Параметры запроса не прошли проверку"
+        traceId: "4bf92f3577b34da6a3ce929d0e0e4736"
+        errors: null

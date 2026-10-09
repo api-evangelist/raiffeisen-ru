@@ -1,0 +1,112 @@
+generated: '2026-10-09'
+method: searched
+source: https://pay.raif.ru/doc/ecom.html; openapi/*.yml
+versioning:
+  scheme: URI path major version (/v1/, /v2/); docs versioned per API (e.g. "API платежной формы (1.0)")
+  notes: No published versioning or deprecation policy found on developer.raiffeisen.ru or pay.raif.ru. Raif Pay docs keep a "Устаревшие методы" (deprecated methods) section and a dated "История изменений"
+    table.
+deprecation:
+  policy_url: null
+  changelog: https://pay.raif.ru/doc/ecom.html
+  sunset_header: false
+  notes: 'No Sunset/Deprecation headers declared in any saved contract; deprecation is signalled only by deprecated: true and the "Устаревшие методы" docs section.'
+sla:
+  url: null
+  notes: No SLA published.
+status_page: null
+deprecated_operations:
+- api: letters
+  method: GET
+  path: /v1/correspondences/{id}
+  operationId: getCorrespondence
+  source: openapi/raiffeisen-ru-letters-openapi.yml
+- api: letters
+  method: POST
+  path: /v1/mails/{mailId}/submit
+  operationId: submitMail
+  source: openapi/raiffeisen-ru-letters-openapi.yml
+- api: raif-pay-corporate-cards
+  method: GET
+  path: /api/cards/v1/corporate-cards/cards
+  operationId: getCardsWithFilterAndPagination
+  source: openapi/raiffeisen-ru-raif-pay-corporate-cards-openapi.yml
+- api: raif-pay-corporate-cards
+  method: GET
+  path: /api/cards/v1/corporate-cards/cards/{cardId}
+  operationId: getCardById
+  source: openapi/raiffeisen-ru-raif-pay-corporate-cards-openapi.yml
+- api: raif-pay-corporate-cards
+  method: GET
+  path: /api/cards/v1/corporate-cards/cards/{cardId}/actions
+  operationId: getCardActionHistory
+  source: openapi/raiffeisen-ru-raif-pay-corporate-cards-openapi.yml
+- api: raif-pay-payment-form
+  method: GET
+  path: /payments/v1/orders/{orderId}/transaction
+  operationId: get-payments-v1-orders-orderId-transaction
+  source: openapi/raiffeisen-ru-raif-pay-payment-form-openapi.yml
+- api: raif-pay-payment-form
+  method: GET
+  path: /payment/v1/orders/{orderId}
+  operationId: get-payment-v1-orders-orderId
+  source: openapi/raiffeisen-ru-raif-pay-payment-form-openapi.yml
+- api: raif-pay-payment-form
+  method: POST
+  path: /payments/v1/orders/{orderId}/refunds/{refundId}
+  operationId: post-payments-v1-orders-orderId-refunds-refundId
+  source: openapi/raiffeisen-ru-raif-pay-payment-form-openapi.yml
+- api: raif-pay-payment-form
+  method: GET
+  path: /payments/v1/orders/{orderId}/refunds/{refundId}
+  operationId: get-payments-v1-orders-orderId-refunds-refundId
+  source: openapi/raiffeisen-ru-raif-pay-payment-form-openapi.yml
+- api: raif-pay-payouts
+  method: GET
+  path: /payout/v1/sbp/banks
+  operationId: get-payout-v1-sbp-banks
+  source: openapi/raiffeisen-ru-raif-pay-payouts-openapi.yml
+- api: raif-pay-payouts
+  method: POST
+  path: /payout/v1/payouts
+  operationId: post-payout-v1-payouts
+  source: openapi/raiffeisen-ru-raif-pay-payouts-openapi.yml
+- api: raif-pay-payouts
+  method: GET
+  path: /payout/v1/payouts/{id}
+  operationId: get-payout-v1-payouts-id
+  source: openapi/raiffeisen-ru-raif-pay-payouts-openapi.yml
+- api: raif-pay-payouts
+  method: POST
+  path: /payout/v1/payout-bundles
+  operationId: post-payout-v1-payout-bundles
+  source: openapi/raiffeisen-ru-raif-pay-payouts-openapi.yml
+- api: raif-pay-payouts
+  method: GET
+  path: /payout/v1/payout-bundles/{id}
+  operationId: get-payout-v1-payout-bundles-id
+  source: openapi/raiffeisen-ru-raif-pay-payouts-openapi.yml
+- api: raif-pay-payouts
+  method: GET
+  path: /v1/payout-bundles/{id}/payouts
+  operationId: get-v1-bundle-payouts
+  source: openapi/raiffeisen-ru-raif-pay-payouts-openapi.yml
+- api: raif-pay-whitelabel-ecom
+  method: POST
+  path: /payments/v1/orders/{orderId}/refunds/{refundId}
+  operationId: post-payments-v1-orders-orderId-refunds-refundId
+  source: openapi/raiffeisen-ru-raif-pay-whitelabel-ecom-openapi.yml
+- api: raif-pay-whitelabel-ecom
+  method: GET
+  path: /payments/v1/orders/{orderId}/refunds/{refundId}
+  operationId: get-payments-v1-orders-orderId-refunds-refundId
+  source: openapi/raiffeisen-ru-raif-pay-whitelabel-ecom-openapi.yml
+- api: user-permissions
+  method: GET
+  path: /api/v1/permissions
+  operationId: permissionsV1Legacy
+  source: openapi/raiffeisen-ru-user-permissions-openapi.yml
+- api: user-permissions
+  method: GET
+  path: /api/v1/permissions/{object_path}
+  operationId: permissionsV1LegacyByObj
+  source: openapi/raiffeisen-ru-user-permissions-openapi.yml

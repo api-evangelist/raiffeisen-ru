@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-task-create-request-schema.json",
+  "title": "TaskCreateRequest",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-custody-statements-openapi.yml#/components/schemas/TaskCreateRequest",
+  "required": [
+    "dateFrom",
+    "type"
+  ],
+  "type": "object",
+  "properties": {
+    "cnums": {
+      "uniqueItems": true,
+      "type": "array",
+      "description": "Уникальные идентификаторы клиента (CNUM)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "accounts": {
+      "uniqueItems": true,
+      "type": "array",
+      "description": "Счета клиента",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dateFrom": {
+      "type": "string",
+      "description": "Дата начала периода выписок",
+      "format": "date"
+    },
+    "dateTo": {
+      "type": "string",
+      "description": "Дата окончания периода выписок",
+      "format": "date"
+    },
+    "type": {
+      "$ref": "#/$defs/TaskType"
+    },
+    "forceGeneration": {
+      "type": "boolean",
+      "description": "Переформировывать ли заново выписку, если она была сформирована ранее (true) или получить из кэша (false)"
+    },
+    "formats": {
+      "uniqueItems": true,
+      "type": "array",
+      "description": "Типы выписки",
+      "items": {
+        "$ref": "#/$defs/Formats"
+      }
+    },
+    "locales": {
+      "uniqueItems": true,
+      "type": "array",
+      "description": "Тип выписки",
+      "items": {
+        "$ref": "#/$defs/Locales"
+      }
+    }
+  },
+  "$defs": {
+    "Formats": {
+      "type": "string",
+      "description": "Тип выписки",
+      "enum": [
+        "PDF",
+        "XML",
+        "JSON"
+      ]
+    },
+    "Locales": {
+      "type": "string",
+      "description": "Тип выписки",
+      "enum": [
+        "RUS",
+        "ENG"
+      ]
+    },
+    "TaskType": {
+      "type": "string",
+      "description": "Тип отчета выписки",
+      "enum": [
+        "PORTFOLIO",
+        "TRANSACTIONS"
+      ]
+    }
+  }
+}

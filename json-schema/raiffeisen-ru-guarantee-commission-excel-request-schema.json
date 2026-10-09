@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-guarantee-commission-excel-request-schema.json",
+  "title": "GuaranteeCommissionExcelRequest",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-trade-finance-guarantees-openapi.yml#/components/schemas/GuaranteeCommissionExcelRequest",
+  "type": "object",
+  "properties": {
+    "guaranteeNumber": {
+      "type": "string"
+    },
+    "guaranteeNumbers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "cnums": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "filters": {
+      "$ref": "#/$defs/GuaranteeFilterDTO"
+    }
+  },
+  "$defs": {
+    "GuaranteeFilterDTO": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "array",
+          "description": "Статус гарантии (ACTIVE, FINISHED, WAIT_BENEFICIARY_CONSENT)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "number": {
+          "type": "array",
+          "description": "Номер гарантии",
+          "items": {
+            "type": "string"
+          }
+        },
+        "principalCnum": {
+          "type": "array",
+          "description": "CNUM принципала",
+          "items": {
+            "type": "string"
+          }
+        },
+        "amount": {
+          "$ref": "#/$defs/IntervalDecimalFilterDTO"
+        },
+        "currency": {
+          "type": "array",
+          "description": "Код валюты",
+          "items": {
+            "type": "string"
+          }
+        },
+        "issueDate": {
+          "$ref": "#/$defs/IntervalDateFilterDTO"
+        },
+        "guaranteeType": {
+          "type": "array",
+          "description": "Код типа гарантии",
+          "items": {
+            "type": "string"
+          }
+        },
+        "agreementNumber": {
+          "type": "array",
+          "description": "Номер соглашения",
+          "items": {
+            "type": "string"
+          }
+        },
+        "agreementDate": {
+          "$ref": "#/$defs/IntervalDateFilterDTO"
+        },
+        "startDate": {
+          "$ref": "#/$defs/IntervalDateFilterDTO"
+        },
+        "endDate": {
+          "$ref": "#/$defs/IntervalDateFilterDTO"
+        },
+        "avisoBankCode": {
+          "type": "array",
+          "description": "Код авизующего банка",
+          "items": {
+            "type": "string"
+          }
+        },
+        "issueMethod": {
+          "type": "array",
+          "description": "Способ выдачи",
+          "items": {
+            "type": "string"
+          }
+        },
+        "applicantInn": {
+          "type": "array",
+          "description": "ИНН апликанта",
+          "items": {
+            "type": "string"
+          }
+        },
+        "applicantShortName": {
+          "type": "array",
+          "description": "Краткое наименование апликанта",
+          "items": {
+            "type": "string"
+          }
+        },
+        "beneficiaryInn": {
+          "type": "array",
+          "description": "ИНН бенефициара",
+          "items": {
+            "type": "string"
+          }
+        },
+        "beneficiaryShortName": {
+          "type": "array",
+          "description": "Краткое наименование бенефициара",
+          "items": {
+            "type": "string"
+          }
+        },
+        "bidNoticeNum": {
+          "type": "array",
+          "description": "Номер извещения",
+          "items": {
+            "type": "string"
+          }
+        },
+        "isScan": {
+          "type": "boolean",
+          "description": "Скан гарантии"
+        },
+        "isScanCopy": {
+          "type": "boolean"
+        },
+        "versionDate": {
+          "$ref": "#/$defs/IntervalLocalDateTimeDTO"
+        },
+        "versionType": {
+          "type": "array",
+          "description": "Тип версии (PRIMARY, CHANGES)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "channel": {
+          "type": "array",
+          "description": "Канал",
+          "items": {
+            "type": "string"
+          }
+        },
+        "lmsLimitId": {
+          "type": "array",
+          "description": "Список id лимитов в LMS",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cbrfUuid": {
+          "type": "string",
+          "description": "Уникальный идентификатор кредитной истории ЦБ РФ"
+        }
+      }
+    },
+    "IntervalDateFilterDTO": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "to": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "Дата окончания действия гарантии"
+    },
+    "IntervalDecimalFilterDTO": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": "number"
+        },
+        "to": {
+          "type": "number"
+        }
+      },
+      "description": "Сумма гарантии, интервал"
+    },
+    "IntervalLocalDateTimeDTO": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "to": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "Дата создания гарантии"
+    }
+  }
+}

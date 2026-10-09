@@ -1,0 +1,31 @@
+generated: '2026-10-09'
+method: searched
+source: https://pay.raif.ru/doc/ecom.html#section/SDK
+description: 'Client-side payment surfaces for Raif Pay: the bank-hosted payment form, opened by redirect or in a pop-up via the JS SDK and customised in a form configurator, and an embeddable SBP subscription
+  widget.'
+docs:
+- https://pay.raif.ru/doc/ecom.html
+- https://pay.raif.ru/doc/sbp.html
+libraries:
+- name: Raif Pay JS SDK
+  loader: <script src="https://pay.raif.ru/pay/sdk/v2/payment.min.js"></script>
+  variants:
+  - payment.min.js
+  - payment.styled.min.js
+  - payment.styled.js
+  repository: https://github.com/Raiffeisen-DGTL/ecom-sdk-javascript
+families:
+  hosted_prebuilt:
+  - name: Платежная форма банка (bank payment form)
+    description: Redirect the customer to the bank-hosted payment form with order parameters; customisation is not available in this variant.
+    docs: https://pay.raif.ru/doc/ecom.html
+  - name: Конфигуратор платежной формы
+    description: Configure the form visuals (company name, logo, button colours) and obtain embed code for the JS library.
+    docs: https://pay.raif.ru/doc/ecom.html
+  elements:
+  - name: JS SDK pop-up payment form
+    description: '"Использование JS SDK позволяет открывать форму с frontend части в pop-up окне, либо осуществлять редирект пользователя на страницу Райффайзенбанка".'
+    docs: https://pay.raif.ru/doc/ecom.html
+  - name: SBP subscription widget
+    description: '"Виджеты" section: widget parameters and embedded page URL parameters for SBP subscriptions.'
+    docs: https://pay.raif.ru/doc/sbp.html

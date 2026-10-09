@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-client-tariff-plan-change-request-body-view-schema.json",
+  "title": "ClientTariffPlanChangeRequestBodyView",
+  "description": "Клиентское представление заявки на смену тарифного плана",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-tariff-change-requests-openapi.yml#/components/schemas/ClientTariffPlanChangeRequestBodyView",
+  "required": [
+    "body",
+    "documentType",
+    "id",
+    "state"
+  ],
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "Уникальный идентификатор заявки",
+      "format": "int64"
+    },
+    "documentType": {
+      "type": "string",
+      "description": "Тип заявления",
+      "enum": [
+        "CLIENT_TARIFF_PLAN_CHANGE_REQUEST",
+        "FUTURE_CLIENT_TARIFF_PLAN_CANCEL_REQUEST"
+      ]
+    },
+    "state": {
+      "type": "string",
+      "description": "Статус заявления",
+      "enum": [
+        "UNSIGNED",
+        "PARTIALLY_SIGNED",
+        "SIGNED",
+        "PROCESSING",
+        "DECLINED",
+        "DONE",
+        "CANCELLED"
+      ]
+    },
+    "body": {
+      "minLength": 1,
+      "type": "string",
+      "description": "Тело заявки"
+    }
+  }
+}

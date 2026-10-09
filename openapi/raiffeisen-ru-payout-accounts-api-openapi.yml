@@ -1,0 +1,228 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Payout Accounts API
+  version: '1.0'
+  contact:
+    email: ecom@raiffeisen.ru
+    name: Support e-mail
+    x-team-id: 933
+    x-short-team-name: PPO
+  x-description-i18n:
+    eng: 'You can give your comments about current documentation in repository: https://github.com/Raiffeisen-DGTL/ecom-API/blob/master/payout.yaml
+
+
+      # API Description
+
+      The interaction is carried out via the HTTP protocol using the GET / POST methods (the required method and address are clearly indicated in the description of each request).
+
+
+      POST requests use JSON arguments, GET requests work with query strings.
+
+
+      The API always returns a response in JSON format, regardless of the type of request.
+
+
+      The standard response of the service contains a message code (code).
+
+      If a logical error occurs during request processing, the API will additionally return a description of the error (message).
+
+
+      # Workflow scheme
+
+      ## One step processing
+
+      Upon receipt of a request for payment, the bank immediately conducts all checks and, if the operation can be carried out, makes the payment.
+
+
+      <a href=''images/one-step_payout_en.png'' target=''_blank''><img src=''images/one-step_payout_en.png''/></a>
+
+
+      ## Two-stage processing
+
+      With two-stage processing, a payout request is created, the bank checks the possibility of such an operation and returns the result. Further confirmation of the payout from the partner is expected.
+
+      This interaction scheme is suitable when it is required to separate the creation of an application and its approval.
+
+      Example: the manager creates a payout request, the manager or chief accountant confirms the payout.
+
+
+      <a href=''images/two-step_payout_en.png'' target=''_blank''><img src=''images/two-step_payout_en.png''/></a>
+
+
+      # Authorization
+
+      Authorization is performed using a secret API key (secretKey). The authorization parameter is specified in the Authorization header, the value of which is formed as "Bearer secretKey".
+
+
+      The list of IPs from which the system will pass requests is also configured.'
+  x-logo:
+    url: images/raifflogo.png
+    backgroundColor: '#FFFFFF'
+    altText: Raiff logo
+  description: 'Operations tagged payout-accounts across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-payouts-openapi.json, raiffeisen-ru-raif-pay-payouts-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://pay-test.raif.ru/api
+  description: Sandbox
+- url: https://pay.raif.ru/api
+  description: prod
+tags:
+- name: payout-accounts
+paths:
+  /v1/payout-accounts:
+    get:
+      tags:
+      - payout-accounts
+      summary: Получение списка счетов
+      description: Получение списка счетов клиента
+      operationId: get-v1-payout-accounts-list
+      x-summary-i18n:
+        eng: Get list of accounts
+      x-description-i18n:
+        eng: Get the list of client accounts
+      security:
+      - BearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayoutAccountsList'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+        '401':
+          description: Неавторизованный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error401Response'
+        '403':
+          description: Операция запрещена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error403Response'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+components:
+  schemas:
+    BadRequestErrorResponse:
+      required:
+      - code
+      - message
+      - traceId
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки (`INVALID_DATA`)
+          example: INVALID_DATA
+        message:
+          type: string
+          description: Текст ошибки (`The request contains invalid fields or values`)
+          example: The request contains invalid fields or values
+        traceId:
+          type: string
+          description: Уникальный идентификатор запроса
+          example: 84b19a21e19410b62c30b4cd40c228a1
+    Error403Response:
+      required:
+      - code
+      - message
+      - traceId
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки (`OPERATION_FORBIDDEN`)
+          example: OPERATION_FORBIDDEN
+        message:
+          type: string
+          description: Текст ошибки (`The operation is not allowed`)
+          example: The operation is not allowed.
+        traceId:
+          type: string
+          example: 84b19a21e19410b62c30b4cd40c228a1
+          description: Уникальный идентификатор запроса
+    InternalServerError:
+      required:
+      - code
+      - message
+      - traceId
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки (`INTERNAL_ERROR`)
+          example: INTERNAL_ERROR
+        message:
+          type: string
+          description: Текст ошибки (`An internal error occurred`)
+          example: An internal error occurred
+        traceId:
+          type: string
+          description: Уникальный идентификатор запроса
+          example: 84b19a21e19410b62c30b4cd40c228a1
+    Error401Response:
+      required:
+      - code
+      - message
+      - traceId
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки (`UNAUTHORIZED`)
+          example: UNAUTHORIZED
+        message:
+          type: string
+          description: Текст ошибки (`The operation is not allowed`)
+          example: The operation is not allowed.
+        traceId:
+          type: string
+          example: 84b19a21e19410b62c30b4cd40c228a1
+          description: Уникальный идентификатор запроса
+    PayoutAccountsList:
+      type: array
+      description: Список счетов клиента
+      x-description-i18n:
+        eng: List of client accounts
+      items:
+        type: string
+        description: Номер счёта
+        x-description-i18n:
+          eng: Account number
+        example: '40700000000000000000'
+  securitySchemes:
+    BearerAuth:
+      type: http
+      description: '[Bearer secretKey](#tag/authorization)
+
+
+        example: eyJ0eXA***
+
+        '
+      scheme: bearer
+      bearerFormat: JWT
+      x-internal: false
+    UserTokenAuth:
+      name: X-USER-ACCESS-TOKEN
+      type: apiKey
+      in: cookie
+x-refined-from:
+- raiffeisen-ru-raif-pay-payouts-openapi.json
+- raiffeisen-ru-raif-pay-payouts-openapi.yml

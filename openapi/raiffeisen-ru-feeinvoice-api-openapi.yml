@@ -1,0 +1,198 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Fee Invoice API
+  version: 1.0.0
+  description: 'Operations tagged FeeInvoice across 2 of this provider''s published API definitions: raiffeisen-ru-agency-factoring-openapi.yml, raiffeisen-ru-agency-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/payables-financing
+tags:
+- description: Счета на оплату комиссий
+  name: FeeInvoice
+paths:
+  /v1/fee-invoices/debt:
+    get:
+      description: Метод получения задолженностей по комиссиям договора
+      operationId: getFeeInvoicesDebt
+      parameters:
+      - description: Номер договора
+        in: query
+        name: agreementNumber
+        required: true
+        schema:
+          example: АФ-1
+          type: string
+      - description: Дата оплаты счета
+        in: query
+        name: feeInvoicePaymentDate
+        required: false
+        schema:
+          example: '2025-01-01'
+          format: date
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                simple:
+                  summary: Данные о задолженности
+                  value:
+                    agreementNumber: АФ-1111
+                    feeInvoicesOverDebt: '1000.05'
+                    feeInvoicesCurrentDebt: '2000.05'
+              schema:
+                $ref: '#/components/schemas/FeeInvoicesDebtResponse'
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                simple:
+                  value:
+                  - code: REST_ERR_5001
+                    message: General service error
+                    traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Получение задолженностей по комиссиям договора
+      tags:
+      - FeeInvoice
+    servers:
+    - url: https://api.raiffeisen.ru/payables-financing
+components:
+  schemas:
+    RestErrorCodes:
+      description: '| code            | description                                |
+
+        |-----------------|--------------------------------------------|
+
+        | REST_ERR_5001   | General service error                       |
+
+        | REST_ERR_5040   | Tax is not available                        |
+
+        | REST_ERR_5041   | Incorrect format of taxpayer status         |
+
+        | REST_ERR_5042   | Incorrect format of KPP payer''s             |
+
+        | REST_ERR_5043   | Incorrect format of UIN                     |
+
+        | REST_ERR_5044   | Incorrect format of CBC                     |
+
+        | REST_ERR_5045   | Incorrect format of OKTMO                   |
+
+        | REST_ERR_5046   | Incorrect format of payment reason          |
+
+        | REST_ERR_5047   | Incorrect format of tax period              |
+
+        | REST_ERR_5048   | Incorrect format of the payment reason document number |
+
+        | REST_ERR_5049   | Incorrect format of the payment reason document date   |
+
+        | REST_ERR_5050   | Incorrect format of receiver name           |
+
+        | REST_ERR_5051   | Incorrect format of purpose                 |
+
+        '
+      enum:
+      - REST_ERR_5001
+      - REST_ERR_5040
+      - REST_ERR_5041
+      - REST_ERR_5042
+      - REST_ERR_5043
+      - REST_ERR_5044
+      - REST_ERR_5045
+      - REST_ERR_5046
+      - REST_ERR_5047
+      - REST_ERR_5048
+      - REST_ERR_5049
+      - REST_ERR_5050
+      - REST_ERR_5051
+      example: REST_ERR_5001
+      type: string
+    ErrorMessage:
+      example:
+        code: REST_ERR_5001
+        message: General service error
+        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+        traceId:
+          description: traceId
+          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
+          type: string
+      required:
+      - code
+      - message
+      - traceId
+      type: object
+    FeeInvoicesDebtResponse:
+      example:
+        agreementNumber: АФ-1111
+        feeInvoicesOverDebt: '100.11'
+        feeInvoicesCurrentDebt: '100.11'
+      properties:
+        agreementNumber:
+          description: Номер договора
+          example: АФ-1111
+          type: string
+        feeInvoicesOverDebt:
+          description: Сумма просроченных комиссий по договору
+          example: '100.11'
+          type: string
+        feeInvoicesCurrentDebt:
+          description: Сумма неоплаченной срочной задолженности по комиссиям по договору
+          example: '100.11'
+          type: string
+      required:
+      - agreementNumber
+      - feeInvoicesCurrentDebt
+      - feeInvoicesOverDebt
+      type: object
+    ErrorResponse:
+      description: Список ошибок
+      example:
+      - code: REST_ERR_5001
+        message: General service error
+        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+      items:
+        $ref: '#/components/schemas/ErrorMessage'
+      type: array
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-agency-factoring-openapi.yml
+- raiffeisen-ru-agency-factoring-openapi.yml

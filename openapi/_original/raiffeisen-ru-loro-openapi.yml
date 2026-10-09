@@ -1,0 +1,792 @@
+---
+openapi: "3.0.3"
+info:
+  title: "Loro API"
+  description: "API для лоро клиентов банка"
+  version: "1.0.0"
+servers:
+- url: "https://api.raiffeisen.ru/loro"
+tags:
+- name: "Справочник БИК ЦБ РФ"
+  description: "Справочник БИК ЦБ РФ"
+- name: "Валидация pacs сообщений"
+  description: "Валидация PACS.009.01 и PACS.008.01 сообщений mx формата"
+- name: "Конвертация MX и MT сообщений"
+  description: "Конвертация MX и MT сообщений"
+- name: "Отслеживание платежа"
+  description: "Отслеживание платежа"
+- name: "Отчёты Лоро-клиентов"
+  description: "Отчёты для Лоро-клиентов в json-формате"
+paths:
+  /v1/payment/validate/mx:
+    post:
+      tags:
+      - "Валидация pacs сообщений"
+      summary: "Валидация PACS.009.01 и PACS.008.01"
+      operationId: "validatePacs"
+      parameters:
+      - name: "X-CNUM"
+        in: "header"
+        required: true
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              type: "string"
+        required: true
+      responses:
+        "200":
+          description: "Валидация успешна"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+        "400":
+          description: "Критические ошибки валидации (отсутствуют обязательные пол\
+            я, счет, валюта, сумма и т.д.)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorDto"
+        "422":
+          description: "Ошибки валидации pacs сообщения"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorDto"
+        "403":
+          description: "Доступ запрещен (недостаточно прав)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorDto"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/payment/convert/mx:
+    post:
+      tags:
+      - "Конвертация MX и MT сообщений"
+      summary: "Конвертация MT сообщения в MX формат"
+      operationId: "convertMtMessageToMxFormat"
+      parameters:
+      - name: "X-CNUM"
+        in: "header"
+        required: true
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: "string"
+        required: true
+      responses:
+        "200":
+          description: "Конвертация успешна"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "400":
+          description: "Критические ошибки валидации (отсутствуют обязательные пол\
+            я, счет, валюта, сумма и т.д.)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorDto"
+        "403":
+          description: "Доступ запрещен (недостаточно прав)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorDto"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/payment/convert/mt:
+    post:
+      tags:
+      - "Конвертация MX и MT сообщений"
+      summary: "Конвертация MX сообщения в MT формат"
+      operationId: "convertMxMessageToMtFormat"
+      parameters:
+      - name: "X-CNUM"
+        in: "header"
+        required: true
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: "string"
+        required: true
+      responses:
+        "200":
+          description: "Конвертация успешна"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "400":
+          description: "Критические ошибки валидации (отсутствуют обязательные пол\
+            я, счет, валюта, сумма и т.д.)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorDto"
+        "403":
+          description: "Доступ запрещен (недостаточно прав)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorDto"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/payment/tracks/{uetr}/trck:
+    get:
+      tags:
+      - "Отслеживание платежа"
+      summary: "Получение списка TRCK 002 сообщений по UETR платежа"
+      description: "Возвращает список TRCK сообщений в формате XML по UETR платежа"
+      operationId: "getTrckList"
+      parameters:
+      - name: "uetr"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+          format: "uuid"
+      - name: "X-CNUM"
+        in: "header"
+        required: true
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  type: "string"
+        "403":
+          description: "Доступ запрещен (недостаточно прав)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorDto"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/dictionary/bics:
+    get:
+      tags:
+      - "Справочник БИК ЦБ РФ"
+      summary: "Получение справочника БИК"
+      description: "Возвращает список банков по фильтрам: БИК, коррсчет, наименова\
+        ние"
+      operationId: "getBicDictionary"
+      parameters:
+      - name: "bic"
+        in: "query"
+        description: "БИКи"
+        required: false
+        schema:
+          maxItems: 100
+          minItems: 0
+          type: "array"
+          items:
+            type: "string"
+      - name: "corrAccount"
+        in: "query"
+        description: "Корр. счета"
+        required: false
+        schema:
+          maxItems: 100
+          minItems: 0
+          type: "array"
+          items:
+            type: "string"
+      - name: "name"
+        in: "query"
+        description: "Наименование, подстрока"
+        required: false
+        schema:
+          type: "string"
+      - name: "onlyActive"
+        in: "query"
+        description: "Фильтр по активным записям"
+        required: false
+        schema:
+          type: "boolean"
+          default: false
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/BicDto"
+        "400":
+          description: "Неверный запрос"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorDto"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/reports:
+    get:
+      tags:
+      - "Отчёты Лоро-клиентов"
+      summary: "Получение отчетов с учетом примененных фильтров и пагинации"
+      operationId: "getReportModels"
+      parameters:
+      - name: "reportType"
+        in: "query"
+        description: "Тип отчёта"
+        required: true
+        schema:
+          type: "string"
+          enum:
+          - "AVIZO_MT900_MT910"
+          - "CURRENCY_PAYMENT"
+          - "NON_STP"
+          - "RUB_BALANCES"
+          - "FCY_BALANCES"
+          - "INTEREST_LORO_MONTHLY"
+          - "OVERDRAFT_LORO_MONTHLY"
+          - "DEBT_LORO_MONTHLY"
+          - "DEBT_NFI_MONTHLY"
+          - "RUB_FEE_LORO_MONTHLY"
+          - "ARREST_LORO_DAILY"
+        example: "RUB_BALANCES"
+      - name: "dateFrom"
+        in: "query"
+        description: "Дата отчётов с"
+        required: true
+        schema:
+          type: "string"
+          format: "date"
+        example: "2025-07-24"
+      - name: "dateTo"
+        in: "query"
+        description: "Дата отчётов по"
+        required: true
+        schema:
+          type: "string"
+          format: "date"
+        example: "2025-07-25"
+      - name: "limit"
+        in: "query"
+        description: "Максимальное количество отчётов в ответе, по умолчаниию 10"
+        required: false
+        schema:
+          type: "integer"
+        example: 10
+      - name: "offset"
+        in: "query"
+        description: "Значение смещения строк с отчётами, по умолчанию 0"
+        required: false
+        schema:
+          minimum: 0
+          type: "integer"
+        example: 0
+      - name: "sortDirection"
+        in: "query"
+        description: "Направление сортировки, с возможными значениями \"ASC\" или\
+          \ \"DESC\""
+        required: false
+        schema:
+          type: "string"
+          default: "DESC"
+          enum:
+          - "ASC"
+          - "DESC"
+        example: "DESC"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OffsetPageDebtLoroReportModelRs"
+              examples:
+                debtReports:
+                  summary: "Дебетовый отчет"
+                  description: "debtReports"
+                  value:
+                    data:
+                    - cnum: "Z12345"
+                      period:
+                        from: "2025-07-24"
+                        to: "2025-07-25"
+                      clientName: "test"
+                      accounts:
+                      - "K550987654321"
+                      totalDueAmount: 100
+                      reportDetails:
+                      - feeName: "test"
+                        feeAmount: 0
+                        debt: 555.01
+                        taxAmount: 666.01
+                        currency: "RUB"
+                        creationDate: "2025-07-01"
+                      reportType: "RUB_BALANCES"
+                    offset: 0
+                    limit: 1
+                    totalCount: 1
+                arrestLoroDailyReports:
+                  summary: "Отчёт по арестам"
+                  description: "arrestLoroDailyReports"
+                  value:
+                    data:
+                    - reportType: "ARREST_LORO_DAILY"
+                      cnum: "Z12345"
+                      period:
+                        from: "2025-07-24"
+                        to: "2025-07-25"
+                      clientName: "test"
+                      accountDetails:
+                      - account: "K551234567890"
+                        totalAccountArrests: 111.01
+                        arrestAccountStatus: "BLOCKED"
+                        arrestDetails:
+                        - arrestStartDate: "2025-07-25"
+                          currentArrestSum: 116.9
+                          arrestStatus: "ACTIVE"
+                          arrestType: "FULL"
+                          arrestEvents:
+                          - arrestNumber: "AN123456789"
+                            arrestOrigin: "AO123456789"
+                            arrestEventStatus: "CREATED"
+                            date: "2025-07-25"
+                            arrestType: "FULL"
+                            arrestSum: 116.9
+                            timestamp: "2025-07-31T07:48:16.049Z"
+                    offset: 0
+                    limit: 1
+                    totalCount: 1
+        "400":
+          description: "Неверный запрос"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  schemas:
+    ApiErrorDto:
+      type: "object"
+      properties:
+        status:
+          type: "string"
+        code:
+          type: "integer"
+          format: "int32"
+        messages:
+          uniqueItems: true
+          type: "array"
+          items:
+            type: "string"
+    BicDto:
+      type: "object"
+      properties:
+        bic:
+          type: "string"
+        externalId:
+          type: "string"
+        modifiedDate:
+          type: "string"
+        updateDate:
+          type: "string"
+        deleteDate:
+          type: "string"
+        deletePrevBicDate:
+          type: "string"
+        name:
+          type: "string"
+        corrAccounts:
+          type: "array"
+          items:
+            type: "string"
+        locationType:
+          type: "string"
+        locationName:
+          type: "string"
+        address:
+          type: "string"
+        zipcode:
+          type: "string"
+        dateExceptionCorrAccount:
+          type: "string"
+        licenceRevocationDate:
+          type: "string"
+        dateBicOut:
+          type: "string"
+        xchType:
+          type: "boolean"
+        participantBicStatus:
+          type: "string"
+        accountStatus:
+          type: "string"
+        accountCloseDate:
+          type: "string"
+        activeFrom:
+          type: "string"
+        active:
+          type: "boolean"
+        forActivePayments:
+          type: "boolean"
+        settlementCashCenterCbBic:
+          type: "string"
+        bankType:
+          type: "string"
+        nameForPayment:
+          type: "string"
+    DebtLoroReportModelRs:
+      required:
+      - "accounts"
+      - "clientName"
+      - "cnum"
+      - "period"
+      - "reportDetails"
+      - "reportType"
+      - "totalDueAmount"
+      type: "object"
+      properties:
+        cnum:
+          type: "string"
+          description: "Уникальный идентификатор клиента (CNUM)"
+          example: "Z12345"
+        period:
+          $ref: "#/components/schemas/PeriodRs"
+        clientName:
+          type: "string"
+          description: "Имя клиента"
+          example: "RAIFFEISEN BANK INTERNATIONAL"
+        accounts:
+          type: "array"
+          description: "Расчётные счета"
+          example:
+          - "30111810500000100004"
+          - "30111810500000100001"
+          items:
+            type: "string"
+            description: "Расчётные счета"
+            example: "[\"30111810500000100004\",\"30111810500000100001\"]"
+        totalDueAmount:
+          type: "number"
+          description: "Общая сумма задолженности"
+          example: 100.0
+        reportDetails:
+          type: "array"
+          description: "Детальные отчёты по дебиторской задолженности"
+          items:
+            $ref: "#/components/schemas/DebtLoroReportRowRs"
+        reportType:
+          type: "string"
+          description: "Тип отчёта"
+          example: "RUB_BALANCES"
+          enum:
+          - "AVIZO_MT900_MT910"
+          - "CURRENCY_PAYMENT"
+          - "NON_STP"
+          - "RUB_BALANCES"
+          - "FCY_BALANCES"
+          - "INTEREST_LORO_MONTHLY"
+          - "OVERDRAFT_LORO_MONTHLY"
+          - "DEBT_LORO_MONTHLY"
+          - "DEBT_NFI_MONTHLY"
+          - "RUB_FEE_LORO_MONTHLY"
+          - "ARREST_LORO_DAILY"
+      description: "Отчёт о дебиторской задолженности"
+    DebtLoroReportRowRs:
+      required:
+      - "creationDate"
+      - "currency"
+      - "debt"
+      - "feeAmount"
+      - "feeName"
+      - "taxAmount"
+      type: "object"
+      properties:
+        feeName:
+          type: "string"
+          description: "Наименование услуги"
+          example: "Execution of urgent RUB payment"
+        feeAmount:
+          type: "number"
+          description: "Сумма комиссии"
+          example: 444.04
+        debt:
+          type: "number"
+          description: "Сумма задолженности"
+          example: 555.05
+        taxAmount:
+          type: "number"
+          description: "Сумма НДС"
+          example: 666.06
+        currency:
+          type: "string"
+          description: "Валюта комиссии"
+          example: "RUB"
+          enum:
+          - "AL_"
+          - "AED"
+          - "AFN"
+          - "ALL"
+          - "AMD"
+          - "ANG"
+          - "AOA"
+          - "ARS"
+          - "AUD"
+          - "AWG"
+          - "AZN"
+          - "BAM"
+          - "BBD"
+          - "BDT"
+          - "BGN"
+          - "BHD"
+          - "BIF"
+          - "BMD"
+          - "BND"
+          - "BOB"
+          - "BOV"
+          - "BRL"
+          - "BSD"
+          - "BTN"
+          - "BWP"
+          - "BYN"
+          - "BZD"
+          - "CAD"
+          - "CDF"
+          - "CHF"
+          - "CLF"
+          - "CLP"
+          - "CNY"
+          - "COP"
+          - "COU"
+          - "CRC"
+          - "CUC"
+          - "CUP"
+          - "CVE"
+          - "CZK"
+          - "DJF"
+          - "DKK"
+          - "DOP"
+          - "DZD"
+          - "EGP"
+          - "ERN"
+          - "ETB"
+          - "EUR"
+          - "FJD"
+          - "FKP"
+          - "GBP"
+          - "GEL"
+          - "GHS"
+          - "GIP"
+          - "GMD"
+          - "GNF"
+          - "GTQ"
+          - "GYD"
+          - "HKD"
+          - "HNL"
+          - "HRK"
+          - "HTG"
+          - "HUF"
+          - "IDR"
+          - "ILS"
+          - "INR"
+          - "IQD"
+          - "IRR"
+          - "ISK"
+          - "JMD"
+          - "JOD"
+          - "JPY"
+          - "KES"
+          - "KGS"
+          - "KHR"
+          - "KMF"
+          - "KPW"
+          - "KRW"
+          - "KWD"
+          - "KYD"
+          - "KZT"
+          - "LAK"
+          - "LBP"
+          - "LKR"
+          - "LRD"
+          - "LSL"
+          - "LYD"
+          - "MAD"
+          - "MDL"
+          - "MGA"
+          - "MKD"
+          - "MMK"
+          - "MNT"
+          - "MOP"
+          - "MRU"
+          - "MUR"
+          - "MVR"
+          - "MWK"
+          - "MXN"
+          - "MXV"
+          - "MYR"
+          - "MZN"
+          - "NAD"
+          - "NGN"
+          - "NIO"
+          - "NOK"
+          - "NPR"
+          - "NZD"
+          - "OMR"
+          - "PAB"
+          - "PEN"
+          - "PGK"
+          - "PHP"
+          - "PKR"
+          - "PLN"
+          - "PYG"
+          - "QAR"
+          - "RON"
+          - "RSD"
+          - "RUB"
+          - "RWF"
+          - "SAR"
+          - "SBD"
+          - "SCR"
+          - "SDG"
+          - "SEK"
+          - "SGD"
+          - "SHP"
+          - "SLL"
+          - "SOS"
+          - "SRD"
+          - "SSP"
+          - "STN"
+          - "SVC"
+          - "SYP"
+          - "SZL"
+          - "THB"
+          - "TJS"
+          - "TMT"
+          - "TND"
+          - "TOP"
+          - "TRY"
+          - "TTD"
+          - "RUR"
+          - "TWD"
+          - "TZS"
+          - "UAH"
+          - "UGX"
+          - "USD"
+          - "UYU"
+          - "UZS"
+          - "VEF"
+          - "VND"
+          - "VUV"
+          - "WST"
+          - "XSU"
+          - "YER"
+          - "ZAR"
+          - "ZMW"
+          - "ZWL"
+        creationDate:
+          type: "string"
+          description: "Дата возникновения задолженности"
+          format: "date"
+          example: "2025-07-01"
+      description: "Детали отчёта о дебиторской задолженности"
+    OffsetPageDebtLoroReportModelRs:
+      required:
+      - "data"
+      - "limit"
+      - "offset"
+      - "totalCount"
+      type: "object"
+      properties:
+        data:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/DebtLoroReportModelRs"
+        offset:
+          type: "integer"
+          description: "Смещение, с которого взяты элементы"
+          format: "int32"
+          example: 0
+        limit:
+          type: "integer"
+          description: "Количество переданных элементов"
+          format: "int32"
+          example: 10
+        totalCount:
+          type: "integer"
+          description: "Общее количество элементов"
+          format: "int64"
+          example: 10
+    PeriodRs:
+      required:
+      - "from"
+      - "to"
+      type: "object"
+      properties:
+        from:
+          type: "string"
+          description: "Дата, с которой идёт выборка отчётов"
+          format: "date"
+          example: "2025-07-24"
+        to:
+          type: "string"
+          description: "Дата, по которую идёт выборка отчётов"
+          format: "date"
+          example: "2025-07-25"
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="

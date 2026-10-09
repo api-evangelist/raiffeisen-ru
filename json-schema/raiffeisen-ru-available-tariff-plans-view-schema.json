@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-available-tariff-plans-view-schema.json",
+  "title": "AvailableTariffPlansView",
+  "description": "Публичное представление тарифного плана",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-client-tariffs-openapi.yml#/components/schemas/AvailableTariffPlansView",
+  "required": [
+    "availableSince",
+    "tariffPlans"
+  ],
+  "type": "object",
+  "properties": {
+    "availableSince": {
+      "type": "string",
+      "description": "Дата доступности",
+      "format": "date"
+    },
+    "tariffPlans": {
+      "$ref": "#/$defs/PageResponseTariffPlanPublicDataView"
+    }
+  },
+  "$defs": {
+    "PageResponseTariffPlanPublicDataView": {
+      "required": [
+        "content",
+        "hasNext",
+        "hasPrevious",
+        "number",
+        "size"
+      ],
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TariffPlanPublicDataView"
+          }
+        },
+        "size": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "number": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "hasNext": {
+          "type": "boolean"
+        },
+        "hasPrevious": {
+          "type": "boolean"
+        }
+      },
+      "description": "Список тарифных планов"
+    },
+    "TariffPlanPublicDataView": {
+      "required": [
+        "code",
+        "documentId",
+        "publicName"
+      ],
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Код тарифного плана"
+        },
+        "publicName": {
+          "type": "string",
+          "description": "Публичное наименование"
+        },
+        "documentId": {
+          "type": "integer",
+          "description": "Идентификатор документа",
+          "format": "int64"
+        }
+      },
+      "description": "Представление публичных данных тарифного плана"
+    }
+  }
+}

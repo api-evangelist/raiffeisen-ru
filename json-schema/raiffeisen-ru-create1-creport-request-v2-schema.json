@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-create1-creport-request-v2-schema.json",
+  "title": "Create1CReportRequestV2",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-bank-statements-openapi.yml#/components/schemas/Create1CReportRequestV2",
+  "type": "object",
+  "properties": {
+    "accountKeys": {
+      "$ref": "#/$defs/AccountKeys"
+    },
+    "from": {
+      "$ref": "#/$defs/RequestIntervalFrom"
+    },
+    "to": {
+      "$ref": "#/$defs/RequestIntervalTo"
+    },
+    "zero": {
+      "$ref": "#/$defs/Zero"
+    },
+    "zeroIfNoStatementExpected": {
+      "$ref": "#/$defs/ZeroIfNoStatementExpected"
+    },
+    "fileName": {
+      "$ref": "#/$defs/FileName"
+    },
+    "sort": {
+      "$ref": "#/$defs/ReportSort"
+    },
+    "intraday": {
+      "$ref": "#/$defs/Intraday"
+    },
+    "debitCreditFilter": {
+      "$ref": "#/$defs/DebitCreditFilter"
+    },
+    "excludedOperations": {
+      "$ref": "#/$defs/ExcludedOperations"
+    },
+    "encoding": {
+      "$ref": "#/$defs/Encoding1C"
+    },
+    "splitBy": {
+      "$ref": "#/$defs/SplitByAccountDate"
+    }
+  },
+  "required": [
+    "accountKeys",
+    "from",
+    "to"
+  ],
+  "$defs": {
+    "AccountKeys": {
+      "type": "array",
+      "description": "Бизнес-ключ счета. Формат: `<20-значный номер счета>` или `<20-значный номер счета>:<CNUM>`",
+      "items": {
+        "type": "string"
+      }
+    },
+    "DebitCreditFilter": {
+      "type": "string",
+      "enum": [
+        "DEBIT",
+        "CREDIT",
+        "ALL"
+      ],
+      "description": "Фильтр дебетовых/кредитовых операций: DEBIT - только дебетовые операции, CREDIT - только кредитовые операции, ALL - все операции",
+      "default": "ALL"
+    },
+    "Encoding1C": {
+      "type": "string",
+      "enum": [
+        "WINDOWS",
+        "DOS"
+      ],
+      "description": "Кодировка файла: WINDOWS - cp1251, DOS - cp866",
+      "default": "WINDOWS"
+    },
+    "ExcludedOperations": {
+      "type": "string",
+      "enum": [
+        "NOT_PROCESSED_AND_HOLDS",
+        "NOT_PROCESSED",
+        "HOLDS",
+        "NONE"
+      ],
+      "description": "Фильтр исключаемых операций: NOT_PROCESSED_AND_HOLDS - исключить необработанные операции и холды, NOT_PROCESSED - исключить необработанные операции, HOLDS - исключить холды, NONE - не исключать операции",
+      "default": "NONE"
+    },
+    "FileName": {
+      "type": "string",
+      "description": "Имя сгенерированного файла"
+    },
+    "Intraday": {
+      "type": "boolean",
+      "description": "Включать внутридневные выписки: true - включать, false - не включать",
+      "default": false
+    },
+    "OrderBy": {
+      "type": "string",
+      "enum": [
+        "ASC",
+        "DESC"
+      ],
+      "description": "Направление сортировки"
+    },
+    "ReportSort": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ServiceSortReportSortFields"
+      }
+    },
+    "RequestIntervalFrom": {
+      "type": "string",
+      "format": "date",
+      "description": "Дата выписки с"
+    },
+    "RequestIntervalTo": {
+      "type": "string",
+      "format": "date",
+      "description": "Дата выписки по"
+    },
+    "ServiceSortReportSortFields": {
+      "type": "object",
+      "properties": {
+        "sortBy": {
+          "$ref": "#/$defs/SortBy"
+        },
+        "orderBy": {
+          "$ref": "#/$defs/OrderBy"
+        }
+      },
+      "required": [
+        "sortBy",
+        "orderBy"
+      ]
+    },
+    "SortBy": {
+      "type": "string",
+      "enum": [
+        "DEBIT",
+        "CREDIT"
+      ],
+      "description": "Поле сортировки"
+    },
+    "SplitByAccountDate": {
+      "type": "string",
+      "enum": [
+        "ACCOUNT_DATE"
+      ],
+      "description": "Разделить выписки на отдельные файлы и генерировать zip архив. ACCOUNT_DATE - разделить по счетам за день (в архиве каждый файл будет содержать выписки за один день по одному счету), null - генерируется один файл. По умолчанию генерируется один файл."
+    },
+    "Zero": {
+      "type": "boolean",
+      "description": "Включать нулевые выписки, true - все выписки (с движениями по счету и без), false - только выписки с движениями по счету (ненулевые)",
+      "default": false
+    },
+    "ZeroIfNoStatementExpected": {
+      "type": "boolean",
+      "description": "Генерировать синтетическую нулевую итоговую выписку, когда обычная выписка не будет генерироваться.",
+      "default": false
+    }
+  }
+}

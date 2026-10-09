@@ -1,0 +1,93 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Dictionaries V 1 Controller API
+  version: 1.0.0
+  description: 'Operations tagged dictionaries-v-1-controller across 2 of this provider''s published API definitions: raiffeisen-ru-content-dictionaries-openapi.yml, raiffeisen-ru-content-dictionaries-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/media-content
+tags:
+- name: dictionaries-v-1-controller
+paths:
+  /v1/dictionaries/colors:
+    get:
+      tags:
+      - dictionaries-v-1-controller
+      summary: Получить словарь цветов
+      operationId: v1GetColorDictionary
+      parameters:
+      - name: Raiff-App-Version
+        in: header
+        description: Версия приложения
+        required: true
+        schema:
+          default: 4.0.0
+        example: 4.0.0
+      - name: Accept-Language
+        in: header
+        description: Язык приложения, ru или en
+        required: false
+        schema:
+          default: ru
+        example: ru
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ColorResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/media-content
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  schemas:
+    ColorResource:
+      type: object
+      description: ''
+      example:
+        color: PastelSurface.oslo1
+        hex: '#DCE6FF'
+      properties:
+        color:
+          type: string
+          description: Название цвета
+        hex:
+          type: string
+          description: Код цвета в формате HEX
+      required:
+      - color
+      - hex
+x-refined-from:
+- raiffeisen-ru-content-dictionaries-openapi.yml
+- raiffeisen-ru-content-dictionaries-openapi.yml

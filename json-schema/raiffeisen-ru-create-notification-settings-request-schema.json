@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-create-notification-settings-request-schema.json",
+  "title": "CreateNotificationSettingsRequest",
+  "description": "Запрос на создание настроек уведомлений",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-raif-pay-notifications-openapi.yml#/components/schemas/CreateNotificationSettingsRequest",
+  "type": "object",
+  "properties": {
+    "type": {
+      "$ref": "#/$defs/NotificationType"
+    }
+  },
+  "required": [
+    "type"
+  ],
+  "$defs": {
+    "NotificationType": {
+      "type": "string",
+      "description": "Тип уведомления",
+      "enum": [
+        "PAYMENT_SLIP"
+      ]
+    }
+  }
+}

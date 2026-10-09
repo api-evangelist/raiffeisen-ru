@@ -1,0 +1,4226 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Callback API
+  x-refined-note:
+  - x-description-i18n differs across the merged source definitions and was not carried
+  x-logo:
+    url: images/raifflogo.png
+    backgroundColor: '#FFFFFF'
+    altText: Raiff logo
+  version: '1.0'
+  description: 'Operations tagged Callback across 10 of this provider''s published API definitions: raiffeisen-ru-raif-pay-payment-form-openapi.json, raiffeisen-ru-raif-pay-payouts-openapi.json, raiffeisen-ru-raif-pay-sbp-b2b-openapi.json, raiffeisen-ru-raif-pay-sbp-openapi.json, raiffeisen-ru-raif-pay-whitelabel-ecom-openapi.json, raiffeisen-ru-raif-pay-payment-form-openapi.yml, raiffeisen-ru-raif-pay-payouts-openapi.yml, raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml, raiffeisen-ru-raif-pay-sbp-openapi.yml…'
+servers:
+- url: https://pay-test.raif.ru/api
+  description: Sandbox
+- url: https://pay.raif.ru/api
+  description: Production
+- url: https://pay-test.raif.ru
+  description: Sandbox
+- url: https://pay.raif.ru
+  description: Production
+tags:
+- name: Callback
+  x-displayName: Уведомления
+  x-x-displayName-i18n:
+    eng: Notifications
+  description: Для информирования ТСП о проведенных платежах и возвратах могут использоваться HTTP-уведомления на адрес, указанный в его настройках.
+  x-description-i18n:
+    eng: 'In order to inform the Merchant site about payments made, HTTP notifications to the address specified in its settings can be used.
+
+
+      The prod url can be specified in the [personal account](https://www.rbo.raiffeisen.ru/acquiring/mcp#/) in the "Accept payments" tab.
+
+
+      <div align=center><a href=''images/callback.png'' target=''_blank''><img src=''images/callback.png''></a></div>
+
+
+      And prod or test url can be specified with [API.](#operation/postsettingsUrl)
+
+
+      For partners, a notification is presented as an incoming POST request that uses the JSON structure.
+
+
+      A notification is considered accepted if the recipient responded to the request with HTTP 200.
+
+
+      Responses with any other HTTP codes will be considered invalid. Repeated attempts to send will be conducted during the day with increasing intervals.
+
+
+      In order to verify the authenticity of the notification, a signature is added to the data in the x-api-signature-sha256 header, obtained on the basis of the shared secret key and control string (amount|publicId|order|paymentStatus|transactionDate) by way of HMAC-SHA-256.
+
+
+      To verify the authenticity of the notification on refund, a signature is added to the data in the X-Api-Signature-SHA256 header, obtained on the basis of a common secret key and a control string (amount | publicId | refund.id | status.value | status.date) using HMAC-SHA-256.
+
+
+      It is necessary to check the amount, as customers have the opportunity to change it.
+
+
+      Notifications are sent from an IP 193.28.44.23
+
+      '
+paths:
+  /settings/v1/callback:
+    post:
+      summary: Настройка url для callback
+      operationId: post-settings-v1-callback
+      responses:
+        '200':
+          $ref: '#/components/responses/CreateCallbackSettingsResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralError'
+              examples:
+                Некоррректный адрес уведомления:
+                  summary: Ошибка валидации callbackUrl
+                  x-summary-i18n:
+                    eng: callbackUrl validation error
+                  value:
+                    code: ERROR.BAD_REQUEST
+                    message: callbackUrl is not null
+                MissingRequiredField:
+                  summary: Отсутствует обязательное поле
+                  x-summary-i18n:
+                    eng: Required field is missing
+                  value:
+                    code: ERROR.BAD_REQUEST
+                    message: paymentCallback enabled is not null
+      tags:
+      - Callback
+      description: 'Уведомления будут подписываться ключом, переданным в заголовке авторизации.
+
+
+        Подробнее о форматах уведомлений читайте в документации.'
+      x-description-i18n:
+        eng: 'The key from the authorization header will be used to sign notifications.
+
+
+          Read more about notification formats in the [documentation](https://pay.raif.ru/doc/callbacks.html).'
+      security:
+      - secretKey: []
+      parameters: []
+      requestBody:
+        $ref: '#/components/requestBodies/CreateCallbackSettingsRequest'
+      x-summary-i18n:
+        eng: Setting url for callback
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: Production
+  /api/settings/v1/callback:
+    post:
+      summary: Настройка url для callback
+      tags:
+      - Callback
+      x-summary-i18n:
+        eng: Setting url for callback
+      operationId: postApiSettingsV1Callback
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallBackSetting'
+              examples:
+                '200':
+                  value:
+                    callbackUrl: https://yoururl.ru
+      description: Для подписи уведомлений будет использоваться ключ из заголовка авторизации.
+      security:
+      - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CallBackSetting'
+            examples:
+              Payload:
+                value:
+                  callbackUrl: https://yoururl.ru
+      x-operation-id-source: normalized
+      x-operation-id-original: post-settings-v1-callback
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+webhooks:
+  paymentCallback:
+    post:
+      summary: Уведомление об оплате (v3)
+      x-summary-i18n:
+        eng: Payment notification v.3
+      operationId: payment-callback
+      tags:
+      - Callback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentNotificationV3'
+            examples:
+              СБП платеж:
+                $ref: '#/components/examples/PaymentNotificationV3SBP'
+              Карточный платеж:
+                $ref: '#/components/examples/PaymentNotificationV3CARD'
+              Платеж по подписке:
+                $ref: '#/components/examples/PaymentNotificationV3SUBSCRIPTION'
+              Платеж по цифровому рублю:
+                $ref: '#/components/examples/PaymentNotificationV3DigitalRuble'
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: X-Api-Signature-SHA256
+        description: Заполняется подписью, полученной алгоритмом HMAC-SHA-256 с использованием выбранного секретного ключа и контрольной строки
+        x-description-i18n:
+          eng: Filled with a signature obtained by the HMAC-SHA-256 algorithm using the selected secret key and control string
+        required: true
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: Production
+  refundCallback:
+    post:
+      summary: Уведомление о возврате (v1)
+      x-summary-i18n:
+        eng: Refund notification (v1)
+      operationId: refundCallback
+      tags:
+      - Callback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundNotificationV1'
+            examples:
+              SBP_COMPLETED:
+                $ref: '#/components/examples/RefundNotificationV1SBPCompleted'
+              SBP_DECLINED:
+                $ref: '#/components/examples/RefundNotificationV1SBPDeclined'
+              ACQUIRING_COMPLETED:
+                $ref: '#/components/examples/RefundNotificationV1AcquiringCompleted'
+              ACQUIRING_DECLINED:
+                $ref: '#/components/examples/RefundNotificationV1AcquiringDeclined'
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: X-Api-Signature-SHA256
+        description: Заполняется подписью, полученной алгоритмом HMAC-SHA-256 с использованием выбранного секретного ключа и контрольной строки
+        x-description-i18n:
+          eng: Filled with a signature obtained by the HMAC-SHA-256 algorithm using the selected secret key and control string
+        required: true
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: Production
+  subscriptionCallback:
+    post:
+      summary: Уведомление о подписке (v2)
+      x-summary-i18n:
+        eng: Subscription notification (v2)
+      operationId: subscriptionNotificationV2
+      tags:
+      - Callback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionNotificationV2'
+            examples:
+              ACQUIRING:
+                $ref: '#/components/examples/SubscriptionNotificationV2Success'
+              SBP:
+                $ref: '#/components/examples/SubscriptionNotificationV2SBP'
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: X-Api-Signature-SHA256
+        description: Заполняется подписью, полученной алгоритмом HMAC-SHA-256 с использованием выбранного секретного ключа и контрольной строки
+        x-description-i18n:
+          eng: Filled with a signature obtained by the HMAC-SHA-256 algorithm using the selected secret key and control string
+        required: true
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: Production
+  newPay:
+    post:
+      summary: Уведомление о выплате
+      x-summary-i18n:
+        eng: Payment notification
+      operationId: сallbackTransaction
+      tags:
+      - Callback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/paymentsNotification'
+      x-examples:
+        event:
+          event: payout
+          payout:
+            id: p210730t2WjboNkN0ft1
+            amount: 0.01
+            currency: RUB
+            payoutMethod: SBP
+            payoutParams:
+              phone: '79267016490'
+              bankAlias: RAIFFEISEN
+              firstName: Сергей
+              middleName: Сергеевич
+              lastName: Брюзгин
+            extra:
+              apiClient: Payout Software
+              apiClientVersion: 1.0.0
+            status:
+              value: COMPLETED
+              date: '2021-07-30T14:16:32+03:00'
+            creationDate: '2021-07-30T14:16:31+03:00'
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: prod
+  IncomingPayment:
+    post:
+      summary: Уведомление о входящем платеже заказа
+      operationId: sendIncomingPaymentCallback
+      tags:
+      - Callback
+      responses:
+        '200':
+          description: Вернуть статус 200, чтобы указать, что данные были успешно получены
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncomingPaymentCallbackDto'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+  IncomingReusablePaymentLinkPayment:
+    post:
+      summary: Уведомление о входящем платеже по многоразовой платежной ссылке
+      operationId: sendIncomingPaymentReusablePaylink
+      tags:
+      - Callback
+      responses:
+        '200':
+          description: Вернуть статус 200, чтобы указать, что данные были успешно получены.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncomingPaymentReusablePaymentLink'
+            examples:
+              incoming_payment_for_reusable_payment_link:
+                $ref: '#/components/examples/IncomingPaymentForReusablePaymentLinkCallbackDto'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+  IncomingInvoicePayment:
+    post:
+      summary: Уведомление о входящем платеже по выставленному счету
+      operationId: sendInvoicePaymentCallback
+      tags:
+      - Callback
+      responses:
+        '200':
+          description: Нужно вернуть статус 200, чтобы указать, что данные были успешно получены
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoicePaymentCallback'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+  CallbackPaymentV3:
+    post:
+      summary: Уведомление об оплате (v3)
+      x-summary-i18n:
+        eng: Payment notification (v3)
+      operationId: callbackPaymentV3
+      tags:
+      - Callback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentNotificationV3_2'
+            examples:
+              sbp:
+                $ref: '#/components/examples/PaymentNotificationV3SBP'
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: X-Api-Signature-SHA256
+        description: Заполняется подписью, полученной алгоритмом HMAC-SHA-256 с использованием выбранного секретного ключа и контрольной строки
+        x-description-i18n:
+          eng: Filled with a signature obtained by the HMAC-SHA-256 algorithm using the selected secret key and control string
+        required: true
+    servers:
+    - url: https://pay.raif.ru/api
+      description: Production
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+  CallbackPaymentGeneral:
+    post:
+      summary: Уведомление об оплате (v2)
+      x-summary-i18n:
+        eng: Payment notification (v2)
+      operationId: callbackPaymentGeneral
+      tags:
+      - Callback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentNotificationV2'
+            examples:
+              sbp:
+                $ref: '#/components/examples/PaymentNotificationV2SBP'
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: X-Api-Signature-SHA256
+        description: Заполняется подписью, полученной алгоритмом HMAC-SHA-256 с использованием выбранного секретного ключа и контрольной строки
+        x-description-i18n:
+          eng: Filled with a signature obtained by the HMAC-SHA-256 algorithm using the selected secret key and control string
+        required: true
+    servers:
+    - url: https://pay.raif.ru/api
+      description: Production
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+  CallbackPaymentOld:
+    post:
+      summary: Уведомление об оплате (v1)
+      x-summary-i18n:
+        eng: Payment notification (v1)
+      operationId: callbackPaymentOld
+      tags:
+      - Callback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentNotificationV1'
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: X-Api-Signature-SHA256
+        description: Заполняется подписью, полученной алгоритмом HMAC-SHA-256 с использованием выбранного секретного ключа и контрольной строки
+        x-description-i18n:
+          eng: Filled with a signature obtained by the HMAC-SHA-256 algorithm using the selected secret key and control string
+        required: true
+    servers:
+    - url: https://pay.raif.ru/api
+      description: Production
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+  CallbackRefund:
+    post:
+      summary: Уведомление о возврате (v1)
+      x-summary-i18n:
+        eng: Refund notification (v1)
+      operationId: callbackRefund
+      tags:
+      - Callback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundNotificationV1'
+            examples:
+              Успешный возврат:
+                $ref: '#/components/examples/RefundNotificationV1SBPCompleted'
+              Отклоненный возврат:
+                $ref: '#/components/examples/RefundNotificationV1SBPDeclined'
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: X-Api-Signature-SHA256
+        description: Заполняется подписью, полученной алгоритмом HMAC-SHA-256 с использованием выбранного секретного ключа и контрольной строки
+        x-description-i18n:
+          eng: Filled with a signature obtained by the HMAC-SHA-256 algorithm using the selected secret key and control string
+        required: true
+    servers:
+    - url: https://pay.raif.ru/api
+      description: Production
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+  CallbackSubscription:
+    post:
+      summary: Уведомление о подписке (v2)
+      x-summary-i18n:
+        eng: Subscription notification (v2)
+      operationId: subscriptionNotificationV2
+      tags:
+      - Callback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionNotificationV2_2'
+            examples:
+              SBP:
+                $ref: '#/components/examples/SubscriptionNotificationV2SBP'
+    servers:
+    - url: https://pay.raif.ru/api
+      description: Production
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+  CallbackSubscriptionOld:
+    post:
+      deprecated: true
+      summary: Уведомление о подписке (v1)
+      x-summary-i18n:
+        eng: Subscription notification (v2)
+      operationId: subscriptionNotificationV1
+      tags:
+      - Callback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionNotificationV1'
+            examples:
+              Подписка оформлена:
+                $ref: '#/components/examples/SubscriptionNotificationV1Subscribed'
+              Плательщик отписался:
+                $ref: '#/components/examples/SubscriptionNotificationV1Unsubscribed'
+    servers:
+    - url: https://pay.raif.ru/api
+      description: Production
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+components:
+  schemas:
+    PaymentNotificationDataV3:
+      title: PaymentNotificationDataV3
+      type: object
+      properties:
+        id:
+          type: string
+          description: Идентификатор платежа
+          x-description-i18n:
+            eng: Payment ID
+          pattern: ^[A-Za-z0-9-_.]+$
+        publicId:
+          type: string
+          description: Идентификатор мерчанта в системе Банка
+          x-description-i18n:
+            eng: Merchant ID in the bank system
+        amount:
+          type: number
+          description: Сумма платежа в рублях. Для копеек доступно два знака после точки.
+          x-description-i18n:
+            eng: Payment amount in rubles. Two decimal places are available for kopecks.
+        order:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Идентификатор заказа в системе мерчанта
+              x-description-i18n:
+                eng: Order ID in the merchant system
+            comment:
+              $ref: '#/components/schemas/OrderComment'
+        status:
+          type: object
+          description: Статус платежа
+          x-description-i18n:
+            eng: Payment status
+          required:
+          - value
+          - date
+          properties:
+            value:
+              $ref: '#/components/schemas/PaymentStatus'
+            date:
+              type: string
+              format: date-time
+              description: Дата и время создания платежа
+              x-description-i18n:
+                eng: Payment creation date and time
+            declineReason:
+              type: string
+              description: Причина отклонения. Указывается в случае отклонения операции.
+              x-description-i18n:
+                eng: Reason for rejection. Specified if the operation is declined.
+        extra:
+          type: object
+          description: Дополнительные поля в формате key-value
+          x-description-i18n:
+            eng: Additional fields in key-value format
+          additionalProperties:
+            type: string
+        subscription:
+          type: object
+          description: Блок информации о подписке. Заполняется для платежей, которые были проведены по сценарию оплаты по подписке.
+          x-description-i18n:
+            eng: Subscription information block. Filled in for payments made via the subscription payment scenario.
+          properties:
+            id:
+              type: string
+              description: Идентификатор подписки
+              x-description-i18n:
+                eng: Subscription ID
+              pattern: ^[A-Za-z0-9-_.]+$
+            purpose:
+              type: string
+              description: Описание подписки
+              x-description-i18n:
+                eng: Subscription description
+          required:
+          - id
+      required:
+      - id
+      - publicId
+      - amount
+      - order
+      - status
+    SubscriptionNotificationV2:
+      title: SubscriptionNotificationV2
+      description: Уведомление о подписке (v2)
+      x-description-i18n:
+        eng: Subscription notification (v2)
+      type: object
+      properties:
+        event:
+          type: string
+          enum:
+          - SUBSCRIPTION
+          description: Тип сообщения
+          x-description-i18n:
+            eng: Message type
+        data:
+          oneOf:
+          - $ref: '#/components/schemas/SbpSubscriptionNotificationV2'
+          - $ref: '#/components/schemas/CardSubscriptionNotificationV2'
+          discriminator:
+            propertyName: paymentMethod
+            mapping:
+              SBP: '#/components/schemas/SbpSubscriptionNotificationV2'
+              ACQUIRING: '#/components/schemas/CardSubscriptionNotificationV2'
+          type: object
+          properties:
+            paymentMethod:
+              $ref: '#/components/schemas/schemas-PaymentMethod'
+          description: Данные о подписке
+          x-description-i18n:
+            eng: Subscription data
+      required:
+      - event
+      - data
+    AcquiringStatusImplementation:
+      title: AcquiringStatusImplementation
+      discriminator:
+        propertyName: value
+        mapping:
+          COMPLETED: '#/components/schemas/SuccessRefundCallback'
+          DECLINED: '#/components/schemas/DeclinedAcquiringRefundCallback'
+      oneOf:
+      - $ref: '#/components/schemas/SuccessRefundCallback'
+      - $ref: '#/components/schemas/DeclinedAcquiringRefundCallback'
+      description: Статус возврата эквайринга
+      x-description-i18n:
+        eng: Acquiring refund status
+    OrderComment:
+      title: OrderComment
+      type: string
+      description: 'Комментарий. Доступен в реестрах и Онлайн-Банке. Не может быть пустым или содержать только пробелы. Может содержать:<br>
+
+        • Символы латиницы (A–Z и a–z) <br>
+
+        • Символы кириллицы (А-Я и а-я) <br>
+
+        • Цифры 0-9 <br>
+
+        • Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`<br>
+
+        • Спецсимвол `№`'
+      x-description-i18n:
+        eng: 'Comment. Cannot be empty or contain only spaces. May contain:<br>
+
+          • Latin symbols (A–Z и a–z); <br>
+
+          • Cyrillic symbols (А-Я и а-я); <br>
+
+          • Digits 0-9;<br>
+
+          • Special symbols: spaces and `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`<br>
+
+          • Special symbol №
+
+          '
+      maxLength: 140
+      pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
+      example: Тестовый комментарий
+    PaymentNotificationV3:
+      title: PaymentNotificationV3
+      type: object
+      properties:
+        event:
+          type: string
+          enum:
+          - PAYMENT
+          description: Тип сообщения
+          x-description-i18n:
+            eng: Message type
+        data:
+          oneOf:
+          - $ref: '#/components/schemas/CardPaymentNotificationV3'
+          - $ref: '#/components/schemas/SbpPaymentNotificationV3'
+          - $ref: '#/components/schemas/DigitalRublePaymentNotificationV3'
+          discriminator:
+            propertyName: paymentMethod
+            mapping:
+              ACQUIRING: '#/components/schemas/CardPaymentNotificationV3'
+              SBP: '#/components/schemas/SbpPaymentNotificationV3'
+              DIGITAL_RUBLE: '#/components/schemas/DigitalRublePaymentNotificationV3'
+          type: object
+          properties:
+            paymentMethod:
+              $ref: '#/components/schemas/schemas-PaymentMethod'
+          description: Данные по операции
+          x-description-i18n:
+            eng: Transaction data
+      required:
+      - event
+      - data
+    DeclinedSbpRefundCallback:
+      title: DECLINED
+      type: object
+      properties:
+        value:
+          type: string
+          description: Статус возврата
+          x-description-i18n:
+            eng: Refund status
+          example: DECLINED
+        date:
+          type: string
+          format: date-time
+          description: Дата возврата
+          x-description-i18n:
+            eng: Refund date
+        declineReason:
+          type: string
+          description: Причина отклонения
+          x-description-i18n:
+            eng: Reason for rejection
+          enum:
+          - TIMEOUT
+          - BANK_NOT_SUPPORTED
+          - RECEIVER_ACCOUNT_ERROR
+          - SYSTEM_ERROR
+          - WRONG_RECIPIENT
+    DeclinedAcquiringRefundCallback:
+      title: DECLINED
+      type: object
+      properties:
+        value:
+          type: string
+          description: Статус возврата
+          x-description-i18n:
+            eng: Refund status
+          example: DECLINED
+        date:
+          type: string
+          format: date-time
+          description: Дата возврата
+          x-description-i18n:
+            eng: Refund date
+        declineReason:
+          type: string
+          description: Причина отклонения
+          x-description-i18n:
+            eng: Reason for rejection
+    SbpSubscriptionNotificationV2:
+      title: SbpSubscriptionNotificationV2
+      allOf:
+      - $ref: '#/components/schemas/SubscriptionNotificationDataV2'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/schemas-PaymentMethod'
+          bank:
+            type: object
+            description: Банк
+            x-description-i18n:
+              eng: Bank
+            properties:
+              name:
+                type: string
+                description: Наименование банка в котором оформлена подписка
+                x-description-i18n:
+                  eng: The name of the bank where the subscription was made
+              memberId:
+                type: string
+                description: Идентификатор банка в котором оформлена подписка
+                x-description-i18n:
+                  eng: The identifier of the bank where the subscription was issued
+          qr:
+            type: object
+            description: QR-код используемый для оформления подписки
+            x-description-i18n:
+              eng: QR code used to subscribe
+            properties:
+              id:
+                type: string
+                description: Идентификатор QR-кода
+                x-description-i18n:
+                  eng: QR ID
+              payload:
+                type: string
+                description: Данные для самостоятельной генерации изображения зарегистрированного QR-кода в СБП
+                x-description-i18n:
+                  eng: Data for independently generating an image of a registered QR code in the SBP
+              url:
+                type: string
+                description: URL с изображением зарегистрированного QR-кода в СБП
+                x-description-i18n:
+                  eng: URL with an image of the QR code registered in the SBP
+        required:
+        - paymentMethod
+    SubscriptionStatus:
+      title: SubscriptionStatus
+      type: string
+      description: Статус подписки
+      x-description-i18n:
+        eng: Subscription status
+      enum:
+      - SUBSCRIBED
+      - UNSUBSCRIBED
+      - CANCELLED
+      - INACTIVE
+      - REVOKED_BY_ISSUER
+    RefundNotificationV1:
+      title: RefundNotificationV1
+      description: Уведомление о возврате (v1)
+      x-description-i18n:
+        eng: Refund notification (v1)
+      oneOf:
+      - $ref: '#/components/schemas/SbpRefundNotificationV1'
+      - $ref: '#/components/schemas/AcquiringRefundNotificationV1'
+    schemas-PaymentMethod:
+      title: PaymentMethod
+      type: string
+      enum:
+      - SBP
+      - ACQUIRING
+      - DIGITAL_RUBLE
+    SubscriptionNotificationDataV2:
+      title: SubscriptionNotificationDataV2
+      type: object
+      properties:
+        id:
+          type: string
+          description: Идентификатор подписки
+          x-description-i18n:
+            eng: Subscription ID
+          pattern: ^[A-Za-z0-9-_.]+$
+        publicId:
+          type: string
+          description: Идентификатор мерчанта в системе Банка
+          x-description-i18n:
+            eng: Merchant ID in the Bank system
+        status:
+          type: object
+          description: Статус подписки
+          x-description-i18n:
+            eng: Subscription status
+          properties:
+            value:
+              $ref: '#/components/schemas/SubscriptionStatus'
+            date:
+              type: string
+              format: date-time
+              description: Дата и время обновления статуса
+              x-description-i18n:
+                eng: Subscription update date and time
+        purpose:
+          type: string
+          description: Описание подписки
+          x-description-i18n:
+            eng: Subscription description
+          pattern: ^[A-Za-zА-Яа-я0-9 ()!@\[\]#+=_|.,-]+$
+        autoCharge:
+          type: object
+          description: Данные автоматического списания по подписке
+          x-description-i18n:
+            eng: Automatic subscription debit data
+          properties:
+            frequency:
+              type: string
+              description: Периодичность списания по подписке
+              x-description-i18n:
+                eng: Subscription debit frequency
+              enum:
+              - MONTHLY
+            firstChargeDate:
+              type: string
+              format: date
+              description: Дата первого списания по подписке
+              x-description-i18n:
+                eng: Date of first subscription charge
+            amount:
+              type: number
+              description: Сумма платежа в рублях
+              x-description-i18n:
+                eng: Payment amount in rubles
+              exclusiveMinimum: 0
+        groupId:
+          type: string
+          description: Идентификатор группы подписок
+          x-description-i18n:
+            eng: Subscription group identifier
+      required:
+      - id
+      - publicId
+      - status
+    SbpPaymentNotificationV3:
+      title: SbpPaymentNotificationV3
+      allOf:
+      - $ref: '#/components/schemas/PaymentNotificationDataV3'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/schemas-PaymentMethod'
+          parameters:
+            type: object
+            required:
+            - sbpTransactionId
+            - qrId
+            properties:
+              sbpTransactionId:
+                type: string
+                description: Уникальный идентификатор операции на уровне всей системы СБП
+                x-description-i18n:
+                  eng: Unique operation ID at the level of the entire SBP system
+              qrId:
+                type: string
+                description: Уникальный идентификатор QRC, выданный СБП
+                x-description-i18n:
+                  eng: Unique QRC ID issued by SBP
+                maxLength: 32
+        required:
+        - paymentMethod
+        - parameters
+    PaymentStatus:
+      title: PaymentStatus
+      type: string
+      enum:
+      - SUCCESS
+      - DECLINED
+      - IN_PROGRESS
+    CallbackSettings:
+      title: CallbackSettings
+      type: object
+      description: Настройки уведомлений
+      properties:
+        callbackUrl:
+          type: string
+          description: URL-адрес для приема уведомлений
+          x-description-i18n:
+            eng: URL for receiving notifications
+        operationTypes:
+          type: object
+          description: Настройки типов операций
+          x-description-i18n:
+            eng: Operation type settings
+          properties:
+            payment:
+              type: object
+              description: Настройки уведомлений о платежах
+              x-description-i18n:
+                eng: Payment notification settings
+              properties:
+                version:
+                  type: string
+                  enum:
+                  - V1
+                  - V2
+                  - V3
+                  description: Версия формата уведомления о платеже
+                  x-description-i18n:
+                    eng: Payment notification format version
+                enabled:
+                  type: boolean
+                  description: Включено ли уведомление
+                  x-description-i18n:
+                    eng: Whether the notification is enabled
+              required:
+              - version
+              - enabled
+            refund:
+              type: object
+              description: Настройки уведомлений о возвратах
+              x-description-i18n:
+                eng: Refund notification settings
+              properties:
+                version:
+                  type: string
+                  enum:
+                  - V1
+                  description: Версия формата уведомления о возврате
+                  x-description-i18n:
+                    eng: Refund notification format version
+                enabled:
+                  type: boolean
+                  description: Включено ли уведомление
+                  x-description-i18n:
+                    eng: Whether the notification is enabled
+              required:
+              - version
+              - enabled
+            subscription:
+              type: object
+              description: Настройки уведомлений о подписках
+              x-description-i18n:
+                eng: Subscription notification settings
+              properties:
+                version:
+                  type: string
+                  enum:
+                  - V1
+                  - V2
+                  description: Версия формата уведомления о подписке
+                  x-description-i18n:
+                    eng: Subscription notification format version
+                enabled:
+                  type: boolean
+                  description: Включено ли уведомление
+                  x-description-i18n:
+                    eng: Whether the notification is enabled
+              required:
+              - version
+              - enabled
+      required:
+      - callbackUrl
+      x-description-i18n:
+        eng: Callback settings object
+    CardSubscriptionNotificationV2:
+      title: CardSubscriptionNotificationV2
+      allOf:
+      - $ref: '#/components/schemas/SubscriptionNotificationDataV2'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/schemas-PaymentMethod'
+          paymentSystem:
+            type: string
+            description: Платежная система
+            x-description-i18n:
+              eng: Payment system
+            enum:
+            - MIR
+            - VISA
+            - MASTERCARD
+          cardNumber:
+            type: string
+            description: Маскированный номер карты
+            x-description-i18n:
+              eng: Masked payer card number
+            pattern: ^[0-9*]+$
+            minLength: 1
+            maxLength: 20
+            example: '2201382000000039'
+          expirationDate:
+            type: string
+            description: Срок действия карты
+            x-description-i18n:
+              eng: Card validity period
+            example: 2025-10
+            pattern: ^(20\d{2})-(0[1-9]|1[0-2])$
+        required:
+        - paymentMethod
+    SbpStatusImplementation:
+      title: SbpStatusImplementation
+      discriminator:
+        propertyName: value
+        mapping:
+          COMPLETED: '#/components/schemas/SuccessRefundCallback'
+          DECLINED: '#/components/schemas/DeclinedSbpRefundCallback'
+      oneOf:
+      - $ref: '#/components/schemas/SuccessRefundCallback'
+      - $ref: '#/components/schemas/DeclinedSbpRefundCallback'
+      description: Статус возврата СБП
+      x-description-i18n:
+        eng: SBP refund status
+    CardPaymentNotificationV3:
+      title: CardPaymentNotificationV3
+      allOf:
+      - $ref: '#/components/schemas/PaymentNotificationDataV3'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/schemas-PaymentMethod'
+          parameters:
+            type: object
+            required:
+            - rrn
+            - authCode
+            properties:
+              eci:
+                type: string
+                description: Уровень и тип риска операции в процессе обработки онлайн-платежа
+                x-description-i18n:
+                  eng: Level and type of risk of the operation during online payment processing
+              rrn:
+                type: string
+                description: Идентификатор транзакции в системе Банка
+                x-description-i18n:
+                  eng: Transaction ID in the Bank system
+              authCode:
+                type: string
+                description: Код авторизации, полученный от Банка-эмитента
+                x-description-i18n:
+                  eng: Authorization code received from the Issuing Bank
+        required:
+        - paymentMethod
+        - parameters
+    SbpRefundNotificationV1:
+      title: sbp
+      type: object
+      properties:
+        refund:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Уникальный идентификатор запроса на возврат
+              x-description-i18n:
+                eng: Return request ID in the merchant system
+            sbp:
+              type: object
+              properties:
+                sbpTransactionId:
+                  type: string
+                  description: Идентификатор операции в системе НСПК
+                  x-description-i18n:
+                    eng: Operation identifier in the NSPK system
+            amount:
+              type: number
+              description: Сумма возврата
+              x-description-i18n:
+                eng: Refund amount
+            status:
+              $ref: '#/components/schemas/SbpStatusImplementation'
+            paymentParams:
+              type: object
+              properties:
+                transactionId:
+                  type: number
+                  description: Идентификатор операции в системе Банка
+                  x-description-i18n:
+                    eng: Operation identifier in the Bank system
+                orderId:
+                  type: string
+                  description: Идентификатор заказа в системе мерчанта
+                  x-description-i18n:
+                    eng: Unique order ID in the merchant system
+                qrId:
+                  type: string
+                  description: Идентификатор QR-кода
+                  x-description-i18n:
+                    eng: QR code identifier
+              required:
+              - orderId
+              - qrId
+          required:
+          - id
+          - amount
+    DigitalRublePaymentNotificationV3:
+      title: DigitalRublePaymentNotificationV3
+      allOf:
+      - $ref: '#/components/schemas/PaymentNotificationDataV3'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/schemas-PaymentMethod'
+          parameters:
+            type: object
+            description: Параметры платежа цифровым рублем
+            x-description-i18n:
+              eng: Digital ruble payment parameters
+            required:
+            - drTransactionId
+            - qrId
+            properties:
+              drTransactionId:
+                type: string
+                description: Идентификатор операции в системе цифрового рубля
+                x-description-i18n:
+                  eng: Digital ruble transaction identifier
+              qrId:
+                type: string
+                description: Уникальный идентификатор QRC, выданный СБП
+                x-description-i18n:
+                  eng: Unique QRC ID issued by SBP
+                maxLength: 32
+        required:
+        - paymentMethod
+        - parameters
+    GeneralError:
+      title: General Error
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки запроса
+          x-description-i18n:
+            eng: Request error code
+        message:
+          type: string
+          description: Описание ошибки
+          x-description-i18n:
+            eng: Error description
+        traceId:
+          type: string
+          description: Идентификатор выполнения запроса при наличии ошибки
+          x-description-i18n:
+            eng: Request ID if there is an error
+    AcquiringRefundNotificationV1:
+      title: acquiring
+      type: object
+      properties:
+        refund:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Уникальный идентификатор запроса на возврат
+              x-description-i18n:
+                eng: Return request ID in the merchant system
+            ecom:
+              type: object
+              properties:
+                rrn:
+                  type: string
+                  description: Идентификатор транзакции в системе Банка
+                  x-description-i18n:
+                    eng: Transaction ID in the Bank system
+                authCode:
+                  type: string
+                  description: Код авторизации, полученный от Банка-эмитента
+                  x-description-i18n:
+                    eng: Authorization code received from the Issuing Bank
+            amount:
+              type: number
+              description: Сумма возврата
+              x-description-i18n:
+                eng: Refund amount
+            status:
+              $ref: '#/components/schemas/AcquiringStatusImplementation'
+            paymentParams:
+              type: object
+              properties:
+                transactionId:
+                  type: number
+                  description: Идентификатор операции в системе Банка
+                  x-description-i18n:
+                    eng: Operation identifier in the Bank system
+                orderId:
+                  type: string
+                  description: Идентификатор заказа в системе мерчанта
+                  x-description-i18n:
+                    eng: Unique order ID in the merchant system
+              required:
+              - orderId
+          required:
+          - id
+          - amount
+          - paymentParams
+    SuccessRefundCallback:
+      title: COMPLETED
+      type: object
+      properties:
+        value:
+          type: string
+          example: COMPLETED
+          description: Статус возврата
+          x-description-i18n:
+            eng: Refund status
+        date:
+          type: string
+          format: date-time
+          description: Дата возврата
+          x-description-i18n:
+            eng: Refund date
+    415response:
+      title: 415response
+      type: object
+      properties:
+        timestamp:
+          type: string
+          description: Время ответа сервиса
+          x-description-i18n:
+            eng: Response timestamp
+        status:
+          type: integer
+          description: Код состояния HTTP-запроса
+          x-description-i18n:
+            eng: HTTP-code
+        error:
+          type: string
+          description: Описание ошибки
+          x-description-i18n:
+            eng: Response description
+        path:
+          type: string
+          description: Путь запроса
+          x-description-i18n:
+            eng: Query path
+      x-examples:
+        Example 1:
+          timestamp: '2023-02-15T06:36:32.418+00:00'
+          status: 415
+          error: Unsupported Media Type
+          path: string
+    callbackSettings:
+      description: Настройки URL для обратных вызовов (callback)
+      type: object
+      properties:
+        callbackUrl:
+          type: string
+          minLength: 1
+      required:
+      - callbackUrl
+      x-examples:
+        Payload:
+          callbackUrl: https://yoururl.ru
+          value:
+            callbackUrl: https://yoururl.ru
+      title: callBackSettings
+    paymentsNotification:
+      description: Уведомление о выплате
+      type: object
+      x-examples:
+        event:
+          event: payout
+          payout:
+            id: p210730t2WjboNkN0ft1
+            amount: 0.01
+            currency: RUB
+            payoutMethod: SBP
+            payoutParams:
+              phone: '79267016490'
+              bankAlias: RAIFFEISEN
+              firstName: Сергей
+              middleName: Сергеевич
+              lastName: Брюзгин
+            extra:
+              apiClient: Payout Software
+              apiClientVersion: 1.0.0
+            status:
+              value: COMPLETED
+              date: '2021-07-30T14:16:32+03:00'
+            creationDate: '2021-07-30T14:16:31+03:00'
+          value:
+            event: payout
+            payout:
+              id: p210730t2jboNkN0ft1
+              amount: 0.01
+              currency: RUB
+              payoutMethod: SBP
+              payoutParams:
+                phone: '79191234567'
+                bankAlias: RAIFFEISEN
+                firstName: Иван
+                middleName: Иванович
+                lastName: Иванов
+                inn: 123456789101
+              extra:
+                apiClient: Payout Software
+                apiClientVersion: 1.0.0
+              status:
+                value: COMPLETED
+                date: '2021-07-30T14:16:32+03:00'
+              creationDate: '2021-07-30T14:16:31+03:00'
+              incomeTypeCode: '1'
+      title: paymentNotification
+      properties:
+        event:
+          type: string
+          description: Тип уведомления
+          x-description-i18n:
+            eng: Notification type
+          example: payout
+        payout:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Уникальный идентификатор операции
+              x-description-i18n:
+                eng: The unique id of the operation
+              format: Aa-Zz0-9_-
+              example: p210730t2jboNkN0ft1
+            amount:
+              type: number
+              description: Сумма в рублях
+              x-description-i18n:
+                eng: Amount (RUB)
+              example: 0.01
+            currency:
+              type: string
+              description: Валюта выплаты
+              x-description-i18n:
+                eng: Currency
+              enum:
+              - RUB
+              example: RUB
+            payoutMethod:
+              type: string
+              description: Тип выплаты
+              x-description-i18n:
+                eng: Payout type
+              enum:
+              - SBP
+              example: SBP
+            payoutParams:
+              type: object
+              properties:
+                phone:
+                  type: string
+                  description: Номер телефона получателя
+                  x-description-i18n:
+                    eng: Recipient phone number
+                  maxLength: 15
+                  example: '79191234567'
+                bankAlias:
+                  type: string
+                  description: Код банка получателя из запроса списка банков. Обязательно передается если не указан bankId.
+                  x-description-i18n:
+                    eng: Beneficiary's bank code from the list of banks request. It is required if bankId is not specified.
+                  maxLength: 255
+                  example: RAIFFEISEN
+                bankId:
+                  type: string
+                  minLength: 1
+                  description: ID банка получателя из запроса списка банков. Обязательно передается если не указан bankAlias.
+                  x-description-i18n:
+                    eng: Beneficiary's bank id from the list of banks request. It is required if bankAlias is not specified.
+                  maxLength: 255
+                  example: 100000000007
+                firstName:
+                  type: string
+                  description: Имя получателя
+                  x-description-i18n:
+                    eng: Receiver first name
+                  example: Иван
+                middleName:
+                  type: string
+                  description: Отчество получателя
+                  x-description-i18n:
+                    eng: Receiver middle name
+                  example: Иванович
+                lastName:
+                  type: string
+                  description: Фамилия получателя
+                  x-description-i18n:
+                    eng: Receiver last name
+                  example: Иванов
+                inn:
+                  type: string
+                  minLength: 10
+                  maxLength: 12
+                  description: ИНН получателя
+                  x-description-i18n:
+                    eng: Receiver INN
+                  example: '123456789101'
+            extra:
+              type: object
+              description: Дополнительные данные
+              x-description-i18n:
+                eng: Additional params
+              example:
+                apiClient: Payout Software
+                apiClientVersion: 1.0.0
+            status:
+              type: object
+              properties:
+                value:
+                  type: string
+                  description: Статус
+                  x-description-i18n:
+                    eng: Status
+                  enum:
+                  - COMPLETED
+                  example: COMPLETED
+                date:
+                  type: string
+                  description: Дата проведения операции
+                  x-description-i18n:
+                    eng: Operation datetime
+                  example: '2021-07-30T14:16:32+03:00'
+            creationDate:
+              type: string
+              description: Дата создания заявки
+              x-description-i18n:
+                eng: Operation create date
+              example: '2021-07-30T14:16:31+03:00'
+            incomeTypeCode:
+              type: string
+              description: Код вида дохода<br/>[Значения описаны тут](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+              x-description-i18n:
+                eng: Income type code</br>[Values are described here](https://www.consultant.ru/document/cons_doc_LAW_394047/bde776cb42a2f32469d6ae506fcee6fc1bba3cec/)
+              example: '1'
+      x-description-i18n:
+        eng: Notification of payment
+    Sender:
+      type: object
+      description: Информация о плательщике
+      required:
+      - legalName
+      - inn
+      - account
+      - bank
+      properties:
+        legalName:
+          $ref: '#/components/schemas/LegalName'
+        inn:
+          $ref: '#/components/schemas/Inn'
+        account:
+          allOf:
+          - $ref: '#/components/schemas/Account'
+          description: Банковский счёт ЮЛ или ИП, с которого списаны средства
+        bank:
+          allOf:
+          - $ref: '#/components/schemas/BankInfo-2'
+          description: Информация о банке плательщика
+    Kpp:
+      type: string
+      description: КПП юридического лица
+      example: '123456789'
+      minLength: 9
+      maxLength: 9
+    ImageUrl:
+      type: string
+      description: URL с изображением зарегистрированного QR-кода в СБП
+      example: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
+    Qr:
+      type: object
+      description: Информация о платёжной ссылке по заказу
+      required:
+      - id
+      - name
+      - type
+      - payload
+      - imageUrl
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/PaymentLinkId'
+        name:
+          allOf:
+          - $ref: '#/components/schemas/PaymentLinkName'
+        type:
+          allOf:
+          - $ref: '#/components/schemas/QrType'
+        payload:
+          allOf:
+          - $ref: '#/components/schemas/Payload'
+        imageUrl:
+          allOf:
+          - $ref: '#/components/schemas/ImageUrl'
+    PaymentSender:
+      type: object
+      description: Информация о плательщике
+      required:
+      - legalName
+      - inn
+      - account
+      - bank
+      properties:
+        legalName:
+          $ref: '#/components/schemas/LegalName'
+        inn:
+          $ref: '#/components/schemas/Inn'
+        account:
+          allOf:
+          - $ref: '#/components/schemas/Account'
+          description: Банковский счёт ЮЛ или ИП, с которого списаны средства
+        bank:
+          allOf:
+          - $ref: '#/components/schemas/BankInfo'
+          description: Информация о банке плательщика
+    Payment-2:
+      description: Информация об успешном платеже
+      type:
+      - object
+      - 'null'
+      required:
+      - id
+      - sbpTransactionId
+      - status
+      - amount
+      - sender
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/PaymentId'
+        sbpTransactionId:
+          allOf:
+          - $ref: '#/components/schemas/SbpTransactionId'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStatus_2'
+        amount:
+          allOf:
+          - $ref: '#/components/schemas/Amount'
+        totalTaxAmount:
+          allOf:
+          - $ref: '#/components/schemas/TotalTaxAmount'
+        senderPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/SenderPaymentPurpose'
+        receiverPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/ReceiverPaymentPurpose'
+        extra:
+          allOf:
+          - $ref: '#/components/schemas/Extra'
+        sender:
+          allOf:
+          - $ref: '#/components/schemas/PaymentSender'
+    QrType:
+      type: string
+      enum:
+      - DYNAMIC
+      - STATIC
+      description: Тип платёжной ссылки
+    InvoiceResponse:
+      type: object
+      title: Данные выставленного счета
+      required:
+      - id
+      - account
+      - amount
+      - creationDate
+      - expirationDate
+      - status
+      - senderPaymentPurpose
+      - paymentMethods
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/OrderId'
+        account:
+          allOf:
+          - $ref: '#/components/schemas/Account'
+        amount:
+          allOf:
+          - $ref: '#/components/schemas/Amount'
+          description: Общая сумма выставленного счета. В ответе присутствует, если была указана при создании счета.
+        totalTaxAmount:
+          allOf:
+          - $ref: '#/components/schemas/TotalTaxAmount'
+        creationDate:
+          allOf:
+          - $ref: '#/components/schemas/CreationDate'
+        expirationDate:
+          allOf:
+          - $ref: '#/components/schemas/ExpirationDate'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status-2'
+        receiverPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/ReceiverPaymentPurpose'
+        senderPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/SenderPaymentPurpose'
+        redirectUrl:
+          allOf:
+          - $ref: '#/components/schemas/RedirectUrl'
+        extra:
+          allOf:
+          - $ref: '#/components/schemas/Extra'
+        paymentMethods:
+          allOf:
+          - $ref: '#/components/schemas/PaymentMethods'
+        payer:
+          allOf:
+          - $ref: '#/components/schemas/Payer'
+        receiver:
+          allOf:
+          - $ref: '#/components/schemas/Receiver'
+          description: Данные получателя средств
+        items:
+          allOf:
+          - $ref: '#/components/schemas/ItemsResponse'
+          description: Список товаров или услуг. В ответе присутствует, если был указан при выставлении счета
+        qr:
+          allOf:
+          - $ref: '#/components/schemas/Qr'
+        delivery:
+          allOf:
+          - $ref: '#/components/schemas/DeliveryInfo'
+        payments:
+          allOf:
+          - $ref: '#/components/schemas/Payments'
+    Status:
+      type: string
+      description: 'Статус заказа:
+
+        <br>• ACTIVE – активен, можно проводить оплату
+
+        <br>• EXPIRED - срок действия истёк, нельзя провести оплату
+
+        <br>• PAID - оплачен, есть успешный платеж, новые платежи сделать не получится
+
+        <br>• CANCELLED - отменен, нельзя провести оплату
+
+        '
+      enum:
+      - ACTIVE
+      - EXPIRED
+      - PAID
+      - CANCELLED
+      example: ACTIVE
+    ExpirationDate:
+      type: string
+      format: date-time
+      description: Срок жизни
+      example: '2024-08-12T20:35:55+03:00'
+    Receiver:
+      type: object
+      description: Данные получателя средств
+      required:
+      - legalName
+      - inn
+      - kpp
+      - address
+      - bank
+      properties:
+        legalName:
+          $ref: '#/components/schemas/LegalName'
+        inn:
+          $ref: '#/components/schemas/Inn'
+        kpp:
+          $ref: '#/components/schemas/Kpp'
+        address:
+          $ref: '#/components/schemas/Address'
+        bank:
+          $ref: '#/components/schemas/BankInfo-2'
+    PayerType:
+      type: string
+      enum:
+      - INDIVIDUAL
+      - LEGAL
+      - NONE
+      description: Тип плательщика
+      example: LEGAL
+    PaymentLinkName:
+      type: string
+      description: Наименование платёжной ссылки
+      example: QR на оплату 14.10.2024 в 15:12
+    BankName:
+      type: string
+      description: Наименование банка
+      example: Райффайзенбанк
+    VatRate:
+      type: string
+      enum:
+      - VAT_0
+      - VAT_5
+      - VAT_7
+      - VAT_10
+      - VAT_18
+      - VAT_20
+      - VAT_22
+      description: Ставка НДС. Используется для расчёта totalTaxAmount.
+      example: VAT_20
+    Unit:
+      type: string
+      description: Код из Общероссийского классификатора единиц измерения
+      example: 355
+    ItemsResponse:
+      type: array
+      description: Список товаров или услуг. Обязательно к заполнению, если не указан amount
+      items:
+        required:
+        - name
+        - count
+        - price
+        - unit
+        - unitName
+        type:
+        - object
+        - 'null'
+        title: Информация о товаре
+        properties:
+          name:
+            allOf:
+            - $ref: '#/components/schemas/ProductName'
+          count:
+            allOf:
+            - $ref: '#/components/schemas/Count'
+          price:
+            allOf:
+            - $ref: '#/components/schemas/Price'
+          unit:
+            allOf:
+            - $ref: '#/components/schemas/Unit'
+          unitName:
+            allOf:
+            - $ref: '#/components/schemas/UnitName'
+          vat:
+            allOf:
+            - $ref: '#/components/schemas/VatRate'
+    TotalTaxAmount:
+      type: number
+      format: float
+      maximum: 1000000
+      description: Сумма НДС в рублях
+      example: 2.41
+    CallBackSetting:
+      description: Настройки для callback
+      type: object
+      properties:
+        callbackUrl:
+          type: string
+          description: URL для приёма уведомлений
+      required:
+      - callbackUrl
+      title: callbackSettings
+    ReceiverPaymentPurpose:
+      type: string
+      maxLength: 150
+      description: 'Назначение платежа, которое увидит получатель в выписке в поле «Основание операции» вместе с инн плательщика.
+
+        <br>Например, "ИНН плательщика: 231150869432. Какое-то ваше назначение"
+
+        <br>Если поле не заполнено, то поле «Основание операции» заполнится по шаблону, в который будет передан идентификатор заказа, наименование плательщика и инн плательщика.
+
+        <br>Например, «Перевод по идентификатору nM43NFfqiaAh04QdSmCoI5u4S2YrWU2ikHJ. Плательщик: ООО Ромашка, ИНН: 231150869432. Осуществлен через СБП B2В».
+
+        <br>Может содержать:
+
+        <br>• Символы латиницы (A–Z и a–z)
+
+        <br>• Символы кириллицы (А-Я и а-я)
+
+        <br>• Цифры 0-9
+
+        <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
+
+        '
+      example: Какое-то назначение платежа
+    OrderId:
+      type: string
+      description: Идентификатор заказа, переданный клиентом или сгенерированный банком
+      maxLength: 35
+      example: '100001'
+    PaymentId:
+      type: string
+      description: Идентификатор платежа
+      example: '123456789012345678'
+    InvoicePaymentCallback:
+      type: object
+      required:
+      - event
+      - data
+      properties:
+        event:
+          type: string
+          description: Тип операции
+          example: B2B_INVOICE_PAYMENT
+          enum:
+          - B2B_INVOICE_PAYMENT
+        data:
+          type: object
+          required:
+          - payments
+          allOf:
+          - $ref: '#/components/schemas/InvoiceResponse'
+    LegalName:
+      type: string
+      maxLength: 512
+      description: Сокращённое наименование ЮЛ или ИП Плательщика
+      example: ООО Ромашка
+    Extra:
+      type: object
+      description: Дополнительные поля
+      additionalProperties:
+        type: string
+      example:
+        additionalInfo: testing operation
+    Status-2:
+      type: string
+      description: 'Статус выставленного счета:
+
+        <br>• ACTIVE – активен, можно проводить оплату
+
+        <br>• EXPIRED - срок действия истёк, нельзя провести оплату
+
+        <br>• PAID - оплачен, есть успешный платеж, новые платежи сделать не получится
+
+        <br>• CANCELLED - отменен, нельзя провести оплату
+
+        '
+      enum:
+      - ACTIVE
+      - EXPIRED
+      - PAID
+      - CANCELLED
+      example: ACTIVE
+    PaymentStatus_2:
+      type: object
+      description: Статус входящего платежа
+      required:
+      - value
+      - date
+      properties:
+        value:
+          type: string
+          description: Статус платежа, возможен только "SUCCESS"
+          enum:
+          - SUCCESS
+          example: SUCCESS
+        date:
+          type: string
+          format: date-time
+          description: Время проведения платежа
+          example: '2024-06-12T19:36:55+03:00'
+    BankInfo-2:
+      type: object
+      description: Информация о банке
+      required:
+      - name
+      - bic
+      properties:
+        name:
+          $ref: '#/components/schemas/BankName'
+        bic:
+          $ref: '#/components/schemas/BankBic'
+    ProductName:
+      type: string
+      description: Наименование единицы товара или услуги
+      example: Разработка API
+    Price:
+      type: number
+      description: Цена за единицу товара
+      example: 5000
+    Payments:
+      description: Список платежей
+      type:
+      - array
+      - 'null'
+      items:
+        description: Информация о платеже
+        type: object
+        required:
+        - id
+        - status
+        - amount
+        - totalTaxAmount
+        - sender
+        properties:
+          id:
+            allOf:
+            - $ref: '#/components/schemas/PaymentId'
+          sbpTransactionId:
+            allOf:
+            - $ref: '#/components/schemas/SbpTransactionId'
+          status:
+            allOf:
+            - $ref: '#/components/schemas/PaymentStatus_2'
+          amount:
+            allOf:
+            - $ref: '#/components/schemas/Amount'
+          totalTaxAmount:
+            allOf:
+            - $ref: '#/components/schemas/TotalTaxAmount'
+          sender:
+            allOf:
+            - $ref: '#/components/schemas/Sender'
+    Address:
+      type: string
+      description: Адрес плательщика
+      example: ул. Ленина, д. Калатушника, г. Москва
+    SenderPaymentPurpose:
+      type: string
+      maxLength: 210
+      description: 'Назначение платежа, которое увидит плательщик при оплате. Поле обязательное.
+
+        <br>Может содержать:
+
+        <br>• Символы латиницы (A–Z и a–z)
+
+        <br>• Символы кириллицы (А-Я и а-я)
+
+        <br>• Цифры 0-9
+
+        <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
+
+        '
+      example: Какое-то назначение платежа
+    Payload:
+      type: string
+      maxLength: 999
+      description: Функциональная ссылка
+      example: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+    DeliveryInfo:
+      type: object
+      title: Данные для доставки информации о выставленном счете плательщику
+      description: По данным полям мы автоматически отправим выставленный счет плательщику (Функционал на данный момент в разработке)
+      properties:
+        email:
+          allOf:
+          - $ref: '#/components/schemas/Email'
+    Email:
+      type: string
+      format: email
+      description: Email для доставки
+      example: test@test.ru
+    IncomingPaymentCallbackDto:
+      type: object
+      required:
+      - event
+      - data
+      properties:
+        event:
+          type: string
+          description: Тип операции
+          example: B2B_PAYMENT
+          enum:
+          - B2B_PAYMENT
+        data:
+          type: object
+          required:
+          - id
+          - account
+          - amount
+          - createdDate
+          - expirationDate
+          - status
+          - senderPaymentPurpose
+          - payment
+          - qr
+          properties:
+            id:
+              allOf:
+              - $ref: '#/components/schemas/OrderId'
+            account:
+              allOf:
+              - $ref: '#/components/schemas/Account'
+            amount:
+              allOf:
+              - $ref: '#/components/schemas/Amount'
+            totalTaxAmount:
+              allOf:
+              - $ref: '#/components/schemas/TotalTaxAmount'
+            createdDate:
+              allOf:
+              - $ref: '#/components/schemas/CreationDate'
+            expirationDate:
+              allOf:
+              - $ref: '#/components/schemas/ExpirationDate'
+            status:
+              allOf:
+              - $ref: '#/components/schemas/Status'
+            receiverPaymentPurpose:
+              allOf:
+              - $ref: '#/components/schemas/ReceiverPaymentPurpose'
+              description: 'Назначение платежа, которое увидит получатель в выписке в поле «Основание операции» вместе с инн плательщика.
+
+                <br>Например, "ИНН плательщика: 231150869432. Какое-то ваше назначение"
+
+                <br>Если поле не заполнено, то поле «Основание операции» заполнится по шаблону, в который будет передан идентификатор заказа, наименование плательщика и инн плательщика.
+
+                <br>Например, «Перевод по идентификатору nM43NFfqiaAh04QdSmCoI5u4S2YrWU2ikHJ. Плательщик: ООО Ромашка, ИНН: 231150869432. Осуществлен через СБП B2В».
+
+                <br>Может содержать:
+
+                <br>• Символы латинского алфавита (A–Z и a–z) с десятичными кодами из диапазонов [065-090] и [097-122] в кодировке UTF-8;
+
+                <br>• Символы русского алфавита (А-Я и а-я) с десятичными кодами из диапазона [1040-1103] в кодировке UTF-8;
+
+                <br>• Цифры 0-9 с десятичными кодами из диапазона [048-057] в кодировке UTF-8;
+
+                <br>• Специальные символы с десятичными кодами из диапазонов [032-047], [058-064], [091-096], [123-126] в кодировке UTF-8;
+
+                <br>• Символ «№» под номером 8470 в кодировке UTF-8
+
+                '
+            senderPaymentPurpose:
+              allOf:
+              - $ref: '#/components/schemas/SenderPaymentPurpose'
+            redirectUrl:
+              allOf:
+              - $ref: '#/components/schemas/RedirectUrl'
+            extra:
+              allOf:
+              - $ref: '#/components/schemas/Extra'
+            qr:
+              allOf:
+              - $ref: '#/components/schemas/Qr'
+            payment:
+              allOf:
+              - $ref: '#/components/schemas/Payment'
+    PaymentLinkId:
+      type: string
+      maxLength: 32
+      description: Уникальный идентификатор платёжной ссылки
+      example: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+    BankId:
+      type: string
+      description: Идентификатор банка
+      example: '100000000007'
+    RedirectUrl:
+      type: string
+      maxLength: 1024
+      description: Ссылка для автоматического возврата плательщика из приложения банка в приложение или на сайт ТСП
+      example: https://exampletsp.io/qwertyui
+    BankInfo:
+      type: object
+      description: Информация о банке
+      required:
+      - id
+      - name
+      - bic
+      properties:
+        id:
+          $ref: '#/components/schemas/BankId'
+        name:
+          $ref: '#/components/schemas/BankName'
+        bic:
+          $ref: '#/components/schemas/BankBic'
+    Account:
+      type: string
+      minLength: 20
+      maxLength: 20
+      description: Банковский счёт ЮЛ или ИП для зачисления средств
+      example: '40817810601002630020'
+    SbpTransactionId:
+      type: string
+      minLength: 32
+      maxLength: 32
+      description: Уникальный идентификатор операции на уровне всей системы СБП
+      example: PMSHT0BYVSYE7LDXMCXJSGIUHJLQWZXY
+    Id:
+      type: string
+      description: Идентификатор многоразовой платежной ссылки
+      maximum: 40
+      example: 123e4567-e89b-12d3-a456-426655440000
+    Payer:
+      type: object
+      title: Данные плательщика
+      description: Данные плательщика
+      properties:
+        type:
+          allOf:
+          - $ref: '#/components/schemas/PayerType'
+        name:
+          allOf:
+          - $ref: '#/components/schemas/LegalName'
+        inn:
+          allOf:
+          - $ref: '#/components/schemas/Inn'
+        kpp:
+          allOf:
+          - $ref: '#/components/schemas/Kpp'
+        address:
+          allOf:
+          - $ref: '#/components/schemas/Address'
+    UnitName:
+      type: string
+      description: Краткое наименование из Общероссийского классификатора единиц измерения
+      example: шт
+    BankBic:
+      type: string
+      description: БИК банка
+      example: '044525700'
+    Amount:
+      type: number
+      format: float
+      maximum: 1000000
+      description: Сумма операции в рублях
+      example: 8573.79
+    Payment:
+      description: Информация об успешном платеже. Поле заполняется только в случае, если по заказу была проведена успешная оплата
+      type:
+      - object
+      - 'null'
+      required:
+      - id
+      - sbpTransactionId
+      - status
+      - amount
+      - totalTaxAmount
+      - sender
+      properties:
+        id:
+          $ref: '#/components/schemas/PaymentId'
+        sbpTransactionId:
+          $ref: '#/components/schemas/SbpTransactionId'
+        status:
+          $ref: '#/components/schemas/PaymentStatus_2'
+        amount:
+          $ref: '#/components/schemas/Amount'
+        totalTaxAmount:
+          $ref: '#/components/schemas/TotalTaxAmount'
+        sender:
+          $ref: '#/components/schemas/PaymentSender'
+    PaymentMethods:
+      type: array
+      description: Методы оплаты выставленного счета
+      items:
+        type: string
+        enum:
+        - SBP_B2B
+        - PAYMENT_ORDERS
+    Count:
+      type: number
+      description: Количество товара
+      example: 10
+    CreationDate:
+      type: string
+      format: date-time
+      description: Дата создания
+      example: '2024-06-12T19:35:55+03:00'
+    Inn:
+      type: string
+      minLength: 10
+      maxLength: 12
+      description: ИНН ЮЛ или ИП Плательщика
+      example: '123456789012'
+    IncomingPaymentReusablePaymentLink:
+      type: object
+      required:
+      - event
+      - data
+      properties:
+        event:
+          type: string
+          description: Тип события
+          example: B2B_REUSABLE_PAYMENT
+          enum:
+          - B2B_REUSABLE_PAYMENT
+        data:
+          type: object
+          required:
+          - reusablePaymentLink
+          - payment
+          properties:
+            reusablePaymentLink:
+              type: object
+              description: Данные о многоразовой платежной ссылки
+              required:
+              - id
+              - qr
+              properties:
+                id:
+                  allOf:
+                  - $ref: '#/components/schemas/Id'
+                qr:
+                  required:
+                  - id
+                  - name
+                  - type
+                  type: object
+                  description: Информация о QR-коде
+                  properties:
+                    id:
+                      allOf:
+                      - $ref: '#/components/schemas/PaymentLinkId'
+                    name:
+                      allOf:
+                      - $ref: '#/components/schemas/PaymentLinkName'
+                    type:
+                      allOf:
+                      - $ref: '#/components/schemas/Type'
+                extra:
+                  allOf:
+                  - $ref: '#/components/schemas/Extra'
+            payment:
+              allOf:
+              - $ref: '#/components/schemas/Payment-2'
+    Type:
+      type: string
+      enum:
+      - STATIC
+      description: Тип платёжной ссылки
+      example: STATIC
+    PaymentNotificationDataV3_2:
+      title: PaymentNotificationDataV3
+      type: object
+      properties:
+        id:
+          type: string
+          description: Идентификатор платежа
+          x-description-i18n:
+            eng: Payment ID
+          pattern: ^[A-Za-z0-9-_.]+$
+        publicId:
+          type: string
+          description: Идентификатор мерчанта в системе Банка
+          x-description-i18n:
+            eng: Merchant ID in the bank system
+        amount:
+          type: number
+          description: Сумма платежа в рублях. Для копеек доступно два знака после точки.
+          x-description-i18n:
+            eng: Payment amount in rubles. Two decimal places are available for kopecks.
+        order:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Идентификатор заказа в системе мерчанта
+              x-description-i18n:
+                eng: Order ID in the merchant system
+            comment:
+              $ref: '#/components/schemas/OrderComment'
+        status:
+          type: object
+          description: Статус платежа
+          x-description-i18n:
+            eng: Payment status
+          required:
+          - value
+          - date
+          properties:
+            value:
+              $ref: '#/components/schemas/schemas-PaymentStatus'
+            date:
+              type: string
+              format: date-time
+              description: Дата и время создания платежа
+              x-description-i18n:
+                eng: Payment creation date and time
+            declineReason:
+              type: string
+              description: Причина отклонения. Указывается в случае отклонения операции.
+              x-description-i18n:
+                eng: Reason for rejection. Specified if the operation is declined.
+        extra:
+          type: object
+          description: Дополнительные поля в формате key-value
+          x-description-i18n:
+            eng: Additional fields in key-value format
+          additionalProperties:
+            type: string
+        subscription:
+          type: object
+          description: Блок информации о подписке. Заполняется для платежей, которые были проведены по сценарию оплаты по подписке.
+          x-description-i18n:
+            eng: Subscription information block. Filled in for payments made via the subscription payment scenario.
+          properties:
+            id:
+              type: string
+              description: Идентификатор подписки
+              x-description-i18n:
+                eng: Subscription ID
+              pattern: ^[A-Za-z0-9-_.]+$
+            purpose:
+              type: string
+              description: Описание подписки
+              x-description-i18n:
+                eng: Subscription description
+          required:
+          - id
+      required:
+      - id
+      - publicId
+      - amount
+      - order
+      - status
+    SubscriptionNotificationV2_2:
+      title: SubscriptionNotificationV2
+      description: Уведомление о подписке (v2)
+      x-description-i18n:
+        eng: Subscription notification (v2)
+      type: object
+      properties:
+        event:
+          type: string
+          enum:
+          - SUBSCRIPTION
+          description: Тип сообщения
+          x-description-i18n:
+            eng: Message type
+        data:
+          oneOf:
+          - $ref: '#/components/schemas/SbpSubscriptionNotificationV2_2'
+          - $ref: '#/components/schemas/CardSubscriptionNotificationV2_2'
+          discriminator:
+            propertyName: paymentMethod
+            mapping:
+              SBP: '#/components/schemas/SbpSubscriptionNotificationV2'
+              ACQUIRING: '#/components/schemas/CardSubscriptionNotificationV2'
+          type: object
+          properties:
+            paymentMethod:
+              $ref: '#/components/schemas/PaymentMethod'
+          description: Данные о подписке
+          x-description-i18n:
+            eng: Subscription data
+      required:
+      - event
+      - data
+    PaymentNotificationV3_2:
+      title: PaymentNotificationV3
+      type: object
+      properties:
+        event:
+          type: string
+          enum:
+          - PAYMENT
+          description: Тип сообщения
+          x-description-i18n:
+            eng: Message type
+        data:
+          oneOf:
+          - $ref: '#/components/schemas/CardPaymentNotificationV3_2'
+          - $ref: '#/components/schemas/SbpPaymentNotificationV3_2'
+          - $ref: '#/components/schemas/DigitalRublePaymentNotificationV3_2'
+          discriminator:
+            propertyName: paymentMethod
+            mapping:
+              ACQUIRING: '#/components/schemas/CardPaymentNotificationV3'
+              SBP: '#/components/schemas/SbpPaymentNotificationV3'
+              DIGITAL_RUBLE: '#/components/schemas/DigitalRublePaymentNotificationV3'
+          type: object
+          properties:
+            paymentMethod:
+              $ref: '#/components/schemas/PaymentMethod'
+          description: Данные по операции
+          x-description-i18n:
+            eng: Transaction data
+      required:
+      - event
+      - data
+    SbpSubscriptionNotificationV2_2:
+      title: SbpSubscriptionNotificationV2
+      allOf:
+      - $ref: '#/components/schemas/SubscriptionNotificationDataV2'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          bank:
+            type: object
+            description: Банк
+            x-description-i18n:
+              eng: Bank
+            properties:
+              name:
+                type: string
+                description: Наименование банка в котором оформлена подписка
+                x-description-i18n:
+                  eng: The name of the bank where the subscription was made
+              memberId:
+                type: string
+                description: Идентификатор банка в котором оформлена подписка
+                x-description-i18n:
+                  eng: The identifier of the bank where the subscription was issued
+          qr:
+            type: object
+            description: QR-код используемый для оформления подписки
+            x-description-i18n:
+              eng: QR code used to subscribe
+            properties:
+              id:
+                type: string
+                description: Идентификатор QR-кода
+                x-description-i18n:
+                  eng: QR ID
+              payload:
+                type: string
+                description: Данные для самостоятельной генерации изображения зарегистрированного QR-кода в СБП
+                x-description-i18n:
+                  eng: Data for independently generating an image of a registered QR code in the SBP
+              url:
+                type: string
+                description: URL с изображением зарегистрированного QR-кода в СБП
+                x-description-i18n:
+                  eng: URL with an image of the QR code registered in the SBP
+        required:
+        - paymentMethod
+    PaymentMethod:
+      title: PaymentMethod
+      type: string
+      enum:
+      - SBP
+      - ACQUIRING
+      - DIGITAL_RUBLE
+    PaymentTransactionV2:
+      title: PaymentTransactionV2
+      discriminator:
+        propertyName: paymentMethod
+        mapping:
+          sbp: '#/components/schemas/SbpPaymentTransactionV2'
+          acquiring: '#/components/schemas/AcquiringPaymentTransactionV2'
+      oneOf:
+      - $ref: '#/components/schemas/SbpPaymentTransactionV2'
+      - $ref: '#/components/schemas/AcquiringPaymentTransactionV2'
+      type: object
+      properties:
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethodOld'
+      description: Данные по операции
+      x-description-i18n:
+        eng: Transaction data
+    SbpPaymentTransactionV2:
+      title: sbp
+      type: object
+      properties:
+        id:
+          type: number
+          description: Идентификатор операции в Райффайзенбанке
+          x-description-i18n:
+            eng: Raiffeisenbank transaction ID
+          example: 120059
+        orderId:
+          type: string
+          description: Идентификатор заказа в магазине
+          x-description-i18n:
+            eng: Order ID in the merchant system
+          example: order-test
+        status:
+          type: object
+          required:
+          - value
+          - date
+          properties:
+            value:
+              $ref: '#/components/schemas/schemas-PaymentStatus'
+            date:
+              type: string
+              description: Дата и время проведения. ISO-8601
+              x-description-i18n:
+                eng: Date and time. ISO-8601
+              example: '2024-12-31T17:45:13+03:00'
+              format: date-time
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethodOld'
+        paymentParams:
+          type: object
+          description: Параметры платежа
+          x-description-i18n:
+            eng: Payment parameters
+          required:
+          - qrId
+          properties:
+            qrId:
+              type: string
+              description: Уникальный идентификатор QRC, выданный СБП
+              x-description-i18n:
+                eng: Unique QRC ID issued by SBP
+              maxLength: 32
+              example: AD100051KNSNR64I98CRUJUASC9M72QT
+        amount:
+          type: number
+          description: Сумма в рублях
+          x-description-i18n:
+            eng: Amount in rubles
+          example: 1200
+        comment:
+          type: string
+          description: Комментарий
+          x-description-i18n:
+            eng: Comment
+          maxLength: 140
+          pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%'*+,.\-./:;=>?@\[\\\]^_`{|}~№]+$
+          example: Покупка шоколадного торта
+        extra:
+          type: object
+          description: Дополнительные поля в формате key-value. Отображаются в реестрах.
+          x-description-i18n:
+            eng: Additional fields in key-value format. Displayed in registries
+          additionalProperties:
+            type: string
+      required:
+      - id
+      - orderId
+      - status
+      - paymentMethod
+      - paymentParams
+      - amount
+    SbpPaymentNotificationV3_2:
+      title: SbpPaymentNotificationV3
+      allOf:
+      - $ref: '#/components/schemas/PaymentNotificationDataV3_2'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          parameters:
+            type: object
+            required:
+            - sbpTransactionId
+            - qrId
+            properties:
+              sbpTransactionId:
+                type: string
+                description: Уникальный идентификатор операции на уровне всей системы СБП
+                x-description-i18n:
+                  eng: Unique operation ID at the level of the entire SBP system
+              qrId:
+                type: string
+                description: Уникальный идентификатор QRC, выданный СБП
+                x-description-i18n:
+                  eng: Unique QRC ID issued by SBP
+                maxLength: 32
+        required:
+        - paymentMethod
+        - parameters
+    AcquiringPaymentTransactionV2:
+      title: acquiring
+      type: object
+      properties:
+        id:
+          type: number
+          description: Идентификатор операции в Райффайзенбанке
+          x-description-i18n:
+            eng: Raiffeisenbank transaction ID
+          example: 120059
+        orderId:
+          type: string
+          description: Идентификатор заказа в магазине
+          x-description-i18n:
+            eng: Order ID in the merchant system
+          example: order-test
+        status:
+          type: object
+          required:
+          - value
+          - date
+          properties:
+            value:
+              $ref: '#/components/schemas/schemas-PaymentStatus'
+            date:
+              type: string
+              description: Дата и время проведения. ISO-8601
+              x-description-i18n:
+                eng: Date and time. ISO-8601
+              example: '2024-12-31T17:45:13+03:00'
+              format: date-time
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethodOld'
+        paymentParams:
+          type: object
+          description: Параметры платежа
+          x-description-i18n:
+            eng: Payment parameters
+          required:
+          - rrn
+          - authCode
+          properties:
+            rrn:
+              type: string
+              description: Идентификатор транзакции в системе Банка
+              x-description-i18n:
+                eng: Transaction ID in the Bank system
+              example: '935014591810'
+            authCode:
+              type: string
+              description: Код авторизации, полученный от Банка-эмитента
+              x-description-i18n:
+                eng: Authorization code received from the Issuing Bank
+              example: 259AA
+        amount:
+          type: number
+          description: Сумма в рублях
+          x-description-i18n:
+            eng: Amount in rubles
+          example: 1200
+        comment:
+          type: string
+          description: Комментарий
+          x-description-i18n:
+            eng: Comment
+          maxLength: 140
+          pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%'*+,.\-./:;=>?@\[\\\]^_`{|}~№]+$
+          example: Покупка шоколадного торта
+        extra:
+          type: object
+          description: Дополнительные поля в формате key-value. Отображаются в реестрах.
+          x-description-i18n:
+            eng: Additional fields in key-value format. Displayed in registries
+          additionalProperties:
+            type: string
+      required:
+      - id
+      - orderId
+      - status
+      - paymentMethod
+      - paymentParams
+      - amount
+    PaymentNotificationV2:
+      description: Уведомление об оплате заказа для QRVariable (v2, Deprecated)
+      x-description-i18n:
+        eng: Payment notification for QRVariable (v2, Deprecated)
+      type: object
+      x-deprecated: true
+      properties:
+        event:
+          type: string
+          description: Тип сообщения
+          x-description-i18n:
+            eng: Message type
+          enum:
+          - payment
+        transaction:
+          $ref: '#/components/schemas/PaymentTransactionV2'
+      required:
+      - event
+      - transaction
+    CardSubscriptionNotificationV2_2:
+      title: CardSubscriptionNotificationV2
+      allOf:
+      - $ref: '#/components/schemas/SubscriptionNotificationDataV2'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          paymentSystem:
+            type: string
+            description: Платежная система
+            x-description-i18n:
+              eng: Payment system
+            enum:
+            - MIR
+            - VISA
+            - MASTERCARD
+          cardNumber:
+            type: string
+            description: Маскированный номер карты
+            x-description-i18n:
+              eng: Masked payer card number
+            pattern: ^[0-9*]+$
+            minLength: 1
+            maxLength: 20
+            example: '2201382000000039'
+          expirationDate:
+            type: string
+            description: Срок действия карты
+            x-description-i18n:
+              eng: Card validity period
+            example: 2025-10
+            pattern: ^(20\d{2})-(0[1-9]|1[0-2])$
+        required:
+        - paymentMethod
+    CardPaymentNotificationV3_2:
+      title: CardPaymentNotificationV3
+      allOf:
+      - $ref: '#/components/schemas/PaymentNotificationDataV3_2'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          parameters:
+            type: object
+            required:
+            - rrn
+            - authCode
+            properties:
+              eci:
+                type: string
+                description: Уровень и тип риска операции в процессе обработки онлайн-платежа
+                x-description-i18n:
+                  eng: Level and type of risk of the operation during online payment processing
+              rrn:
+                type: string
+                description: Идентификатор транзакции в системе Банка
+                x-description-i18n:
+                  eng: Transaction ID in the Bank system
+              authCode:
+                type: string
+                description: Код авторизации, полученный от Банка-эмитента
+                x-description-i18n:
+                  eng: Authorization code received from the Issuing Bank
+        required:
+        - paymentMethod
+        - parameters
+    PaymentNotificationV1:
+      title: PaymentNotificationV1
+      type: object
+      description: Уведомления о платеже по QRStatic и QRDynamic (v1, Deprecated)
+      x-description-i18n:
+        eng: QRStatic and QRDynamic payment notifications (v1, Deprecated)
+      x-deprecated: true
+      properties:
+        transactionId:
+          type: number
+          description: Идентификатор операции платежа в Райффайзенбанке
+          x-description-i18n:
+            eng: Payment transaction ID at Raiffeisenbank
+        qrId:
+          type: string
+          description: Уникальный идентификатор QR-кода, выданный СБП
+          maxLength: 32
+          x-description-i18n:
+            eng: Unique QR code ID issued by SBP
+        sbpMerchantId:
+          type: string
+          description: Идентификатор зарегистрированного ТСП в СБП
+          maxLength: 12
+          x-description-i18n:
+            eng: Registered merchant ID in SBP
+        merchantId:
+          type: string
+          description: Идентификатор ТСП в Райффайзенбанке
+          x-description-i18n:
+            eng: Merchant ID at Raiffeisenbank
+        amount:
+          type: number
+          description: Сумма в рублях
+          x-description-i18n:
+            eng: Amount in rubles
+        currency:
+          type: string
+          description: Валюта платежа
+          maxLength: 3
+          x-description-i18n:
+            eng: Payment currency
+        transactionDate:
+          type: string
+          format: date-time
+          description: Дата и время проведения платежа
+          x-description-i18n:
+            eng: Payment date and time
+        paymentStatus:
+          type: string
+          description: Статус проведения платежа
+          x-description-i18n:
+            eng: Payment status
+        additionalInfo:
+          type: string
+          description: Дополнительная информация
+          maxLength: 140
+          x-description-i18n:
+            eng: Additional information
+        order:
+          type: string
+          description: Уникальный идентификатор заказа
+          maxLength: 40
+          pattern: ^[A-Za-z0-9-_.]+$
+          x-description-i18n:
+            eng: Unique order ID
+        createDate:
+          type: string
+          format: date-time
+          description: Время формирования заявки
+          x-description-i18n:
+            eng: Request creation time
+        extra:
+          type: object
+          description: Дополнительные поля, переданные в запросе ранее
+          x-description-i18n:
+            eng: Additional fields from previous request
+          additionalProperties:
+            type: string
+    PaymentMethodOld:
+      title: PaymentMethodOld
+      type: string
+      enum:
+      - sbp
+      - acquiring
+    GeneralErrorResponse:
+      type: object
+      title: error
+      properties:
+        code:
+          type: string
+          description: Код ошибки
+          x-description-i18n:
+            eng: Error code
+        message:
+          type: string
+          description: Описание ошибки
+          x-description-i18n:
+            eng: Error description
+    DigitalRublePaymentNotificationV3_2:
+      title: DigitalRublePaymentNotificationV3
+      allOf:
+      - $ref: '#/components/schemas/PaymentNotificationDataV3_2'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          parameters:
+            type: object
+            description: Параметры платежа цифровым рублем
+            x-description-i18n:
+              eng: Digital ruble payment parameters
+            required:
+            - drTransactionId
+            - qrId
+            properties:
+              drTransactionId:
+                type: string
+                description: Идентификатор операции в системе цифрового рубля
+                x-description-i18n:
+                  eng: Digital ruble transaction identifier
+              qrId:
+                type: string
+                description: Уникальный идентификатор QRC, выданный СБП
+                x-description-i18n:
+                  eng: Unique QRC ID issued by SBP
+                maxLength: 32
+        required:
+        - paymentMethod
+        - parameters
+    SubscriptionNotificationV1:
+      description: Уведомление об изменении статуса подписки (v1, Deprecated)
+      x-description-i18n:
+        eng: Notification of subscription status change (v1, Deprecated)
+      type: object
+      x-deprecated: true
+      properties:
+        event:
+          type: string
+          description: Тип сообщения
+          x-description-i18n:
+            eng: Type message
+          enum:
+          - SUBSCRIPTION
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Идентификатор подписки
+              x-description-i18n:
+                eng: Subscription identifier
+            publicId:
+              type: string
+              description: Идентификатор мерчанта в Райффайзенбанке
+              x-description-i18n:
+                eng: Raiffeisenbank Merchant ID
+            bank:
+              type: object
+              description: Информация о банке подписчика
+              x-description-i18n:
+                eng: Subscriber's bank information
+              properties:
+                name:
+                  type: string
+                  description: Наименование банка подписчика
+                  x-description-i18n:
+                    eng: Subscriber's bank name
+                memberId:
+                  type: string
+                  description: Идентификатор банка подписчика в СБП
+                  x-description-i18n:
+                    eng: Subscriber's bank SBP memberId
+            status:
+              type: object
+              description: Информация о статусе подписки
+              x-description-i18n:
+                eng: Subscription status information
+              properties:
+                value:
+                  $ref: '#/components/schemas/SubscriptionStatus'
+                date:
+                  type: string
+                  format: date-time
+                  description: Время обновления подписки
+                  x-description-i18n:
+                    eng: Subscription update time
+            qr:
+              type: object
+              description: Информация о QRC подписки
+              x-description-i18n:
+                eng: QRC subscription information
+              properties:
+                id:
+                  type: string
+                  description: Уникальный идентификатор QRC, выданный СБП
+                  x-description-i18n:
+                    eng: Unique QRC ID issued by SBP
+      title: ''
+    schemas-PaymentStatus:
+      title: PaymentStatus
+      type: string
+      enum:
+      - SUCCESS
+      - DECLINED
+      - IN_PROGRESS
+    SubscriptionNotificationV2_3:
+      title: SubscriptionNotificationV2
+      description: Уведомление о подписке (v2)
+      x-description-i18n:
+        eng: Subscription notification (v2)
+      type: object
+      properties:
+        event:
+          type: string
+          enum:
+          - SUBSCRIPTION
+          description: Тип сообщения
+          x-description-i18n:
+            eng: Message type
+        data:
+          oneOf:
+          - $ref: '#/components/schemas/SbpSubscriptionNotificationV2_3'
+          - $ref: '#/components/schemas/CardSubscriptionNotificationV2_3'
+          discriminator:
+            propertyName: paymentMethod
+            mapping:
+              SBP: '#/components/schemas/SbpSubscriptionNotificationV2'
+              ACQUIRING: '#/components/schemas/CardSubscriptionNotificationV2'
+          type: object
+          properties:
+            paymentMethod:
+              $ref: '#/components/schemas/PaymentMethod'
+          description: Данные о подписке
+          x-description-i18n:
+            eng: Subscription data
+      required:
+      - event
+      - data
+    PaymentNotificationV3_3:
+      title: PaymentNotificationV3
+      type: object
+      properties:
+        event:
+          type: string
+          enum:
+          - PAYMENT
+          description: Тип сообщения
+          x-description-i18n:
+            eng: Message type
+        data:
+          oneOf:
+          - $ref: '#/components/schemas/CardPaymentNotificationV3_3'
+          - $ref: '#/components/schemas/SbpPaymentNotificationV3_3'
+          - $ref: '#/components/schemas/DigitalRublePaymentNotificationV3_3'
+          discriminator:
+            propertyName: paymentMethod
+            mapping:
+              ACQUIRING: '#/components/schemas/CardPaymentNotificationV3'
+              SBP: '#/components/schemas/SbpPaymentNotificationV3'
+              DIGITAL_RUBLE: '#/components/schemas/DigitalRublePaymentNotificationV3'
+          type: object
+          properties:
+            paymentMethod:
+              $ref: '#/components/schemas/PaymentMethod'
+          description: Данные по операции
+          x-description-i18n:
+            eng: Transaction data
+      required:
+      - event
+      - data
+    SbpSubscriptionNotificationV2_3:
+      title: SbpSubscriptionNotificationV2
+      allOf:
+      - $ref: '#/components/schemas/SubscriptionNotificationDataV2'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          bank:
+            type: object
+            description: Банк
+            x-description-i18n:
+              eng: Bank
+            properties:
+              name:
+                type: string
+                description: Наименование банка в котором оформлена подписка
+                x-description-i18n:
+                  eng: The name of the bank where the subscription was made
+              memberId:
+                type: string
+                description: Идентификатор банка в котором оформлена подписка
+                x-description-i18n:
+                  eng: The identifier of the bank where the subscription was issued
+          qr:
+            type: object
+            description: QR-код используемый для оформления подписки
+            x-description-i18n:
+              eng: QR code used to subscribe
+            properties:
+              id:
+                type: string
+                description: Идентификатор QR-кода
+                x-description-i18n:
+                  eng: QR ID
+              payload:
+                type: string
+                description: Данные для самостоятельной генерации изображения зарегистрированного QR-кода в СБП
+                x-description-i18n:
+                  eng: Data for independently generating an image of a registered QR code in the SBP
+              url:
+                type: string
+                description: URL с изображением зарегистрированного QR-кода в СБП
+                x-description-i18n:
+                  eng: URL with an image of the QR code registered in the SBP
+        required:
+        - paymentMethod
+    SbpPaymentNotificationV3_3:
+      title: SbpPaymentNotificationV3
+      allOf:
+      - $ref: '#/components/schemas/PaymentNotificationDataV3'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          parameters:
+            type: object
+            required:
+            - sbpTransactionId
+            - qrId
+            properties:
+              sbpTransactionId:
+                type: string
+                description: Уникальный идентификатор операции на уровне всей системы СБП
+                x-description-i18n:
+                  eng: Unique operation ID at the level of the entire SBP system
+              qrId:
+                type: string
+                description: Уникальный идентификатор QRC, выданный СБП
+                x-description-i18n:
+                  eng: Unique QRC ID issued by SBP
+                maxLength: 32
+        required:
+        - paymentMethod
+        - parameters
+    CardSubscriptionNotificationV2_3:
+      title: CardSubscriptionNotificationV2
+      allOf:
+      - $ref: '#/components/schemas/SubscriptionNotificationDataV2'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          paymentSystem:
+            type: string
+            description: Платежная система
+            x-description-i18n:
+              eng: Payment system
+            enum:
+            - MIR
+            - VISA
+            - MASTERCARD
+          cardNumber:
+            type: string
+            description: Маскированный номер карты
+            x-description-i18n:
+              eng: Masked payer card number
+            pattern: ^[0-9*]+$
+            minLength: 1
+            maxLength: 20
+            example: '2201382000000039'
+          expirationDate:
+            type: string
+            description: Срок действия карты
+            x-description-i18n:
+              eng: Card validity period
+            example: 2025-10
+            pattern: ^(20\d{2})-(0[1-9]|1[0-2])$
+        required:
+        - paymentMethod
+    CardPaymentNotificationV3_3:
+      title: CardPaymentNotificationV3
+      allOf:
+      - $ref: '#/components/schemas/PaymentNotificationDataV3'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          parameters:
+            type: object
+            required:
+            - rrn
+            - authCode
+            properties:
+              eci:
+                type: string
+                description: Уровень и тип риска операции в процессе обработки онлайн-платежа
+                x-description-i18n:
+                  eng: Level and type of risk of the operation during online payment processing
+              rrn:
+                type: string
+                description: Идентификатор транзакции в системе Банка
+                x-description-i18n:
+                  eng: Transaction ID in the Bank system
+              authCode:
+                type: string
+                description: Код авторизации, полученный от Банка-эмитента
+                x-description-i18n:
+                  eng: Authorization code received from the Issuing Bank
+        required:
+        - paymentMethod
+        - parameters
+    DigitalRublePaymentNotificationV3_3:
+      title: DigitalRublePaymentNotificationV3
+      allOf:
+      - $ref: '#/components/schemas/PaymentNotificationDataV3'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          parameters:
+            type: object
+            description: Параметры платежа цифровым рублем
+            x-description-i18n:
+              eng: Digital ruble payment parameters
+            required:
+            - drTransactionId
+            - qrId
+            properties:
+              drTransactionId:
+                type: string
+                description: Идентификатор операции в системе цифрового рубля
+                x-description-i18n:
+                  eng: Digital ruble transaction identifier
+              qrId:
+                type: string
+                description: Уникальный идентификатор QRC, выданный СБП
+                x-description-i18n:
+                  eng: Unique QRC ID issued by SBP
+                maxLength: 32
+        required:
+        - paymentMethod
+        - parameters
+    Payment-2_2:
+      description: Информация об успешном платеже
+      type:
+      - object
+      - 'null'
+      required:
+      - id
+      - sbpTransactionId
+      - status
+      - amount
+      - sender
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/PaymentId'
+        sbpTransactionId:
+          allOf:
+          - $ref: '#/components/schemas/SbpTransactionId'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStatus_3'
+        amount:
+          allOf:
+          - $ref: '#/components/schemas/Amount'
+        totalTaxAmount:
+          allOf:
+          - $ref: '#/components/schemas/TotalTaxAmount'
+        senderPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/SenderPaymentPurpose'
+        receiverPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/ReceiverPaymentPurpose'
+        extra:
+          allOf:
+          - $ref: '#/components/schemas/Extra'
+        sender:
+          allOf:
+          - $ref: '#/components/schemas/PaymentSender'
+    PaymentStatus_3:
+      type: object
+      description: Статус входящего платежа
+      required:
+      - value
+      - date
+      properties:
+        value:
+          type: string
+          description: Статус платежа, возможен только "SUCCESS"
+          enum:
+          - SUCCESS
+          example: SUCCESS
+        date:
+          type: string
+          format: date-time
+          description: Время проведения платежа
+          example: '2024-06-12T19:36:55+03:00'
+    Payments_2:
+      description: Список платежей
+      type:
+      - array
+      - 'null'
+      items:
+        description: Информация о платеже
+        type: object
+        required:
+        - id
+        - status
+        - amount
+        - totalTaxAmount
+        - sender
+        properties:
+          id:
+            allOf:
+            - $ref: '#/components/schemas/PaymentId'
+          sbpTransactionId:
+            allOf:
+            - $ref: '#/components/schemas/SbpTransactionId'
+          status:
+            allOf:
+            - $ref: '#/components/schemas/PaymentStatus_3'
+          amount:
+            allOf:
+            - $ref: '#/components/schemas/Amount'
+          totalTaxAmount:
+            allOf:
+            - $ref: '#/components/schemas/TotalTaxAmount'
+          sender:
+            allOf:
+            - $ref: '#/components/schemas/Sender'
+    Payment_2:
+      description: Информация об успешном платеже. Поле заполняется только в случае, если по заказу была проведена успешная оплата
+      type:
+      - object
+      - 'null'
+      required:
+      - id
+      - sbpTransactionId
+      - status
+      - amount
+      - totalTaxAmount
+      - sender
+      properties:
+        id:
+          $ref: '#/components/schemas/PaymentId'
+        sbpTransactionId:
+          $ref: '#/components/schemas/SbpTransactionId'
+        status:
+          $ref: '#/components/schemas/PaymentStatus_3'
+        amount:
+          $ref: '#/components/schemas/Amount'
+        totalTaxAmount:
+          $ref: '#/components/schemas/TotalTaxAmount'
+        sender:
+          $ref: '#/components/schemas/PaymentSender'
+    PaymentNotificationDataV3_3:
+      title: PaymentNotificationDataV3
+      type: object
+      properties:
+        id:
+          type: string
+          description: Идентификатор платежа
+          x-description-i18n:
+            eng: Payment ID
+          pattern: ^[A-Za-z0-9-_.]+$
+        publicId:
+          type: string
+          description: Идентификатор мерчанта в системе Банка
+          x-description-i18n:
+            eng: Merchant ID in the bank system
+        amount:
+          type: number
+          description: Сумма платежа в рублях. Для копеек доступно два знака после точки.
+          x-description-i18n:
+            eng: Payment amount in rubles. Two decimal places are available for kopecks.
+        order:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Идентификатор заказа в системе мерчанта
+              x-description-i18n:
+                eng: Order ID in the merchant system
+            comment:
+              $ref: '#/components/schemas/OrderComment'
+        status:
+          type: object
+          description: Статус платежа
+          x-description-i18n:
+            eng: Payment status
+          required:
+          - value
+          - date
+          properties:
+            value:
+              $ref: '#/components/schemas/schemas-PaymentStatus'
+            date:
+              type: string
+              format: date-time
+              description: Дата и время создания платежа
+              x-description-i18n:
+                eng: Payment creation date and time
+            declineReason:
+              type: string
+              description: Причина отклонения. Указывается в случае отклонения операции.
+              x-description-i18n:
+                eng: Reason for rejection. Specified if the operation is declined.
+        extra:
+          type: object
+          description: Дополнительные поля в формате key-value
+          x-description-i18n:
+            eng: Additional fields in key-value format
+          additionalProperties:
+            type: string
+        subscription:
+          type: object
+          description: Блок информации о подписке. Заполняется для платежей, которые были проведены по сценарию оплаты по подписке.
+          x-description-i18n:
+            eng: Subscription information block. Filled in for payments made via the subscription payment scenario.
+          properties:
+            id:
+              type: string
+              description: Идентификатор подписки
+              x-description-i18n:
+                eng: Subscription ID
+              pattern: ^[A-Za-z0-9-_.]+$
+            purpose:
+              type: string
+              description: Описание подписки
+              x-description-i18n:
+                eng: Subscription description
+          required:
+          - id
+      required:
+      - id
+      - publicId
+      - amount
+      - order
+      - status
+    SubscriptionNotificationV2_4:
+      title: SubscriptionNotificationV2
+      description: Уведомление о подписке (v2)
+      x-description-i18n:
+        eng: Subscription notification (v2)
+      type: object
+      properties:
+        event:
+          type: string
+          enum:
+          - SUBSCRIPTION
+          description: Тип сообщения
+          x-description-i18n:
+            eng: Message type
+        data:
+          oneOf:
+          - $ref: '#/components/schemas/SbpSubscriptionNotificationV2_4'
+          - $ref: '#/components/schemas/CardSubscriptionNotificationV2_4'
+          discriminator:
+            propertyName: paymentMethod
+            mapping:
+              SBP: '#/components/schemas/SbpSubscriptionNotificationV2'
+              ACQUIRING: '#/components/schemas/CardSubscriptionNotificationV2'
+          type: object
+          properties:
+            paymentMethod:
+              $ref: '#/components/schemas/PaymentMethod'
+          description: Данные о подписке
+          x-description-i18n:
+            eng: Subscription data
+      required:
+      - event
+      - data
+    PaymentNotificationV3_4:
+      title: PaymentNotificationV3
+      type: object
+      properties:
+        event:
+          type: string
+          enum:
+          - PAYMENT
+          description: Тип сообщения
+          x-description-i18n:
+            eng: Message type
+        data:
+          oneOf:
+          - $ref: '#/components/schemas/CardPaymentNotificationV3_4'
+          - $ref: '#/components/schemas/SbpPaymentNotificationV3_4'
+          - $ref: '#/components/schemas/DigitalRublePaymentNotificationV3_4'
+          discriminator:
+            propertyName: paymentMethod
+            mapping:
+              ACQUIRING: '#/components/schemas/CardPaymentNotificationV3'
+              SBP: '#/components/schemas/SbpPaymentNotificationV3'
+              DIGITAL_RUBLE: '#/components/schemas/DigitalRublePaymentNotificationV3'
+          type: object
+          properties:
+            paymentMethod:
+              $ref: '#/components/schemas/PaymentMethod'
+          description: Данные по операции
+          x-description-i18n:
+            eng: Transaction data
+      required:
+      - event
+      - data
+    SbpSubscriptionNotificationV2_4:
+      title: SbpSubscriptionNotificationV2
+      allOf:
+      - $ref: '#/components/schemas/SubscriptionNotificationDataV2'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          bank:
+            type: object
+            description: Банк
+            x-description-i18n:
+              eng: Bank
+            properties:
+              name:
+                type: string
+                description: Наименование банка в котором оформлена подписка
+                x-description-i18n:
+                  eng: The name of the bank where the subscription was made
+              memberId:
+                type: string
+                description: Идентификатор банка в котором оформлена подписка
+                x-description-i18n:
+                  eng: The identifier of the bank where the subscription was issued
+          qr:
+            type: object
+            description: QR-код используемый для оформления подписки
+            x-description-i18n:
+              eng: QR code used to subscribe
+            properties:
+              id:
+                type: string
+                description: Идентификатор QR-кода
+                x-description-i18n:
+                  eng: QR ID
+              payload:
+                type: string
+                description: Данные для самостоятельной генерации изображения зарегистрированного QR-кода в СБП
+                x-description-i18n:
+                  eng: Data for independently generating an image of a registered QR code in the SBP
+              url:
+                type: string
+                description: URL с изображением зарегистрированного QR-кода в СБП
+                x-description-i18n:
+                  eng: URL with an image of the QR code registered in the SBP
+        required:
+        - paymentMethod
+    SbpPaymentNotificationV3_4:
+      title: SbpPaymentNotificationV3
+      allOf:
+      - $ref: '#/components/schemas/PaymentNotificationDataV3_3'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          parameters:
+            type: object
+            required:
+            - sbpTransactionId
+            - qrId
+            properties:
+              sbpTransactionId:
+                type: string
+                description: Уникальный идентификатор операции на уровне всей системы СБП
+                x-description-i18n:
+                  eng: Unique operation ID at the level of the entire SBP system
+              qrId:
+                type: string
+                description: Уникальный идентификатор QRC, выданный СБП
+                x-description-i18n:
+                  eng: Unique QRC ID issued by SBP
+                maxLength: 32
+        required:
+        - paymentMethod
+        - parameters
+    CardSubscriptionNotificationV2_4:
+      title: CardSubscriptionNotificationV2
+      allOf:
+      - $ref: '#/components/schemas/SubscriptionNotificationDataV2'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          paymentSystem:
+            type: string
+            description: Платежная система
+            x-description-i18n:
+              eng: Payment system
+            enum:
+            - MIR
+            - VISA
+            - MASTERCARD
+          cardNumber:
+            type: string
+            description: Маскированный номер карты
+            x-description-i18n:
+              eng: Masked payer card number
+            pattern: ^[0-9*]+$
+            minLength: 1
+            maxLength: 20
+            example: '2201382000000039'
+          expirationDate:
+            type: string
+            description: Срок действия карты
+            x-description-i18n:
+              eng: Card validity period
+            example: 2025-10
+            pattern: ^(20\d{2})-(0[1-9]|1[0-2])$
+        required:
+        - paymentMethod
+    CardPaymentNotificationV3_4:
+      title: CardPaymentNotificationV3
+      allOf:
+      - $ref: '#/components/schemas/PaymentNotificationDataV3_3'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          parameters:
+            type: object
+            required:
+            - rrn
+            - authCode
+            properties:
+              eci:
+                type: string
+                description: Уровень и тип риска операции в процессе обработки онлайн-платежа
+                x-description-i18n:
+                  eng: Level and type of risk of the operation during online payment processing
+              rrn:
+                type: string
+                description: Идентификатор транзакции в системе Банка
+                x-description-i18n:
+                  eng: Transaction ID in the Bank system
+              authCode:
+                type: string
+                description: Код авторизации, полученный от Банка-эмитента
+                x-description-i18n:
+                  eng: Authorization code received from the Issuing Bank
+        required:
+        - paymentMethod
+        - parameters
+    DigitalRublePaymentNotificationV3_4:
+      title: DigitalRublePaymentNotificationV3
+      allOf:
+      - $ref: '#/components/schemas/PaymentNotificationDataV3_3'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          parameters:
+            type: object
+            description: Параметры платежа цифровым рублем
+            x-description-i18n:
+              eng: Digital ruble payment parameters
+            required:
+            - drTransactionId
+            - qrId
+            properties:
+              drTransactionId:
+                type: string
+                description: Идентификатор операции в системе цифрового рубля
+                x-description-i18n:
+                  eng: Digital ruble transaction identifier
+              qrId:
+                type: string
+                description: Уникальный идентификатор QRC, выданный СБП
+                x-description-i18n:
+                  eng: Unique QRC ID issued by SBP
+                maxLength: 32
+        required:
+        - paymentMethod
+        - parameters
+    SubscriptionNotificationV2_5:
+      title: SubscriptionNotificationV2
+      description: Уведомление о подписке (v2)
+      x-description-i18n:
+        eng: Subscription notification (v2)
+      type: object
+      properties:
+        event:
+          type: string
+          enum:
+          - SUBSCRIPTION
+          description: Тип сообщения
+          x-description-i18n:
+            eng: Message type
+        data:
+          oneOf:
+          - $ref: '#/components/schemas/SbpSubscriptionNotificationV2_5'
+          - $ref: '#/components/schemas/CardSubscriptionNotificationV2_5'
+          discriminator:
+            propertyName: paymentMethod
+            mapping:
+              SBP: '#/components/schemas/SbpSubscriptionNotificationV2'
+              ACQUIRING: '#/components/schemas/CardSubscriptionNotificationV2'
+          type: object
+          properties:
+            paymentMethod:
+              $ref: '#/components/schemas/PaymentMethod'
+          description: Данные о подписке
+          x-description-i18n:
+            eng: Subscription data
+      required:
+      - event
+      - data
+    PaymentNotificationV3_5:
+      title: PaymentNotificationV3
+      type: object
+      properties:
+        event:
+          type: string
+          enum:
+          - PAYMENT
+          description: Тип сообщения
+          x-description-i18n:
+            eng: Message type
+        data:
+          oneOf:
+          - $ref: '#/components/schemas/CardPaymentNotificationV3_5'
+          - $ref: '#/components/schemas/SbpPaymentNotificationV3_5'
+          - $ref: '#/components/schemas/DigitalRublePaymentNotificationV3_5'
+          discriminator:
+            propertyName: paymentMethod
+            mapping:
+              ACQUIRING: '#/components/schemas/CardPaymentNotificationV3'
+              SBP: '#/components/schemas/SbpPaymentNotificationV3'
+              DIGITAL_RUBLE: '#/components/schemas/DigitalRublePaymentNotificationV3'
+          type: object
+          properties:
+            paymentMethod:
+              $ref: '#/components/schemas/PaymentMethod'
+          description: Данные по операции
+          x-description-i18n:
+            eng: Transaction data
+      required:
+      - event
+      - data
+    SbpSubscriptionNotificationV2_5:
+      title: SbpSubscriptionNotificationV2
+      allOf:
+      - $ref: '#/components/schemas/SubscriptionNotificationDataV2'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          bank:
+            type: object
+            description: Банк
+            x-description-i18n:
+              eng: Bank
+            properties:
+              name:
+                type: string
+                description: Наименование банка в котором оформлена подписка
+                x-description-i18n:
+                  eng: The name of the bank where the subscription was made
+              memberId:
+                type: string
+                description: Идентификатор банка в котором оформлена подписка
+                x-description-i18n:
+                  eng: The identifier of the bank where the subscription was issued
+          qr:
+            type: object
+            description: QR-код используемый для оформления подписки
+            x-description-i18n:
+              eng: QR code used to subscribe
+            properties:
+              id:
+                type: string
+                description: Идентификатор QR-кода
+                x-description-i18n:
+                  eng: QR ID
+              payload:
+                type: string
+                description: Данные для самостоятельной генерации изображения зарегистрированного QR-кода в СБП
+                x-description-i18n:
+                  eng: Data for independently generating an image of a registered QR code in the SBP
+              url:
+                type: string
+                description: URL с изображением зарегистрированного QR-кода в СБП
+                x-description-i18n:
+                  eng: URL with an image of the QR code registered in the SBP
+        required:
+        - paymentMethod
+    SbpPaymentNotificationV3_5:
+      title: SbpPaymentNotificationV3
+      allOf:
+      - $ref: '#/components/schemas/PaymentNotificationDataV3'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          parameters:
+            type: object
+            required:
+            - sbpTransactionId
+            - qrId
+            properties:
+              sbpTransactionId:
+                type: string
+                description: Уникальный идентификатор операции на уровне всей системы СБП
+                x-description-i18n:
+                  eng: Unique operation ID at the level of the entire SBP system
+              qrId:
+                type: string
+                description: Уникальный идентификатор QRC, выданный СБП
+                x-description-i18n:
+                  eng: Unique QRC ID issued by SBP
+                maxLength: 32
+        required:
+        - paymentMethod
+        - parameters
+    CardSubscriptionNotificationV2_5:
+      title: CardSubscriptionNotificationV2
+      allOf:
+      - $ref: '#/components/schemas/SubscriptionNotificationDataV2'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          paymentSystem:
+            type: string
+            description: Платежная система
+            x-description-i18n:
+              eng: Payment system
+            enum:
+            - MIR
+            - VISA
+            - MASTERCARD
+          cardNumber:
+            type: string
+            description: Маскированный номер карты
+            x-description-i18n:
+              eng: Masked payer card number
+            pattern: ^[0-9*]+$
+            minLength: 1
+            maxLength: 20
+            example: '2201382000000039'
+          expirationDate:
+            type: string
+            description: Срок действия карты
+            x-description-i18n:
+              eng: Card validity period
+            example: 2025-10
+            pattern: ^(20\d{2})-(0[1-9]|1[0-2])$
+        required:
+        - paymentMethod
+    CardPaymentNotificationV3_5:
+      title: CardPaymentNotificationV3
+      allOf:
+      - $ref: '#/components/schemas/PaymentNotificationDataV3'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          parameters:
+            type: object
+            required:
+            - rrn
+            - authCode
+            properties:
+              eci:
+                type: string
+                description: Уровень и тип риска операции в процессе обработки онлайн-платежа
+                x-description-i18n:
+                  eng: Level and type of risk of the operation during online payment processing
+              rrn:
+                type: string
+                description: Идентификатор транзакции в системе Банка
+                x-description-i18n:
+                  eng: Transaction ID in the Bank system
+              authCode:
+                type: string
+                description: Код авторизации, полученный от Банка-эмитента
+                x-description-i18n:
+                  eng: Authorization code received from the Issuing Bank
+        required:
+        - paymentMethod
+        - parameters
+    DigitalRublePaymentNotificationV3_5:
+      title: DigitalRublePaymentNotificationV3
+      allOf:
+      - $ref: '#/components/schemas/PaymentNotificationDataV3'
+      - type: object
+        properties:
+          paymentMethod:
+            $ref: '#/components/schemas/PaymentMethod'
+          parameters:
+            type: object
+            description: Параметры платежа цифровым рублем
+            x-description-i18n:
+              eng: Digital ruble payment parameters
+            required:
+            - drTransactionId
+            - qrId
+            properties:
+              drTransactionId:
+                type: string
+                description: Идентификатор операции в системе цифрового рубля
+                x-description-i18n:
+                  eng: Digital ruble transaction identifier
+              qrId:
+                type: string
+                description: Уникальный идентификатор QRC, выданный СБП
+                x-description-i18n:
+                  eng: Unique QRC ID issued by SBP
+                maxLength: 32
+        required:
+        - paymentMethod
+        - parameters
+  examples:
+    RefundNotificationV1SBPCompleted:
+      summary: Успешный возврат СБП
+      x-summary-i18n:
+        eng: Successful SBP refund
+      value:
+        refund:
+          id: refund-12345
+          sbp:
+            sbpTransactionId: B7CF9F02B5224F34913FB5BB311CED39
+          amount: 1500.5
+          status:
+            value: COMPLETED
+            date: '2024-08-06T14:50:59+03:00'
+          paymentParams:
+            transactionId: 1345
+            orderId: order-12345
+            qrId: AD100051KNSNR64I98CRUJUASC9M72QT
+    CallbackSettings:
+      value:
+        callbackUrl: https://yoururl.ru
+        operationTypes:
+          payment:
+            version: V3
+            enabled: true
+          refund:
+            version: V1
+            enabled: true
+          subscription:
+            version: V2
+            enabled: false
+    PaymentNotificationV3SBP:
+      summary: Оплата СБП
+      x-summary-i18n:
+        eng: SBP payment
+      value:
+        event: PAYMENT
+        data:
+          id: payment-12345
+          publicId: MA0000000552
+          amount: 1500.5
+          order:
+            id: order-12345
+          status:
+            value: SUCCESS
+            date: '2024-08-06T14:50:59+03:00'
+          paymentMethod: SBP
+          parameters:
+            sbpTransactionId: B7CF9F02B5224F34913FB5BB311CED39
+            qrId: AS92FBDC6FE14273B8600641D3E38982
+    SubscriptionNotificationV2Success:
+      summary: Подписка по карте оформлена
+      x-summary-i18n:
+        eng: Card subscription created
+      value:
+        event: SUBSCRIPTION
+        data:
+          publicId: 000001780049001-80049001
+          id: subscription-test
+          status:
+            value: SUBSCRIBED
+            date: '2025-11-29T19:43:54+03:00'
+          purpose: Подписка на интернет магазин
+          paymentMethod: ACQUIRING
+          paymentSystem: MIR
+          cardNumber: 22013233****4439
+          expirationDate: 2035-10
+    SubscriptionNotificationV2SBP:
+      summary: Подписка по СБП оформлена
+      x-summary-i18n:
+        eng: SBP subscription created
+      value:
+        event: SUBSCRIPTION
+        data:
+          publicId: 000001780049001-80049001
+          id: subscription-sbp-test
+          status:
+            value: SUBSCRIBED
+            date: '2025-11-29T19:43:54+03:00'
+          purpose: Подписка на мобильное приложение
+          paymentMethod: SBP
+          bank:
+            name: Райффайзенбанк
+            memberId: '100000000007'
+          qr:
+            id: AD100004BAL7227F9BNP6KNE007J9B3K
+            payload: https://sub.nspk.ru/AS3D33FC7B034DEEA8A365142E1DE737
+            url: https://pay-test.raif.ru/api/sbp/v1/qr/AS3D33FC7B034DEEA8A365142E1DE737/image
+    PaymentNotificationV3SUBSCRIPTION:
+      summary: Оплата по подписке
+      x-summary-i18n:
+        eng: Subscription payment
+      value:
+        event: PAYMENT
+        data:
+          id: payment-12347
+          publicId: MA0000000552
+          amount: 1000
+          order:
+            id: order-12347
+          status:
+            value: SUCCESS
+            date: '2024-08-06T15:10:00+03:00'
+          paymentMethod: SBP
+          subscription:
+            id: sub-12345
+            purpose: Подписка на журнал
+          parameters:
+            sbpTransactionId: B7CF9F02B5224F34913FB5BB311CED40
+    PaymentNotificationV3CARD:
+      summary: Оплата по карте
+      x-summary-i18n:
+        eng: Card payment
+      value:
+        event: PAYMENT
+        data:
+          id: payment-12346
+          publicId: MA0000000552
+          amount: 2500
+          order:
+            id: order-12346
+          status:
+            value: SUCCESS
+            date: '2024-08-06T15:00:00+03:00'
+          paymentMethod: ACQUIRING
+          parameters:
+            rrn: '935014591810'
+            authCode: 259AA
+    PaymentNotificationV3DigitalRuble:
+      summary: Оплата цифровым рублем
+      x-summary-i18n:
+        eng: Digital ruble payment
+      value:
+        event: PAYMENT
+        data:
+          id: payment-12346
+          publicId: MA0000000552
+          amount: 1500.5
+          order:
+            id: order-12346
+          status:
+            value: SUCCESS
+            date: '2024-08-06T14:50:59+03:00'
+          paymentMethod: DIGITAL_RUBLE
+          parameters:
+            drTransactionId: a827b678-47ce-4e97-a946-17f128960d61
+            qrId: AS92FBDC6FE14273B8600641D3E38982
+    RefundNotificationV1SBPDeclined:
+      summary: Отклонённый возврат СБП
+      x-summary-i18n:
+        eng: Declined SBP refund
+      value:
+        refund:
+          id: refund-12346
+          sbp:
+            sbpTransactionId: B7CF9F02B5224F34913FB5BB311CED40
+          amount: 2500
+          status:
+            value: DECLINED
+            date: '2024-08-06T15:00:00+03:00'
+            declineReason: BANK_NOT_SUPPORTED
+          paymentParams:
+            transactionId: 1346
+            orderId: order-12346
+            qrId: AD100051KNSNR64I98CRUJUASC9M72QT
+    RefundNotificationV1AcquiringDeclined:
+      summary: Отклонённый возврат по карте
+      x-summary-i18n:
+        eng: Declined card refund
+      value:
+        refund:
+          id: refund-12348
+          ecom:
+            rrn: '935014591811'
+            authCode: 260BB
+          amount: 500
+          status:
+            value: DECLINED
+            date: '2024-08-06T15:20:00+03:00'
+            declineReason: SYSTEM_ERROR
+          paymentParams:
+            transactionId: 1348
+            orderId: order-12348
+    RefundNotificationV1AcquiringCompleted:
+      summary: Успешный возврат по карте
+      x-summary-i18n:
+        eng: Successful card refund
+      value:
+        refund:
+          id: refund-12347
+          ecom:
+            rrn: '935014591810'
+            authCode: 259AA
+          amount: 1000
+          status:
+            value: COMPLETED
+            date: '2024-08-06T15:10:00+03:00'
+          paymentParams:
+            transactionId: 1347
+            orderId: order-12347
+    IncomingPaymentForReusablePaymentLinkCallbackDto:
+      value:
+        event: B2B_REUSABLE_PAYMENT
+        data:
+          reusablePaymentLink:
+            id: 123e4567-e89b-12d3-a456-426655440000
+            qr:
+              id: PMSHT0BYVSYE7LDXMCXJSGIUHJLQWZXY
+              name: Какое-то название созданного qr кода
+              type: STATIC
+            extra:
+              clientId: number
+          payment:
+            id: PMSHT0BYVSYE7LDXMCXJSGIUHJLQWZXY
+            sbpTransactionId: KJDSFIOCNASDLKASJDIUHANCKNA1FSCS
+            status:
+              value: SUCCESS
+              date: '2024-06-12T19:36:55+03:00'
+            amount: 8573.79
+            totalTaxAmount: 2.41
+            receiverPaymentPurpose: Какое-то назначение платежа
+            senderPaymentPurpose: Какое-то назначение платежа
+            extra:
+              clientId: number
+            sender:
+              legalName: ООО Ромашка
+              inn: 123456789012
+              bank:
+                id: 100000000007
+                name: Райффайзенбанк
+                bic: 44525700
+    PaymentNotificationV2SBP:
+      summary: Оплата СБП
+      x-summary-i18n:
+        eng: SBP payment
+      value:
+        event: payment
+        transaction:
+          id: 120059
+          orderId: testOrder
+          status:
+            value: SUCCESS
+            date: '2019-07-11T17:45:13+03:00'
+          paymentMethod: sbp
+          paymentParams:
+            qrId: AD100051KNSNR64I98CRUJUASC9M72QT
+          amount: 12500.5
+          comment: Покупка шоколадного торта
+          extra:
+            extraParam: Example extra param
+    SubscriptionNotificationV1Unsubscribed:
+      summary: Подписка отменена
+      x-summary-i18n:
+        eng: Subscription cancelled
+      value:
+        event: SUBSCRIPTION
+        data:
+          id: c5b3fd07
+          publicId: MA0000000552
+          bank:
+            name: Райффайзенбанк
+            memberId: '100000000007'
+          status:
+            value: UNSUBSCRIBED
+            date: '2024-08-06T14:50:59+03:00'
+          qr:
+            id: AD399130040A4FFAB09111CB6304BF8D
+    SubscriptionNotificationV1Subscribed:
+      summary: Подписка оформлена
+      x-summary-i18n:
+        eng: Subscription created
+      value:
+        event: SUBSCRIPTION
+        data:
+          id: c5b3fd06
+          publicId: MA0000000552
+          bank:
+            name: Райффайзенбанк
+            memberId: '100000000007'
+          status:
+            value: SUBSCRIBED
+            date: '2024-08-06T14:50:59+03:00'
+          qr:
+            id: AD399130040A4FFAB09111CB6304BF8D
+  responses:
+    CreateCallbackSettingsResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CallbackSettings'
+          examples:
+            Example:
+              $ref: '#/components/examples/CallbackSettings'
+  requestBodies:
+    CreateCallbackSettingsRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CallbackSettings'
+          examples:
+            CallbackSettings:
+              $ref: '#/components/examples/CallbackSettings'
+  securitySchemes:
+    secretKey:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Указывается в заголовке `Authorization` в формате `Bearer <secretKey>`.
+
+
+        Подробная информация содержится в разделе [Авторизация](#section/API/Avtorizaciya)'
+      x-description-i18n:
+        eng: 'Specified in the `Authorization` header in the format `Bearer <secretKey>`.
+
+
+          Detailed information is contained in the [Authorization] section (#section/API/Authorizaciya)
+
+          '
+    BearerAuth:
+      type: http
+      description: '[Bearer secretKey](#tag/authorization)
+
+
+        example: eyJ0eXA***
+
+        '
+      scheme: bearer
+      bearerFormat: JWT
+      x-internal: false
+    UserTokenAuth:
+      name: X-USER-ACCESS-TOKEN
+      type: apiKey
+      in: cookie
+x-refined-from:
+- raiffeisen-ru-raif-pay-payment-form-openapi.json
+- raiffeisen-ru-raif-pay-payouts-openapi.json
+- raiffeisen-ru-raif-pay-sbp-b2b-openapi.json
+- raiffeisen-ru-raif-pay-sbp-openapi.json
+- raiffeisen-ru-raif-pay-whitelabel-ecom-openapi.json
+- raiffeisen-ru-raif-pay-payment-form-openapi.yml
+- raiffeisen-ru-raif-pay-payouts-openapi.yml
+- raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml
+- raiffeisen-ru-raif-pay-sbp-openapi.yml
+- raiffeisen-ru-raif-pay-whitelabel-ecom-openapi.yml

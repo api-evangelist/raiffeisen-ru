@@ -1,0 +1,51 @@
+generated: '2026-10-09'
+method: searched
+source: https://pay.raif.ru/doc/ecom.html#section/Spravochnik-oshibok
+docs: https://pay.raif.ru/doc/ecom.html
+description: Values of the declineReason field returned by the Raif Pay "Подписки и рекуррентные платежи" (subscriptions and recurring payments) API. The docs publish meanings only; no per-code action or
+  buyer-masking guidance is given, so action is null.
+envelope_field: declineReason
+mask_as_generic: []
+decline_codes:
+- code: PAYMENT_DECLINED
+  meaning: Платеж отклонен без более точной классификации
+  action: null
+- code: INSUFFICIENT_FUNDS
+  meaning: Недостаточно средств
+  action: null
+- code: LIMIT_EXCEEDED
+  meaning: Превышен лимит по карте или счету
+  action: null
+- code: PAYER_LIMIT_EXCEEDED
+  meaning: Превышел лимит по карте или счету плательщика
+  action: null
+- code: TIMEOUT
+  meaning: Таймаут при обработке операции
+  action: null
+- code: CARD_UNAVAILABLE
+  meaning: 'Карта недоступна для проведения операции: недействительна, истек срок действия или операции ограничены'
+  action: null
+- code: FRAUD_SUSPECTED
+  meaning: Подозрение на мошенническую операцию
+  action: null
+- code: INVALID_DATA
+  meaning: Некорректные параметры платежа или исходной операции
+  action: null
+- code: OPERATION_NOT_SUPPORTED
+  meaning: Операция не поддерживается картой, эмитентом или терминалом
+  action: null
+- code: ACCOUNT_NOT_FOUND
+  meaning: Счет клиента не найден
+  action: null
+- code: AUTHENTICATION_FAILED
+  meaning: Аутентификация не пройдена
+  action: null
+- code: PROCESSING_ERROR
+  meaning: Техническая ошибка при проведении операции
+  action: null
+- code: USER_CANCELLED
+  meaning: Операция прервана пользователем
+  action: null
+- code: SUBSCRIPTION_TERMINATED
+  meaning: Подписка отменена
+  action: null

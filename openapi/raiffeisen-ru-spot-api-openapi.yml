@@ -1,0 +1,951 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Spot API
+  version: 1.0.0
+  description: 'Operations tagged Spot across 2 of this provider''s published API definitions: raiffeisen-ru-fx-openapi.yml, raiffeisen-ru-fx-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/fx
+tags:
+- name: Spot
+paths:
+  /v1/trades/rates:
+    post:
+      tags:
+      - Spot
+      summary: Получение обменного курса для спотовых сделок
+      operationId: tradesRates
+      description: 'Чтоб запросить обменный курс валют, введите обязательные параметры и получите в ответе:
+
+        - идентификатор квоты
+
+        - курс покупки и продажи валюты'
+      parameters:
+      - in: header
+        name: CNUM
+        description: Уникальный идентификатор клиента (CNUM)
+        required: true
+        schema:
+          type: string
+          example: U12345
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Запросить обменные курсы для валютной пары
+        content:
+          application/json:
+            schema:
+              required:
+              - amount
+              - currency
+              - currencyPair
+              - tenor
+              type: object
+              properties:
+                amount:
+                  type: number
+                  description: Объем на который запрашивается цена
+                  example: 10000
+                currency:
+                  type: string
+                  description: Валюта объема в соответсвии с стандартом ISO 4217
+                  example: USD
+                currencyPair:
+                  type: string
+                  description: Валютная пара
+                  example: USD/RUB
+                tenor:
+                  type: string
+                  description: Значение определяющее дату расчета по сделке, возможные значения TOD - сегодня, TOM - завтра, SPOT - после завтра
+                  example: TOD
+        required: true
+      responses:
+        '200':
+          description: Обменный курс по запрошенным параметрам
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - result
+                - requestId
+                properties:
+                  result:
+                    type: object
+                    description: Объект с результатом исполнения запроса
+                    required:
+                    - rfqId
+                    - currencyPair
+                    - tenor
+                    - clientBuy
+                    - clientSell
+                    - priceDecimalPlaces
+                    - tradeDate
+                    - ttl
+                    - valueDate
+                    properties:
+                      rfqId:
+                        type: string
+                        description: Идентификатор запроса цены
+                        example: 207b0e8112b911ef93a38bb1d711c250
+                      currencyPair:
+                        type: string
+                        description: Валютная пара из запроса
+                        example: USD/RUB
+                      tenor:
+                        type: string
+                        description: Значение определяющее дату расчета по сделке, возможные значения TOD - сегодня, TOM - завтра, SPOT - после завтра
+                        example: TOD
+                      clientBuy:
+                        type: object
+                        description: Объект c курсом и объемом покупки
+                        required:
+                        - price
+                        - amount
+                        - currency
+                        properties:
+                          price:
+                            type: number
+                            description: Обменный курс покупки
+                            example: 92.4386
+                          amount:
+                            type: number
+                            description: Объем покупки
+                            example: 10000
+                          currency:
+                            type: string
+                            description: Валюта объема покупки
+                            example: USD
+                      clientSell:
+                        type: object
+                        description: Объект c курсом и объемом продажи
+                        required:
+                        - price
+                        - amount
+                        - currency
+                        properties:
+                          price:
+                            type: number
+                            description: Обменный курс продажи
+                            example: 92.5386
+                          amount:
+                            type: number
+                            description: Объем продажи
+                            example: 10000
+                          currency:
+                            type: string
+                            description: Валюта объема продажа
+                            example: USD
+                      priceDecimalPlaces:
+                        type: integer
+                        description: Количество знаков после запятой для курсов валюты
+                        example: 4
+                      tradeDate:
+                        type: string
+                        description: Дата совершения операции по серверу
+                        example: '2024-05-16'
+                      valueDate:
+                        type: string
+                        description: Дата расчета по сделке
+                        example: '2024-05-19'
+                      ttl:
+                        type: integer
+                        description: Время жизни обменных курсов в миллисекундах
+                        example: 10000
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса для трейсинга
+                    example: 58286c2526a677a6
+        '400':
+          description: Плохой запрос
+          content:
+            application/json:
+              schema:
+                required:
+                - error
+                - requestId
+                type: object
+                properties:
+                  error:
+                    type: object
+                    description: Объект с кодом ошибки
+                    required:
+                    - code
+                    properties:
+                      code:
+                        type: string
+                        description: Значение кода ошибки
+                      message:
+                        type: string
+                        description: Описание ошибки
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+              examples:
+                Некорректный запрос:
+                  summary: Некорректный запрос
+                  value:
+                    error:
+                      code: app.invalid.request
+                      message: Bad Request
+                    requestId: c396fda4d36c4f12
+                Недоступный инструмент:
+                  summary: Недоступный инструмент
+                  value:
+                    error:
+                      code: unavailable.instrument
+                    requestId: c396fda4d36c4f12
+                Слишком маленькая сумма сделки:
+                  summary: Слишком маленькая сумма сделки
+                  value:
+                    error:
+                      code: rfq.base.amount.too.small
+                      message: ''
+                      data:
+                      - field: baseAmount
+                        value: 1
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          description: Бизнес ошибки
+          content:
+            application/json:
+              schema:
+                required:
+                - error
+                - requestId
+                type: object
+                properties:
+                  error:
+                    type: object
+                    description: Объект с кодом ошибки
+                    required:
+                    - code
+                    properties:
+                      code:
+                        type: string
+                        description: Значение кода ошибки
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+              examples:
+                Запрос курсов выключен:
+                  summary: Запрос курсов выключен
+                  value:
+                    error:
+                      code: rfq.disabled
+                      message: null
+                    requestId: c396fda4d36c4f12
+                Запрос был произведен вне часов торговли:
+                  summary: Запрос был произведен вне часов торговли
+                  value:
+                    error:
+                      code: rfq.market.data.invalid.trading.time.outside.trading.hours
+                      message: null
+                    requestId: c396fda4d36c4f12
+                Запрос был произведен в праздник или нерабочий день:
+                  summary: Запрос был произведен в праздник или нерабочий день
+                  value:
+                    error:
+                      code: rfq.market.data.invalid.trading.time.holiday
+                      message: null
+                    requestId: c396fda4d36c4f12
+                Запрошенная сумма превышает допустимый порог:
+                  summary: Запрошенная сумма превышает допустимый порог
+                  value:
+                    error:
+                      code: rfq.quote.exceeds.limits
+                      message: null
+                    requestId: c396fda4d36c4f12
+                Нет ликвидности для предоставления цены:
+                  summary: Нет ликвидности для предоставления цены
+                  value:
+                    error:
+                      code: rfq.market.data.not.available
+                      message: null
+                    requestId: c396fda4d36c4f12
+        '424':
+          description: Некорректный подписант
+          content:
+            application/json:
+              schema:
+                required:
+                - error
+                - requestId
+                type: object
+                properties:
+                  error:
+                    type: object
+                    description: Объект с кодом ошибки
+                    required:
+                    - code
+                    properties:
+                      code:
+                        type: string
+                        description: Значение кода ошибки
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+              examples:
+                Некорректный подписант:
+                  summary: Некорректный подписант
+                  value:
+                    error:
+                      code: operator.signer.not.found
+                      message: null
+                    requestId: c396fda4d36c4f12
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/fx
+  /v1/trades/digest:
+    post:
+      tags:
+      - Spot
+      summary: Запрос дайджеста для спотовых сделок
+      operationId: tradesDigest
+      description: 'Чтоб запросить дайджест, введите обязательные параметры и получите в ответе:
+
+        - дайджест
+
+        - идентификатор будущего ордера'
+      parameters:
+      - in: header
+        name: CNUM
+        description: Уникальный идентификатор клиента (CNUM)
+        required: true
+        schema:
+          type: string
+          example: U12345
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Запросить дайджест по ранее полученному курсу валюты
+        content:
+          application/json:
+            schema:
+              required:
+              - rfqId
+              - side
+              - publicKeyCertificate
+              type: object
+              properties:
+                rfqId:
+                  type: string
+                  description: Идентификатор запроса цены
+                  example: 90b611d0407f11ef9cf4d329b5dcf6c2
+                side:
+                  type: string
+                  description: Сторона сделки (BUY/SELL)
+                  example: BUY
+                publicKeyCertificate:
+                  type: string
+                  description: Сертификат публичного ключа из токена CryptoPro, зашифрованный в BASE64
+                  example: cadf8371-c7b9-4407-bf94-2e8ae685a97
+        required: true
+      responses:
+        '200':
+          description: Обменный курс по запрошенным параметрам
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - result
+                - requestId
+                properties:
+                  result:
+                    type: object
+                    description: Объект с результатом исполнения запроса
+                    required:
+                    - digest
+                    - preorderId
+                    properties:
+                      digest:
+                        type: string
+                        description: Документ c условиями сделки для подписания с помощью КриптоПро сертификата
+                        example: eyJidXlBY2NvdW50Ijp7Im51bWJlciI6IjQwNzAyMTU2NDAwMDAyMzAxMDM0IiwiY3VycmVuY3kiOiJDTkgifSwiYnV5QW1vdW50IjoiODgyLjQzIiwic2VsbEFjY291bnQiOnsibnVtYmVyIjoiNDA3MDI4MTAxMDAwMDEzMDEwMzQiLCJjdXJyZW5jeSI6IlJVQiJ9LCJzZWxsQW1vdW50IjoiMTAwMDAuMDAiLCJjbGllbnRTaWRlIjoiU0VMTCIsInByaWNlIjoiMTEuMzMyMyIsImN1cnJlbmN5UGFpciI6IkNOSC9SVUIiLCJ0ZW5vciI6IlRPRCIsInZhbHVlRGF0ZSI6MTcyMDc0MjQwMC4wMDAwMDAwMDAsInRyYWRlRGF0ZSI6MTcyMDgxNDYwNy40OTMwMDAwMDAsInRyYWRlTW9kZSI6IkJBTEFOQ0UiLCJjbGllbnQiOnsiaWQiOiIzMDEwMzQiLCJuYW1lIjoi0JDQstC40LvQtdC60YEg0J7QntCeIn0sInRyYWRlciI6eyJpZCI6IjM3OTU2MjEiLCJuYW1lIjoiVW5rbm93biBVbmtub3duIn19
+                      preorderId:
+                        type: string
+                        description: Идентификатор будущего ордера
+                        example: 2101723
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса для трейсинга
+                    example: 58286c2526a677a6
+        '400':
+          description: Плохой запрос
+          content:
+            application/json:
+              schema:
+                required:
+                - error
+                - requestId
+                type: object
+                properties:
+                  error:
+                    type: object
+                    description: Объект с кодом ошибки
+                    required:
+                    - code
+                    properties:
+                      code:
+                        type: string
+                        description: Значение кода ошибки
+                        example: app.invalid.request
+                      message:
+                        type: string
+                        description: Описание ошибки
+                        example: Bad Request
+                      data:
+                        type: array
+                        description: Дополнительные даннные об ошибке
+                        items:
+                          type: object
+                          properties:
+                            field:
+                              type: string
+                              description: Параметр
+                            value:
+                              type: string
+                              description: Значение пармаметра
+                            status:
+                              type: string
+                              description: Статус авторизации счетов
+                            fromAccount:
+                              type: object
+                              description: Объект с параметрами счета списания
+                              properties:
+                                number:
+                                  type: string
+                                  description: Счет списания
+                                currency:
+                                  type: string
+                                  description: Валюта счета списания
+                            toAccount:
+                              type: object
+                              description: Объект с параметрами счета зачисления
+                              properties:
+                                number:
+                                  type: string
+                                  description: Счет зачисления
+                                currency:
+                                  type: string
+                                  description: Валюта счета зачисления
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+                    example: c396fda4d36c4f12
+              examples:
+                Невалидный запрос:
+                  summary: Невалидный запрос
+                  value:
+                    error:
+                      code: app.invalid.request
+                      message: Bad Request
+                Невалидный идентификатор курса валюты:
+                  summary: Невалидный идентификатор курса валюты
+                  value:
+                    error:
+                      code: preorder.bad.rfq.id
+                      message: Unable to find RFQ '9b6cfe8bacc911efb26f47dc2d9006e8' for client 'BAADMP'
+                      data:
+                      - field: client.id
+                        value: '301034'
+                      - field: rfqId
+                        value: 9b6cfe8bacc911efb26f47dc2d9006e8
+                      - field: signer.id
+                        value: '1174513'
+                    requestId: c396fda4d36c4f12
+                Ошибка авторизации счетов:
+                  summary: Ошибка авторизации счетов
+                  value:
+                    error:
+                      code: order.execution.not.authorized
+                      message: Unauthorized preorder
+                      data:
+                        status: FROM_ACCOUNT_NOT_ENOUGH_AUTHORITIES
+                        fromAccount:
+                          number: EXTERNAL_ACCOUNT_RUB
+                          currency: RUB
+                        toAccount:
+                          number: EXTERNAL_ACCOUNT_USD
+                          currency: USD
+                    requestId: c396fda4d36c4f12
+                Истек срок жизни курса валюты:
+                  summary: Истек срок жизни курса валюты
+                  value:
+                    error:
+                      code: order.execution.request.rejected.stale
+                      message: Order execution request '0000003413105' rejected with code [FXO_STALE_PREORDER:'Preorder '0000003413105' created by trader '1085222' rejected with status 'FXO_STALE_PREORDER'!']
+                    requestId: c396fda4d36c4f12
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          description: Бизнес ошибки
+          content:
+            application/json:
+              schema:
+                required:
+                - error
+                - requestId
+                type: object
+                properties:
+                  error:
+                    type: object
+                    description: Объект с кодом ошибки
+                    required:
+                    - code
+                    properties:
+                      code:
+                        type: string
+                        description: Значение кода ошибки
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+              examples:
+                Превышение допустимого объема лимитов:
+                  summary: Превышение допустимого объема лимитов
+                  value:
+                    error:
+                      code: app.trade.limits.exceeded
+                    requestId: c396fda4d36c4f12
+                Превышено допустимое количество сделок в определенный период:
+                  summary: Превышено допустимое количество сделок в определенный период
+                  value:
+                    error:
+                      code: order.execution.cool-down.period.violated
+                      message: Trading was cooled down for client '000000' and currency pair 'EUR/RUB' until 2024-11-25T13:14:20.777 UTC
+                      data:
+                        clientId: 0
+                        currencies: EUR/RUB
+                        coolDownUntil: '2024-11-25T13:14:20.777'
+                    requestId: c396fda4d36c4f12
+        '424':
+          description: Некорректный подписант
+          content:
+            application/json:
+              schema:
+                required:
+                - error
+                - requestId
+                type: object
+                properties:
+                  error:
+                    type: object
+                    description: Объект с кодом ошибки
+                    required:
+                    - code
+                    properties:
+                      code:
+                        type: string
+                        description: Значение кода ошибки
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+              examples:
+                Некорректный подписант:
+                  summary: Некорректный подписант
+                  value:
+                    error:
+                      code: operator.signer.not.found
+                      message: Operator signer data not found for client '000000' and user 'ade09b26-6cf5-482a-adbb-d5b1369b986d'
+                    requestId: c396fda4d36c4f12
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/fx
+  /v1/trades/create:
+    post:
+      tags:
+      - Spot
+      summary: Запрос на создание ордера для спотовой сделки
+      operationId: tradesCreate
+      description: 'Чтобы создать ордер, подпишите полученный дайджест с помощью сертификата КриптоПро и отправьте его в запросе вместе с preorderId и получите в ответе:
+
+        - результат исполнения ордера
+
+        - идентификатор исполненного ордера'
+      parameters:
+      - in: header
+        name: CNUM
+        description: Уникальный идентификатор клиента (CNUM)
+        required: true
+        schema:
+          type: string
+          example: U12345
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        description: Исполнить ордер на обмен валюты по подписанному дайджесту
+        content:
+          application/json:
+            schema:
+              required:
+              - preorderId
+              - signature
+              type: object
+              properties:
+                preorderId:
+                  type: string
+                  description: Идентификатор будущего ордера
+                  example: 2101723
+                signature:
+                  type: string
+                  description: Подпись полученного дайджеста сертификатом КриптоПро в формает BASE64
+                  example: MIIKUwYJKoZIhvcNAQcCoIIKRDCCCkACAQExDjAMBggqhQMHAQECAgUAMAsGCSqGSIb3==
+        required: true
+      responses:
+        '200':
+          description: Результат исполнения ордера на обмена валюты
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - result
+                - requestId
+                properties:
+                  result:
+                    type: object
+                    description: Объект с результатом исполнения запроса
+                    required:
+                    - orderId
+                    - buyAmount
+                    - buyCurrency
+                    - sellAmount
+                    - sellCurrency
+                    - clientSide
+                    - price
+                    - priceDecimalPlaces
+                    - currencyPair
+                    - tenor
+                    - tradeDate
+                    - valueDate
+                    properties:
+                      orderId:
+                        type: string
+                        description: Идентификатор ордера
+                        example: 2101723
+                      buyAmount:
+                        type: string
+                        description: Сумма покупки
+                        example: 10000.03
+                      buyCurrency:
+                        type: string
+                        description: Валюта покупки
+                        example: USD
+                      sellAmount:
+                        type: string
+                        description: Сумма продажи
+                        example: 9000000.11
+                      sellCurrency:
+                        type: string
+                        description: Валюта продажи
+                        example: RUB
+                      clientSide:
+                        type: string
+                        description: Сторона сделки
+                        example: BUY
+                      price:
+                        type: string
+                        description: Курс сделки
+                        example: 78.1326
+                      priceDecimalPlaces:
+                        type: integer
+                        description: Количество цифр в курсе после запятой
+                        example: 4
+                      currencyPair:
+                        type: string
+                        description: Валютная пара
+                        example: USD/RUB
+                      tenor:
+                        type: string
+                        description: Значение определяющее дату расчета по сделке, возможные значения TOD - сегодня, TOM - завтра, SPOT - после завтра
+                        example: TOD
+                      tradeDate:
+                        type: string
+                        description: Дата сделки
+                        example: '2024-05-15'
+                      valueDate:
+                        type: string
+                        description: Дата расчета
+                        example: '2024-05-17'
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса для трейсинга
+                    example: 58286c2526a677a6
+        '400':
+          description: Плохой запрос
+          content:
+            application/json:
+              schema:
+                required:
+                - error
+                - requestId
+                type: object
+                properties:
+                  error:
+                    type: object
+                    description: Объект с кодом ошибки
+                    required:
+                    - code
+                    properties:
+                      code:
+                        type: string
+                        description: Значение кода ошибки
+                        example: app.invalid.request
+                      message:
+                        type: string
+                        description: Описание ошибки
+                        example: Bad Request
+                      data:
+                        type: array
+                        description: Дополнительные даннные об ошибке
+                        items:
+                          type: object
+                          properties:
+                            field:
+                              type: string
+                              description: Параметр
+                            value:
+                              type: string
+                              description: Значение пармаметра
+                            status:
+                              type: string
+                              description: Статус авторизации счетов
+                            fromAccount:
+                              type: object
+                              description: Объект с параметрами счета списания
+                              properties:
+                                number:
+                                  type: string
+                                  description: Счет списания
+                                currency:
+                                  type: string
+                                  description: Валюта счета списания
+                            toAccount:
+                              type: object
+                              description: Объект с параметрами счета зачисления
+                              properties:
+                                number:
+                                  type: string
+                                  description: Счет зачисления
+                                currency:
+                                  type: string
+                                  description: Валюта счета зачисления
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+                    example: c396fda4d36c4f12
+              examples:
+                Невалидный запрос:
+                  summary: Невалидный запрос
+                  value:
+                    error:
+                      code: app.invalid.request
+                      message: Invalid request
+                      data:
+                      - field: tradeMode
+                    requestId: 0165ffafab23aa69
+                Невалидный идентификатор преордера:
+                  summary: Невалидный идентификатор преордера
+                  value:
+                    error:
+                      code: order.execution.bad.preorderId
+                      message: Unable to find Preorder '0000010010733' for client '301034'
+                      data:
+                      - field: client.id
+                        value: '301034'
+                      - field: preorderId
+                        value: '0000010010733'
+                    requestId: 0165ffafab23aa69
+                Истек срок жизни курса валюты:
+                  summary: Истек срок жизни курса валюты
+                  value:
+                    error:
+                      code: order.execution.request.rejected.stale
+                      message: Order execution request '0000003413105' rejected with code [FXO_STALE_PREORDER:'Preorder '0000003413105' created by trader '1085222' rejected with status 'FXO_STALE_PREORDER'!']
+                    requestId: c396fda4d36c4f12
+                Выключен режим заключения сделок под предпоставочный лимит:
+                  summary: Выключен режим заключения сделок под предпоставочный лимит
+                  value:
+                    error:
+                      code: app.dvp.disabled
+                      message: DVP disabled
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          description: Бизнес ошибки
+          content:
+            application/json:
+              schema:
+                required:
+                - error
+                - requestId
+                type: object
+                properties:
+                  error:
+                    type: object
+                    description: Объект с кодом ошибки
+                    required:
+                    - code
+                    properties:
+                      code:
+                        type: string
+                        description: Значение кода ошибки
+                      message:
+                        type: string
+                        description: Описание кода ошибки
+                      data:
+                        type: object
+                        description: Дополнительная информация об ошибке
+                        properties:
+                          tradingHours:
+                            type: object
+                            description: Информация о часах торговли
+                  requestId:
+                    type: string
+                    description: Идентификатор запроса
+              examples:
+                Выключена возможность заключать сделки:
+                  summary: Выключена возможность заключать сделки
+                  value:
+                    error:
+                      code: order.execution.trading.disabled
+                      message: Trading disable for client '000000' and instrument 'USD/RUB_SPOT'
+                    requestId: c396fda4d36c4f12
+                Превышение допустимого объема лимитов:
+                  summary: Превышение допустимого объема лимитов
+                  value:
+                    error:
+                      code: app.trade.limits.exceeded
+                    requestId: c396fda4d36c4f12
+                Запрещено покупкать валюту:
+                  summary: Запрещено покупкать валюту
+                  value:
+                    error:
+                      code: app.nonresident.buy.operation.disabled
+                      message: Base currency BUY operation disabled!
+                    requestId: c396fda4d36c4f12
+                Превышен порог на объем сделки:
+                  summary: Превышен порог на объем сделки
+                  value:
+                    error:
+                      code: order.execution.request.rejected.threshold.exceeded
+                      data:
+                        threshold: 3000000
+                        cooldown: 0
+                        amount: 4089254.82
+                        currency: USD
+                    requestId: c396fda4d36c4f12
+                Клиент не найден:
+                  summary: Клиент не найден
+                  value:
+                    error:
+                      code: order.execution.client.not.found
+                    requestId: c396fda4d36c4f12
+                Наступил праздник по рублю:
+                  summary: Наступил праздник по рублю
+                  value:
+                    error:
+                      code: order.execution.invalid.trading.time.holiday
+                    requestId: c396fda4d36c4f12
+                Закончились часы торговли по выбранному инструменту:
+                  summary: Закончились часы торговли по выбранному инструменту
+                  value:
+                    error:
+                      code: order.execution.invalid.trading.time.outside.trading.hours
+                      message: Try to execute order outside trading hours for client '301034' and instrument 'USD/BYN_TOD'"
+                      data:
+                        tradingHours:
+                          ranges:
+                          - from: '23:00'
+                            to: '11:00'
+                    requestId: c396fda4d36c4f12
+                Превышено допустимое количество сделок в определенный период:
+                  summary: Превышено допустимое количество сделок в определенный период
+                  value:
+                    error:
+                      code: order.execution.cool-down.period.violated
+                      message: Trading was cooled down for client '000000' and currency pair 'EUR/RUB' until 2024-11-25T13:14:20.777 UTC
+                      data:
+                        clientId: 0
+                        currencies: EUR/RUB
+                        coolDownUntil: '2024-11-25T13:14:20.777'
+                    requestId: c396fda4d36c4f12
+                Превышен порог максимального объема сделки в источнике ликвидности:
+                  summary: Превышен порог максимального объема сделки в источнике ликвидности
+                  value:
+                    error:
+                      code: order.execution.request.rejected.limit.exceeded
+                      data:
+                        instrument: CNH/RUB_TOM
+                        side: SELL
+                        amount: 1.22870249E7
+                        limit:
+                          currency: CNH
+                          value: 12000000
+                          name: 12000000_CNH
+                    requestId: c396fda4d36c4f12
+                Выбранный инструмент больше не поддерживается:
+                  summary: Выбранный инструмент больше не поддерживается
+                  value:
+                    error:
+                      code: order.execution.request.rejected.unsupported.instrument
+                      message: Order execution request '0000000017663' rejected with code [UNKNOWN_INSTRUMENT:'Ccy2 orders not supported RUB/USD_SPOT']
+                    requestId: c396fda4d36c4f12
+                Выбранная дата расчетов стала невалидной:
+                  summary: Выбранная дата расчетов стала невалидной
+                  value:
+                    error:
+                      code: order.execution.request.rejected.invalid.value.date
+                      message: Order execution request '0000003394676' rejected with code [FXO_INVALID_VALUE_DATE:'Preorder '0000003394676' created by trader '776534' rejected with status 'FXO_INVALID_VALUE_DATE'!']"
+                    requestId: c396fda4d36c4f12
+                Запрос на исполнение ордера отклонен в связи с высокой волатильностью:
+                  summary: Запрос на исполнение ордера отклонен в связи с высокой волатильностью
+                  value:
+                    error:
+                      code: order.execution.request.rejected
+                      message: Order execution request '0000000020366' rejected with code [REJECTED_BY_EXCHANGE_OR_BROKER:'null']
+                    requestId: c396fda4d36c4f12
+                Некорректный сертификат КриптоПро:
+                  summary: Некорректный сертификат КриптоПро
+                  value:
+                    error:
+                      code: order.execution.request.rejected.invalid.cryptopro.signature
+                      message: Invalid order signature
+                      data:
+                        remainCount: 1
+                    requestId: c396fda4d36c4f12
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/fx
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-fx-openapi.yml
+- raiffeisen-ru-fx-openapi.yml

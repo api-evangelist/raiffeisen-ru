@@ -1,0 +1,21 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist overlay for Raif Pay White-Label E-commerce API
+  version: 1.0.0
+extends: ../openapi/_original/raiffeisen-ru-raif-pay-whitelabel-ecom-openapi.yml
+x-generated: '2026-10-09'
+x-method: generated
+actions:
+- target: $.info
+  description: Catalog provenance (API Evangelist).
+  update:
+    x-apis-json-aid: raiffeisen-ru
+    x-provider: Raiffeisenbank (Russia)
+    x-api-name: Raif Pay White-Label E-commerce API
+    x-mcp-discovery: https://api.raiffeisen.ru/developer-portal/public/mcp
+- target: $
+  description: Link the provider documentation page for this API (from apis.yml humanURL).
+  update:
+    externalDocs:
+      description: Provider documentation (developer.raiffeisen.ru)
+      url: https://pay.raif.ru/doc/wl-ecom.html

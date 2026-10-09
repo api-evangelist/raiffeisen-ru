@@ -1,0 +1,105 @@
+generated: '2026-10-09'
+method: searched
+source: https://developer.raiffeisen.ru/docs/howToStart; https://developer.raiffeisen.ru/docs/sandbox/test-values; https://pay.raif.ru/doc/ecom.html; openapi/*.yml
+description: Cross-cutting conventions for the Raiffeisen API (corporate banking, developer.raiffeisen.ru) and Raif Pay (pay.raif.ru) surfaces, read from the docs and the 54 saved OpenAPI contracts.
+api_style: REST/JSON; corporate payment and currency-control submissions carry ISO 20022 XML bodies (pain.001.001.raif) in signed/unsigned variants
+authentication:
+  scheme: 'OAuth 2.0 / OpenID Connect authorization-code flow with PKCE (code_challenge S256) at sso.rbo.raiffeisen.ru for corporate APIs; Raif Pay server-to-server calls use "Authorization: Bearer <secretKey>"'
+  docs:
+  - https://developer.raiffeisen.ru/docs/howToStart/tokens/howToGetTokensByCodeFlow
+  - https://pay.raif.ru/doc/ecom.html
+  detail: 'API calls also require an ID-Token header alongside Authorization: Bearer (support page). Optional IP allow-list configurable in the online bank.'
+  see: authentication/raiffeisen-ru-authentication.yml
+idempotency:
+  coverage: partial
+  supported: true
+  mechanism: ISO 20022 message id (MsgId) de-duplication — no Idempotency-Key header exists in any saved contract
+  detail: 'Sandbox reference: "Повторная отправка с тем же MsgId — Обычно HTTP 400 + RJCT ; при асинхронном обнаружении дубля итоговый статус также RJCT". Raif Pay SBP rejects re-registering an order number
+    that already has successful payments (ERROR.ORDER_NUMBER_ALREADY_REGISTERED).'
+  scope:
+  - signedDomesticPayment
+  - unsignedDomesticPayment
+  docs: https://developer.raiffeisen.ru/docs/sandbox/test-values
+pagination:
+  style: offset/limit or page/size, varies per API
+  request_params:
+  - limit
+  - offset
+  - page
+  - size
+  detail: limit+offset declared in 6 operations, page in 3, size in 4 across the saved contracts; no cursor pagination.
+versioning:
+  scheme: URI path major version (/v1/, /v2/)
+  see: lifecycle/raiffeisen-ru-lifecycle.yml
+errors:
+  envelope: 'Raif Pay: JSON with code and message ("Ответ любого метода содержит код сообщения (code)... API вернет описание ошибки (message)"); ISO 20022 payments return status codes (RJCT, PDNG, NPMT);
+    OAuth endpoints return RFC 6749 error/error_description'
+  see:
+  - errors/raiffeisen-ru-error-codes.yml
+  - errors/raiffeisen-ru-decline-codes.yml
+rate_limits:
+  documented: false
+  see: rate-limits/raiffeisen-ru-rate-limits.yml
+webhooks:
+  detail: Raif Pay sends payment (v3), refund (v1) and subscription (v2) notifications to a merchant-configured callback URL; callback templates added 20.02.2026.
+  docs: https://pay.raif.ru/doc/ecom.html
+reversibility:
+  status: documented
+  detail: Reversal operations exist in the contracts; the docs reviewed state no time window within which a refund or cancel is accepted, so no window is recorded.
+  surfaces:
+  - surface: Raif Pay card/e-com payments
+    reversal: refund
+    operations:
+    - createRefundV2
+    - post-payments-v2-merchants-publicId-orders-orderId-refunds
+    window: null
+    docs: https://pay.raif.ru/doc/ecom.html
+  - surface: Raif Pay unpaid orders
+    reversal: cancel order
+    operations:
+    - delete-payment-v1-orders-orderId
+    - cancelOrder
+    - cancelOrderQRVariable
+    window: null
+    docs: https://pay.raif.ru/doc/ecom.html
+  - surface: Raif Pay SBP payments
+    reversal: refund
+    operations:
+    - createRefund
+    - createRefundQRStatic
+    window: null
+    docs: https://pay.raif.ru/doc/sbp.html
+  - surface: Raif Pay SBP QR codes
+    reversal: cancel QR
+    operations:
+    - deleteQrV2
+    window: null
+    docs: https://pay.raif.ru/doc/sbp.html
+  - surface: Subscriptions
+    reversal: cancel subscription
+    operations:
+    - cancelSubscription
+    - delete-v2-merchants-publicId-subscriptions-id
+    window: null
+  - surface: SBP B2B invoices/orders
+    reversal: cancel
+    operations:
+    - cancelInvoice
+    - deleteOrder
+    - deleteOrderSplits
+    - deleteReusablePaymentLink
+    window: null
+  - surface: Fiscal receipts
+    reversal: refund receipt
+    operations:
+    - post-fiscal-v1-receipts-refund
+    window: null
+  - surface: OAuth tokens
+    reversal: revoke
+    operations:
+    - revokeToken
+    window: null
+  - surface: Corporate ISO 20022 payment orders
+    reversal: null
+    operations: []
+    note: No recall/cancel operation found in the saved contracts.

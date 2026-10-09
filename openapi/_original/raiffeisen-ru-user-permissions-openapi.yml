@@ -1,0 +1,787 @@
+---
+openapi: "3.0.3"
+info:
+  title: "Полномочия пользователей"
+  description: "Получение полномочий пользователей и ролей сотрудников."
+  version: "0.3.0"
+servers:
+- url: "https://api.raiffeisen.ru/permissions"
+paths:
+  /api/v1/employee/role:
+    post:
+      tags:
+      - "Сотрудники"
+      summary: "Получить роль сотрудника по userId и cnum (инициатор запроса долже\
+        н быть ЕИО в переданном cnum)"
+      operationId: "employeeRole"
+      parameters:
+      - name: "x-system-id"
+        in: "header"
+        required: true
+        description: "Идентификатор сервиса-потребителя"
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmployeeRoleRequest"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeRoleResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                MissingHeaderXSystemId:
+                  summary: "Отсутствует обязательный заголовок x-system-id"
+                  value:
+                    code: "header_is_missing"
+                    message: "'x-system-id': header-parameter is missing"
+                BadRequest:
+                  summary: "Не передано тело запроса"
+                  value:
+                    code: "bad_request"
+                    message: "bad request"
+                MissingUserId:
+                  summary: "Обязательный параметр userId не передан"
+                  value:
+                    code: "bad_request"
+                    message: "userId: parameter is missing"
+                MissingCnum:
+                  summary: "Обязательный параметр cnum не передан"
+                  value:
+                    code: "bad_request"
+                    message: "cnum: parameter is missing"
+                NotValidUserId:
+                  summary: "Передан невалидный userId"
+                  value:
+                    code: "bad_request"
+                    message: "userId: invalid value"
+                EmployeeNotFound:
+                  summary: "Сотрудник не найден"
+                  value:
+                    code: "employee_not_found"
+                    message: "Employee with userId df9924ce-3212-4354-b3dd-e3dc80d4c3e7\
+                      \ and cnum QWERTY is not found"
+                UserNotFound:
+                  summary: "Пользователь не найден"
+                  value:
+                    code: "user_not_found"
+                    message: "User with id df9924ce-3212-4354-b3dd-e3dc80d4c3e7 is\
+                      \ not found"
+                RoleNotFound:
+                  summary: "Роль не найдена"
+                  value:
+                    code: "role_not_found"
+                    message: "Role with id df9924ce-3212-4354-b3dd-e3dc80d4c3e7 is\
+                      \ not found"
+                UserHasNoRoleAssigned:
+                  summary: "У пользователя не установлена роль"
+                  value:
+                    code: "role_not_found"
+                    message: "User with id df9924ce-3212-4354-b3dd-e3dc80d4c3e7 has\
+                      \ no role assigned"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: "Access Denied"
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                ExecutiveIsNotEIO:
+                  summary: "Инициатор запроса не является ЕИО в переданном cnum"
+                  value:
+                    code: "executive_not_eio"
+                    message: "Executive with userId df9924ce-3212-4354-b3dd-e3dc80d4c3e7\
+                      \ and cnum QWERTY is invalid or is not EIO"
+                UnavailableRole:
+                  summary: "Роль недоступна"
+                  value:
+                    code: "unavailable_role"
+                    message: "Role with code df9924ce-3212-4354-b3dd-e3dc80d4c3e7\
+                      \ is unavailable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/permissions:
+    get:
+      tags:
+      - "Пермиссии V1"
+      operationId: "permissionsV1Legacy"
+      deprecated: true
+      summary: "Получить пермиссии пользователя"
+      parameters:
+      - name: "cnum"
+        in: "query"
+        required: false
+        schema:
+          type: "array"
+          items:
+            type: "string"
+      - name: "x-system-id"
+        in: "header"
+        required: false
+        description: "Идентификатор сервиса-потребителя"
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PermissionsContextV1"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                EmployeeNotFound:
+                  summary: "Сотрудник не найден"
+                  value:
+                    code: "employee_not_found"
+                    message: "df9924ce-3212-4354-b3dd-e3dc80d4c3e7"
+                RoleNotFound:
+                  summary: "Роль пользователя не найдена"
+                  value:
+                    code: "role_not_found"
+                    message: "Role id dcba1f96-91e9-4a89-a149-70c60b4da06a"
+                UserHasNoRoleAssigned:
+                  summary: "У пользователя не установлена роль"
+                  value:
+                    code: "role_not_found"
+                    message: "User with id dcba1f96-91e9-4a89-a149-70c60b4da06a has\
+                      \ no role assigned"
+                UserRoleNotFound:
+                  summary: "Роль, утсановлнная у пользователя, не найдена"
+                  value:
+                    code: "role_not_found"
+                    message: "User id dcba1f96-91e9-4a89-a149-70c60b4da06a"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/permissions/{object_path}:
+    get:
+      tags:
+      - "Пермиссии V1"
+      operationId: "permissionsV1LegacyByObj"
+      deprecated: true
+      summary: "Получить пермиссии пользователя по объекту"
+      parameters:
+      - name: "object_path"
+        in: "path"
+        required: true
+        schema:
+          type: "array"
+          items:
+            type: "string"
+        style: "simple"
+        explode: false
+      - name: "cnum"
+        in: "query"
+        required: false
+        schema:
+          type: "array"
+          items:
+            type: "string"
+      - name: "x-system-id"
+        in: "header"
+        required: false
+        description: "Идентификатор сервиса-потребителя"
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PermissionsContextV1"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                BadRequest:
+                  summary: "В path не передан параметр запроса"
+                  value:
+                    code: "bad_request"
+                    message: "bad request"
+                EmployeeNotFound:
+                  summary: "Сотрудник не найден"
+                  value:
+                    code: "employee_not_found"
+                    message: "df9924ce-3212-4354-b3dd-e3dc80d4c3e7"
+                RoleNotFound:
+                  summary: "Роль пользователя не найдена"
+                  value:
+                    code: "role_not_found"
+                    message: "Role id dcba1f96-91e9-4a89-a149-70c60b4da06a"
+                UserHasNoRoleAssigned:
+                  summary: "У пользователя не установлена роль"
+                  value:
+                    code: "role_not_found"
+                    message: "User with id dcba1f96-91e9-4a89-a149-70c60b4da06a has\
+                      \ no role assigned"
+                UserRoleNotFound:
+                  summary: "Роль, утсановлнная у пользователя, не найдена"
+                  value:
+                    code: "role_not_found"
+                    message: "User id dcba1f96-91e9-4a89-a149-70c60b4da06a"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v2/permissions:
+    get:
+      tags:
+      - "Пермиссии V2"
+      operationId: "permissionsV2"
+      summary: "Получить пермиссии пользователя"
+      parameters:
+      - name: "x-system-id"
+        in: "header"
+        required: true
+        description: "Идентификатор сервиса-потребителя"
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              examples:
+                Successful response:
+                  value:
+                    CAD31M:
+                      curr-control:
+                        curr-control-info:
+                          view: true
+                          signRemove: true
+                          delete: true
+                        reissue-deal-contracts:
+                          view: true
+                          templateCreate: true
+                          export: true
+                      deposit-request:
+                        view: true
+                        import: true
+                        export: true
+                      statements:
+                        view: true
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                MissingHeaderXSystemId:
+                  summary: "Отсутствует обязательный заголовок x-system-id"
+                  value:
+                    code: "header_is_missing"
+                    message: "'x-system-id': header-parameter is missing"
+                EmployeeNotFound:
+                  summary: "Сотрудник не найден"
+                  value:
+                    code: "employee_not_found"
+                    message: "df9924ce-3212-4354-b3dd-e3dc80d4c3e7"
+                RoleNotFound:
+                  summary: "Роль пользователя не найдена"
+                  value:
+                    code: "role_not_found"
+                    message: "Role id dcba1f96-91e9-4a89-a149-70c60b4da06a"
+                UserHasNoRoleAssigned:
+                  summary: "У пользователя не установлена роль"
+                  value:
+                    code: "role_not_found"
+                    message: "User with id dcba1f96-91e9-4a89-a149-70c60b4da06a has\
+                      \ no role assigned"
+                UserRoleNotFound:
+                  summary: "Роль, утсановлнная у пользователя, не найдена"
+                  value:
+                    code: "role_not_found"
+                    message: "User id dcba1f96-91e9-4a89-a149-70c60b4da06a"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v2/permissions/{obj}:
+    get:
+      tags:
+      - "Пермиссии V2"
+      operationId: "permissionsV2ByObj"
+      summary: "Получить пермиссии пользователя по объекту"
+      parameters:
+      - name: "obj"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "x-system-id"
+        in: "header"
+        required: true
+        description: "Идентификатор сервиса-потребителя"
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              examples:
+                Successful response:
+                  value:
+                    CAD31M:
+                      view: true
+                      signRemove: true
+                      delete: true
+                      scrollerToExcel: true
+                      create: true
+                      createByTemplate: true
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                MissingHeaderXSystemId:
+                  summary: "Отсутствует обязательный заголовок x-system-id"
+                  value:
+                    code: "header_is_missing"
+                    message: "'x-system-id': header-parameter is missing"
+                BadRequest:
+                  summary: "В path не передан параметр запроса"
+                  value:
+                    code: "bad_request"
+                    message: "bad request"
+                EmployeeNotFound:
+                  summary: "Сотрудник не найден"
+                  value:
+                    code: "employee_not_found"
+                    message: "df9924ce-3212-4354-b3dd-e3dc80d4c3e7"
+                RoleNotFound:
+                  summary: "Роль пользователя не найдена"
+                  value:
+                    code: "role_not_found"
+                    message: "Role id dcba1f96-91e9-4a89-a149-70c60b4da06a"
+                UserHasNoRoleAssigned:
+                  summary: "У пользователя не установлена роль"
+                  value:
+                    code: "role_not_found"
+                    message: "User with id dcba1f96-91e9-4a89-a149-70c60b4da06a has\
+                      \ no role assigned"
+                UserRoleNotFound:
+                  summary: "Роль, утсановлнная у пользователя, не найдена"
+                  value:
+                    code: "role_not_found"
+                    message: "User id dcba1f96-91e9-4a89-a149-70c60b4da06a"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v2/permissions/{obj}/{cnum}:
+    get:
+      tags:
+      - "Пермиссии V2"
+      operationId: "permissionsV2ByObjAndCnum"
+      summary: "Получить пермиссии пользователя по объекту и cnum"
+      parameters:
+      - name: "obj"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "cnum"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "x-system-id"
+        in: "header"
+        required: true
+        description: "Идентификатор сервиса-потребителя"
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              examples:
+                Successful response:
+                  value:
+                    view: true
+                    signRemove: true
+                    delete: true
+                    scrollerToExcel: true
+                    create: true
+                    createByTemplate: true
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                MissingHeaderXSystemId:
+                  summary: "Отсутствует обязательный заголовок x-system-id"
+                  value:
+                    code: "header_is_missing"
+                    message: "'x-system-id': header-parameter is missing"
+                BadRequest:
+                  summary: "В path не передан параметр запроса"
+                  value:
+                    code: "bad_request"
+                    message: "bad request"
+                EmployeeNotFound:
+                  summary: "Сотрудник не найден"
+                  value:
+                    code: "employee_not_found"
+                    message: "df9924ce-3212-4354-b3dd-e3dc80d4c3e7"
+                RoleNotFound:
+                  summary: "Роль пользователя не найдена"
+                  value:
+                    code: "role_not_found"
+                    message: "Role id dcba1f96-91e9-4a89-a149-70c60b4da06a"
+                UserHasNoRoleAssigned:
+                  summary: "У пользователя не установлена роль"
+                  value:
+                    code: "role_not_found"
+                    message: "User with id dcba1f96-91e9-4a89-a149-70c60b4da06a has\
+                      \ no role assigned"
+                UserRoleNotFound:
+                  summary: "Роль, утсановлнная у пользователя, не найдена"
+                  value:
+                    code: "role_not_found"
+                    message: "User id dcba1f96-91e9-4a89-a149-70c60b4da06a"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/acc-permissions/{cnum}:
+    get:
+      tags:
+      - "Пермиссии в рамках ЦУД"
+      operationId: "getAccPermissionsByCnum"
+      summary: "Получить пермиссии в рамках ЦУД (центр управления доступом), если\
+        \ инициатор запроса является ЕИО в переданном cnum"
+      parameters:
+      - name: "cnum"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "x-system-id"
+        in: "header"
+        required: true
+        description: "Идентификатор сервиса-потребителя"
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              examples:
+                Successful response:
+                  value:
+                    accounts:
+                      view: true
+                      edit: true
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/ErrorResponseDTO"
+                - $ref: "#/components/schemas/GenericError"
+              examples:
+                MissingHeaderXSystemId:
+                  summary: "Отсутствует обязательный заголовок x-system-id"
+                  value:
+                    code: "header_is_missing"
+                    message: "'x-system-id': header-parameter is missing"
+                BadRequest:
+                  summary: "В path не передан параметр запроса"
+                  value:
+                    code: "bad_request"
+                    message: "bad request"
+                NoActiveEmployees:
+                  summary: "Активные сотрудники не найдены в rbp-employee-service"
+                  value:
+                    message: "No active employee found in rbp-employee-service with\
+                      \ userId dcba1f96-91e9-4a89-a149-70c60b4da06a and cnum QWERTY"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v2/acc-permissions/{userId}/{cnum}:
+    get:
+      tags:
+      - "Пермиссии в рамках ЦУД"
+      operationId: "getAccPermissionsByUserIdAndCnum"
+      summary: "Получить пермиссии в рамках ЦУД (центр управления доступом) для пе\
+        реданного сотрудника"
+      parameters:
+      - name: "userId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+          format: "uuid"
+      - name: "cnum"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "x-system-id"
+        in: "header"
+        required: true
+        description: "Идентификатор сервиса-потребителя"
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/AccEmployeePermissionDTO"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                MissingHeaderXSystemId:
+                  summary: "Отсутствует обязательный заголовок x-system-id"
+                  value:
+                    code: "header_is_missing"
+                    message: "'x-system-id': header-parameter is missing"
+                BadRequest:
+                  summary: "В path не передан параметр запроса"
+                  value:
+                    code: "bad_request"
+                    message: "bad request"
+                InvalidUUID:
+                  summary: "Передан невалидный UUID"
+                  value:
+                    code: "invalid_parameter_format"
+                    message: "parameter 'userId' has invalid type. Required type:\
+                      \ UUID"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: "Access Denied"
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/ErrorResponseDTO"
+              examples:
+                NotEmployee:
+                  summary: "Инициатор запроса и переданный сотрудник не имеют общи\
+                    х компаний"
+                  value:
+                    code: "not_employee"
+                    message: "The requester and the user being checked are not from\
+                      \ the same company or cnum is invalid"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  schemas:
+    ErrorResponseDTO:
+      type: "object"
+      description: "Стандартизированный ответ с ошибкой"
+      required:
+      - "code"
+      properties:
+        code:
+          type: "string"
+          description: "Код ошибки"
+        message:
+          type: "string"
+          description: "Сообщение об ошибке"
+        messageData:
+          type: "object"
+          nullable: true
+          description: "Дополнительная информация об ошибке"
+          additionalProperties: true
+    UnauthorizedError:
+      type: "object"
+      description: "Стандартизированный ответ с ошибкой"
+      required:
+      - "error"
+      properties:
+        error:
+          type: "string"
+          description: "Сообщение об ошибке"
+    GenericError:
+      type: "object"
+      required:
+      - "message"
+      properties:
+        message:
+          type: "string"
+          nullable: true
+    EmployeeRoleRequest:
+      type: "object"
+      required:
+      - "userId"
+      - "cnum"
+      properties:
+        userId:
+          type: "string"
+          format: "uuid"
+        cnum:
+          type: "string"
+    EmployeeRoleResponse:
+      type: "object"
+      required:
+      - "id"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        code:
+          type: "string"
+          nullable: true
+        name:
+          type: "string"
+          nullable: true
+    PermissionsContextV1:
+      type: "object"
+      required:
+      - "userId"
+      - "aud"
+      - "contracts"
+      properties:
+        userId:
+          type: "string"
+          format: "uuid"
+        aud:
+          type: "string"
+        contracts:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ContractContextV1"
+    ContractContextV1:
+      type: "object"
+      required:
+      - "cnum"
+      - "contractStatus"
+      properties:
+        cnum:
+          type: "string"
+        contractStatus:
+          $ref: "#/components/schemas/ContractStatus"
+        permissions:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/PermissionsV1"
+          example:
+          - name: "masspayments"
+            actions:
+            - "view"
+            - "create"
+            - "import"
+          default: []
+    PermissionsV1:
+      type: "object"
+      required:
+      - "name"
+      - "actions"
+      properties:
+        name:
+          type: "string"
+        actions:
+          type: "array"
+          items:
+            type: "string"
+    ContractStatus:
+      type: "string"
+      enum:
+      - "ACTIVE"
+      - "BLOCKED"
+      - "TERMINATED"
+    AccEmployeePermissionDTO:
+      type: "object"
+      required:
+      - "code"
+      - "name"
+      - "view"
+      properties:
+        code:
+          type: "string"
+        name:
+          $ref: "#/components/schemas/Name"
+        view:
+          type: "boolean"
+    Name:
+      type: "object"
+      properties:
+        ru:
+          type: "string"
+          nullable: true
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="

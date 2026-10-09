@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-comparison-summary-rep-schema.json",
+  "title": "comparisonSummaryRep",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-raif-pay-reports-openapi.yml#/components/schemas/comparisonSummaryRep",
+  "type": "object",
+  "properties": {
+    "sbp": {
+      "type": "object",
+      "description": "Операции СБП",
+      "properties": {
+        "payments": {
+          "type": "object",
+          "description": "Платежи СБП",
+          "properties": {
+            "sum": {
+              "type": "number",
+              "format": "float",
+              "description": "Сумма платежей СБП"
+            },
+            "count": {
+              "type": "integer",
+              "description": "Количество платежей СБП"
+            }
+          }
+        },
+        "refunds": {
+          "type": "object",
+          "description": "Возвраты СБП",
+          "properties": {
+            "sum": {
+              "type": "number",
+              "format": "float",
+              "description": "Сумма возвратов СБП"
+            },
+            "count": {
+              "type": "integer",
+              "description": "Количество возвратов СБП"
+            }
+          }
+        },
+        "total": {
+          "type": "object",
+          "description": "Общее количество операций СБП и итоговая сумма (Платеж - Возврат)",
+          "properties": {
+            "sum": {
+              "type": "number",
+              "format": "float",
+              "description": "Сумма прихода по СБП"
+            },
+            "count": {
+              "type": "integer",
+              "description": "Общее количество операций по СБП"
+            }
+          }
+        }
+      }
+    },
+    "card": {
+      "type": "object",
+      "description": "Операции по интернет-эквайрингу",
+      "properties": {
+        "payments": {
+          "type": "object",
+          "description": "Платежи по интернет-эквайрингу",
+          "properties": {
+            "sum": {
+              "type": "number",
+              "format": "float",
+              "description": "Сумма платежей по интернет-эквайрингу"
+            },
+            "count": {
+              "type": "integer",
+              "description": "Количество платежей по интернет-эквайрингу"
+            }
+          }
+        },
+        "refunds": {
+          "type": "object",
+          "description": "Возвраты по интернет-эквайрингу",
+          "properties": {
+            "sum": {
+              "type": "number",
+              "format": "float",
+              "description": "Сумма возвратов по интернет-эквайрингу"
+            },
+            "count": {
+              "type": "integer",
+              "description": "Количество возвратов по интернет-эквайрингу"
+            }
+          }
+        },
+        "total": {
+          "type": "object",
+          "description": "Общее количество операций по интернет-эквайрингу и итоговая сумма (Платеж - Возврат)",
+          "properties": {
+            "sum": {
+              "type": "number",
+              "format": "float",
+              "description": "Сумма прихода по интернет-эквайрингу"
+            },
+            "count": {
+              "type": "integer",
+              "description": "Общее количество операций по интернет-эквайрингу"
+            }
+          }
+        }
+      }
+    }
+  }
+}

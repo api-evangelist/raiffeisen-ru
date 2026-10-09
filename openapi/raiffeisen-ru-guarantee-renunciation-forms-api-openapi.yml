@@ -1,0 +1,147 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Guarantee Renunciation Forms API
+  version: 1.0.0
+  description: 'Operations tagged Guarantee Renunciation Forms across 2 of this provider''s published API definitions: raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml, raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/trade-finance
+tags:
+- name: Guarantee Renunciation Forms
+  description: Печатные формы для отказов от прав
+paths:
+  /v1/beneficiary/guarantees/renunciations/{id}/print-form:
+    get:
+      tags:
+      - Guarantee Renunciation Forms
+      summary: Сгенерировать печатную форму
+      operationId: getPrintForm
+      parameters:
+      - name: id
+        in: path
+        required: true
+        explode: false
+        schema:
+          type: integer
+          format: int64
+        example: 23456
+      - name: Accept-Language
+        in: header
+        required: true
+        explode: false
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+              examples:
+                simple:
+                  summary: Печатная форма отказа гарантии
+                  description: Возвращает печатную форму отказа гарантии в формате PDF
+                  value: <binary data>
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/trade-finance
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    UnprocessableEntity:
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+    InternalError:
+      description: Внутренняя ошибка
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+  schemas:
+    ErrorResponseItemDto:
+      required:
+      - code
+      - detail
+      - id
+      type: object
+      properties:
+        code:
+          type: string
+        detail:
+          type: string
+        meta:
+          type: object
+        id:
+          type: string
+        source:
+          $ref: '#/components/schemas/ErrorSource'
+    ErrorSource:
+      required:
+      - pointer
+      type: object
+      properties:
+        pointer:
+          type: string
+    ErrorResponseDto:
+      required:
+      - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseItemDto'
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml
+- raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml

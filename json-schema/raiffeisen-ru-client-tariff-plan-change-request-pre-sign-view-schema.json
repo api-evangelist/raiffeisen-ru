@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-client-tariff-plan-change-request-pre-sign-view-schema.json",
+  "title": "ClientTariffPlanChangeRequestPreSignView",
+  "description": "Данные заявки на смену тарифного плана для виджета наложения подписи",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-tariff-change-requests-openapi.yml#/components/schemas/ClientTariffPlanChangeRequestPreSignView",
+  "required": [
+    "clientDocumentNumber",
+    "cnum",
+    "digest",
+    "documentType",
+    "documentUID",
+    "rboDocumentState",
+    "rboDocumentType",
+    "sourceSystem",
+    "state"
+  ],
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "Уникальный идентификатор заявки",
+      "format": "int64"
+    },
+    "documentType": {
+      "type": "string",
+      "description": "Тип заявления",
+      "enum": [
+        "CLIENT_TARIFF_PLAN_CHANGE_REQUEST",
+        "FUTURE_CLIENT_TARIFF_PLAN_CANCEL_REQUEST"
+      ]
+    },
+    "state": {
+      "type": "string",
+      "description": "Статус заявления",
+      "enum": [
+        "UNSIGNED",
+        "PARTIALLY_SIGNED",
+        "SIGNED",
+        "PROCESSING",
+        "DECLINED",
+        "DONE",
+        "CANCELLED"
+      ]
+    },
+    "rboDocumentState": {
+      "type": "string",
+      "description": "Статус документа в RBO"
+    },
+    "documentUID": {
+      "type": "string",
+      "description": "UID документа в DVR"
+    },
+    "cnum": {
+      "type": "string",
+      "description": "Идентификатор клиента"
+    },
+    "clientDocumentNumber": {
+      "type": "integer",
+      "description": "Номер клиентского документа",
+      "format": "int64"
+    },
+    "organizationFullName": {
+      "type": "string",
+      "description": "Полное наименование организации"
+    },
+    "digest": {
+      "type": "string",
+      "description": "Дайджест документа"
+    },
+    "sourceSystem": {
+      "type": "string",
+      "description": "Система-источник документа"
+    },
+    "rboDocumentType": {
+      "type": "string",
+      "description": "Тип документа в RBO DVR",
+      "enum": [
+        "CHANGE_TARIFF_REQUEST",
+        "CANCEL_CHANGE_TARIFF_REQUEST"
+      ]
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Дата создания записи",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "description": "Дата обновления записи",
+      "format": "date-time"
+    }
+  }
+}

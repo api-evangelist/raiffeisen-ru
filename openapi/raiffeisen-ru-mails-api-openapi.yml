@@ -1,0 +1,481 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Mails API
+  version: 1.0.0
+  description: 'Operations tagged Mails across 2 of this provider''s published API definitions: raiffeisen-ru-letters-openapi.yml, raiffeisen-ru-letters-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/letters
+tags:
+- name: Mails
+  description: Письма
+paths:
+  /v1/mails:
+    post:
+      summary: Создание письма в переписке
+      description: Метод создания письма в переписке
+      tags:
+      - Mails
+      operationId: createMail
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExternalMailRequest'
+            example:
+              correspondenceId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+              parentMailId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+              docExtId: '123456'
+              text: Текст письма
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateExternalMailResponse'
+              example:
+                mailId: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/letters
+  /v1/mails/{mailId}/attachments:
+    post:
+      summary: Загрузка вложений по идентификатору письма
+      description: Метод загрузки вложений по идентификатору письма (ограничение 50 MB)
+      tags:
+      - Mails
+      operationId: uploadAttachments
+      parameters:
+      - name: mailId
+        in: path
+        required: true
+        description: Идентификатор письма
+        schema:
+          type: string
+          format: uuid
+          example: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Список файлов для загрузки
+              required:
+              - files
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/letters
+  /v1/mails/{mailId}/attachments/{fileName}:
+    get:
+      summary: Получение вложения письма по идентификатору письма и имени файла вложения
+      description: Метод получения вложения письма по идентификатору письма и имени файла вложения
+      tags:
+      - Mails
+      operationId: getAttachment
+      parameters:
+      - name: mailId
+        in: path
+        required: true
+        description: Идентификатор письма
+        schema:
+          type: string
+          format: uuid
+          example: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+      - name: fileName
+        in: path
+        required: true
+        description: Имя файла вложения
+        schema:
+          type: string
+          example: file.pdf
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+                example: attachment; filename=example.txt
+              required: true
+            Content-Type:
+              schema:
+                type: string
+                example: application/pdf
+              required: true
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    head:
+      summary: Получить информацию о вложении без загрузки содержимого
+      description: Метод получения информации о вложении без загрузки содержимого
+      tags:
+      - Mails
+      operationId: getAttachmentInfo
+      parameters:
+      - name: mailId
+        in: path
+        required: true
+        description: Идентификатор письма
+        schema:
+          type: string
+          format: uuid
+          example: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+      - name: fileName
+        in: path
+        required: true
+        description: Имя файла вложения
+        schema:
+          type: string
+          example: file.pdf
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      responses:
+        '200':
+          description: Файл найден, возвращены только заголовки
+          headers:
+            Content-Type:
+              description: Тип файла
+              schema:
+                type: string
+                example: application/pdf
+            Content-Length:
+              description: Размер файла в байтах
+              schema:
+                type: integer
+                example: 1024
+        '400':
+          description: Bad Request
+        '404':
+          description: Not found
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/letters
+  /v1/mails/{mailId}/submit:
+    post:
+      summary: Отправление письма
+      description: Метод отправления письма
+      deprecated: true
+      tags:
+      - Mails
+      operationId: submitMail
+      parameters:
+      - name: mailId
+        in: path
+        required: true
+        description: Идентификатор письма
+        schema:
+          type: string
+          format: uuid
+          example: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitExternalMailRequest'
+            example:
+              serialNumber: '123456789'
+              value: SGVsbG8=
+              issuer: E=IdleCA, C=RU, S=Idle CA, L=Idle CA, O=Idle CA, OU=Idle CA, CN=Idle CA
+              digestName: SHA-256
+              digestVersion: v1
+              fio: Иванов Иван Иванович
+              position: Генеральный директор
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/letters
+  /v2/mails/{mailId}/submit:
+    post:
+      summary: Отправление письма
+      description: Метод отправления письма
+      tags:
+      - Mails
+      operationId: submitMailV2
+      parameters:
+      - name: mailId
+        in: path
+        required: true
+        description: Идентификатор письма
+        schema:
+          type: string
+          format: uuid
+          example: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitExternalMailRequest'
+            example:
+              serialNumber: '123456789'
+              value: SGVsbG8=
+              issuer: E=IdleCA, C=RU, S=Idle CA, L=Idle CA, O=Idle CA, OU=Idle CA, CN=Idle CA
+              digestName: SHA-256
+              digestVersion: v1
+              fio: Иванов Иван Иванович
+              position: Генеральный директор
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/letters
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  schemas:
+    CreateExternalMailRequest:
+      type: object
+      properties:
+        correspondenceId:
+          type: string
+          format: uuid
+          description: Идентификатор переписки
+          example: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+        parentMailId:
+          type: string
+          format: uuid
+          description: Идентификатор родительского письма
+          example: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+        docExtId:
+          type: string
+          description: Идентификатор документа
+          example: '123456'
+        text:
+          type: string
+          description: Текст письма
+          minLength: 1
+          maxLength: 4000
+          pattern: .*(\S|\n).*
+          example: Текст письма
+      required:
+      - correspondenceId
+      - parentMailId
+      - text
+      - docExtId
+    CreateExternalMailResponse:
+      type: object
+      properties:
+        mailId:
+          type: string
+          format: uuid
+          description: Идентификатор письма
+          example: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+      required:
+      - mailId
+    SubmitExternalMailRequest:
+      type: object
+      description: ЭП клиента
+      properties:
+        serialNumber:
+          type: string
+          description: Серийный номер сертификата
+          minLength: 1
+          maxLength: 255
+          example: '123456789'
+        value:
+          type: string
+          format: base64
+          description: Значение ЭП
+          example: SGVsbG8=
+        issuer:
+          type: string
+          description: Идентификатор поставщика сертификата
+          minLength: 1
+          maxLength: 1024
+          example: E=IdleCA, C=RU, S=Idle CA, L=Idle CA, O=Idle CA, OU=Idle CA, CN=Idle CA
+        digestName:
+          type: string
+          description: Имя схемы подписи
+          example: SHA-256
+        digestVersion:
+          type: string
+          description: Версия схемы подписи
+          example: v1
+        fio:
+          type: string
+          description: ФИО УЛК, наложившего данную подпись
+          example: Иванов Иван Иванович
+        position:
+          type: string
+          description: Должность УЛК, наложившего подпись
+          example: Генеральный директор
+      required:
+      - serialNumber
+      - value
+    ErrorResponse:
+      type: object
+      description: Ошибка обработки запроса
+      example:
+        message: Validation failed
+        error:
+          code: BAD_REQUEST
+          message: Validation failed
+      properties:
+        message:
+          type: string
+          description: Текст ошибки в устаревшем формате, сохранённый для обратной совместимости
+          example: Validation failed
+        error:
+          type: object
+          description: Структурированная информация об ошибке
+          example:
+            code: VALIDATION_ERROR
+            message: Validation failed
+          properties:
+            code:
+              type: string
+              description: Машиночитаемый код ошибки
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              description: Описание ошибки
+              example: Validation failed
+          required:
+          - code
+          - message
+      required:
+      - error
+x-refined-from:
+- raiffeisen-ru-letters-openapi.yml
+- raiffeisen-ru-letters-openapi.yml

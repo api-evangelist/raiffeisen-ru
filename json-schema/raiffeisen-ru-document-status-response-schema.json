@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-document-status-response-schema.json",
+  "title": "DocumentStatusResponse",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-currency-control-documents-openapi.yml#/components/schemas/DocumentStatusResponse",
+  "type": "object",
+  "required": [
+    "status"
+  ],
+  "properties": {
+    "status": {
+      "$ref": "#/$defs/DocumentStatus"
+    },
+    "statusComment": {
+      "type": "string",
+      "description": "Комментарий к статусу"
+    }
+  },
+  "$defs": {
+    "DocumentStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "NEEDS_ANSWER",
+        "ACCEPTED",
+        "MODIFIED",
+        "REJECTED"
+      ],
+      "description": "Статус документа валютного контроля.\n\n`ACCEPTED`, `MODIFIED` и `REJECTED` являются финальными статусами.\n`MODIFIED` означает, что документ принят Банком с замечаниями и учтён с корректировками или условиями Банка.\n`NEEDS_ANSWER` означает, что Банк запросил у клиента дополнительную информацию; содержание запроса передаётся в `bankMessage` полного ответа документа.\n"
+    }
+  }
+}

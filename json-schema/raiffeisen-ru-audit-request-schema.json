@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-audit-request-schema.json",
+  "title": "AuditRequest",
+  "description": "Данные для создания аудиторского запроса",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-audit-reports-openapi.yml#/components/schemas/AuditRequest",
+  "type": "object",
+  "properties": {
+    "auditEmail": {
+      "type": "string",
+      "format": "email",
+      "description": "Email аудитора, которому требуется направить аудиторский отчет"
+    },
+    "auditDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Дата, на которую требуется выполнить запрос. (year-month-day)"
+    },
+    "auditComment": {
+      "type": "string",
+      "description": "Комментарий к запросу",
+      "maxLength": 1500
+    }
+  },
+  "required": [
+    "auditEmail",
+    "auditDate"
+  ]
+}

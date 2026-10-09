@@ -1,0 +1,660 @@
+---
+openapi: "3.0.3"
+info:
+  title: "Рублевые переводы. Импорт платежей в форматах 1С, CSV, XML, MT103 (0.0.3)"
+  version: "0.0.3"
+  description: "## Описание API\nЭто API предназначено для загрузки пакетов платеж\
+    ей в различных форматах (1С, XML, MT103, CSV), используемых в системе РПП (Руб\
+    лёвые платежные поручения) Райффайзенбанка.\n"
+servers:
+- url: "https://api.raiffeisen.ru/domestic-payments"
+paths:
+  /v2/transfers/import/payment-orders/1C:
+    post:
+      tags:
+      - "domestic-payments"
+      summary: "Импорт РПП в формате 1С"
+      operationId: "import1CDomesticPayment"
+      description: "ВАЖНО: Данный функционал недоступен для клиентов сегмента Фина\
+        нсовые институты!  \nИмпорт платежных поручений из файла в формате 1С.\n"
+      parameters:
+      - name: "notes"
+        in: "query"
+        description: "Дополнительные примечания"
+        required: false
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Файлы в формате 1С"
+        content:
+          multipart/form-data:
+            schema:
+              type: "object"
+              properties:
+                files:
+                  type: "array"
+                  items:
+                    type: "string"
+                    format: "binary"
+                  description: "Массив файлов в формате 1С"
+        required: true
+      responses:
+        "201":
+          description: "Файл сохранен"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiShortProcessImportDto"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/transfers/import/payment-orders/XML:
+    post:
+      tags:
+      - "domestic-payments"
+      summary: "Импорт РПП в формате XML"
+      operationId: "importXmlDomesticPayment"
+      description: "ВАЖНО: Данный функционал недоступен для клиентов сегмента Фина\
+        нсовые институты!  \nИмпорт платежных поручений из файла в формате XML.\n"
+      parameters:
+      - name: "notes"
+        in: "query"
+        description: "Дополнительные примечания"
+        required: false
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Файлы в формате XML"
+        content:
+          multipart/form-data:
+            schema:
+              type: "object"
+              properties:
+                files:
+                  type: "array"
+                  items:
+                    type: "string"
+                    format: "binary"
+                  description: "Массив файлов в формате XML"
+        required: true
+      responses:
+        "201":
+          description: "Файл сохранен"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiShortProcessImportDto"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/transfers/import/payment-orders/MT103:
+    post:
+      tags:
+      - "domestic-payments"
+      summary: "Импорт РПП в формате MT103"
+      operationId: "importMT103DomesticPayment"
+      description: "ВАЖНО: Данный функционал недоступен для клиентов сегмента Фина\
+        нсовые институты!  \nИмпорт платежных поручений из файла в формате MT103.\n"
+      parameters:
+      - name: "notes"
+        in: "query"
+        description: "Дополнительные примечания"
+        required: false
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Файлы в формате MT103"
+        content:
+          multipart/form-data:
+            schema:
+              type: "object"
+              properties:
+                files:
+                  type: "array"
+                  items:
+                    type: "string"
+                    format: "binary"
+                  description: "Массив файлов в формате MT103"
+        required: true
+      responses:
+        "201":
+          description: "Файл сохранен"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiShortProcessImportDto"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/transfers/import/payment-orders/CSV:
+    post:
+      tags:
+      - "domestic-payments"
+      summary: "Импорт РПП в формате CSV"
+      operationId: "importCsvDomesticPayment"
+      description: "ВАЖНО: Данный функционал недоступен для клиентов сегмента Фина\
+        нсовые институты!\nИмпорт платежных поручений из файла в формате CSV.\n"
+      parameters:
+      - name: "notes"
+        in: "query"
+        description: "Дополнительные примечания"
+        required: false
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Файлы в формате CSV"
+        content:
+          multipart/form-data:
+            schema:
+              type: "object"
+              properties:
+                files:
+                  type: "array"
+                  items:
+                    type: "string"
+                    format: "binary"
+                  description: "Массив файлов в формате CSV"
+        required: true
+      responses:
+        "201":
+          description: "Файл сохранен"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiShortProcessImportDto"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/transfers/import/mass-payment/1C:
+    post:
+      tags:
+      - "domestic-payments"
+      summary: "Импорт массового платежа в формате 1С"
+      operationId: "import1CMassPayment"
+      description: "ВАЖНО: Данный функционал недоступен для клиентов сегмента Фина\
+        нсовые институты!  \nИмпорт массового платежа из файла в формате 1С.\n"
+      parameters:
+      - name: "notes"
+        in: "query"
+        description: "Дополнительные примечания"
+        required: false
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Файлы в формате 1С"
+        content:
+          multipart/form-data:
+            schema:
+              type: "object"
+              properties:
+                files:
+                  type: "array"
+                  items:
+                    type: "string"
+                    format: "binary"
+                  description: "Массив файлов в формате 1С"
+        required: true
+      responses:
+        "201":
+          description: "Файл сохранен"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiShortProcessImportDto"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/transfers/import/mass-payment/XML:
+    post:
+      tags:
+      - "domestic-payments"
+      summary: "Импорт массового платежа в формате XML"
+      operationId: "importXmlMassPayment"
+      description: "ВАЖНО: Данный функционал недоступен для клиентов сегмента Фина\
+        нсовые институты!  \nИмпорт массового платежа в формате XML.\n"
+      parameters:
+      - name: "notes"
+        in: "query"
+        description: "Дополнительные примечания"
+        required: false
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Файлы в формате XML"
+        content:
+          multipart/form-data:
+            schema:
+              type: "object"
+              properties:
+                files:
+                  type: "array"
+                  items:
+                    type: "string"
+                    format: "binary"
+                  description: "Массив файлов в формате XML"
+        required: true
+      responses:
+        "201":
+          description: "Файл сохранен"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiShortProcessImportDto"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/transfers/import/mass-payment/MT103:
+    post:
+      tags:
+      - "domestic-payments"
+      summary: "Импорт массового платежа в формате MT103"
+      operationId: "importMT103MassPayment"
+      description: "ВАЖНО: Данный функционал недоступен для клиентов сегмента Фина\
+        нсовые институты!  \nИмпорт массового платежа в формате MT103.\n"
+      parameters:
+      - name: "notes"
+        in: "query"
+        description: "Дополнительные примечания"
+        required: false
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Файлы в формате MT103"
+        content:
+          multipart/form-data:
+            schema:
+              type: "object"
+              properties:
+                files:
+                  type: "array"
+                  items:
+                    type: "string"
+                    format: "binary"
+                  description: "Массив файлов в формате MT103"
+        required: true
+      responses:
+        "201":
+          description: "Файл сохранен"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiShortProcessImportDto"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/transfers/import/mass-payment/CSV:
+    post:
+      tags:
+      - "domestic-payments"
+      summary: "Импорт массового платежа в формате CSV"
+      operationId: "importCsvMassPayment"
+      description: "ВАЖНО: Данный функционал недоступен для клиентов сегмента Фина\
+        нсовые институты!\nИмпорт массового платежа из файла в формате CSV.\n"
+      parameters:
+      - name: "notes"
+        in: "query"
+        description: "Дополнительные примечания"
+        required: false
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Файлы в формате CSV"
+        content:
+          multipart/form-data:
+            schema:
+              type: "object"
+              properties:
+                files:
+                  type: "array"
+                  items:
+                    type: "string"
+                    format: "binary"
+                  description: "Массив файлов в формате CSV"
+        required: true
+      responses:
+        "201":
+          description: "Файл сохранен"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiShortProcessImportDto"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/transfers/import/status/{importTaskId}:
+    get:
+      tags:
+      - "domestic-payments"
+      summary: "Статус импорта"
+      operationId: "getImportStatus"
+      description: "ВАЖНО: Данный функционал недоступен для клиентов сегмента Фина\
+        нсовые институты!  \nПолучение статуса импорта по идентификатору задачи.\n"
+      parameters:
+      - name: "importTaskId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+        description: "Идентификатор задачи импорта"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Результат импорта"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiProcessImportDto"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/transfers/import/status/{importTaskId}/full:
+    get:
+      tags:
+      - "domestic-payments"
+      summary: "Статус импорта и всех документов"
+      operationId: "getImportStatusFull"
+      description: "ВАЖНО: Данный функционал недоступен для клиентов сегмента Фина\
+        нсовые институты!  \nПолучение статуса импорта и статусов всех связанных д\
+        окументов.\n"
+      parameters:
+      - name: "importTaskId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+        description: "Идентификатор задачи импорта"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Результат импорта"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiProcessImportFullDto"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+  responses:
+    ValidationError:
+      description: "Ошибки валидации"
+      content:
+        application/xml:
+          schema:
+            type: "string"
+    Forbidden:
+      description: "Ошибка прав"
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+  schemas:
+    ApiShortProcessImportDto:
+      type: "object"
+      description: "Краткая информация о задаче импорта"
+      properties:
+        importTaskId:
+          type: "string"
+          description: "Идентификатор процесса импорта"
+    ApiProcessImportDto:
+      type: "object"
+      description: "Подробная информация о задаче импорта"
+      allOf:
+      - $ref: "#/components/schemas/ApiShortProcessImportDto"
+      properties:
+        message:
+          type: "string"
+          description: "Сообщение, если не удалось целиком импортировать файл"
+        startTime:
+          type: "string"
+          description: "Время начала импорта (GMT+3)"
+        endTime:
+          type: "string"
+          description: "Время завершения импорта (GMT+3). Отображается только при\
+            \ importStatus COMPLETED или ERROR"
+        importStatus:
+          $ref: "#/components/schemas/ProcessImportStatus"
+        massPaymentId:
+          type: "string"
+          description: "Уникальный идентификатор массового платежа (отображается п\
+            ри импорте массового платежа)"
+        massPaymentStatus:
+          $ref: "#/components/schemas/ApiMassPaymentStatus"
+        importFormat:
+          type: "string"
+          description: "Формат импорта"
+        documentsInfo:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ImportDocumentInfoDto"
+          description: "Информация по ошибкам в документах (платежному поручению)\
+            \ в файле"
+    ApiProcessImportFullDto:
+      type: "object"
+      description: "Подробная информация о задаче импорта"
+      allOf:
+      - $ref: "#/components/schemas/ApiShortProcessImportDto"
+      properties:
+        message:
+          type: "string"
+          description: "Сообщение, если не удалось целиком импортировать файл"
+        startTime:
+          type: "string"
+          description: "Время начала импорта (GMT+3)"
+        endTime:
+          type: "string"
+          description: "Время завершения импорта (GMT+3). Отображается только при\
+            \ importStatus COMPLETED или ERROR"
+        importStatus:
+          $ref: "#/components/schemas/ProcessImportStatus"
+        massPaymentId:
+          type: "string"
+          description: "Уникальный идентификатор массового платежа (отображается п\
+            ри импорте массового платежа)"
+        massPaymentStatus:
+          $ref: "#/components/schemas/ApiMassPaymentStatus"
+        importFormat:
+          type: "string"
+          description: "Формат импорта"
+        documentsInfo:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ImportDocumentFullInfoDto"
+          description: "Информация и текущий статус по каждому документу (платежно\
+            му поручению) в файле"
+    ProcessImportStatus:
+      type: "string"
+      description: "Статус процесса импорта"
+      enum:
+      - "IN_PROGRESS"
+      - "COMPLETED"
+      - "QUEUED"
+      - "ERROR"
+    ApiMassPaymentStatus:
+      type: "string"
+      description: "Статус массового платежа"
+      enum:
+      - "IMPORT_PROCESS"
+      - "IMPORTED"
+      - "DRAFT"
+      - "REJECTED"
+    ImportDocumentInfoDto:
+      type: "object"
+      description: "Информация по одному документу в файле импорта"
+      properties:
+        documentListNumber:
+          type: "integer"
+          description: "Порядковый номер документа (платежного поручения) в файле"
+        fileName:
+          type: "string"
+          description: "Имя файла, из которого импортирован платеж"
+        paymentId:
+          type: "string"
+          description: "Уникальный идентификатор импортированного платежа. Присваи\
+            вается только при documentStatus IMPORTED или DRAFT"
+        message:
+          type: "string"
+          description: "Сообщение с ошибкой"
+        documentNumber:
+          type: "integer"
+          description: "Номер документа"
+        documentStatus:
+          $ref: "#/components/schemas/ImportDocumentInfoStatus"
+    ImportDocumentFullInfoDto:
+      type: "object"
+      description: "Информация по одному документу в файле импорта"
+      properties:
+        paymentId:
+          type: "string"
+          description: "Уникальный идентификатор импортированного платежа"
+        documentNumber:
+          type: "integer"
+          description: "Номер документа"
+        documentDate:
+          type: "integer"
+          description: "Дата документа"
+        payerAccount:
+          type: "string"
+          description: "Счет плательщика"
+        receiverAccount:
+          type: "string"
+          description: "Счет получателя"
+        paymentAmount:
+          type: "number"
+          format: "decimal"
+          description: "Сумма платежа"
+        message:
+          type: "string"
+          description: "Сообщение из банка"
+        status:
+          $ref: "#/components/schemas/ImportDocumentFullInfoStatus"
+    ImportDocumentInfoStatus:
+      type: "string"
+      description: "Статус документа"
+      enum:
+      - "IMPORTED"
+      - "DRAFT"
+      - "REJECTED"
+    ImportDocumentFullInfoStatus:
+      type: "string"
+      description: "Возможные статусы платежа TEMP - черновик,  CREATED/IMPORTED -\
+        \ документ прошел все проверки и ожидает подписи SIGNED/PARTLY_SIGNED - до\
+        кумент частично или полностью подписан,  POSTPONED - отложена отправка, ACCEPTED_BY_ABS\
+        \ - документ подписан и отправлен на процессинг,   IN_PROGRESS_BY_ABS - до\
+        кумент поставлен в рейс на отправку в ЦБ,  INSUFFICIENT_FUNDS - недостаточ\
+        но средств,  HOLD_ACCEPT_SPM - документ задержан противодействием мошеннич\
+        еству,  HOLD_ACCEPT_UKK - документ задержан управлением комплаенс контроля\
+        ,  PDC - документ отправлен в картотеку, т.е. денежные средства не поступи\
+        ли на оплату платежа до COT, нодокумент не отклонился, т.к. является обяза\
+        тельным к исполнению (зарплатный, алиментный итп),  PROCESSED - исполненны\
+        й документ, INVALID_CHECKS/INVALID_SIGN - отклонен в сервисе из-за не прой\
+        денных контролей, DECLINED_BY_ABS - отказанный в банке,  DECLINED_BY_CBR -\
+        \ отказанный ЦБ документ,  REVOKED - отозванный документ,  DELETED - удалё\
+        нный документ"
+      enum:
+      - "TEMP"
+      - "CREATED"
+      - "IMPORTED"
+      - "PARTLY_SIGNED"
+      - "SIGNED"
+      - "POSTPONED"
+      - "ACCEPTED_BY_ABS"
+      - "IN_PROGRESS_BY_ABS"
+      - "INSUFFICIENT_FUNDS"
+      - "HOLD_ACCEPT_SPM"
+      - "HOLD_ACCEPT_UKK"
+      - "PDC"
+      - "PROCESSED"
+      - "INVALID_CHECKS"
+      - "INVALID_SIGN"
+      - "DECLINED_BY_ABS"
+      - "DECLINED_BY_CBR"
+      - "REVOKED"
+      - "DELETED"

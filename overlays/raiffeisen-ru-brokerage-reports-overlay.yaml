@@ -1,0 +1,21 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist overlay for Brokerage Reports API
+  version: 1.0.0
+extends: ../openapi/_original/raiffeisen-ru-brokerage-reports-openapi.yml
+x-generated: '2026-10-09'
+x-method: generated
+actions:
+- target: $.info
+  description: Catalog provenance (API Evangelist).
+  update:
+    x-apis-json-aid: raiffeisen-ru
+    x-provider: Raiffeisenbank (Russia)
+    x-api-name: Brokerage Reports API
+    x-mcp-discovery: https://api.raiffeisen.ru/developer-portal/public/mcp
+- target: $
+  description: Link the provider documentation page for this API (from apis.yml humanURL).
+  update:
+    externalDocs:
+      description: Provider documentation (developer.raiffeisen.ru)
+      url: https://developer.raiffeisen.ru/docs/api/55c08ade-ed8a-49c2-83f3-b7e39c13d760

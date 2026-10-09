@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-search-correspondences-request-schema.json",
+  "title": "SearchCorrespondencesRequest",
+  "description": "Запрос на получение списка переписок",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-letters-openapi.yml#/components/schemas/SearchCorrespondencesRequest",
+  "type": "object",
+  "properties": {
+    "filter": {
+      "description": "Условия отбора переписок",
+      "$ref": "#/$defs/ExternalCorrespondenceFilter"
+    },
+    "sort": {
+      "description": "Параметры сортировки. По умолчанию сортировка по времени обновления по убыванию",
+      "$ref": "#/$defs/ExternalCorrespondenceSort"
+    },
+    "paging": {
+      "description": "Параметры постраничной навигации. По умолчанию offset = 0, limit = 50",
+      "$ref": "#/$defs/ExternalPagingRequest"
+    }
+  },
+  "required": [
+    "filter",
+    "paging"
+  ],
+  "$defs": {
+    "DateTimeRange": {
+      "type": "object",
+      "description": "Диапазон дат. Граница from включается в выборку, граница to — исключается",
+      "properties": {
+        "from": {
+          "description": "Начало диапазона (включительно)",
+          "$ref": "#/$defs/DateTimeWithOffset"
+        },
+        "to": {
+          "description": "Конец диапазона (исключительно)",
+          "$ref": "#/$defs/DateTimeWithOffset"
+        }
+      }
+    },
+    "DateTimeWithOffset": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$",
+      "description": "Дата и время в формате ISO 8601 с обязательным указанием часового пояса — UTC (`Z`) или смещения (`±hh:mm`). Дробная часть секунды необязательна"
+    },
+    "ExternalCorrespondenceDirection": {
+      "type": "string",
+      "description": "Направление переписки относительно клиента. TO_BANK — от клиента в банк, FROM_BANK — из банка клиенту",
+      "enum": [
+        "FROM_BANK",
+        "TO_BANK"
+      ]
+    },
+    "ExternalCorrespondenceFilter": {
+      "type": "object",
+      "description": "Условия отбора переписок",
+      "properties": {
+        "organization": {
+          "description": "Идентификатор организации. Необходимо передать хотя бы одно из полей — ИНН/КИО или CNUM",
+          "$ref": "#/$defs/ExternalOrganizationFilter"
+        },
+        "directions": {
+          "type": "array",
+          "description": "Направления переписок. Пустой список или отсутствие поля — отбираются оба направления",
+          "items": {
+            "$ref": "#/$defs/ExternalCorrespondenceDirection"
+          }
+        },
+        "createdAt": {
+          "description": "Диапазон времени создания переписки",
+          "$ref": "#/$defs/DateTimeRange"
+        },
+        "updatedAt": {
+          "description": "Диапазон времени последнего обновления переписки",
+          "$ref": "#/$defs/DateTimeRange"
+        },
+        "accounts": {
+          "type": "array",
+          "description": "Номера счетов. Пустой список или отсутствие поля — фильтрация по счёту не выполняется. При непустом списке переписки без счёта не возвращаются. Если хотя бы один из указанных счетов недоступен пользователю, запрос завершается с ошибкой 403",
+          "items": {
+            "type": "string"
+          }
+        },
+        "statuses": {
+          "type": "array",
+          "description": "Статусы переписок. Пустой список или отсутствие поля — фильтрация по статусу не выполняется",
+          "items": {
+            "$ref": "#/$defs/ExternalCorrespondenceStatus"
+          }
+        }
+      },
+      "required": [
+        "organization"
+      ]
+    },
+    "ExternalCorrespondenceSort": {
+      "type": "object",
+      "description": "Параметры сортировки",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "Поле сортировки",
+          "default": "UPDATED_AT",
+          "enum": [
+            "CREATED_AT",
+            "UPDATED_AT"
+          ]
+        },
+        "direction": {
+          "type": "string",
+          "description": "Порядок сортировки",
+          "default": "DESC",
+          "enum": [
+            "ASC",
+            "DESC"
+          ]
+        }
+      }
+    },
+    "ExternalCorrespondenceStatus": {
+      "type": "string",
+      "description": "Статус переписки; промежуточные статусы закрытия относятся к OPEN",
+      "enum": [
+        "OPEN",
+        "CLOSED"
+      ]
+    },
+    "ExternalOrganizationFilter": {
+      "type": "object",
+      "description": "Идентификатор организации для поиска переписок. Необходимо передать хотя бы одно из полей `inn` или `cnum`. Если переданы оба, они должны относиться к одной организации. КПП допустим только вместе с ИНН/КИО",
+      "properties": {
+        "inn": {
+          "type": "string",
+          "description": "ИНН/КИО организации. Для КИО допустимо 5 цифр, для ИНН — 10 или 12 цифр",
+          "pattern": "(0|[0-9]{5})|([0-9]{10})|([0-9]{12})",
+          "maxLength": 12
+        },
+        "cnum": {
+          "type": "string",
+          "description": "Внутренний идентификатор организации (CNUM)",
+          "pattern": "(.*\\S.*|)",
+          "minLength": 1
+        },
+        "kpp": {
+          "type": "string",
+          "description": "КПП организации. Необязателен, если организация однозначно определяется по ИНН/КИО",
+          "pattern": "(.*\\S.*|)",
+          "minLength": 1
+        }
+      }
+    },
+    "ExternalPagingRequest": {
+      "type": "object",
+      "description": "Параметры постраничной навигации",
+      "properties": {
+        "offset": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Количество пропускаемых записей",
+          "minimum": 0,
+          "default": 0
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Максимальное количество записей в ответе",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 50
+        }
+      }
+    }
+  }
+}

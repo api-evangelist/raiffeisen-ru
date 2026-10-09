@@ -1,0 +1,2446 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "version": "1.1",
+    "title": "API для фискализации чеков Raif Pay",
+    "contact": {
+      "email": "ecom@raiffeisen.ru",
+      "name": "Support e-mail",
+      "x-team-id": 47,
+      "x-short-team-name": "ASMEME"
+    },
+    "x-logo": {
+      "url": "images/raifflogo.png",
+      "backgroundColor": "#FFFFFF",
+      "altText": "Raiff logo"
+    },
+    "description": "Свои предложения и идеи о документации можно оставить в репозитории по адресу: https://github.com/Raiffeisen-DGTL/ecom-API/blob/master/fiscal.yaml\n\n# Поддержка 54-ФЗ\nПо закону от 22.05.2003 № 54–ФЗ \\\"О применении контрольно-кассовой техники при осуществлении расчетов в Российской Федерации\\\" при оплате товаров, работ или услуг необходимо формировать фискальный чек и отправлять его в налоговую с помощью кассы.Клиенты Райффайзенбанка, подключившие интернет-эквайринг, также могут воспользоваться услугой фискализации чеков через онлайн-кассу. Пошаговые инструкции приведены ниже.\n# Общая схема работы\n<a href='images/fiscal_scheme.svg' target='_blank'><img src='images/fiscal_scheme.svg'/></a>\n\n# Документация для агентской разработки\nВы можете создать API, использующий фискальный протокол Raif Pay, отправив всего один запрос своему агенту для программирования:\n```Read https://pay.raif.ru/documents/sme/api-agent-doc/fiscal.md and implement a complete client library for Raiffeisen Fiscal Receipt API: save, register and poll receipts (sell and refund), Bearer token auth, all models and enums from the docs, typed error handling for all API error codes, and a pollUntilDone method that retries until status is DONE or FAILED.```\n\n# Подключение онлайн-кассы\nКлиенты Райффайзенбанка, подключившие интернет-эквайринг, также могут воспользоваться услугой фискализации чеков через онлайн-кассу. Пошаговые инструкции приведены ниже.\n\nПоставщик кассового оборудования | ФФД 1.05 | ФФД 1.2\n---------------------------------|----------|----------\nАТОЛ Онлайн | + | +\nБилайн | - | +\nБИФИТ | + | -\nЧек-Онлайн | + | -\nЭвотор | + | +\nLIFE PAY | + | +\nОFD.ru | + | +\nOrange Data | + | +\nМодулькасса | + | +\n\n## АТОЛ Онлайн\n`Поддерживает ФФД 1.05 и ФФД 1.2.`\n1. Зарегистрируйтесь в сервисе [\\\"АТОЛ Онлайн\\\"](https://online.atol.ru/lk/Account/Register?partnerUid=18583cd5-dae2-4fb1-a98b-f4b80d891eb0) и подключите онлайн-кассу\n2. Заключите договор с [оператором фискальных данных](https://www.nalog.gov.ru/rn77/related_activities/registries/fiscaloperators/)\n3. Зайдите в [личный кабинет \\\"АТОЛ Онлайн\\\"](https://online.atol.ru/lk/Account/Login), чтобы получить логин, пароль и идентификатор. Выберите раздел \\\"Мои компании\\\", нажмите кнопку \\\"Настройки интегратора\\\".\nСкачается XML-файл с настройками, найдите в файле элемент access, в нём будут все три параметра: login, password, group_code. Если возникли трудности, обратитесь в техподдержку \\\"АТОЛ Онлайн\\\".\n4. Подключите фискализацию в [Личном кабинете Raif Pay](https://pay.raif.ru/account/) или [RBO](https://www.rbo.raiffeisen.ru)<br/>\nВ Личном кабинете Raif Pay: Настройки → Фискализация чеков → Подключить<br/>\nВ RBO: Прием платежей → Настройки → Фискализация чеков → Подключить<br/><br/>\n\n## Билайн\n`Поддерживает ФФД 1.2`\n1. Зарегистрируйтесь в сервисе “Облачные кассы [Билайн](https://kassa.beeline.ru/static/manual.pdf)” и подключите онлайн-кассу<br/>\n2. Сохраните логин и пароль от сервиса https://kassa.beeline.ru. Эти данные понадобятся на следующем шаге.<br/>\n3. Подключите фискализацию в [Личном кабинете Raif Pay](https://pay.raif.ru/account/) или [RBO](https://www.rbo.raiffeisen.ru)<br/>\nВ Личном кабинете Raif Pay: Настройки → Фискализация чеков → Подключить<br/>\nВ RBO: Прием платежей → Настройки → Фискализация чеков → Подключить<br/>\nДля идентификатора группы ККТ используйте название “ecom”.<br/><br/>\n\n## БИФИТ\n`Поддерживает ФФД 1.05`\n1. Заключите договор с [БИФИТ на аренду ККТ](https://bifitkassa.ru/raiffaisenbank)<br/>\n2. Оплатите аренду ККТ и ФН. БИФИТ предоставит бесплатное подключение к ОФД Яндекс. При необходимости можно подключиться к другому ОФД. Для этого в ЛК найдите № ККТ и № ФН и выполните регистрацию в ОФД на свой выбор<br/>\n3. Перейдите в личный кабинет БИФИТ для получения данных по подключенной кассе. Откройте пункт меню «Бифит Онлайн» и перейдите в раздел «Коннекторы ККТ». Создайте токен коннектора и привяжите к нему кассу. Скопируйте токен коннектора и заводской номер ККТ (идентификатор ККТ)<br/>\n4. Подключите фискализацию в [Личном кабинете Raif Pay](https://pay.raif.ru/account/) или [RBO](https://www.rbo.raiffeisen.ru)<br/>\nВ Личном кабинете Raif Pay: Настройки → Фискализация чеков → Подключить<br/>\nВ RBO: Прием платежей → Настройки → Фискализация чеков → Подключить<br/><br/>\n\n## Чек-Онлайн\n`Поддерживает ФФД 1.05`\n1. Зарегистрируйтесь в сервисе [\\\"Чек-Онлайн\\\"](https://www.chekonline.ru) и подключите онлайн-кассу\n2. Заключите договор с [оператором фискальных данных](https://www.nalog.gov.ru/rn77/related_activities/registries/fiscaloperators/)\n3. Зайдите в [личный кабинет клиента](https://cabinet.chekonline.ru/Account/Login), чтобы получить логин и пароль. Откройте раздел \\\"Предприятия\\\", найдите в списке нужную компанию и нажмите на иконку в поле \\\"Авторизация\\\". Откроется раздел, в котором можно выбрать существующие логин и пароль или сгенерировать новые.Для получения идентификатора группы ККТ вернитесь в раздел \\\"Предприятия\\\" и выберите нужную компанию из списка. В открывшемся профиле предприятия скопируйте API Group ID. Эти данные понадобятся на следующем шаге.\n4. Подключите фискализацию в [Личном кабинете Raif Pay](https://pay.raif.ru/account/) или [RBO](https://www.rbo.raiffeisen.ru)<br/>\nВ Личном кабинете Raif Pay: Настройки → Фискализация чеков → Подключить<br/>\nВ RBO: Прием платежей → Настройки → Фискализация чеков → Подключить<br/><br/>\n\n## Эвотор\n`Поддерживает ФФД 1.05 и ФФД 1.2`\n1. Оставьте заявку на облачную онлайн-кассу на сайте Эвотор<br/>\n2. После подключения облачной кассы зайдите в личный кабинет Эвотор и получите приветственное письмо на E-mail. В личном кабинете и в письме содержатся логин, пароль и идентификатор группы касс. Скопируйте эти данные.<br/>\n3. Подключите фискализацию в [Личном кабинете Raif Pay](https://pay.raif.ru/account/) или [RBO](https://www.rbo.raiffeisen.ru)<br/>\nВ Личном кабинете Raif Pay: Настройки → Фискализация чеков → Подключить<br/>\nВ RBO: Прием платежей → Настройки → Фискализация чеков → Подключить<br/><br/>\n\n## LIFE PAY\n`Поддерживает ФФД 1.05 и ФФД 1.2`\n1. Оставьте заявку на облачную онлайн-кассу по [ссылке](https://life-pay.ru/partners-form/?partner_id=46839). В заявке в поле Продукт укажите \\\"Облачная касса\\\". <br/>Поля для ИНН, номера телефона, имени и E-mail обязательны к заполнению. В поле \\\"Комментарий\\\" при необходимости можно указать дополнительную информацию. Например, \\\"Позвонить по заявке завтра после 14:00\\\"<br/>\n2. После подключения облачной кассы зайдите в личный кабинет LIFE PAY → Настройки → Разработчикам. В этом разделе скопируйте API KEY<br/>\n3. Подключите фискализацию в [Личном кабинете Raif Pay](https://pay.raif.ru/account/) или [RBO](https://www.rbo.raiffeisen.ru)<br/>\nВ Личном кабинете Raif Pay: Настройки → Фискализация чеков → Подключить<br/>\nВ RBO: Прием платежей → Настройки → Фискализация чеков → Подключить<br/>\nВ поле Логин укажите номер телефона в формате 7xxxxxxxxxx, а в поле Пароль - API KEY, скопированный ранее<br/><br/>\n\n## OFD.ru\n`Поддерживает ФФД 1.05 и ФФД 1.2`\n1. Подключите онлайн-кассу в сервисе [OFD.ru](https://raiffeisen.ofd.ru/)\n2. Зарегистрируйте кассу в ФНС через сервис Ferma [по инструкции](https://static.ofd.ru/mail/2020/03/code_activate_and_promocode.pdf)<br/><br/>\nДля получения данных по подключенной кассе в OFD.ru перейдите в раздел Ferma в [личном кабинете клиента](https://lk.ofd.ru/ferma/dashboard) и пролистайте до виджета \\\"Реквизиты доступа\\\". Скопируйте логин, пароль и идентификатор группы ККТ для подключения. Эти данные понадобятся на следующем шаге.<br/>\n<a href='images/fiscalization_ofdru.png' target='_blank'><img src='images/fiscalization_ofdru.png'/></a>\n3. Подключите фискализацию в [Личном кабинете Raif Pay](https://pay.raif.ru/account/) или [RBO](https://www.rbo.raiffeisen.ru)<br/>\nВ Личном кабинете Raif Pay: Настройки → Фискализация чеков → Подключить<br/>\nВ RBO: Прием платежей → Настройки → Фискализация чеков → Подключить<br/><br/>\n\n## Orange Data\n`Поддерживает ФФД 1.05 и ФФД 1.2`\n1. Зарегистрируйтесь в системе “[Orange Data](https://orangedata.ru/support/registratsiya-v-lichnom-kabinete/registratsiya-v-sisteme)” и подключите онлайн-кассу<br/>\n2. В разделе “[Интеграция](https://orangedata.ru/support/integratsiya/vybor-varianta-integratsii)” ЛК Orange Data сгенерируйте файлы сертификации и пару ключей RSA.<br/>\n3. Для получения логина и пароля направьте следующие данные на E-mail api@orangedata.ru с указанием темы письма \\\"Запрос данных Райффайзен Банк\\\":<br/>\n- ИНН<br/>\n- Файл сертификата .pfx, private_key.xml и public_key.xml, созданные на шаге 2.<br/>\n- Если Вы работаете с новыми ставками НДС 5%, 5/105%, 7%, 7/107%, то сообщите об этом в данном письме. На кассу будет установлено необходимое ПО.<br/>\n4. Подключите фискализацию в [Личном кабинете Raif Pay](https://pay.raif.ru/account/) или [RBO](https://www.rbo.raiffeisen.ru)<br/>\nВ Личном кабинете Raif Pay: Настройки → Фискализация чеков → Подключить<br/>\nВ RBO: Прием платежей → Настройки → Фискализация чеков → Подключить<br/>\nДля идентификатора группы ККТ используйте название “Main” для ФФД 1.05 и “Main_2” для ФФД 1.2.\n\n## Модулькасса\n`Поддерживает ФФД 1.05 и ФФД 1.2`\n1. Оставьте заявку на облачную онлайн-кассу [по ссылке](https://modulkassa.ru/partners/raiffeisen-bank?utm_source=pap&a_aid=raiffeisen-bank)<br/>\n2. После оплаты счета мы зарегистрируем кассу в ФНС, настроим и подключим к ОФД<br/>\n3. После подключения облачной кассы зайдите в личный кабинет Модулькассы и создайте точку продаж [по инструкции](https://modulkassa.ru/support/create_outlet)<br/>\nЕсли точка уже создана, то включите функцию приема чеков интернет-магазина:<br/>\n- Выберите точку продаж, к которой хотите подключить интернет-магазин;<br/>\n- Нажмите на точку продаж и включите функцию «Использовать для документов интернет магазина»;<br/>\n- В окне редактирования скопируйте значение из поля \"Идентификатор\" - оно понадобится для подключения интеграции, его лучше сохранить в отдельном текстовом файле.<br/>\n4. Получите логин и пароль для подключения интеграции: <br/>\n- Нажмите «Настройки» в верхнем правом углу;<br/>\n- Перейдите в раздел «Сервисы»;<br/>\n- Активируйте ползунок «Чеки интернет-магазина»;<br/>\n- В новом окне появятся специальные логин и пароль для интеграции. Если эта комбинация вам не нравится, нажмите кнопку «Сгенерировать логин и пароль»;<br/>\n- Скопируйте логин и пароль отдельно в документ, где ранее сохранили идентификатор точки продаж.<br/>\n5. Подключите фискализацию в [Личном кабинете Raif Pay](https://pay.raif.ru/account/) или [RBO](https://www.rbo.raiffeisen.ru)<br/>\nВ Личном кабинете Raif Pay: Настройки → Фискализация чеков → Подключить<br/>\nВ RBO: Прием платежей → Настройки → Фискализация чеков → Подключить<br/>\nДля идентификатора группы ККТ используйте идентификатор точки продаж.\n"
+  },
+  "servers": [
+    {
+      "url": "https://pay-test.raif.ru/api",
+      "description": "Sandbox"
+    },
+    {
+      "url": "https://pay.raif.ru/api",
+      "description": "Production"
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "API",
+      "tags": [
+        "authorization",
+        "fiscal-controller"
+      ]
+    },
+    {
+      "name": "Ошибки",
+      "tags": [
+        "errors"
+      ]
+    },
+    {
+      "name": "История изменений",
+      "tags": [
+        "06.10.2021",
+        "08.12.2021",
+        "18.01.2022",
+        "25.03.2022",
+        "15.04.2022",
+        "26.08.2022",
+        "30.09.2022",
+        "13.02.2023",
+        "22.07.2024",
+        "10.02.2025",
+        "14.02.2025",
+        "01.09.2025",
+        "13.05.2026",
+        "18.05.2026"
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "authorization",
+      "x-displayName": "Авторизация",
+      "description": "Для успешной авторизации необходимо использовать:\n  * secretKey - секретный ключ, который используется для межсервисного взаимодействия. Данный ключ мерчант получает при регистрации.\n\nВАЖНО: Секретный ключ необходимо хранить в защищенном месте, нельзя публиковать на сторонних ресурсах или передавать третьим лицам.\n\nМежсервисные запросы авторизуются посредством секретного ключа API (SECRET_KEY). Параметр авторизации указывается в заголовке Authorization, значение которого формируется как \"Bearer SECRET_KEY\".\n"
+    },
+    {
+      "name": "fiscal-controller",
+      "x-displayName": "Методы API",
+      "description": "Для фискализации чеков через партнёра Райффайзенбанк предоставляет API из следующих запросов:\n  * Сохранение чека\n  * Регистрация чека\n  * Получение статуса чека\n\nВзаимодействие осуществляется по протоколу HTTP с использованием методов POST, PUT, GET.\n\nВ описании каждого запроса явно указаны требуемые метод, адрес и параметры.\n\nPOST-запросы используют JSON-структуру, PUT- и GET-запросы работают со строками запросов.\n\nОтвет любого метода возвращает HTTP-код. Если при обработке запроса происходит ошибка, API дополнительно возвращает ее описание.\n"
+    },
+    {
+      "name": "errors",
+      "x-displayName": "Справочник ошибок",
+      "description": "Стандартный ответ сервиса содержит код сообщения (code).\nЕсли в процессе обработки запроса произойдет логическая ошибка, API вернет описание ошибки (message).\n\nОписание основных ошибок:\n\ncode | message\n------------|------\nFISCAL_CLIENT_NOT_FOUND | Фискальный клиент {value} не найден\nMERCHANT_NOT_FOUND | Мерчант с publicId = {value} не зарегистрирован в сервисе\nCREDENTIALS_NOT_FOUND | Учетные данные ОФД для мерчанта с publicId = {value} не найдены\nRECEIPT_TYPE_NOT_SUPPORTED | Регистрация чеков типа {value} не поддерживается\nRECEIPT_VALIDATION_FAILED | Чек не прошел валидацию. Причина: {value}\nRECEIPT_NOT_FOUND | Чек {value} не найден\nRECEIPT_FOR_ORDER_NOT_FOUND | Чек для заказа {value} не найден\nRECEIPT_STATUS_CONFLICT | Чек {value} в статусе {value}, действие невозможно\nTOKEN_REQUEST_FAILED | Не удалось получить токен для отправки чека в ОФД\nRECEIPT_REGISTRATION_FAILED | Не удалось зарегистрировать чек {value}\nSTATUS_REQUEST_FAILED | Не удалось запросить статус чека ofdId = {value} мерчанта с publicId = {value}\nUSER_PERMISSIONS_VALIDATION_FAILED | Мерчант с publicId {value} не прошел валидацию user permissions\n"
+    },
+    {
+      "name": "06.10.2021",
+      "x-displayName": "06.10.2021",
+      "description": "* Первоначальная версия документа 1.0\n"
+    },
+    {
+      "name": "08.12.2021",
+      "x-displayName": "08.12.2021",
+      "description": "Версия документации 1.1:\n* Обновление файла до версии OpenAPI 3.0\n* Перенос документации на новый URL https://pay.raif.ru/\n* Внесение небольших правок\n"
+    },
+    {
+      "name": "18.01.2022",
+      "x-displayName": "18.01.2022",
+      "description": "* В чеки прихода и расхода добавлены новые параметры для агентских операций: agentType, supplierInfo. Дополнена структура запроса на создание чека и ответ на него\n"
+    },
+    {
+      "name": "25.03.2022",
+      "x-displayName": "25.03.2022",
+      "description": "* В модель чека добавлен параметр paymentMode для передачи способа расчёта (100% предоплата, полный расчет)\n"
+    },
+    {
+      "name": "15.04.2022",
+      "x-displayName": "15.04.2022",
+      "description": "* В документацию добавлен партнер \"БИФИТ\", приведена инструкция по подключению онлайн-кассы сервиса БИФИТ\n* Добавлены примеры запроса на сохранение чека (по агентским операциям и без них)\n* Дополнено правило заполнения номенклатурного кода для партнера \"БИФИТ\"\n* Небольшие правки по тексту\n"
+    },
+    {
+      "name": "26.08.2022",
+      "x-displayName": "26.08.2022",
+      "description": "* Добавлен ФФД 1.2 для сервиса \"АТОЛ Онлайн\"\n"
+    },
+    {
+      "name": "30.09.2022",
+      "x-displayName": "30.09.2022",
+      "description": "* Реализована поддержка авансовых чеков и чеков частичной предоплаты\n"
+    },
+    {
+      "name": "13.02.2023",
+      "x-displayName": "13.02.2023",
+      "description": "* Добавлен ФФД 1.2 для сервиса \"OFD.ru\"\n"
+    },
+    {
+      "name": "22.07.2024",
+      "x-displayName": "22.07.2024",
+      "description": "* В документации объединены форматы фискальных документов (ФФД 1.05 и 1.2)\n"
+    },
+    {
+      "name": "10.02.2025",
+      "x-displayName": "10.02.2025",
+      "description": "* Добавлены новые значения параметра vatType (НДС чека по ставке 5%, НДС чека по расчетной ставке 5/105, НДС чека по ставке 7%, НДС чека по расчетной ставке 7/107)\n"
+    },
+    {
+      "name": "14.02.2025",
+      "x-displayName": "14.02.2025",
+      "description": "* Добавлен ФФД 1.2 для сервиса \"Orange Data\" и обновлена инструкция по подключению\n"
+    },
+    {
+      "name": "05.03.2025",
+      "x-displayName": "05.03.2025",
+      "description": "* Добавлены теги ФФД\n"
+    },
+    {
+      "name": "20.05.2025",
+      "x-displayName": "20.05.2025",
+      "description": "* Добавлен ФФД 1.2 для сервиса \"Модулькасса\" и обновлена инструкция по подключению\n"
+    },
+    {
+      "name": "07.07.2025",
+      "x-displayName": "07.07.2025",
+      "description": "* Добавлено поле \"sectoralProperties\" (тег 1260) для фискализации в разрешительном режиме\n"
+    },
+    {
+      "name": "01.09.2025",
+      "x-displayName": "01.09.2025",
+      "description": "* Добавлены поля \"timezone\" (тег 1011, для ФФД 1.2), \"onlinePayment\" (тег 1125) и \"plannedStatus\" (тег 2003)\n"
+    },
+    {
+      "name": "13.05.2026",
+      "x-displayName": "13.05.2026",
+      "description": "* Добавлен ФФД 1.05 для сервиса \"Модулькасса\"\n"
+    },
+    {
+      "name": "18.05.2026",
+      "x-displayName": "18.05.2026",
+      "description": "* Добавлено поле \"orderNumber\" (номер заказа мерчанта)\n"
+    }
+  ],
+  "paths": {
+    "/fiscal/v1/receipts/sell": {
+      "post": {
+        "tags": [
+          "fiscal-controller"
+        ],
+        "summary": "Сохранение чека прихода",
+        "operationId": "post-fiscal-v1-receipts-sell",
+        "description": "Метод предназначен для создания нового чека прихода с указанным receiptNumber. Также позволяет обновить уже существующий чек прихода при повторном запросе с тем же receiptNumber. Метод возвращает тело чека, а также его тип и статус в дополнительных параметрах ответа.<br/><b>Отправка чека по ФФД 1.2 не поддерживается для сервисов БИФИТ и Chekonline.<br/>Отправка чека по ФФД 1.05 не поддерживается для сервиса Билайн.</b><br/>Если Вы хотите перейти с ФФД 1.05 на ФФД 1.2, то отправьте заявку в поддержку ecom@raiffeisen.ru",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Authorization",
+            "description": "[Bearer secretKey](#tag/authorization)",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=UTF-8": {
+              "schema": {
+                "$ref": "#/components/schemas/receiptWhiteLabel"
+              },
+              "examples": {
+                "Чек прихода (ФФД 1.05)": {
+                  "value": {
+                    "receiptNumber": "3000827351831",
+                    "orderNumber": "order-2024_001",
+                    "client": {
+                      "email": "customer@test.ru",
+                      "name": "Иванов Иван Иванович"
+                    },
+                    "items": [
+                      {
+                        "name": "Шоколадные конфеты",
+                        "price": 1000,
+                        "quantity": 1.2,
+                        "amount": 1200,
+                        "paymentObject": "COMMODITY",
+                        "paymentMode": "FULL_PAYMENT",
+                        "measurementUnit": "кг",
+                        "nomenclatureCode": "00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00",
+                        "vatType": "VAT20"
+                      }
+                    ],
+                    "total": 1200
+                  }
+                },
+                "Чек прихода по агентской операции (ФФД 1.05)": {
+                  "value": {
+                    "receiptNumber": "3000827351832",
+                    "orderNumber": "order-2024_002",
+                    "client": {
+                      "email": "customer@test.ru",
+                      "name": "Иванов Иван Иванович"
+                    },
+                    "items": [
+                      {
+                        "name": "Шоколадные конфеты",
+                        "price": 1000,
+                        "quantity": 1.2,
+                        "amount": 1200,
+                        "paymentObject": "COMMODITY",
+                        "paymentMode": "FULL_PAYMENT",
+                        "measurementUnit": "кг",
+                        "nomenclatureCode": "00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00",
+                        "vatType": "VAT20",
+                        "agentType": "ANOTHER",
+                        "supplierInfo": {
+                          "phone": "+79991234567",
+                          "name": "ООО «Ромашка»",
+                          "inn": "287381373424"
+                        }
+                      }
+                    ],
+                    "total": 1200
+                  }
+                },
+                "Чек прихода (ФФД 1.2)": {
+                  "value": {
+                    "receiptNumber": "3000827351833",
+                    "orderNumber": "order-2024_003",
+                    "client": {
+                      "email": "customer@test.ru",
+                      "extra": {
+                        "name": "Иванов Иван Иванович",
+                        "inn": "516974792202"
+                      }
+                    },
+                    "items": [
+                      {
+                        "name": "Шоколадный торт",
+                        "price": 1200,
+                        "quantity": 1,
+                        "amount": 1200,
+                        "paymentObject": "COMMODITY_MARKING_WITH_CODE",
+                        "paymentMode": "FULL_PAYMENT",
+                        "measurementUnit": "PIECE",
+                        "vatType": "VAT20",
+                        "agentType": "ANOTHER",
+                        "supplierInfo": {
+                          "phone": "+79991234567",
+                          "name": "ООО «Ромашка»",
+                          "inn": "287381373424"
+                        },
+                        "marking": {
+                          "quantity": {
+                            "numerator": 1,
+                            "denominator": 3
+                          },
+                          "code": {
+                            "format": "GS1M",
+                            "value": "MDEwNDYwNzQyODY3OTA5MDIxNmVKSWpvV0g1NERkVSA5MWZmZDAgOTJzejZrU1BpckFwZk1CZnR2TGJvRTFkbFdDLzU4aEV4UVVxdjdCQmtabWs0PQ==",
+                            "plannedStatus": 1
+                          }
+                        }
+                      }
+                    ],
+                    "total": 1200
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/response"
+                },
+                "examples": {
+                  "Чек прихода (ФФД 1.05)": {
+                    "value": {
+                      "receiptNumber": "3000827351831",
+                      "orderNumber": "order-2024_001",
+                      "receiptType": "SELL",
+                      "status": "NEW",
+                      "client": {
+                        "email": "customer@test.ru",
+                        "name": "Иванов Иван Иванович"
+                      },
+                      "items": [
+                        {
+                          "name": "Шоколадные конфеты",
+                          "price": 1000,
+                          "quantity": 1.2,
+                          "amount": 1200,
+                          "paymentObject": "COMMODITY",
+                          "paymentMode": "FULL_PAYMENT",
+                          "measurementUnit": "кг",
+                          "nomenclatureCode": "00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00",
+                          "vatType": "VAT20"
+                        }
+                      ],
+                      "total": 1200
+                    }
+                  },
+                  "Чек прихода по агентской операции (ФФД 1.05)": {
+                    "value": {
+                      "receiptNumber": "3000827351832",
+                      "orderNumber": "order-2024_002",
+                      "receiptType": "SELL",
+                      "status": "NEW",
+                      "client": {
+                        "email": "customer@test.ru",
+                        "name": "Иванов Иван Иванович"
+                      },
+                      "items": [
+                        {
+                          "name": "Шоколадные конфеты",
+                          "price": 1000,
+                          "quantity": 1.2,
+                          "amount": 1200,
+                          "paymentObject": "COMMODITY",
+                          "paymentMode": "FULL_PAYMENT",
+                          "measurementUnit": "кг",
+                          "nomenclatureCode": "00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00",
+                          "vatType": "VAT20",
+                          "agentType": "ANOTHER",
+                          "supplierInfo": {
+                            "phone": "+79991234567",
+                            "name": "ООО «Ромашка»",
+                            "inn": "287381373424"
+                          }
+                        }
+                      ],
+                      "total": 1200
+                    }
+                  },
+                  "Чек прихода (ФФД 1.2)": {
+                    "value": {
+                      "receiptNumber": "3000827351833",
+                      "orderNumber": "order-2024_003",
+                      "receiptType": "SELL",
+                      "status": "NEW",
+                      "client": {
+                        "email": "customer@test.ru",
+                        "extra": {
+                          "name": "Иванов Иван Иванович",
+                          "inn": "516974792202"
+                        }
+                      },
+                      "items": [
+                        {
+                          "name": "Шоколадные конфеты",
+                          "price": 1200,
+                          "quantity": 1,
+                          "amount": 1200,
+                          "paymentObject": "COMMODITY_MARKING_WITH_CODE",
+                          "paymentMode": "FULL_PAYMENT",
+                          "measurementUnit": "PIECE",
+                          "vatType": "VAT20",
+                          "agentType": "ANOTHER",
+                          "supplierInfo": {
+                            "phone": "+79991234567",
+                            "name": "ООО «Ромашка»",
+                            "inn": "287381373424"
+                          },
+                          "marking": {
+                            "quantity": {
+                              "numerator": 1,
+                              "denominator": 3
+                            },
+                            "code": {
+                              "format": "GS1M",
+                              "value": "MDEwNDYwNzQyODY3OTA5MDIxNmVKSWpvV0g1NERkVSA5MWZmZDAgOTJzejZrU1BpckFwZk1CZnR2TGJvRTFkbFdDLzU4aEV4UVVxdjdCQmtabWs0PQ",
+                              "plannedStatus": 1
+                            }
+                          }
+                        }
+                      ],
+                      "total": 1200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "examples": {
+                  "400": {
+                    "value": {
+                      "code": "RECEIPT_VALIDATION_FAILED",
+                      "message": "Чек не прошел валидацию. Причина: {value}"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "examples": {
+                  "403": {
+                    "value": {
+                      "code": "MERCHANT_NOT_FOUND",
+                      "message": "Мерчант с publicId = {value} не зарегистрирован в сервисе"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "examples": {
+                  "409": {
+                    "value": {
+                      "code": "RECEIPT_STATUS_CONFLICT",
+                      "message": "Чек {value} в статусе {value}, действие невозможно"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type.\nCheck content type in header parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/415response"
+                },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "timestamp": "2023-02-15T06:36:32.418+00:00",
+                      "status": 415,
+                      "error": "Unsupported Media Type",
+                      "path": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl --location --request POST 'https://pay-test.raif.ru/api/fiscal/v1/receipts/sell' \\\n--header 'Content-Type: application/json;charset=UTF-8' \\\n--header 'Authorization: Bearer eyJ0eXA***' \\\n--data-raw'\n{\n  \"receiptNumber\": \"3000827351831\",\n  \"client\": {\n      \"email\": \"customer@test.ru\",\n      \"name\": \"Иванов Иван Иванович\"\n  },\n  \"items\": [\n  {\n      \"name\": \"Шоколадные конфеты\",\n      \"price\": 600.00,\n      \"quantity\": 2,\n      \"amount\": 1200.00,\n      \"paymentObject\": \"COMMODITY\",\n      \"measurementUnit\": \"кг\",\n      \"nomenclatureCode\": \"00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00\",\n      \"vatType\": \"VAT20\"\n  },\n  {\n      \"name\": \"Вода минеральная 1л\",\n      \"price\": 120.00,\n      \"quantity\": 20,\n      \"amount\": 2400.00,\n      \"paymentObject\": \"COMMODITY\",\n      \"measurementUnit\": \"шт\",\n      \"vatType\": \"VAT20\"\n  }\n  ],\n  \"total\": 3600.00\n}'\n"
+          }
+        ]
+      }
+    },
+    "/fiscal/v1/receipts/sell/{receiptNumber}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "maxLength": 99
+          },
+          "in": "path",
+          "name": "receiptNumber",
+          "description": "Уникальный номер чека",
+          "required": true
+        }
+      ],
+      "put": {
+        "tags": [
+          "fiscal-controller"
+        ],
+        "summary": "Регистрация чека прихода",
+        "operationId": "put-fiscal-v1-receipts-sell-receiptNumber",
+        "description": "Метод предназначен для отправки чека прихода на регистрацию в ОФД. Метод возвращает тело чека, а также его тип и статус в дополнительных параметрах ответа. После отправки чека на регистрацию он будет недоступен для редактирования.\n",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Authorization",
+            "description": "[Bearer secretKey](#tag/authorization)",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/response"
+                },
+                "examples": {
+                  "ФФД 1.05": {
+                    "value": {
+                      "receiptNumber": "3000827351831",
+                      "receiptType": "SELL",
+                      "status": "IN_PROGRESS",
+                      "client": {
+                        "email": "customer@test.ru",
+                        "name": "Иванов Иван Иванович"
+                      },
+                      "items": [
+                        {
+                          "name": "Шоколадные конфеты",
+                          "price": 1200,
+                          "quantity": 1,
+                          "amount": 1200,
+                          "paymentObject": "COMMODITY",
+                          "paymentMode": "FULL_PAYMENT",
+                          "measurementUnit": "кг",
+                          "nomenclatureCode": "00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00",
+                          "vatType": "VAT20",
+                          "agentType": "ANOTHER",
+                          "supplierInfo": {
+                            "phone": "+79991234567",
+                            "name": "ООО «Ромашка»",
+                            "inn": "287381373424"
+                          }
+                        }
+                      ],
+                      "total": 1200
+                    }
+                  },
+                  "ФФД 1.2": {
+                    "value": {
+                      "receiptNumber": "3000827351833",
+                      "receiptType": "SELL",
+                      "status": "IN_PROGRESS",
+                      "client": {
+                        "email": "customer@test.ru",
+                        "extra": {
+                          "name": "Иванов Иван Иванович",
+                          "inn": "516974792202"
+                        }
+                      },
+                      "items": [
+                        {
+                          "name": "Шоколадные конфеты",
+                          "price": 1200,
+                          "quantity": 1,
+                          "amount": 1200,
+                          "paymentObject": "COMMODITY_MARKING_WITH_CODE",
+                          "paymentMode": "FULL_PAYMENT",
+                          "measurementUnit": "PIECE",
+                          "vatType": "VAT20",
+                          "agentType": "ANOTHER",
+                          "supplierInfo": {
+                            "phone": "+79991234567",
+                            "name": "ООО «Ромашка»",
+                            "inn": "287381373424"
+                          },
+                          "marking": {
+                            "quantity": {
+                              "numerator": 1,
+                              "denominator": 3
+                            },
+                            "code": {
+                              "format": "GS1M",
+                              "value": "MDEwNDYwNzQyODY3OTA5MDIxNmVKSWpvV0g1NERkVSA5MWZmZDAgOTJzejZrU1BpckFwZk1CZnR2TGJvRTFkbFdDLzU4aEV4UVVxdjdCQmtabWs0PQ",
+                              "plannedStatus": 1
+                            }
+                          }
+                        }
+                      ],
+                      "total": 1200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "examples": {
+                  "403": {
+                    "value": {
+                      "code": "MERCHANT_NOT_FOUND",
+                      "message": "Мерчант с publicId = {value} не зарегистрирован в сервисе"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "examples": {
+                  "404": {
+                    "value": {
+                      "code": "RECEIPT_NOT_FOUND",
+                      "message": "Чек с id = {value} не найден"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "examples": {
+                  "409": {
+                    "value": {
+                      "code": "RECEIPT_STATUS_CONFLICT",
+                      "message": "Чек {value} в статусе {value}, действие невозможно"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "examples": {
+                  "500": {
+                    "value": {
+                      "code": "RECEIPT_REGISTRATION_FAILED",
+                      "message": "Не удалось зарегистрировать чек {value}"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl --location --request PUT 'https://pay-test.raif.ru/api/fiscal/v1/receipts/sell/3000827351831' \\\n--header 'Authorization: Bearer eyJ0eXA***'\n"
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "fiscal-controller"
+        ],
+        "summary": "Получение статуса чека прихода",
+        "operationId": "get-fiscal-v1-receipts-sell-receiptNumber",
+        "description": "Метод предназначен для получения актуального статуса чека прихода. Чек может принимать один из статусов:\n  * \"NEW\" – чек создан и может быть отредактирован перед отправкой на регистрацию,\n  * \"IN_PROGRESS\" – чек в процессе регистрации,\n  * \"DONE\" – чек успешно зарегистрирован,\n  * \"FAILED\" – при регистрации чека возникла ошибка,\n  * \"AWAITING\" – чек в ожидании отправки на регистрацию (технический статус).\n",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Authorization",
+            "description": "[Bearer secretKey](#tag/authorization)",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/response"
+                },
+                "examples": {
+                  "ФФД 1.05": {
+                    "value": {
+                      "receiptNumber": "3000827351831",
+                      "orderNumber": "order-2024_001",
+                      "receiptType": "SELL",
+                      "status": "DONE",
+                      "client": {
+                        "email": "customer@test.ru",
+                        "name": "Иванов Иван Иванович"
+                      },
+                      "items": [
+                        {
+                          "name": "Шоколадные конфеты",
+                          "price": 1000,
+                          "quantity": 1.2,
+                          "amount": 1200,
+                          "paymentObject": "COMMODITY",
+                          "paymentMode": "FULL_PAYMENT",
+                          "measurementUnit": "кг",
+                          "nomenclatureCode": "00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00",
+                          "vatType": "VAT20",
+                          "agentType": "ANOTHER",
+                          "supplierInfo": {
+                            "phone": "+79991234567",
+                            "name": "ООО «Ромашка»",
+                            "inn": "287381373424"
+                          }
+                        }
+                      ],
+                      "total": 1200,
+                      "ofdUrl": "https://lk.platformaofd.ru/web/noauth/cheque?fn=7284440500012345&fp=1702712345&i=1234",
+                      "ofdDocumentNumber": 133,
+                      "ofdDocumentAttribute": "3449555941",
+                      "ofdShiftReceiptNumber": 1,
+                      "ofdShiftNumber": 1
+                    }
+                  },
+                  "ФФД 1.2": {
+                    "value": {
+                      "receiptNumber": "3000827351833",
+                      "orderNumber": "order-2024_003",
+                      "receiptType": "SELL",
+                      "status": "DONE",
+                      "client": {
+                        "email": "customer@test.ru",
+                        "extra": {
+                          "name": "Иванов Иван Иванович",
+                          "inn": "516974792202"
+                        }
+                      },
+                      "items": [
+                        {
+                          "name": "Шоколадные конфеты",
+                          "price": 1200,
+                          "quantity": 1,
+                          "amount": 1200,
+                          "paymentObject": "COMMODITY_MARKING_WITH_CODE",
+                          "paymentMode": "FULL_PAYMENT",
+                          "measurementUnit": "PIECE",
+                          "vatType": "VAT20",
+                          "agentType": "ANOTHER",
+                          "supplierInfo": {
+                            "phone": "+79991234567",
+                            "name": "ООО «Ромашка»",
+                            "inn": "287381373424"
+                          },
+                          "marking": {
+                            "quantity": {
+                              "numerator": 1,
+                              "denominator": 3
+                            },
+                            "code": {
+                              "format": "GS1M",
+                              "value": "MDEwNDYwNzQyODY3OTA5MDIxNmVKSWpvV0g1NERkVSA5MWZmZDAgOTJzejZrU1BpckFwZk1CZnR2TGJvRTFkbFdDLzU4aEV4UVVxdjdCQmtabWs0PQ",
+                              "plannedStatus": 1
+                            }
+                          }
+                        }
+                      ],
+                      "total": 1200,
+                      "ofdUrl": "https://lk.platformaofd.ru/web/noauth/cheque?fn=7284440500012345&fp=1702712345&i=1234",
+                      "ofdDocumentNumber": 133,
+                      "ofdDocumentAttribute": "3449555941",
+                      "ofdShiftReceiptNumber": 1,
+                      "ofdShiftNumber": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "examples": {
+                  "403": {
+                    "value": {
+                      "code": "MERCHANT_NOT_FOUND",
+                      "message": "Мерчант с publicId = {value} не зарегистрирован в сервисе"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "examples": {
+                  "404": {
+                    "value": {
+                      "code": "RECEIPT_NOT_FOUND",
+                      "message": "Чек с id = {value} не найден"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl --location --request GET 'https://pay-test.raif.ru/api/fiscal/v1/receipts/sell/3000827351831' \\\n--header 'Authorization: Bearer eyJ0eXA***'\n"
+          }
+        ]
+      }
+    },
+    "/fiscal/v1/receipts/refund": {
+      "post": {
+        "tags": [
+          "fiscal-controller"
+        ],
+        "summary": "Сохранение чека возврата",
+        "operationId": "post-fiscal-v1-receipts-refund",
+        "description": "Метод предназначен для создания нового чека возврата с указанным receiptNumber. Также позволяет обновить уже существующий чек возврата при повторном запросе с тем же receiptNumber. Метод возвращает тело чека, а также его тип и статус в дополнительных параметрах ответа.<br/><b>Отправка чека по ФФД 1.2 не поддерживается для сервисов БИФИТ, Orange Data и Chekonline.<br/>Отправка чека по ФФД 1.05 не поддерживается для сервиса Билайн.</b><br/>Если Вы хотите перейти с ФФД 1.05 на ФФД 1.2, то отправьте заявку в поддержку ecom@raiffeisen.ru\n",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Authorization",
+            "description": "[Bearer secretKey](#tag/authorization)",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=UTF-8": {
+              "schema": {
+                "$ref": "#/components/schemas/receiptWhiteLabel"
+              },
+              "examples": {
+                "Чек возврата (ФФД 1.05)": {
+                  "value": {
+                    "receiptNumber": "3000827351831",
+                    "orderNumber": "order-2024_001",
+                    "client": {
+                      "email": "customer@test.ru",
+                      "name": "Иванов Иван Иванович"
+                    },
+                    "items": [
+                      {
+                        "name": "Шоколадные конфеты",
+                        "price": 1000,
+                        "quantity": 1.2,
+                        "amount": 1200,
+                        "paymentObject": "COMMODITY",
+                        "paymentMode": "FULL_PAYMENT",
+                        "measurementUnit": "кг",
+                        "nomenclatureCode": "00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00",
+                        "vatType": "VAT20"
+                      }
+                    ],
+                    "total": 1200
+                  }
+                },
+                "Чек возврата по агентской операции (ФФД 1.05)": {
+                  "value": {
+                    "receiptNumber": "3000827351832",
+                    "orderNumber": "order-2024_002",
+                    "client": {
+                      "email": "customer@test.ru",
+                      "name": "Иванов Иван Иванович"
+                    },
+                    "items": [
+                      {
+                        "name": "Шоколадные конфеты",
+                        "price": 1000,
+                        "quantity": 1.2,
+                        "amount": 1200,
+                        "paymentObject": "COMMODITY",
+                        "paymentMode": "FULL_PAYMENT",
+                        "measurementUnit": "кг",
+                        "nomenclatureCode": "00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00",
+                        "vatType": "VAT20",
+                        "agentType": "ANOTHER",
+                        "supplierInfo": {
+                          "phone": "+79991234567",
+                          "name": "ООО «Ромашка»",
+                          "inn": "287381373424"
+                        }
+                      }
+                    ],
+                    "total": 1200
+                  }
+                },
+                "Чек возврата (ФФД 1.2)": {
+                  "value": {
+                    "receiptNumber": "3000827351833",
+                    "orderNumber": "order-2024_003",
+                    "client": {
+                      "email": "customer@test.ru",
+                      "extra": {
+                        "name": "Иванов Иван Иванович",
+                        "inn": "516974792202"
+                      }
+                    },
+                    "items": [
+                      {
+                        "name": "Шоколадный торт",
+                        "price": 1200,
+                        "quantity": 1,
+                        "amount": 1200,
+                        "paymentObject": "COMMODITY_MARKING_WITH_CODE",
+                        "paymentMode": "FULL_PAYMENT",
+                        "measurementUnit": "PIECE",
+                        "vatType": "VAT20",
+                        "agentType": "ANOTHER",
+                        "supplierInfo": {
+                          "phone": "+79991234567",
+                          "name": "ООО «Ромашка»",
+                          "inn": "287381373424"
+                        },
+                        "marking": {
+                          "quantity": {
+                            "numerator": 1,
+                            "denominator": 3
+                          },
+                          "code": {
+                            "format": "GS1M",
+                            "value": "MDEwNDYwNzQyODY3OTA5MDIxNmVKSWpvV0g1NERkVSA5MWZmZDAgOTJzejZrU1BpckFwZk1CZnR2TGJvRTFkbFdDLzU4aEV4UVVxdjdCQmtabWs0PQ==",
+                            "plannedStatus": 3
+                          }
+                        }
+                      }
+                    ],
+                    "total": 1200
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/response"
+                },
+                "examples": {
+                  "Чек возврата (ФФД 1.05)": {
+                    "value": {
+                      "receiptNumber": "3000827351831",
+                      "orderNumber": "order-2024_001",
+                      "receiptType": "REFUND",
+                      "status": "NEW",
+                      "client": {
+                        "email": "customer@test.ru",
+                        "name": "Иванов Иван Иванович"
+                      },
+                      "items": [
+                        {
+                          "name": "Шоколадные конфеты",
+                          "price": 1000,
+                          "quantity": 1.2,
+                          "amount": 1200,
+                          "paymentObject": "COMMODITY",
+                          "paymentMode": "FULL_PAYMENT",
+                          "measurementUnit": "кг",
+                          "nomenclatureCode": "00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00",
+                          "vatType": "VAT20"
+                        }
+                      ],
+                      "total": 1200
+                    }
+                  },
+                  "Чек возврата по агентской операции (ФФД 1.05)": {
+                    "value": {
+                      "receiptNumber": "3000827351832",
+                      "orderNumber": "order-2024_002",
+                      "receiptType": "REFUND",
+                      "status": "NEW",
+                      "client": {
+                        "email": "customer@test.ru",
+                        "name": "Иванов Иван Иванович"
+                      },
+                      "items": [
+                        {
+                          "name": "Шоколадные конфеты",
+                          "price": 1000,
+                          "quantity": 1.2,
+                          "amount": 1200,
+                          "paymentObject": "COMMODITY",
+                          "paymentMode": "FULL_PAYMENT",
+                          "measurementUnit": "кг",
+                          "nomenclatureCode": "00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00",
+                          "vatType": "VAT20",
+                          "agentType": "ANOTHER",
+                          "supplierInfo": {
+                            "phone": "+79991234567",
+                            "name": "ООО «Ромашка»",
+                            "inn": "287381373424"
+                          }
+                        }
+                      ],
+                      "total": 1200
+                    }
+                  },
+                  "Чек возврата (ФФД 1.2)": {
+                    "value": {
+                      "receiptNumber": "3000827351833",
+                      "orderNumber": "order-2024_003",
+                      "receiptType": "REFUND",
+                      "status": "NEW",
+                      "client": {
+                        "email": "customer@test.ru",
+                        "extra": {
+                          "name": "Иванов Иван Иванович",
+                          "inn": "516974792202"
+                        }
+                      },
+                      "items": [
+                        {
+                          "name": "Шоколадные конфеты",
+                          "price": 1200,
+                          "quantity": 1,
+                          "amount": 1200,
+                          "paymentObject": "COMMODITY_MARKING_WITH_CODE",
+                          "paymentMode": "FULL_PAYMENT",
+                          "measurementUnit": "PIECE",
+                          "vatType": "VAT20",
+                          "agentType": "ANOTHER",
+                          "supplierInfo": {
+                            "phone": "+79991234567",
+                            "name": "ООО «Ромашка»",
+                            "inn": "287381373424"
+                          },
+                          "marking": {
+                            "quantity": {
+                              "numerator": 1,
+                              "denominator": 3
+                            },
+                            "code": {
+                              "format": "GS1M",
+                              "value": "MDEwNDYwNzQyODY3OTA5MDIxNmVKSWpvV0g1NERkVSA5MWZmZDAgOTJzejZrU1BpckFwZk1CZnR2TGJvRTFkbFdDLzU4aEV4UVVxdjdCQmtabWs0PQ",
+                              "plannedStatus": 3
+                            }
+                          }
+                        }
+                      ],
+                      "total": 1200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "examples": {
+                  "400": {
+                    "value": {
+                      "code": "RECEIPT_VALIDATION_FAILED",
+                      "message": "Чек не прошел валидацию. Причина: {value}"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "examples": {
+                  "403": {
+                    "value": {
+                      "code": "MERCHANT_NOT_FOUND",
+                      "message": "Мерчант с publicId = {value} не зарегистрирован в сервисе"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "examples": {
+                  "409": {
+                    "value": {
+                      "code": "RECEIPT_STATUS_CONFLICT",
+                      "message": "Чек {value} в статусе {value}, действие невозможно"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type.\nCheck content type in header parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/415response"
+                },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "timestamp": "2023-02-15T06:36:32.418+00:00",
+                      "status": 415,
+                      "error": "Unsupported Media Type",
+                      "path": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl --location --request POST 'https://pay-test.raif.ru/api/fiscal/v1/receipts/refund' \\\n--header 'Content-Type: application/json;charset=UTF-8' \\\n--header 'Authorization: Bearer eyJ0eXA***' \\\n--data-raw'\n{\n  \"receiptNumber\": \"3000827351831\",\n  \"client\": {\n      \"email\": \"customer@test.ru\",\n      \"name\": \"Иванов Иван Иванович\"\n  },\n  \"items\": [\n  {\n      \"name\": \"Шоколадные конфеты\",\n      \"price\": 600.00,\n      \"quantity\": 2,\n      \"amount\": 1200.00,\n      \"paymentObject\": \"COMMODITY\",\n      \"measurementUnit\": \"кг\",\n      \"nomenclatureCode\": \"00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00\",\n      \"vatType\": \"VAT20\"\n  },\n  {\n      \"name\": \"Вода минеральная 1л\",\n      \"price\": 120.00,\n      \"quantity\": 20,\n      \"amount\": 2400.00,\n      \"paymentObject\": \"COMMODITY\",\n      \"measurementUnit\": \"шт\",\n      \"vatType\": \"VAT20\"\n  }\n  ],\n  \"total\": 3600.00\n}'\n"
+          }
+        ]
+      }
+    },
+    "/fiscal/v1/receipts/refund/{receiptNumber}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "maxLength": 99
+          },
+          "in": "path",
+          "name": "receiptNumber",
+          "description": "Уникальный номер чека",
+          "required": true
+        }
+      ],
+      "put": {
+        "tags": [
+          "fiscal-controller"
+        ],
+        "summary": "Регистрация чека возврата",
+        "operationId": "put-fiscal-v1-receipts-refund-receiptNumber",
+        "description": "Метод предназначен для отправки чека возврата на регистрацию в ОФД. Метод возвращает тело чека, а также его тип и статус в дополнительных параметрах ответа. После отправки чека на регистрацию он будет недоступен для редактирования.\n",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Authorization",
+            "description": "[Bearer secretKey](#tag/authorization)",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/response"
+                },
+                "examples": {
+                  "ФФД 1.05": {
+                    "value": {
+                      "receiptNumber": "3000827351831",
+                      "receiptType": "REFUND",
+                      "status": "IN_PROGRESS",
+                      "client": {
+                        "email": "customer@test.ru",
+                        "name": "Иванов Иван Иванович"
+                      },
+                      "items": [
+                        {
+                          "name": "Шоколадные конфеты",
+                          "price": 1000,
+                          "quantity": 1.2,
+                          "amount": 1200,
+                          "paymentObject": "COMMODITY",
+                          "paymentMode": "FULL_PAYMENT",
+                          "measurementUnit": "кг",
+                          "nomenclatureCode": "00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00",
+                          "vatType": "VAT20",
+                          "agentType": "ANOTHER",
+                          "supplierInfo": {
+                            "phone": "+79991234567",
+                            "name": "ООО «Ромашка»",
+                            "inn": "287381373424"
+                          }
+                        }
+                      ],
+                      "total": 1200
+                    }
+                  },
+                  "ФФД 1.2": {
+                    "value": {
+                      "receiptNumber": "3000827351833",
+                      "receiptType": "REFUND",
+                      "status": "IN_PROGRESS",
+                      "client": {
+                        "email": "customer@test.ru",
+                        "extra": {
+                          "name": "Иванов Иван Иванович",
+                          "inn": "516974792202"
+                        }
+                      },
+                      "items": [
+                        {
+                          "name": "Шоколадные конфеты",
+                          "price": 1200,
+                          "quantity": 1,
+                          "amount": 1200,
+                          "paymentObject": "COMMODITY_MARKING_WITH_CODE",
+                          "paymentMode": "FULL_PAYMENT",
+                          "measurementUnit": "PIECE",
+                          "vatType": "VAT20",
+                          "agentType": "ANOTHER",
+                          "supplierInfo": {
+                            "phone": "+79991234567",
+                            "name": "ООО «Ромашка»",
+                            "inn": "287381373424"
+                          },
+                          "marking": {
+                            "quantity": {
+                              "numerator": 1,
+                              "denominator": 3
+                            },
+                            "code": {
+                              "format": "GS1M",
+                              "value": "MDEwNDYwNzQyODY3OTA5MDIxNmVKSWpvV0g1NERkVSA5MWZmZDAgOTJzejZrU1BpckFwZk1CZnR2TGJvRTFkbFdDLzU4aEV4UVVxdjdCQmtabWs0PQ",
+                              "plannedStatus": 3
+                            }
+                          }
+                        }
+                      ],
+                      "total": 1200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "examples": {
+                  "403": {
+                    "value": {
+                      "code": "MERCHANT_NOT_FOUND",
+                      "message": "Мерчант с publicId = {value} не зарегистрирован в сервисе"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "examples": {
+                  "404": {
+                    "value": {
+                      "code": "RECEIPT_NOT_FOUND",
+                      "message": "Чек с id = {value} не найден"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "examples": {
+                  "409": {
+                    "value": {
+                      "code": "RECEIPT_STATUS_CONFLICT",
+                      "message": "Чек {value} в статусе {value}, действие невозможно"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "examples": {
+                  "500": {
+                    "value": {
+                      "code": "RECEIPT_REGISTRATION_FAILED",
+                      "message": "Не удалось зарегистрировать чек {value}"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl --location --request PUT 'https://pay-test.raif.ru/api/fiscal/v1/receipts/refund/3000827351831' \\\n--header 'Authorization: Bearer eyJ0eXA***'\n"
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "fiscal-controller"
+        ],
+        "summary": "Получение статуса чека возврата",
+        "operationId": "get-fiscal-v1-receipts-refund-receiptNumber",
+        "description": "Метод предназначен для получения актуального статуса чека возврата. Чек может принимать один из статусов:\n  * \"NEW\" – чек создан и может быть отредактирован перед отправкой на регистрацию,\n  * \"IN_PROGRESS\" – чек в процессе регистрации,\n  * \"DONE\" – чек успешно зарегистрирован,\n  * \"FAILED\" – при регистрации чека возникла ошибка,\n  * \"AWAITING\" – чек в ожидании отправки на регистрацию (технический статус).\n",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "Authorization",
+            "in": "header",
+            "description": "[Bearer secretKey](#tag/authorization)",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/response"
+                },
+                "examples": {
+                  "ФФД 1.05": {
+                    "value": {
+                      "receiptNumber": "3000827351831",
+                      "orderNumber": "order-2024_001",
+                      "receiptType": "REFUND",
+                      "status": "DONE",
+                      "client": {
+                        "email": "customer@test.ru",
+                        "name": "Иванов Иван Иванович"
+                      },
+                      "items": [
+                        {
+                          "name": "Шоколадные конфеты",
+                          "price": 1000,
+                          "quantity": 1.2,
+                          "amount": 1200,
+                          "paymentObject": "COMMODITY",
+                          "paymentMode": "FULL_PAYMENT",
+                          "measurementUnit": "кг",
+                          "nomenclatureCode": "00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00",
+                          "vatType": "VAT20",
+                          "agentType": "ANOTHER",
+                          "supplierInfo": {
+                            "phone": "+79991234567",
+                            "name": "ООО «Ромашка»",
+                            "inn": "287381373424"
+                          }
+                        }
+                      ],
+                      "total": 1200,
+                      "ofdUrl": "https://lk.platformaofd.ru/web/noauth/cheque?fn=7284440500012345&fp=1702712345&i=1234",
+                      "ofdDocumentNumber": 133,
+                      "ofdDocumentAttribute": "3449555941",
+                      "ofdShiftReceiptNumber": 1,
+                      "ofdShiftNumber": 1
+                    }
+                  },
+                  "ФФД 1.2": {
+                    "value": {
+                      "receiptNumber": "3000827351833",
+                      "orderNumber": "order-2024_003",
+                      "receiptType": "REFUND",
+                      "status": "DONE",
+                      "client": {
+                        "email": "customer@test.ru",
+                        "extra": {
+                          "name": "Иванов Иван Иванович",
+                          "inn": "516974792202"
+                        }
+                      },
+                      "items": [
+                        {
+                          "name": "Шоколадные конфеты",
+                          "price": 1200,
+                          "quantity": 1,
+                          "amount": 1200,
+                          "paymentObject": "COMMODITY_MARKING_WITH_CODE",
+                          "paymentMode": "FULL_PAYMENT",
+                          "measurementUnit": "PIECE",
+                          "vatType": "VAT20",
+                          "agentType": "ANOTHER",
+                          "supplierInfo": {
+                            "phone": "+79991234567",
+                            "name": "ООО «Ромашка»",
+                            "inn": "287381373424"
+                          },
+                          "marking": {
+                            "quantity": {
+                              "numerator": 1,
+                              "denominator": 3
+                            },
+                            "code": {
+                              "format": "GS1M",
+                              "value": "MDEwNDYwNzQyODY3OTA5MDIxNmVKSWpvV0g1NERkVSA5MWZmZDAgOTJzejZrU1BpckFwZk1CZnR2TGJvRTFkbFdDLzU4aEV4UVVxdjdCQmtabWs0PQ",
+                              "plannedStatus": 3
+                            }
+                          }
+                        }
+                      ],
+                      "total": 1200,
+                      "ofdUrl": "https://lk.platformaofd.ru/web/noauth/cheque?fn=7284440500012345&fp=1702712345&i=1234",
+                      "ofdDocumentNumber": 133,
+                      "ofdDocumentAttribute": "3449555941",
+                      "ofdShiftReceiptNumber": 1,
+                      "ofdShiftNumber": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "examples": {
+                  "403": {
+                    "value": {
+                      "code": "MERCHANT_NOT_FOUND",
+                      "message": "Мерчант с publicId = {value} не зарегистрирован в сервисе"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "examples": {
+                  "404": {
+                    "value": {
+                      "code": "RECEIPT_NOT_FOUND",
+                      "message": "Чек с id = {value} не найден"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl --location --request GET 'https://pay-test.raif.ru/api/fiscal/v1/receipts/refund/3000827351831' \\\n--header 'Authorization: Bearer eyJ0eXA***'\n"
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "authentication": {
+        "name": "X-USER-ACCESS-TOKEN",
+        "in": "cookie",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "roleToken": {
+        "name": "roleToken",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "schemas": {
+      "receiptWhiteLabel": {
+        "title": "ФФД 1.05 / ФФД 1.2",
+        "type": "object",
+        "required": [
+          "receiptNumber",
+          "client",
+          "items",
+          "total"
+        ],
+        "properties": {
+          "receiptNumber": {
+            "type": "string",
+            "description": "Уникальный номер чека",
+            "format": "A-Za-z0-9_-",
+            "maxLength": 99,
+            "example": "3000827351831"
+          },
+          "orderNumber": {
+            "type": "string",
+            "description": "Номер заказа мерчанта в системе Raif Pay, используется для связывания заказа и чека. Возвращается в ответе, если был передан при создании чека.",
+            "pattern": "^[A-Za-z0-9_-]{1,200}$",
+            "maxLength": 40,
+            "example": "order-2024_001"
+          },
+          "timezone": {
+            "type": "string",
+            "description": "`Тег ФФД — 1011` <br/>\nЧасовая зона (+02:00, +03:00... +11:00). Только для ФФД 1.2"
+          },
+          "onlinePayment": {
+            "type": "boolean",
+            "description": "`Тег ФФД — 1125` <br/>\nПризнак расчета в Интернете"
+          },
+          "client": {
+            "type": "object",
+            "required": [
+              "email"
+            ],
+            "description": "Данные о покупателе",
+            "properties": {
+              "email": {
+                "type": "string",
+                "description": "`Тег ФФД — 1008` <br/>\nЭлектронный адрес покупателя для отправки чека. Заполняется по формату E-mail",
+                "maxLength": 64,
+                "example": "customer@test.ru"
+              },
+              "name": {
+                "type": "string",
+                "description": "`Тег ФФД — 1227` <br/>\nФИО покупателя",
+                "maxLength": 256,
+                "example": "Иванов Иван Иванович"
+              },
+              "inn": {
+                "type": "string",
+                "description": "`Тег ФФД — 1228` <br/>\nИНН покупателя. Может содержать только 10 или 12 цифр",
+                "pattern": "^(?:[0-9]{10}|[0-9]{12})$",
+                "example": "7707083893"
+              },
+              "extra": {
+                "type": "object",
+                "description": "Дополнительная информация о покупателе<br/>Объект свободного наполнения, передается в ОФД без изменений. Если Вам необходимо передать доп. данные покупателя в extra, то сверьтесь с протоколом Вашего ОФД"
+              }
+            }
+          },
+          "items": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "description": "Позиции чека",
+            "items": {
+              "$ref": "#/components/schemas/receiptItem"
+            }
+          },
+          "payments": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "description": "Данные об оплате<br/>Объект заполняется только для чеков с зачетом аванса или частичной предоплаты. Если чек содержит только безналичный вид оплаты (без зачета аванса/частичной предоплаты), то объект payments не заполняется.<br/>Если payments не передан, то по умолчанию заполняется безналичным видом оплаты и ее суммой, которая равна сумме чека",
+            "x-description-i18n": {
+              "eng": "Payment types info. Object must be passed only for receipts that include prepaid amount (either advance or partial prepayment receipts)<br/> If null, then value E_PAYMENT is set by default, with the total receipt amount"
+            },
+            "items": {
+              "$ref": "#/components/schemas/payments"
+            }
+          },
+          "total": {
+            "type": "number",
+            "description": "`Тег ФФД — 1020` <br/>\nИтоговая сумма чека в рублях. Допустимо 8 символов для целой части и 2 символа для дробной",
+            "example": 1200
+          },
+          "additionalUserProperty": {
+            "$ref": "#/components/schemas/additionalUserProperty"
+          }
+        }
+      },
+      "receiptPayform": {
+        "title": "Receipt for PAYFORM",
+        "type": "object",
+        "required": [
+          "publicId",
+          "orderNumber",
+          "receiptNumber",
+          "total",
+          "items"
+        ],
+        "properties": {
+          "publicId": {
+            "type": "string",
+            "description": "Идентификатор мерчанта",
+            "example": "000003001728001-01728001"
+          },
+          "orderNumber": {
+            "type": "string",
+            "description": "Уникальный номер заказа. Формат '^[A-z0-9-_.]+$'",
+            "example": "c5b3fd07-c66b-4f11-a8a2-1cc5d319f9e1"
+          },
+          "receiptNumber": {
+            "type": "string",
+            "description": "Уникальный номер чека. Заполняется мерчантом по формату A-Za-z0-9_-. Если значение не передано мерчантом, то параметр автоматически заполняется",
+            "maxLength": 99,
+            "example": "3000827351831"
+          },
+          "client": {
+            "type": "object",
+            "description": "Данные о покупателе. Соответствует объекту customer на Frontend, при запросе на создание чека Frontend заменяет customer на client",
+            "required": [
+              "email"
+            ],
+            "properties": {
+              "email": {
+                "type": "string",
+                "description": "`Тег ФФД — 1008` <br/>\nЭлектронный адрес покупателя для отправки чека. Заполняется по формату E-mail",
+                "maxLength": 64,
+                "example": "customer@test.ru"
+              },
+              "name": {
+                "type": "string",
+                "description": "`Тег ФФД — 1227` <br/>\nФИО покупателя",
+                "maxLength": 256,
+                "example": "Иванов Иван Иванович"
+              },
+              "inn": {
+                "type": "string",
+                "description": "`Тег ФФД — 1228` <br/>\nИНН покупателя. Может содержать только 10 или 12 цифр",
+                "pattern": "^(?:[0-9]{10}|[0-9]{12})$",
+                "example": "7707083893"
+              }
+            }
+          },
+          "items": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "maxItems": 100,
+            "description": "Позиции чека",
+            "title": "позиции чека",
+            "items": {
+              "$ref": "#/components/schemas/receiptItem"
+            }
+          },
+          "payments": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "description": "Данные об оплате<br/>Объект заполняется только для чеков с зачетом аванса или частичной предоплаты. Если чек содержит только безналичный вид оплаты (без зачета аванса/частичной предоплаты), то объект payments не заполняется.<br/>Если payments не передан, то по умолчанию заполняется безналичным видом оплаты и ее суммой, которая равна сумме чека",
+            "x-description-i18n": {
+              "eng": "Payment types info. Object must be passed only for receipts that include prepaid amount (either advance or partial prepayment receipts)<br/> If null, then value E_PAYMENT is set by default, with the total receipt amount"
+            },
+            "items": {
+              "$ref": "#/components/schemas/payments"
+            }
+          },
+          "total": {
+            "type": "number",
+            "description": "`Тег ФФД — 1020` <br/>\nИтоговая сумма чека в рублях. Допустимо 8 символов для целой части и 2 символа для дробной",
+            "example": 1200
+          },
+          "additionalUserProperty": {
+            "$ref": "#/components/schemas/additionalUserProperty"
+          }
+        }
+      },
+      "receiptItem": {
+        "type": "object",
+        "title": "ФФД 1.05 | ФФД 1.2",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "`Тег ФФД — 1030` <br/>\nНаименование товара, работы, услуги, иного предмета расчета",
+            "x-description-i18n": {
+              "eng": "`The tag FDF — 1030` <br/>\nName of goods, work, service, other payment objects"
+            },
+            "example": "Шоколадный торт"
+          },
+          "price": {
+            "type": "number",
+            "description": "`Тег ФФД — 1079` <br/>\nЦена за единицу товара, работы, услуги, иного предмета расчета в рублях (8 символов на целую часть, 2 на дробную)",
+            "x-description-i18n": {
+              "eng": "`The tag FDF — 1079` <br/>\nPrice per unit of goods, work, services, other payment objects in rubles (8 characters for a whole part, 2 for a fractional part)"
+            },
+            "example": 1200
+          },
+          "quantity": {
+            "type": "number",
+            "description": "`Тег ФФД — 1023` <br/>\nКоличество/вес (5 символов на целую часть, 3 на дробную)",
+            "x-description-i18n": {
+              "eng": "`The tag FDF — 1023` <br/>\nQuantity / weight (5 characters for a whole part, 3 for a fractional part)"
+            },
+            "example": 1
+          },
+          "amount": {
+            "type": "number",
+            "description": "`Тег ФФД — 1043` <br/>\nСумма в рублях. Должна равняться произведению цены на количество (price * quantity). 8 символов на целую часть, 2 на дробную",
+            "x-description-i18n": {
+              "eng": "`The tag FDF — 1023` <br/>\nAmount in rubles. Must be equal to price * quantity (8 characters for a whole part, 2 for a fractional part)"
+            },
+            "example": 1200
+          },
+          "paymentObject": {
+            "type": "string",
+            "description": "`Тег ФФД — 1212` <br/>\nПризнак предмета расчёта. Возможные значения:\n<br/>• COMMODITY – товар, который не является подакцизным и не подлежит маркировке (ФФД 1.05 и ФФД 1.2)\n<br/>• EXCISE – подакцизный товар, который не подлежит маркировке (ФФД 1.05 и ФФД 1.2)\n<br/>• JOB – работа (ФФД 1.05 и ФФД 1.2)\n<br/>• SERVICE – услуга (ФФД 1.05 и ФФД 1.2)\n<br/>• PAYMENT – платеж (ФФД 1.05 и ФФД 1.2)\n<br/>• ANOTHER – иной предмет расчета (ФФД 1.05 и ФФД 1.2)<br/>\n<br/>• COMMODITY_MARKING_NO_CODE – товар, который не является подакцизным, подлежит маркировке, но не имеет кода маркировки (ФФД 1.2)\n<br/>• COMMODITY_MARKING_WITH_CODE – товар, который не является подакцизным, подлежит маркировке и имеет код маркировки (ФФД 1.2)\n<br/>• EXCISE_MARKING_NO_CODE – подакцизный товар, который подлежит маркировке, но не имеет кода маркировки (ФФД 1.2)\n<br/>• EXCISE_MARKING_WITH_CODE – подакцизный товар, который подлежит маркировке и имеет код маркировки (ФФД 1.2)<br/>\n<br/>Для авансовых чеков и чеков частичной предоплаты должен заполняться значением PAYMENT. Если параметр не передан, то заполняется значением COMMODITY по умолчанию",
+            "x-description-i18n": {
+              "eng": "`The tag FDF — 1212` <br/>\nPayment object type. Valid values:\n<br/>• COMMODITY – good (FFD 1.05 and FFD 1.2)\n<br/>• EXCISE – excisable good (FFD 1.05 and FFD 1.2)\n<br/>• JOB – job (FFD 1.05 and FFD 1.2)\n<br/>• SERVICE – service (FFD 1.05 and FFD 1.2)\n<br/>• PAYMENT – payment (FFD 1.05 and FFD 1.2)\n<br/>• ANOTHER – another payment object (FFD 1.05 and FFD 1.2)\n<br/>• COMMODITY_MARKING_NO_CODE – marked good that has no marking code (FFD 1.2)\n<br/>• COMMODITY_MARKING_WITH_CODE – marked good that has a marking code (FFD 1.2)\n<br/>• EXCISE_MARKING_NO_CODE – excisable good that has no marking code (FFD 1.2)\n<br/>• EXCISE_MARKING_WITH_CODE – excisable good that has a marking code (FFD 1.2)<br/>\n<br/>For advance payments and prepayments value PAYMENT must be passed. If null, value COMMODITY will be set by default"
+            },
+            "enum": [
+              "COMMODITY",
+              "EXCISE",
+              "JOB",
+              "SERVICE",
+              "PAYMENT",
+              "ANOTHER",
+              "COMMODITY_MARKING_NO_CODE",
+              "COMMODITY_MARKING_WITH_CODE",
+              "EXCISE_MARKING_NO_CODE",
+              "EXCISE_MARKING_WITH_CODE"
+            ],
+            "example": "COMMODITY_MARKING_WITH_CODE"
+          },
+          "paymentMode": {
+            "type": "string",
+            "description": "`Тег ФФД — 1214` <br/>\nСпособ расчета. Возможные значения:<br/>\n• FULL_PREPAYMENT – 100% предоплата до момента передачи предмета расчета<br/>\n• FULL_PAYMENT – полная оплата в момент передачи предмета расчета<br/>\n• ADVANCE – аванс<br/>\n• PREPAYMENT – частичная предоплата до момента передачи предмета расчета<br/>\n• CREDIT – Передача в кредит<br/>\n• CREDIT_PAYMENT – Оплата кредита<br/>\nЕсли параметр не передан, по умолчанию устанавливается значение FULL_PREPAYMENT",
+            "x-description-i18n": {
+              "eng": "`The tag FDF — 1214` <br/>\nPayment mode. Valid values:<br/>\n• FULL_PREPAYMENT – 100% prepayment<br/>\n• FULL_PAYMENT – full payment<br/>\n• ADVANCE – advance payment<br/>\n• PREPAYMENT – partial prepayment<br/>\n• CREDIT – credit<br/>\n• CREDIT_PAYMENT – credit payment<br/>\nIf null, the value FULL_PREPAYMENT is set dy default"
+            },
+            "enum": [
+              "FULL_PREPAYMENT",
+              "FULL_PAYMENT",
+              "ADVANCE",
+              "PREPAYMENT",
+              "CREDIT",
+              "CREDIT_PAYMENT"
+            ],
+            "example": "FULL_PREPAYMENT"
+          },
+          "measurementUnit": {
+            "type": "string",
+            "description": "`Тег ФФД — 2108` <br/>\nЕдиница измерения товара, работы, услуги, иного предмета расчета.\n<br/> Для ФФД 1.05 передавать строковое значение до 16 символов включительно.\n<br/> Для ФФД 1.2 передавать значения из списка:\n<br/>• PIECE – штука/единица/дробный товар\n<br/>• GRAM – грамм\n<br/>• KILOGRAM – килограмм\n<br/>• TON – тонна\n<br/>• CENTIMETER – сантиметр\n<br/>• DECIMETER – дециметр\n<br/>• METER – метр\n<br/>• SQUARE_CENTIMETER – кв. сантиметр\n<br/>• SQUARE_DECIMETER – кв. дециметр\n<br/>• SQUARE_METER – кв. метр\n<br/>• MILLILITER – миллилитр\n<br/>• LITER – литр\n<br/>• CUBIC_METER – куб. метр\n<br/>• KILOWATT_HOUR – киловатт-час\n<br/>• GIGACALORIE – гигакалория\n<br/>• DAY – сутки/день\n<br/>• HOUR – час\n<br/>• MINUTE – минута\n<br/>• SECOND – секунда\n<br/>• KILOBYTE – килобайт\n<br/>• MEGABYTE – мегабайт\n<br/>• GIGABYTE – гигабайт\n<br/>• TERABYTE – терабайт\n<br/>• OTHER – иное\n<br/>Если передано значение не из списка выше, то в ОФД автоматически будет передано OTHER\n",
+            "x-description-i18n": {
+              "eng": "`The tag FDF — 2108` <br/>\nUnit of measurement of goods, work, services, other payment objects\n<br/> If FFD 1.05, string value up to 16 symbols has to be passed.\n<br/> If FFD 1.2, value from the list is accepted:\n<br/>• PIECE – a piece\n<br/>• GRAM – gram\n<br/>• KILOGRAM – kilogram\n<br/>• TON – ton\n<br/>• CENTIMETER – centimeter\n<br/>• DECIMETER – decimeter\n<br/>• METER – meter\n<br/>• SQUARE_CENTIMETER – sq. centimeter\n<br/>• SQUARE_DECIMETER – sq. decimeter\n<br/>• SQUARE_METER – sq. meter\n<br/>• MILLILITER – milliliter\n<br/>• LITER – liter\n<br/>• CUBIC_METER – c. meter\n<br/>• KILOWATT_HOUR – kilowatt-hour\n<br/>• GIGACALORIE – gigacalorie\n<br/>• DAY – day or 24 hours\n<br/>• HOUR – an hour\n<br/>• MINUTE – a minute\n<br/>• SECOND – a second\n<br/>• KILOBYTE – a kilobyte\n<br/>• MEGABYTE – a megabyte\n<br/>• GIGABYTE – a gigabyte\n<br/>• TERABYTE – a terabyte\n<br/>• OTHER – other\n<br/>If passed value in off the list, value OTHER will passed automatically to OFD'"
+            },
+            "example": "PIECE"
+          },
+          "nomenclatureCode": {
+            "type": "string",
+            "description": "`Тег ФФД — 1162` <br/>\nНоменклатурный код товара в 16-ричном представлении с пробелами или в формате GS1 DataMatrix. Только для ФФД 1.05.\n<br/>Примеры: ''00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00'' или ''010463003407001221CMK45BrhN0WLf''\n<br/>Если вы используете БИФИТ или Чек-Онлайн, номенклатурный код должен быть передан строго в 16-ричном представлении с пробелами. Если LIFE PAY или Эвотор – строго в формате GS1 DataMatrix",
+            "x-description-i18n": {
+              "eng": "`The tag FDF — 1162` <br/>\nProduct code in hexadecimal divided by spaces or in GS1 DataMatrix format. For FFD 1.05 only.\n<br/>For example, \"00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00\" or \"010463003407001221CMK45BrhN0WLf\"\n<br/>If you use BIFIT or Chekonline, the nomenclature code must be passed strictly in hexadecimal (hex) notation with spaces.\n<br/>If you use LIFE PAY or Evotor, the nomenclature code must be passed strictly in GS1 DataMatrix format"
+            },
+            "pattern": "^([a-fA-F0-9]{2}$)|(^([a-fA-F0-9]{2}\\s){1,31}[a-fA-F0-9]{2}|01(?<gtin>\\d{14})21(?<serial>[a-zA-Z0-9!\" % &'()*+\\/\\-.,:;=<>?_]{13})([a-zA-Z0-9!\" % &'()*+\\/\\- .,:;=<>?_]{1,119})?|(?<gtin1>\\d{14})(?<serial1>[a-zA-Z0-9!\" %&'()*+\\/\\-.,:;=<>?_]{11})[a-zA-Z0-9!\" %&'()*+\\/\\-.,:;=<>?_]{4})$",
+            "maxLength": 150,
+            "example": "00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00"
+          },
+          "vatType": {
+            "type": "string",
+            "description": "`Тег ФФД — 1199` <br/>\nСтавка НДС на позицию чека. Возможные значения:<br/>\n• NONE – без НДС<br/>• VAT0 – НДС по ставке 0%<br/>\n• VAT10 – НДС чека по ставке 10%<br/>\n• VAT110 – НДС чека по расчетной ставке 10/110<br/>\n• VAT20 – НДС чека по ставке 20%<br/>\n• VAT120 – НДС чека по расчетной ставке 20/120<br/>\n• VAT5 – НДС чека по ставке 5%<br/>\n• VAT105 – НДС чека по расчетной ставке 5/105<br/>\n• VAT7 – НДС чека по ставке 7%<br/>\n• VAT107 – НДС чека по расчетной ставке 7/107<br/>\n• VAT22 – НДС чека по ставке 22%<br/>\n• VAT122 – НДС чека по расчетной ставке 22/122",
+            "x-description-i18n": {
+              "eng": "`The tag FDF — 1199` <br/>\nVAT rate on each receipt item. Valid values:<br/>\n• NONE – no VAT<br/>\n• VAT0 – 0% VAT<br/>\n• VAT10 – 10% VAT<br/>\n• VAT110 – 10/110 VAT<br/>\n• VAT20 – 20% VAT<br/>\n• VAT120 – 20/120 VAT<br/>\n• VAT5  – 5% VAT<br/>\n• VAT105 – 5/105 VAT<br/>\n• VAT7 – 7% VAT<br/>\n• VAT107 – 7/107 VAT<br/>\n• VAT22 – 22% VAT<br/>\n• VAT122 – 22/122 VAT"
+            },
+            "enum": [
+              "NONE",
+              "VAT0",
+              "VAT10",
+              "VAT110",
+              "VAT20",
+              "VAT120",
+              "VAT5",
+              "VAT105",
+              "VAT7",
+              "VAT107",
+              "VAT22",
+              "VAT122"
+            ],
+            "example": "VAT20"
+          },
+          "agentType": {
+            "type": "string",
+            "description": "`Тег ФФД — 1222` <br/>\nПризнак агента по предмету расчета. Опциональный параметр, который заполняется только для операций через агента. Возможные значения:<br/>\n• BANK_PAYING_AGENT – банковский платежный агент<br/>\n• BANK_PAYING_SUBAGENT – банковский платежный субагент<br/>\n• PAYING_AGENT – платежный агент<br/>\n• PAYING_SUBAGENT – платежный субагент<br/>\n• ATTORNEY – поверенный<br/>\n• COMMISSION_AGENT – комиссионер<br/>\n• ANOTHER – другой тип агента",
+            "x-description-i18n": {
+              "eng": "`The tag FDF — 1222` <br/>\nAgent type. Optional parameter which is required for agent operations only.<br/>\nValid values:<br/>• BANK_PAYING_AGENT – bank paying agent<br/>\n• BANK_PAYING_SUBAGENT – bank paying subagent<br/>\n• PAYING_AGENT – paying agent<br/>\n• PAYING_SUBAGENT – paying subagent<br/>\n• ATTORNEY – attorney<br/>\n• COMMISSION_AGENT – commission agent<br/>\n• «ANOTHER» – another agent type"
+            },
+            "enum": [
+              "BANK_PAYING_AGENT",
+              "BANK_PAYING_SUBAGENT",
+              "PAYING_AGENT",
+              "PAYING_SUBAGENT",
+              "ATTORNEY",
+              "COMMISSION_AGENT",
+              "ANOTHER"
+            ],
+            "example": "ANOTHER"
+          },
+          "supplierInfo": {
+            "type": "object",
+            "description": "Данные о поставщике. Обязательно к заполнению, если заполнен параметр agentType",
+            "x-description-i18n": {
+              "eng": "Supplier information. Required if agentType is filled in"
+            },
+            "properties": {
+              "phone": {
+                "type": "string",
+                "description": "`Тег ФФД — 1171` <br/>\nТелефон поставщика. Заполняется по формату \"+79991234567\", после кода +7 должно быть указано 10 цифр",
+                "x-description-i18n": {
+                  "eng": "`The tag FDF — 1171` <br/>\nSupplier phone number. Filled in with Russian country code in format \"+79991234567\". The country code +7 must be followed by 10 digits"
+                },
+                "format": "+7XXXXXXXXXX",
+                "example": "+79991234567"
+              },
+              "name": {
+                "type": "string",
+                "description": "`Тег ФФД — 1225` <br/>\nНаименование поставщика",
+                "x-description-i18n": {
+                  "eng": "`The tag FDF — 1225` <br/>\nSupplier name"
+                },
+                "example": "ООО «Ромашка»"
+              },
+              "inn": {
+                "type": "string",
+                "description": "`Тег ФФД — 1226` <br/>\nИНН поставщика. Может содержать только цифры в количестве 10 или 12 символов",
+                "x-description-i18n": {
+                  "eng": "`The tag FDF — 1226` <br/>\nSupplier tax code of 10 or 12 digits"
+                },
+                "maxLength": 12,
+                "example": "287381373424"
+              }
+            },
+            "required": [
+              "inn"
+            ]
+          },
+          "marking": {
+            "type": "object",
+            "description": "Данные маркировки. Только для ФФД 1.2\n<br/>Обязательно к заполнению, если предметом расчета является маркированный товар, который имеет код маркировки'\n",
+            "x-description-i18n": {
+              "eng": "Marking data. Relevant for FFD 1.2 only\n<br/>Must be passed for marked goods that have marking codes\n"
+            },
+            "properties": {
+              "quantity": {
+                "type": "object",
+                "description": "`Тег ФФД — 1291` <br/>\nДробное количество маркированного товара\n<br/>Обязательно к заполнению, если предметом расчета является дробный маркированный товар, который имеет код маркировки.\nВ таком случае параметр measurementUnit должен иметь значение PIECE\n",
+                "x-description-i18n": {
+                  "eng": "`The tag FDF — 1291` <br/>\nFractional amount of marking goods\n<br/>Must be passed for marked goods that have marking codes. If so, value PIECE must be passed in measurementUnit\n"
+                },
+                "properties": {
+                  "numerator": {
+                    "type": "integer",
+                    "description": "`Тег ФФД — 1293` <br/>\nЧислитель дробной части",
+                    "x-description-i18n": {
+                      "eng": "`The tag FDF — 1293` <br/>\nFraction numerator"
+                    },
+                    "example": 1
+                  },
+                  "denominator": {
+                    "type": "integer",
+                    "description": "`Тег ФФД — 1294` <br/>\nЗнаменатель дробной части",
+                    "x-description-i18n": {
+                      "eng": "`The tag FDF — 1294` <br/>\nFraction denominator"
+                    },
+                    "example": 3
+                  }
+                },
+                "required": [
+                  "numerator",
+                  "denominator"
+                ]
+              },
+              "code": {
+                "type": "object",
+                "description": "Код маркировки",
+                "x-description-i18n": {
+                  "eng": "Marking code data"
+                },
+                "required": [
+                  "format",
+                  "value"
+                ],
+                "properties": {
+                  "format": {
+                    "type": "string",
+                    "description": "Формат кода маркировки",
+                    "x-description-i18n": {
+                      "eng": "Marking code format"
+                    },
+                    "enum": [
+                      "UNKNOWN",
+                      "EAN8",
+                      "EAN13",
+                      "ITF14",
+                      "GS1M",
+                      "SHORT",
+                      "FUR",
+                      "EGAIS20",
+                      "EGAIS30"
+                    ],
+                    "example": "GS1M"
+                  },
+                  "value": {
+                    "type": "string",
+                    "description": "`Тег ФФД — 1300. Нераспознанный код товара` <br/>\n`Тег ФФД — 1301. КТ EAN-8` <br/>\n`Тег ФФД — 1302. КТ EAN-13` <br/>\n`Тег ФФД — 1303. КТ ITF-14` <br/>\n`Тег ФФД — 1305. КТ GS1.М` <br/>\n`Тег ФФД — 1306. КТ КМК, (SHORT)` <br/>\n`Тег ФФД — 1307. КТ Меховые изделия, (FUR)` <br/>\n`Тег ФФД — 1308. КТ ЕГАИС-3.0, (EGAIS20)` <br/>\n`Тег ФФД — 1309. КТ ЕГАИС-3.0, (EGAIS30)` <br/>\nКод маркировки. Должен соответствовать формату, переданному в параметре format",
+                    "x-description-i18n": {
+                      "eng": "`The tag FDF — 1300. Undefined item code` <br/>\n`The tag FDF — 1301. Item code EAN-8` <br/>\n`The tag FDF — 1302. Item code EAN-13` <br/>\n`The tag FDF — 1303. Item code ITF-14` <br/>\n`The tag FDF — 1305. Item code GS1.М` <br/>\n`The tag FDF — 1306. Item code SHORT` <br/>\n`The tag FDF — 1307. Item code FUR` <br/>\n`The tag FDF — 1308. Item code EGAIS20` <br/>\n`The tag FDF — 1309. Item code EGAIS30` <br/>\nMarking code. Value must match the format"
+                    },
+                    "example": "MDEwNDYwNzQyODY3OTA5MDIxNmVKSWpvV0g1NERkVSA5MWZmZDAgOTJzejZrU1BpckFwZk1CZnR2TGJvRTFkbFdDLzU4aEV4UVVxdjdCQmtabWs0PQ=="
+                  },
+                  "plannedStatus": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 6,
+                    "description": "`Тег 2003 — планируемый статус маркированного торвара` <br/>\nТолько маркировок вида GS1M и SHORT<br/>\n1 - Штучный товар, подлежащий обязательной маркировке\nсредством идентификации, реализован<br/>\n2 - Мерный товар, подлежащий обязательной маркировке\nсредством идентификации, в стадии реализации<br/>\n3 - Штучный товар, подлежащий обязательной маркировке\nсредством идентификации, возвращен<br/>\n4 - Часть товара, подлежащего обязательной маркировке\nсредством идентификации, возвращена<br/>\n5 - Штучный товар, подлежащий обязательной маркировке\nсредством идентификации, в стадии реализации<br/>\n6 - Мерный товар, подлежащий обязательной маркировке\nсредством идентификации, реализован<br/>"
+                  }
+                }
+              }
+            },
+            "required": [
+              "code"
+            ]
+          },
+          "sectoralProperties": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 5,
+            "description": "`Тег ФФД — 1260` <br/>\nОтраслевые реквизиты предмета расчета. Только для ФФД 1.2 <br/>\nБольшинство ОФД поддерживают обработку только 1 элемента в массиве. Если Вам необходимо передавать более 1 элемента в массиве, то сверьтесь с протоколом Вашего ОФД\n",
+            "x-description-i18n": {
+              "eng": "`The tag FDF — 1260` <br/>\nSectoral properties. Relevant for FFD 1.2 only <br/>\nMost OFD support processing of only 1 element in an array. If you need to transfer more than 1 element in an array, then check with the protocol of your OFD\n"
+            },
+            "items": {
+              "type": "object",
+              "properties": {
+                "federalId": {
+                  "type": "string",
+                  "description": "`Тег ФФД — 1262` <br/>\nИдентификатор Федерального органа исполнительной власти. Должно принимать одно из значений справочника в соответствии с [приказом ФНС России](https://www.nalog.gov.ru/rn77/about_fts/docs/10020801/)",
+                  "x-description-i18n": {
+                    "eng": "`The tag FDF — 1262` <br/>\nIdentifier of the Federal Executive Authority. Must take one of the directory values in accordance with [the order of the Federal Tax Service of Russia](https://www.nalog.gov.ru/rn77/about_fts/docs/10020801/)"
+                  },
+                  "example": "030"
+                },
+                "documentDate": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "`Тег ФФД — 1263` <br/>\nДата нормативного акта федерального органа исполнительной власти, регламентирующего порядок заполнения поля «значение отраслевого реквизита»",
+                  "x-description-i18n": {
+                    "eng": "`The tag FDF — 1263` <br/>\nDate of the normative act of the federal executive body regulating the procedure for filling in the field \"value of the sectoral property\""
+                  },
+                  "example": "2023-11-21"
+                },
+                "documentNumber": {
+                  "type": "string",
+                  "description": "`Тег ФФД — 1264` <br/>\nНомер нормативного акта федерального органа исполнительной власти, регламентирующего порядок заполнения поля «значение отраслевого реквизита»",
+                  "x-description-i18n": {
+                    "eng": "`The tag FDF — 1264` <br/>\nNumber of the normative act of the federal executive body, regulating the procedure for filling in the field \"value of the sectoral property\""
+                  },
+                  "example": "1944"
+                },
+                "value": {
+                  "type": "string",
+                  "description": "`Тег ФФД — 1265` <br/>\nЗначение отраслевого реквизита. Заполнение регламентируется нормативным актом федерального органа исполнительной власти",
+                  "x-description-i18n": {
+                    "eng": "`The tag FDF — 1265` <br/>\nThe value of the sectoral property. Filling is regulated by the normative act of the federal executive authority"
+                  },
+                  "example": "UUID=2ce10bdb-6515-4d37-be04-dd475b98c728&Time=1692691702067"
+                }
+              },
+              "required": [
+                "federalId",
+                "documentDate",
+                "documentNumber",
+                "value"
+              ]
+            }
+          }
+        },
+        "required": [
+          "name",
+          "price",
+          "quantity",
+          "amount",
+          "vatType"
+        ]
+      },
+      "response": {
+        "title": "ФФД 1.05 | ФФД 1.2",
+        "type": "object",
+        "properties": {
+          "receiptNumber": {
+            "type": "string",
+            "description": "Уникальный номер чека",
+            "maxLength": 99,
+            "format": "A-Za-z0-9_-",
+            "example": "3000827351831"
+          },
+          "orderNumber": {
+            "type": "string",
+            "description": "Номер заказа мерчанта в системе Raif Pay, используется для связывания заказа и чека. Возвращается в ответе, если был передан при создании чека.",
+            "pattern": "^[A-Za-z0-9_-]{1,200}$",
+            "maxLength": 40,
+            "example": "order-2024_001"
+          },
+          "receiptType": {
+            "type": "string",
+            "description": "Тип чека (чек прихода, чек возврата)",
+            "enum": [
+              "SELL",
+              "REFUND"
+            ],
+            "example": "SELL"
+          },
+          "status": {
+            "type": "string",
+            "description": "Статус регистрации чека",
+            "enum": [
+              "NEW",
+              "IN_PROGRESS",
+              "DONE",
+              "FAILED",
+              "AWAITING"
+            ],
+            "example": "NEW"
+          },
+          "timezone": {
+            "type": "string",
+            "description": "`Тег ФФД — 1011` <br/>\nЧасовая зона (+02:00, +03:00... +11:00)"
+          },
+          "onlinePayment": {
+            "type": "boolean",
+            "description": "`Тег ФФД — 1125` <br/>\nПризнак расчета в Интернете"
+          },
+          "client": {
+            "type": "object",
+            "description": "Данные о покупателе",
+            "properties": {
+              "email": {
+                "type": "string",
+                "description": "`Тег ФФД — 1008` <br/>\nЭлектронный адрес покупателя для отправки чека",
+                "maxLength": 64,
+                "example": "customer@test.ru"
+              },
+              "name": {
+                "type": "string",
+                "description": "`Тег ФФД — 1227` <br/>\nФИО покупателя",
+                "maxLength": 256,
+                "example": "Иванов Иван Иванович"
+              },
+              "inn": {
+                "type": "string",
+                "description": "`Тег ФФД — 1228` <br/>\nИНН покупателя. Может содержать только 10 или 12 цифр",
+                "pattern": "^(?:[0-9]{10}|[0-9]{12})$",
+                "example": "7707083893"
+              },
+              "extra": {
+                "type": "object",
+                "description": "Дополнительная информация о покупателе"
+              }
+            }
+          },
+          "items": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "description": "Позиции чека",
+            "items": {
+              "$ref": "#/components/schemas/receiptItem"
+            }
+          },
+          "payments": {
+            "type": "array",
+            "uniqueItems": true,
+            "description": "Данные об оплате. Объект payments возвращается в ответе, если ранее был передан в запросе",
+            "items": {
+              "$ref": "#/components/schemas/payments"
+            }
+          },
+          "total": {
+            "type": "number",
+            "description": "`Тег ФФД — 1020` <br/>\nИтоговая сумма чека в рублях",
+            "example": 1200
+          },
+          "additionalUserProperty": {
+            "$ref": "#/components/schemas/additionalUserProperty"
+          },
+          "ofdUrl": {
+            "type": "string",
+            "description": "Ссылка на чек<br/>Передается в ответе только для чеков в статусе DONE и при условии, что была получена от ОФД при регистрации чека. Список ОФД, которые поддерживают передачу ссылки на чек, необходимо уточнять у поставщика онлайн-кассы",
+            "example": "https://lk.platformaofd.ru/web/noauth/cheque?fn=7284440500012345&fp=1702712345&i=1234"
+          },
+          "ofdDocumentNumber": {
+            "type": "number",
+            "description": "`Тег ФФД — 1040` <br/>\nФискальный номер документа",
+            "example": 133
+          },
+          "ofdDocumentAttribute": {
+            "type": "string",
+            "description": "`Тег ФФД — 1077` <br/>\nФискальный признак документа",
+            "example": "3449555941"
+          },
+          "ofdShiftReceiptNumber": {
+            "type": "number",
+            "description": "`Тег ФФД — 1042` <br/>\nНомер чека в смене",
+            "example": 1
+          },
+          "ofdShiftNumber": {
+            "type": "number",
+            "description": "`Тег ФФД — 1038` <br/>\nНомер смены",
+            "example": 1
+          }
+        }
+      },
+      "email": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "`Тег ФФД — 1008` <br/>\nЭлектронный адрес покупателя для отправки чека. Заполняется по формату E-mail",
+            "maxLength": 64,
+            "example": "customer@test.ru"
+          }
+        }
+      },
+      "error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Код ошибки",
+            "minLength": 1,
+            "example": "RECEIPT_VALIDATION_FAILED"
+          },
+          "message": {
+            "type": "string",
+            "description": "Описание ошибки",
+            "minLength": 1,
+            "example": "Чек не прошел валидацию. Причина: {value}"
+          }
+        },
+        "title": "error"
+      },
+      "payments": {
+        "type": "object",
+        "title": "платежи",
+        "x-title-i18n": {
+          "eng": "payments"
+        },
+        "required": [
+          "type",
+          "amount"
+        ],
+        "description": "Данные об оплате и ее видах",
+        "x-description-i18n": {
+          "eng": "Info on payment and its types"
+        },
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Вид оплаты. Возможные значения:<br/>• E_PAYMENT – безналичная оплата<br/>• PREPAID – предварительная оплата (зачет аванса и/или предыдущих платежей)",
+            "x-description-i18n": {
+              "eng": "Payment type. Valid values:<br/>• E_PAYMENT – electronic payment<br/>• PREPAID – prepaid amount (advance payment and/or previous payments)"
+            },
+            "example": "PREPAID",
+            "enum": [
+              "E_PAYMENT",
+              "PREPAID"
+            ]
+          },
+          "amount": {
+            "type": "number",
+            "description": "`Тег ФФД — 1081. Сумма по чеку безналичными` <br/>\n`Тег ФФД — 1251. Сумма по чеку предоплатой (зачетом аванса и(или) предыдущих платежей)` <br/>\nСумма оплаты<br/>Сумма всех переданных amount должна равняться итоговой сумме чека",
+            "x-description-i18n": {
+              "eng": "`The tag FDF — 1081. Receipt amount non-cash payment` <br/>\n`The tag FDF — 1251. Receipt amount prepayment (advance payment and(or) previous payment)` <br/>\nAmount paid"
+            },
+            "example": 1200
+          }
+        }
+      },
+      "additionalUserProperty": {
+        "type": "object",
+        "required": [
+          "name",
+          "value"
+        ],
+        "description": "`Тег ФФД — 1084` <br/>\nДополнительный реквизит пользователя",
+        "x-description-i18n": {
+          "eng": "`The tag FDF — 1084` <br/>\nAdditional user property"
+        },
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "`Тег ФФД — 1085` <br/>\nНаименование дополнительного реквизита пользователя",
+            "x-description-i18n": {
+              "eng": "`The tag FDF — 1085` <br/>\nAdditional user property name"
+            },
+            "maxLength": 64
+          },
+          "value": {
+            "type": "string",
+            "description": "`Тег ФФД — 1086` <br/>\nЗначение дополнительного реквизита пользователя",
+            "x-description-i18n": {
+              "eng": "`The tag FDF — 1086` <br/>\nAdditional user property value"
+            },
+            "maxLength": 256
+          }
+        }
+      },
+      "415response": {
+        "title": "415response",
+        "type": "object",
+        "x-examples": {
+          "Example 1": {
+            "timestamp": "2023-02-15T06:36:32.418+00:00",
+            "status": 415,
+            "error": "Unsupported Media Type",
+            "path": "string"
+          }
+        },
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "Время ответа сервиса",
+            "x-description-i18n": {
+              "eng": "Response timestamp"
+            }
+          },
+          "status": {
+            "type": "integer",
+            "description": "Код состояния HTTP-запроса",
+            "x-description-i18n": {
+              "eng": "HTTP-code"
+            }
+          },
+          "error": {
+            "type": "string",
+            "description": "Описание ошибки",
+            "x-description-i18n": {
+              "eng": "Response description"
+            }
+          },
+          "path": {
+            "type": "string",
+            "description": "Путь запроса",
+            "x-description-i18n": {
+              "eng": "Query path"
+            }
+          }
+        }
+      },
+      "ReceiptItemDraftRequest": {
+        "type": "object",
+        "description": "Запрос на создание драфта позиции чека",
+        "required": [
+          "name",
+          "paymentObject",
+          "paymentMode",
+          "vatType"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Наименование позиции",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "paymentObject": {
+            "type": "string",
+            "enum": [
+              "COMMODITY",
+              "EXCISE",
+              "JOB",
+              "SERVICE",
+              "PAYMENT",
+              "ANOTHER",
+              "COMMODITY_MARKING_NO_CODE",
+              "EXCISE_MARKING_NO_CODE"
+            ],
+            "description": "Предмет расчета",
+            "example": "COMMODITY"
+          },
+          "paymentMode": {
+            "type": "string",
+            "enum": [
+              "FULL_PREPAYMENT",
+              "FULL_PAYMENT"
+            ],
+            "description": "Способ расчета",
+            "example": "FULL_PREPAYMENT"
+          },
+          "vatType": {
+            "$ref": "#/components/schemas/VatType"
+          },
+          "measurementUnit": {
+            "type": "string",
+            "description": "Единица измерения",
+            "example": "Штука"
+          }
+        }
+      },
+      "ReceiptItemDraftResponse": {
+        "type": "object",
+        "description": "Черновик позиции чека",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ReceiptItemDraftRequest"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Уникальный идентификатор драфта позиции",
+                "example": "550e8400-e29b-41d4-a716-446655440000"
+              }
+            }
+          }
+        ],
+        "required": [
+          "id",
+          "name",
+          "paymentObject",
+          "paymentMode",
+          "vatType"
+        ]
+      },
+      "CreateReceiptItemDraftResponse": {
+        "type": "object",
+        "description": "Ответ на создание драфта позиции чека",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Уникальный идентификатор драфта позиции",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          }
+        }
+      },
+      "VatType": {
+        "type": "string",
+        "description": "`Тег ФФД — 1199` <br/>\nСтавка НДС на позицию чека. Возможные значения:<br/>\n• NONE – без НДС<br/>• VAT0 – НДС по ставке 0%<br/>\n• VAT10 – НДС чека по ставке 10%<br/>\n• VAT110 – НДС чека по расчетной ставке 10/110<br/>\n• VAT20 – НДС чека по ставке 20%<br/>\n• VAT120 – НДС чека по расчетной ставке 20/120<br/>\n• VAT5 – НДС чека по ставке 5%<br/>\n• VAT105 – НДС чека по расчетной ставке 5/105<br/>\n• VAT7 – НДС чека по ставке 7%<br/>\n• VAT107 – НДС чека по расчетной ставке 7/107<br/>\n• VAT22 – НДС чека по ставке 22%<br/>\n• VAT122 – НДС чека по расчетной ставке 22/122",
+        "x-description-i18n": {
+          "eng": "`The tag FDF — 1199` <br/>\nVAT rate on each receipt item. Valid values:<br/>\n• NONE – no VAT<br/>\n• VAT0 – 0% VAT<br/>\n• VAT10 – 10% VAT<br/>\n• VAT110 – 10/110 VAT<br/>\n• VAT20 – 20% VAT<br/>\n• VAT120 – 20/120 VAT<br/>\n• VAT5  – 5% VAT<br/>\n• VAT105 – 5/105 VAT<br/>\n• VAT7 – 7% VAT<br/>\n• VAT107 – 7/107 VAT<br/>\n• VAT22 – 22% VAT<br/>\n• VAT122 – 22/122 VAT"
+        },
+        "enum": [
+          "NONE",
+          "VAT0",
+          "VAT10",
+          "VAT110",
+          "VAT20",
+          "VAT120",
+          "VAT5",
+          "VAT105",
+          "VAT7",
+          "VAT107",
+          "VAT22",
+          "VAT122"
+        ],
+        "example": "VAT20"
+      }
+    }
+  }
+}

@@ -1,0 +1,340 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-guarantees-response-schema.json",
+  "title": "GuaranteesResponse",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-trade-finance-guarantees-openapi.yml#/components/schemas/GuaranteesResponse",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/GuaranteeResponse"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/$defs/Pagination"
+    }
+  ],
+  "$defs": {
+    "AccountType": {
+      "type": "string",
+      "enum": [
+        "current",
+        "transit",
+        "third_party",
+        "none"
+      ]
+    },
+    "AgreementResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Идентификатор соглашения",
+          "format": "int64"
+        },
+        "agreementNumber": {
+          "type": "string",
+          "description": "Номер соглашения"
+        }
+      },
+      "description": "Соглашение"
+    },
+    "CommissionDto": {
+      "type": "object",
+      "properties": {
+        "commissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FeeShortDto"
+          }
+        },
+        "account": {
+          "type": "string"
+        },
+        "accountType": {
+          "$ref": "#/$defs/AccountType"
+        },
+        "penaltyRate": {
+          "type": "number"
+        },
+        "rate": {
+          "type": "number"
+        },
+        "paymentTermMaturity": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "total": {
+          "type": "number"
+        },
+        "minimumAmount": {
+          "type": "number"
+        },
+        "minimumAmountCurrency": {
+          "type": "string"
+        }
+      },
+      "description": "График комиссии"
+    },
+    "FeeScheduleDto": {
+      "type": "object",
+      "properties": {
+        "beginDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "plannedPaymentDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "FeeShortDto": {
+      "type": "object",
+      "properties": {
+        "feeList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FeeScheduleDto"
+          }
+        },
+        "totalAmount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "commissionName": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "GuaranteeResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "Статус документа (системное имя)"
+        },
+        "statusName": {
+          "type": "string",
+          "description": "Статус документа (для отображения в интерфейсе)"
+        },
+        "number": {
+          "type": "string",
+          "description": "Номер гарантии"
+        },
+        "amount": {
+          "type": "number",
+          "description": "Сумма гарантии"
+        },
+        "currency": {
+          "type": "string",
+          "description": "Валюта гарантии"
+        },
+        "issueDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "agreement": {
+          "$ref": "#/$defs/AgreementResponse"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "guaranteeTypeCode": {
+          "type": "string",
+          "description": "Тип гарантии ТФО"
+        },
+        "guaranteeTypeName": {
+          "type": "string",
+          "description": "Название типа гарантии"
+        },
+        "placeOfDisputeResolution": {
+          "type": "string",
+          "description": "Место разрешения споров"
+        },
+        "avisoBankCode": {
+          "type": "string",
+          "description": "SWIFT-code авизующего банка"
+        },
+        "useRussianLaw": {
+          "type": "boolean",
+          "description": "Признак применения российского права в отношении выпускаемой гарантии"
+        },
+        "useUrdg758": {
+          "type": "boolean",
+          "description": "Признак применения норм URDG 758 в отношении выпускаемой гарантии"
+        },
+        "issueMethod": {
+          "type": "string",
+          "description": "Способ выдачи"
+        },
+        "principal": {
+          "$ref": "#/$defs/OrganizationDTO"
+        },
+        "applicant": {
+          "$ref": "#/$defs/OrganizationDTO"
+        },
+        "beneficiary": {
+          "$ref": "#/$defs/OrganizationDTO"
+        },
+        "guaranteeSubject": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          },
+          "description": "Поля обязательства"
+        },
+        "applicationNumber": {
+          "type": "string",
+          "description": "Номер заявления в TFO"
+        },
+        "changeStartDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "fees": {
+          "$ref": "#/$defs/CommissionDto"
+        },
+        "emails": {
+          "type": "array",
+          "description": "Электронная почта для отправки гарантии с УКЭП",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cbrfUuid": {
+          "type": "string",
+          "description": "Уникальный идентификатор кредитной истории ЦБ РФ"
+        },
+        "thirdParty": {
+          "type": "boolean"
+        },
+        "isCounter": {
+          "type": "boolean",
+          "description": "Является контргарантией"
+        }
+      }
+    },
+    "OrganizationDTO": {
+      "type": "object",
+      "properties": {
+        "cnum": {
+          "type": "string",
+          "description": "CNUM"
+        },
+        "fullNameRus": {
+          "type": "string",
+          "description": "Полное наименование на русском языке"
+        },
+        "shortName": {
+          "type": "string",
+          "description": "Сокращенное наименование на русском языке"
+        },
+        "fullNameEng": {
+          "type": "string",
+          "description": "Полное наименование латинскими буквами"
+        },
+        "currentAddress": {
+          "type": "string",
+          "description": "Адрес местонахождения"
+        },
+        "postalAddress": {
+          "type": "string",
+          "description": "Почтовый адрес"
+        },
+        "inn": {
+          "type": "string",
+          "description": "ИНН"
+        },
+        "kpp": {
+          "type": "string",
+          "description": "КПП"
+        },
+        "kppLargestTaxPayer": {
+          "type": "string",
+          "description": "КПП крупнейшего налогоплательщика"
+        },
+        "ogrn": {
+          "type": "string",
+          "description": "ОГРН"
+        },
+        "oktmo": {
+          "type": "string",
+          "description": "ОКТМО"
+        },
+        "taxRegistrationDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "taxUnitCode": {
+          "type": "string",
+          "description": "Код налогового органа"
+        },
+        "customsUnitCode": {
+          "type": "string",
+          "description": "Код таможенного органа"
+        },
+        "kio": {
+          "type": "string",
+          "description": "КИО"
+        },
+        "tin": {
+          "type": "string",
+          "description": "TIN"
+        }
+      },
+      "description": "Информация по организации"
+    },
+    "Pagination": {
+      "required": [
+        "limit",
+        "offset",
+        "totalCount"
+      ],
+      "type": "object",
+      "properties": {
+        "offset": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    }
+  }
+}

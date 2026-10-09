@@ -1,0 +1,1362 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Client Tariff Plan Change Request Controller…
+  version: 1.0.0
+  description: 'Operations tagged client-tariff-plan-change-request-controller across 2 of this provider''s published API definitions: raiffeisen-ru-tariff-change-requests-openapi.yml, raiffeisen-ru-tariff-change-requests-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/client-tariffs
+tags:
+- name: client-tariff-plan-change-request-controller
+paths:
+  /v1/ctcm/request/generate:
+    post:
+      tags:
+      - client-tariff-plan-change-request-controller
+      summary: generateCTChangeRequestTemplate
+      description: 'Генерация HTML-шаблона заявки на смену тарифного плана по cnum клиента и целевому тарифному плану
+
+
+        Для доступа необходима хотя бы одна из ролей: RBO-USER'
+      operationId: generateCTChangeRequestTemplate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientTariffPlanChangeRequestParamsView'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ClientTariffPlanChangeRequestTemplateView'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                required:
+                - code
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: Код ошибки для обработки на клиенте
+                    example: oct.not-found
+                  traceId:
+                    type: string
+                    description: Идентификатор трассировки
+                    example: cf9924bed9c41f689f97728a50dbc035
+                  message:
+                    type: string
+                    description: Сообщение об ошибке
+                    example: Record not found
+                  data:
+                    type: object
+                    description: Дополнительные данные об ошибке (например, список нарушенных полей валидации)
+                    example:
+                      key: value
+                  status:
+                    type: string
+                    description: HTTP-статус, соответствующий ошибке
+                    example: 400 BAD_REQUEST
+                    enum:
+                    - 100 CONTINUE
+                    - 101 SWITCHING_PROTOCOLS
+                    - 102 PROCESSING
+                    - 103 EARLY_HINTS
+                    - 200 OK
+                    - 201 CREATED
+                    - 202 ACCEPTED
+                    - 203 NON_AUTHORITATIVE_INFORMATION
+                    - 204 NO_CONTENT
+                    - 205 RESET_CONTENT
+                    - 206 PARTIAL_CONTENT
+                    - 207 MULTI_STATUS
+                    - 208 ALREADY_REPORTED
+                    - 226 IM_USED
+                    - 300 MULTIPLE_CHOICES
+                    - 301 MOVED_PERMANENTLY
+                    - 302 FOUND
+                    - 303 SEE_OTHER
+                    - 304 NOT_MODIFIED
+                    - 307 TEMPORARY_REDIRECT
+                    - 308 PERMANENT_REDIRECT
+                    - 400 BAD_REQUEST
+                    - 401 UNAUTHORIZED
+                    - 402 PAYMENT_REQUIRED
+                    - 403 FORBIDDEN
+                    - 404 NOT_FOUND
+                    - 405 METHOD_NOT_ALLOWED
+                    - 406 NOT_ACCEPTABLE
+                    - 407 PROXY_AUTHENTICATION_REQUIRED
+                    - 408 REQUEST_TIMEOUT
+                    - 409 CONFLICT
+                    - 410 GONE
+                    - 411 LENGTH_REQUIRED
+                    - 412 PRECONDITION_FAILED
+                    - 413 CONTENT_TOO_LARGE
+                    - 413 PAYLOAD_TOO_LARGE
+                    - 414 URI_TOO_LONG
+                    - 415 UNSUPPORTED_MEDIA_TYPE
+                    - 416 REQUESTED_RANGE_NOT_SATISFIABLE
+                    - 417 EXPECTATION_FAILED
+                    - 418 I_AM_A_TEAPOT
+                    - 421 MISDIRECTED_REQUEST
+                    - 422 UNPROCESSABLE_CONTENT
+                    - 422 UNPROCESSABLE_ENTITY
+                    - 423 LOCKED
+                    - 424 FAILED_DEPENDENCY
+                    - 425 TOO_EARLY
+                    - 426 UPGRADE_REQUIRED
+                    - 428 PRECONDITION_REQUIRED
+                    - 429 TOO_MANY_REQUESTS
+                    - 431 REQUEST_HEADER_FIELDS_TOO_LARGE
+                    - 451 UNAVAILABLE_FOR_LEGAL_REASONS
+                    - 500 INTERNAL_SERVER_ERROR
+                    - 501 NOT_IMPLEMENTED
+                    - 502 BAD_GATEWAY
+                    - 503 SERVICE_UNAVAILABLE
+                    - 504 GATEWAY_TIMEOUT
+                    - 505 HTTP_VERSION_NOT_SUPPORTED
+                    - 506 VARIANT_ALSO_NEGOTIATES
+                    - 507 INSUFFICIENT_STORAGE
+                    - 508 LOOP_DETECTED
+                    - 509 BANDWIDTH_LIMIT_EXCEEDED
+                    - 510 NOT_EXTENDED
+                    - 511 NETWORK_AUTHENTICATION_REQUIRED
+                description: Ошибка API
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/client-tariffs
+  /v1/ctcm/request/create:
+    post:
+      tags:
+      - client-tariff-plan-change-request-controller
+      summary: createCTChangeRequest
+      description: 'Создание новой заявки на смену тарифного плана
+
+
+        Для доступа необходима хотя бы одна из ролей: RBO-USER'
+      operationId: createCTChangeRequest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientTariffPlanChangeRequestParamsView'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ClientTariffPlanChangeRequestBodyView'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                required:
+                - code
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: Код ошибки для обработки на клиенте
+                    example: oct.not-found
+                  traceId:
+                    type: string
+                    description: Идентификатор трассировки
+                    example: cf9924bed9c41f689f97728a50dbc035
+                  message:
+                    type: string
+                    description: Сообщение об ошибке
+                    example: Record not found
+                  data:
+                    type: object
+                    description: Дополнительные данные об ошибке (например, список нарушенных полей валидации)
+                    example:
+                      key: value
+                  status:
+                    type: string
+                    description: HTTP-статус, соответствующий ошибке
+                    example: 400 BAD_REQUEST
+                    enum:
+                    - 100 CONTINUE
+                    - 101 SWITCHING_PROTOCOLS
+                    - 102 PROCESSING
+                    - 103 EARLY_HINTS
+                    - 200 OK
+                    - 201 CREATED
+                    - 202 ACCEPTED
+                    - 203 NON_AUTHORITATIVE_INFORMATION
+                    - 204 NO_CONTENT
+                    - 205 RESET_CONTENT
+                    - 206 PARTIAL_CONTENT
+                    - 207 MULTI_STATUS
+                    - 208 ALREADY_REPORTED
+                    - 226 IM_USED
+                    - 300 MULTIPLE_CHOICES
+                    - 301 MOVED_PERMANENTLY
+                    - 302 FOUND
+                    - 303 SEE_OTHER
+                    - 304 NOT_MODIFIED
+                    - 307 TEMPORARY_REDIRECT
+                    - 308 PERMANENT_REDIRECT
+                    - 400 BAD_REQUEST
+                    - 401 UNAUTHORIZED
+                    - 402 PAYMENT_REQUIRED
+                    - 403 FORBIDDEN
+                    - 404 NOT_FOUND
+                    - 405 METHOD_NOT_ALLOWED
+                    - 406 NOT_ACCEPTABLE
+                    - 407 PROXY_AUTHENTICATION_REQUIRED
+                    - 408 REQUEST_TIMEOUT
+                    - 409 CONFLICT
+                    - 410 GONE
+                    - 411 LENGTH_REQUIRED
+                    - 412 PRECONDITION_FAILED
+                    - 413 CONTENT_TOO_LARGE
+                    - 413 PAYLOAD_TOO_LARGE
+                    - 414 URI_TOO_LONG
+                    - 415 UNSUPPORTED_MEDIA_TYPE
+                    - 416 REQUESTED_RANGE_NOT_SATISFIABLE
+                    - 417 EXPECTATION_FAILED
+                    - 418 I_AM_A_TEAPOT
+                    - 421 MISDIRECTED_REQUEST
+                    - 422 UNPROCESSABLE_CONTENT
+                    - 422 UNPROCESSABLE_ENTITY
+                    - 423 LOCKED
+                    - 424 FAILED_DEPENDENCY
+                    - 425 TOO_EARLY
+                    - 426 UPGRADE_REQUIRED
+                    - 428 PRECONDITION_REQUIRED
+                    - 429 TOO_MANY_REQUESTS
+                    - 431 REQUEST_HEADER_FIELDS_TOO_LARGE
+                    - 451 UNAVAILABLE_FOR_LEGAL_REASONS
+                    - 500 INTERNAL_SERVER_ERROR
+                    - 501 NOT_IMPLEMENTED
+                    - 502 BAD_GATEWAY
+                    - 503 SERVICE_UNAVAILABLE
+                    - 504 GATEWAY_TIMEOUT
+                    - 505 HTTP_VERSION_NOT_SUPPORTED
+                    - 506 VARIANT_ALSO_NEGOTIATES
+                    - 507 INSUFFICIENT_STORAGE
+                    - 508 LOOP_DETECTED
+                    - 509 BANDWIDTH_LIMIT_EXCEEDED
+                    - 510 NOT_EXTENDED
+                    - 511 NETWORK_AUTHENTICATION_REQUIRED
+                description: Ошибка API
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/client-tariffs
+  /v1/ctcm/request/{id}/client/{cnum}/state/history:
+    get:
+      tags:
+      - client-tariff-plan-change-request-controller
+      summary: getClientCTChangeRequestStateHistory
+      description: 'История изменений статуса заявки на смену тарифного плана
+
+
+        Для доступа необходима хотя бы одна из ролей: RBO-USER'
+      operationId: getClientCTChangeRequestStateHistory
+      parameters:
+      - name: id
+        in: path
+        description: Идентификатор заявки на смену тарифного плана
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: cnum
+        in: path
+        description: Идентификатор клиента
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ClientTariffPlanChangeRequestStateHistoryView'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                required:
+                - code
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: Код ошибки для обработки на клиенте
+                    example: oct.not-found
+                  traceId:
+                    type: string
+                    description: Идентификатор трассировки
+                    example: cf9924bed9c41f689f97728a50dbc035
+                  message:
+                    type: string
+                    description: Сообщение об ошибке
+                    example: Record not found
+                  data:
+                    type: object
+                    description: Дополнительные данные об ошибке (например, список нарушенных полей валидации)
+                    example:
+                      key: value
+                  status:
+                    type: string
+                    description: HTTP-статус, соответствующий ошибке
+                    example: 400 BAD_REQUEST
+                    enum:
+                    - 100 CONTINUE
+                    - 101 SWITCHING_PROTOCOLS
+                    - 102 PROCESSING
+                    - 103 EARLY_HINTS
+                    - 200 OK
+                    - 201 CREATED
+                    - 202 ACCEPTED
+                    - 203 NON_AUTHORITATIVE_INFORMATION
+                    - 204 NO_CONTENT
+                    - 205 RESET_CONTENT
+                    - 206 PARTIAL_CONTENT
+                    - 207 MULTI_STATUS
+                    - 208 ALREADY_REPORTED
+                    - 226 IM_USED
+                    - 300 MULTIPLE_CHOICES
+                    - 301 MOVED_PERMANENTLY
+                    - 302 FOUND
+                    - 303 SEE_OTHER
+                    - 304 NOT_MODIFIED
+                    - 307 TEMPORARY_REDIRECT
+                    - 308 PERMANENT_REDIRECT
+                    - 400 BAD_REQUEST
+                    - 401 UNAUTHORIZED
+                    - 402 PAYMENT_REQUIRED
+                    - 403 FORBIDDEN
+                    - 404 NOT_FOUND
+                    - 405 METHOD_NOT_ALLOWED
+                    - 406 NOT_ACCEPTABLE
+                    - 407 PROXY_AUTHENTICATION_REQUIRED
+                    - 408 REQUEST_TIMEOUT
+                    - 409 CONFLICT
+                    - 410 GONE
+                    - 411 LENGTH_REQUIRED
+                    - 412 PRECONDITION_FAILED
+                    - 413 CONTENT_TOO_LARGE
+                    - 413 PAYLOAD_TOO_LARGE
+                    - 414 URI_TOO_LONG
+                    - 415 UNSUPPORTED_MEDIA_TYPE
+                    - 416 REQUESTED_RANGE_NOT_SATISFIABLE
+                    - 417 EXPECTATION_FAILED
+                    - 418 I_AM_A_TEAPOT
+                    - 421 MISDIRECTED_REQUEST
+                    - 422 UNPROCESSABLE_CONTENT
+                    - 422 UNPROCESSABLE_ENTITY
+                    - 423 LOCKED
+                    - 424 FAILED_DEPENDENCY
+                    - 425 TOO_EARLY
+                    - 426 UPGRADE_REQUIRED
+                    - 428 PRECONDITION_REQUIRED
+                    - 429 TOO_MANY_REQUESTS
+                    - 431 REQUEST_HEADER_FIELDS_TOO_LARGE
+                    - 451 UNAVAILABLE_FOR_LEGAL_REASONS
+                    - 500 INTERNAL_SERVER_ERROR
+                    - 501 NOT_IMPLEMENTED
+                    - 502 BAD_GATEWAY
+                    - 503 SERVICE_UNAVAILABLE
+                    - 504 GATEWAY_TIMEOUT
+                    - 505 HTTP_VERSION_NOT_SUPPORTED
+                    - 506 VARIANT_ALSO_NEGOTIATES
+                    - 507 INSUFFICIENT_STORAGE
+                    - 508 LOOP_DETECTED
+                    - 509 BANDWIDTH_LIMIT_EXCEEDED
+                    - 510 NOT_EXTENDED
+                    - 511 NETWORK_AUTHENTICATION_REQUIRED
+                description: Ошибка API
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/client-tariffs
+  /v1/ctcm/request/{id}/client/{cnum}/pre-sign:
+    get:
+      tags:
+      - client-tariff-plan-change-request-controller
+      summary: getClientCTChangeRequestPreSignView
+      description: 'Набор полей заявки на смену тарифного плана для отображения виджета наложения подписи
+
+
+        Для доступа необходима хотя бы одна из ролей: RBO-USER'
+      operationId: getClientCTChangeRequestPreSignView
+      parameters:
+      - name: id
+        in: path
+        description: Идентификатор заявки на смену тарифного плана
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: cnum
+        in: path
+        description: Идентификатор клиента
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ClientTariffPlanChangeRequestPreSignView'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                required:
+                - code
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: Код ошибки для обработки на клиенте
+                    example: oct.not-found
+                  traceId:
+                    type: string
+                    description: Идентификатор трассировки
+                    example: cf9924bed9c41f689f97728a50dbc035
+                  message:
+                    type: string
+                    description: Сообщение об ошибке
+                    example: Record not found
+                  data:
+                    type: object
+                    description: Дополнительные данные об ошибке (например, список нарушенных полей валидации)
+                    example:
+                      key: value
+                  status:
+                    type: string
+                    description: HTTP-статус, соответствующий ошибке
+                    example: 400 BAD_REQUEST
+                    enum:
+                    - 100 CONTINUE
+                    - 101 SWITCHING_PROTOCOLS
+                    - 102 PROCESSING
+                    - 103 EARLY_HINTS
+                    - 200 OK
+                    - 201 CREATED
+                    - 202 ACCEPTED
+                    - 203 NON_AUTHORITATIVE_INFORMATION
+                    - 204 NO_CONTENT
+                    - 205 RESET_CONTENT
+                    - 206 PARTIAL_CONTENT
+                    - 207 MULTI_STATUS
+                    - 208 ALREADY_REPORTED
+                    - 226 IM_USED
+                    - 300 MULTIPLE_CHOICES
+                    - 301 MOVED_PERMANENTLY
+                    - 302 FOUND
+                    - 303 SEE_OTHER
+                    - 304 NOT_MODIFIED
+                    - 307 TEMPORARY_REDIRECT
+                    - 308 PERMANENT_REDIRECT
+                    - 400 BAD_REQUEST
+                    - 401 UNAUTHORIZED
+                    - 402 PAYMENT_REQUIRED
+                    - 403 FORBIDDEN
+                    - 404 NOT_FOUND
+                    - 405 METHOD_NOT_ALLOWED
+                    - 406 NOT_ACCEPTABLE
+                    - 407 PROXY_AUTHENTICATION_REQUIRED
+                    - 408 REQUEST_TIMEOUT
+                    - 409 CONFLICT
+                    - 410 GONE
+                    - 411 LENGTH_REQUIRED
+                    - 412 PRECONDITION_FAILED
+                    - 413 CONTENT_TOO_LARGE
+                    - 413 PAYLOAD_TOO_LARGE
+                    - 414 URI_TOO_LONG
+                    - 415 UNSUPPORTED_MEDIA_TYPE
+                    - 416 REQUESTED_RANGE_NOT_SATISFIABLE
+                    - 417 EXPECTATION_FAILED
+                    - 418 I_AM_A_TEAPOT
+                    - 421 MISDIRECTED_REQUEST
+                    - 422 UNPROCESSABLE_CONTENT
+                    - 422 UNPROCESSABLE_ENTITY
+                    - 423 LOCKED
+                    - 424 FAILED_DEPENDENCY
+                    - 425 TOO_EARLY
+                    - 426 UPGRADE_REQUIRED
+                    - 428 PRECONDITION_REQUIRED
+                    - 429 TOO_MANY_REQUESTS
+                    - 431 REQUEST_HEADER_FIELDS_TOO_LARGE
+                    - 451 UNAVAILABLE_FOR_LEGAL_REASONS
+                    - 500 INTERNAL_SERVER_ERROR
+                    - 501 NOT_IMPLEMENTED
+                    - 502 BAD_GATEWAY
+                    - 503 SERVICE_UNAVAILABLE
+                    - 504 GATEWAY_TIMEOUT
+                    - 505 HTTP_VERSION_NOT_SUPPORTED
+                    - 506 VARIANT_ALSO_NEGOTIATES
+                    - 507 INSUFFICIENT_STORAGE
+                    - 508 LOOP_DETECTED
+                    - 509 BANDWIDTH_LIMIT_EXCEEDED
+                    - 510 NOT_EXTENDED
+                    - 511 NETWORK_AUTHENTICATION_REQUIRED
+                description: Ошибка API
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/client-tariffs
+  /v1/ctcm/request/{id}/client/{cnum}/download:
+    get:
+      tags:
+      - client-tariff-plan-change-request-controller
+      summary: downloadClientCTChangeRequestBody
+      description: 'Скачивание PDF-файла заявки на смену тарифного плана
+
+
+        Для доступа необходима хотя бы одна из ролей: RBO-USER'
+      operationId: downloadClientCTChangeRequestBody
+      parameters:
+      - name: id
+        in: path
+        description: Идентификатор заявки на смену тарифного плана
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: cnum
+        in: path
+        description: Идентификатор клиента
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/StreamingResponseBody'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                required:
+                - code
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: Код ошибки для обработки на клиенте
+                    example: oct.not-found
+                  traceId:
+                    type: string
+                    description: Идентификатор трассировки
+                    example: cf9924bed9c41f689f97728a50dbc035
+                  message:
+                    type: string
+                    description: Сообщение об ошибке
+                    example: Record not found
+                  data:
+                    type: object
+                    description: Дополнительные данные об ошибке (например, список нарушенных полей валидации)
+                    example:
+                      key: value
+                  status:
+                    type: string
+                    description: HTTP-статус, соответствующий ошибке
+                    example: 400 BAD_REQUEST
+                    enum:
+                    - 100 CONTINUE
+                    - 101 SWITCHING_PROTOCOLS
+                    - 102 PROCESSING
+                    - 103 EARLY_HINTS
+                    - 200 OK
+                    - 201 CREATED
+                    - 202 ACCEPTED
+                    - 203 NON_AUTHORITATIVE_INFORMATION
+                    - 204 NO_CONTENT
+                    - 205 RESET_CONTENT
+                    - 206 PARTIAL_CONTENT
+                    - 207 MULTI_STATUS
+                    - 208 ALREADY_REPORTED
+                    - 226 IM_USED
+                    - 300 MULTIPLE_CHOICES
+                    - 301 MOVED_PERMANENTLY
+                    - 302 FOUND
+                    - 303 SEE_OTHER
+                    - 304 NOT_MODIFIED
+                    - 307 TEMPORARY_REDIRECT
+                    - 308 PERMANENT_REDIRECT
+                    - 400 BAD_REQUEST
+                    - 401 UNAUTHORIZED
+                    - 402 PAYMENT_REQUIRED
+                    - 403 FORBIDDEN
+                    - 404 NOT_FOUND
+                    - 405 METHOD_NOT_ALLOWED
+                    - 406 NOT_ACCEPTABLE
+                    - 407 PROXY_AUTHENTICATION_REQUIRED
+                    - 408 REQUEST_TIMEOUT
+                    - 409 CONFLICT
+                    - 410 GONE
+                    - 411 LENGTH_REQUIRED
+                    - 412 PRECONDITION_FAILED
+                    - 413 CONTENT_TOO_LARGE
+                    - 413 PAYLOAD_TOO_LARGE
+                    - 414 URI_TOO_LONG
+                    - 415 UNSUPPORTED_MEDIA_TYPE
+                    - 416 REQUESTED_RANGE_NOT_SATISFIABLE
+                    - 417 EXPECTATION_FAILED
+                    - 418 I_AM_A_TEAPOT
+                    - 421 MISDIRECTED_REQUEST
+                    - 422 UNPROCESSABLE_CONTENT
+                    - 422 UNPROCESSABLE_ENTITY
+                    - 423 LOCKED
+                    - 424 FAILED_DEPENDENCY
+                    - 425 TOO_EARLY
+                    - 426 UPGRADE_REQUIRED
+                    - 428 PRECONDITION_REQUIRED
+                    - 429 TOO_MANY_REQUESTS
+                    - 431 REQUEST_HEADER_FIELDS_TOO_LARGE
+                    - 451 UNAVAILABLE_FOR_LEGAL_REASONS
+                    - 500 INTERNAL_SERVER_ERROR
+                    - 501 NOT_IMPLEMENTED
+                    - 502 BAD_GATEWAY
+                    - 503 SERVICE_UNAVAILABLE
+                    - 504 GATEWAY_TIMEOUT
+                    - 505 HTTP_VERSION_NOT_SUPPORTED
+                    - 506 VARIANT_ALSO_NEGOTIATES
+                    - 507 INSUFFICIENT_STORAGE
+                    - 508 LOOP_DETECTED
+                    - 509 BANDWIDTH_LIMIT_EXCEEDED
+                    - 510 NOT_EXTENDED
+                    - 511 NETWORK_AUTHENTICATION_REQUIRED
+                description: Ошибка API
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/client-tariffs
+  /v1/ctcm/request/{id}/client/{cnum}/body:
+    get:
+      tags:
+      - client-tariff-plan-change-request-controller
+      summary: getClientCTChangeRequestBodyView
+      description: 'Просмотр заявки на смену тарифного плана (клиентское представление)
+
+
+        Для доступа необходима хотя бы одна из ролей: RBO-USER'
+      operationId: getClientCTChangeRequestBodyView
+      parameters:
+      - name: id
+        in: path
+        description: Идентификатор заявки на смену тарифного плана
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: cnum
+        in: path
+        description: Идентификатор клиента
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ClientTariffPlanChangeRequestBodyView'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                required:
+                - code
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: Код ошибки для обработки на клиенте
+                    example: oct.not-found
+                  traceId:
+                    type: string
+                    description: Идентификатор трассировки
+                    example: cf9924bed9c41f689f97728a50dbc035
+                  message:
+                    type: string
+                    description: Сообщение об ошибке
+                    example: Record not found
+                  data:
+                    type: object
+                    description: Дополнительные данные об ошибке (например, список нарушенных полей валидации)
+                    example:
+                      key: value
+                  status:
+                    type: string
+                    description: HTTP-статус, соответствующий ошибке
+                    example: 400 BAD_REQUEST
+                    enum:
+                    - 100 CONTINUE
+                    - 101 SWITCHING_PROTOCOLS
+                    - 102 PROCESSING
+                    - 103 EARLY_HINTS
+                    - 200 OK
+                    - 201 CREATED
+                    - 202 ACCEPTED
+                    - 203 NON_AUTHORITATIVE_INFORMATION
+                    - 204 NO_CONTENT
+                    - 205 RESET_CONTENT
+                    - 206 PARTIAL_CONTENT
+                    - 207 MULTI_STATUS
+                    - 208 ALREADY_REPORTED
+                    - 226 IM_USED
+                    - 300 MULTIPLE_CHOICES
+                    - 301 MOVED_PERMANENTLY
+                    - 302 FOUND
+                    - 303 SEE_OTHER
+                    - 304 NOT_MODIFIED
+                    - 307 TEMPORARY_REDIRECT
+                    - 308 PERMANENT_REDIRECT
+                    - 400 BAD_REQUEST
+                    - 401 UNAUTHORIZED
+                    - 402 PAYMENT_REQUIRED
+                    - 403 FORBIDDEN
+                    - 404 NOT_FOUND
+                    - 405 METHOD_NOT_ALLOWED
+                    - 406 NOT_ACCEPTABLE
+                    - 407 PROXY_AUTHENTICATION_REQUIRED
+                    - 408 REQUEST_TIMEOUT
+                    - 409 CONFLICT
+                    - 410 GONE
+                    - 411 LENGTH_REQUIRED
+                    - 412 PRECONDITION_FAILED
+                    - 413 CONTENT_TOO_LARGE
+                    - 413 PAYLOAD_TOO_LARGE
+                    - 414 URI_TOO_LONG
+                    - 415 UNSUPPORTED_MEDIA_TYPE
+                    - 416 REQUESTED_RANGE_NOT_SATISFIABLE
+                    - 417 EXPECTATION_FAILED
+                    - 418 I_AM_A_TEAPOT
+                    - 421 MISDIRECTED_REQUEST
+                    - 422 UNPROCESSABLE_CONTENT
+                    - 422 UNPROCESSABLE_ENTITY
+                    - 423 LOCKED
+                    - 424 FAILED_DEPENDENCY
+                    - 425 TOO_EARLY
+                    - 426 UPGRADE_REQUIRED
+                    - 428 PRECONDITION_REQUIRED
+                    - 429 TOO_MANY_REQUESTS
+                    - 431 REQUEST_HEADER_FIELDS_TOO_LARGE
+                    - 451 UNAVAILABLE_FOR_LEGAL_REASONS
+                    - 500 INTERNAL_SERVER_ERROR
+                    - 501 NOT_IMPLEMENTED
+                    - 502 BAD_GATEWAY
+                    - 503 SERVICE_UNAVAILABLE
+                    - 504 GATEWAY_TIMEOUT
+                    - 505 HTTP_VERSION_NOT_SUPPORTED
+                    - 506 VARIANT_ALSO_NEGOTIATES
+                    - 507 INSUFFICIENT_STORAGE
+                    - 508 LOOP_DETECTED
+                    - 509 BANDWIDTH_LIMIT_EXCEEDED
+                    - 510 NOT_EXTENDED
+                    - 511 NETWORK_AUTHENTICATION_REQUIRED
+                description: Ошибка API
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/client-tariffs
+  /v1/ctcm/request/client/{cnum}/list:
+    get:
+      tags:
+      - client-tariff-plan-change-request-controller
+      summary: getClientCTChangeRequestsListView
+      description: 'Просмотр списка заявок на смену тарифного плана по cnum клиента
+
+
+        Для доступа необходима хотя бы одна из ролей: RBO-USER'
+      operationId: getClientCTChangeRequestsListView
+      parameters:
+      - name: cnum
+        in: path
+        description: Идентификатор клиента
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: Номер страницы
+        required: false
+        schema:
+          minimum: 0
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        description: Размер страницы
+        required: false
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+          default: 10
+      - name: filter
+        in: query
+        description: RSQL-фильтр
+        required: false
+        schema:
+          type: string
+          default: null
+      - name: sort
+        in: query
+        description: Параметры сортировки
+        required: false
+        schema:
+          type: string
+          default: null
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PageResponseClientTariffPlanChangeRequestListView'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                required:
+                - code
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: Код ошибки для обработки на клиенте
+                    example: oct.not-found
+                  traceId:
+                    type: string
+                    description: Идентификатор трассировки
+                    example: cf9924bed9c41f689f97728a50dbc035
+                  message:
+                    type: string
+                    description: Сообщение об ошибке
+                    example: Record not found
+                  data:
+                    type: object
+                    description: Дополнительные данные об ошибке (например, список нарушенных полей валидации)
+                    example:
+                      key: value
+                  status:
+                    type: string
+                    description: HTTP-статус, соответствующий ошибке
+                    example: 400 BAD_REQUEST
+                    enum:
+                    - 100 CONTINUE
+                    - 101 SWITCHING_PROTOCOLS
+                    - 102 PROCESSING
+                    - 103 EARLY_HINTS
+                    - 200 OK
+                    - 201 CREATED
+                    - 202 ACCEPTED
+                    - 203 NON_AUTHORITATIVE_INFORMATION
+                    - 204 NO_CONTENT
+                    - 205 RESET_CONTENT
+                    - 206 PARTIAL_CONTENT
+                    - 207 MULTI_STATUS
+                    - 208 ALREADY_REPORTED
+                    - 226 IM_USED
+                    - 300 MULTIPLE_CHOICES
+                    - 301 MOVED_PERMANENTLY
+                    - 302 FOUND
+                    - 303 SEE_OTHER
+                    - 304 NOT_MODIFIED
+                    - 307 TEMPORARY_REDIRECT
+                    - 308 PERMANENT_REDIRECT
+                    - 400 BAD_REQUEST
+                    - 401 UNAUTHORIZED
+                    - 402 PAYMENT_REQUIRED
+                    - 403 FORBIDDEN
+                    - 404 NOT_FOUND
+                    - 405 METHOD_NOT_ALLOWED
+                    - 406 NOT_ACCEPTABLE
+                    - 407 PROXY_AUTHENTICATION_REQUIRED
+                    - 408 REQUEST_TIMEOUT
+                    - 409 CONFLICT
+                    - 410 GONE
+                    - 411 LENGTH_REQUIRED
+                    - 412 PRECONDITION_FAILED
+                    - 413 CONTENT_TOO_LARGE
+                    - 413 PAYLOAD_TOO_LARGE
+                    - 414 URI_TOO_LONG
+                    - 415 UNSUPPORTED_MEDIA_TYPE
+                    - 416 REQUESTED_RANGE_NOT_SATISFIABLE
+                    - 417 EXPECTATION_FAILED
+                    - 418 I_AM_A_TEAPOT
+                    - 421 MISDIRECTED_REQUEST
+                    - 422 UNPROCESSABLE_CONTENT
+                    - 422 UNPROCESSABLE_ENTITY
+                    - 423 LOCKED
+                    - 424 FAILED_DEPENDENCY
+                    - 425 TOO_EARLY
+                    - 426 UPGRADE_REQUIRED
+                    - 428 PRECONDITION_REQUIRED
+                    - 429 TOO_MANY_REQUESTS
+                    - 431 REQUEST_HEADER_FIELDS_TOO_LARGE
+                    - 451 UNAVAILABLE_FOR_LEGAL_REASONS
+                    - 500 INTERNAL_SERVER_ERROR
+                    - 501 NOT_IMPLEMENTED
+                    - 502 BAD_GATEWAY
+                    - 503 SERVICE_UNAVAILABLE
+                    - 504 GATEWAY_TIMEOUT
+                    - 505 HTTP_VERSION_NOT_SUPPORTED
+                    - 506 VARIANT_ALSO_NEGOTIATES
+                    - 507 INSUFFICIENT_STORAGE
+                    - 508 LOOP_DETECTED
+                    - 509 BANDWIDTH_LIMIT_EXCEEDED
+                    - 510 NOT_EXTENDED
+                    - 511 NETWORK_AUTHENTICATION_REQUIRED
+                description: Ошибка API
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/client-tariffs
+  /v1/ctcm/request/{id}/client/{cnum}:
+    delete:
+      tags:
+      - client-tariff-plan-change-request-controller
+      summary: deleteClientCTChangeRequest
+      description: 'Удаление неподписанной заявки на смену тарифного плана
+
+
+        Для доступа необходима хотя бы одна из ролей: RBO-USER'
+      operationId: deleteClientCTChangeRequest
+      parameters:
+      - name: id
+        in: path
+        description: Идентификатор заявки на смену тарифного плана
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: cnum
+        in: path
+        description: Идентификатор клиента
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                required:
+                - code
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: Код ошибки для обработки на клиенте
+                    example: oct.not-found
+                  traceId:
+                    type: string
+                    description: Идентификатор трассировки
+                    example: cf9924bed9c41f689f97728a50dbc035
+                  message:
+                    type: string
+                    description: Сообщение об ошибке
+                    example: Record not found
+                  data:
+                    type: object
+                    description: Дополнительные данные об ошибке (например, список нарушенных полей валидации)
+                    example:
+                      key: value
+                  status:
+                    type: string
+                    description: HTTP-статус, соответствующий ошибке
+                    example: 400 BAD_REQUEST
+                    enum:
+                    - 100 CONTINUE
+                    - 101 SWITCHING_PROTOCOLS
+                    - 102 PROCESSING
+                    - 103 EARLY_HINTS
+                    - 200 OK
+                    - 201 CREATED
+                    - 202 ACCEPTED
+                    - 203 NON_AUTHORITATIVE_INFORMATION
+                    - 204 NO_CONTENT
+                    - 205 RESET_CONTENT
+                    - 206 PARTIAL_CONTENT
+                    - 207 MULTI_STATUS
+                    - 208 ALREADY_REPORTED
+                    - 226 IM_USED
+                    - 300 MULTIPLE_CHOICES
+                    - 301 MOVED_PERMANENTLY
+                    - 302 FOUND
+                    - 303 SEE_OTHER
+                    - 304 NOT_MODIFIED
+                    - 307 TEMPORARY_REDIRECT
+                    - 308 PERMANENT_REDIRECT
+                    - 400 BAD_REQUEST
+                    - 401 UNAUTHORIZED
+                    - 402 PAYMENT_REQUIRED
+                    - 403 FORBIDDEN
+                    - 404 NOT_FOUND
+                    - 405 METHOD_NOT_ALLOWED
+                    - 406 NOT_ACCEPTABLE
+                    - 407 PROXY_AUTHENTICATION_REQUIRED
+                    - 408 REQUEST_TIMEOUT
+                    - 409 CONFLICT
+                    - 410 GONE
+                    - 411 LENGTH_REQUIRED
+                    - 412 PRECONDITION_FAILED
+                    - 413 CONTENT_TOO_LARGE
+                    - 413 PAYLOAD_TOO_LARGE
+                    - 414 URI_TOO_LONG
+                    - 415 UNSUPPORTED_MEDIA_TYPE
+                    - 416 REQUESTED_RANGE_NOT_SATISFIABLE
+                    - 417 EXPECTATION_FAILED
+                    - 418 I_AM_A_TEAPOT
+                    - 421 MISDIRECTED_REQUEST
+                    - 422 UNPROCESSABLE_CONTENT
+                    - 422 UNPROCESSABLE_ENTITY
+                    - 423 LOCKED
+                    - 424 FAILED_DEPENDENCY
+                    - 425 TOO_EARLY
+                    - 426 UPGRADE_REQUIRED
+                    - 428 PRECONDITION_REQUIRED
+                    - 429 TOO_MANY_REQUESTS
+                    - 431 REQUEST_HEADER_FIELDS_TOO_LARGE
+                    - 451 UNAVAILABLE_FOR_LEGAL_REASONS
+                    - 500 INTERNAL_SERVER_ERROR
+                    - 501 NOT_IMPLEMENTED
+                    - 502 BAD_GATEWAY
+                    - 503 SERVICE_UNAVAILABLE
+                    - 504 GATEWAY_TIMEOUT
+                    - 505 HTTP_VERSION_NOT_SUPPORTED
+                    - 506 VARIANT_ALSO_NEGOTIATES
+                    - 507 INSUFFICIENT_STORAGE
+                    - 508 LOOP_DETECTED
+                    - 509 BANDWIDTH_LIMIT_EXCEEDED
+                    - 510 NOT_EXTENDED
+                    - 511 NETWORK_AUTHENTICATION_REQUIRED
+                description: Ошибка API
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/client-tariffs
+components:
+  schemas:
+    PageResponseClientTariffPlanChangeRequestListView:
+      type: object
+      properties:
+        content:
+          type: array
+          description: Содержимое страницы
+          items:
+            $ref: '#/components/schemas/ClientTariffPlanChangeRequestListView'
+        size:
+          type: integer
+          description: Размер страницы
+          format: int32
+        number:
+          type: integer
+          description: Номер страницы
+          format: int32
+        hasNext:
+          type: boolean
+          description: Признак наличия следующей страницы
+        hasPrevious:
+          type: boolean
+          description: Признак наличия предыдущей страницы
+      description: Страница результатов
+    ClientTariffPlanChangeRequestStateHistoryView:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Уникальный идентификатор заявки
+          format: int64
+        states:
+          type: array
+          description: Список изменений статуса заявки
+          items:
+            $ref: '#/components/schemas/ClientTariffPlanChangeRequestStateView'
+      description: История изменений статуса заявки на смену тарифного плана
+    ClientTariffPlanChangeRequestPreSignView:
+      required:
+      - clientDocumentNumber
+      - cnum
+      - digest
+      - documentType
+      - documentUID
+      - rboDocumentState
+      - rboDocumentType
+      - sourceSystem
+      - state
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Уникальный идентификатор заявки
+          format: int64
+        documentType:
+          type: string
+          description: Тип заявления
+          enum:
+          - CLIENT_TARIFF_PLAN_CHANGE_REQUEST
+          - FUTURE_CLIENT_TARIFF_PLAN_CANCEL_REQUEST
+        state:
+          type: string
+          description: Статус заявления
+          enum:
+          - UNSIGNED
+          - PARTIALLY_SIGNED
+          - SIGNED
+          - PROCESSING
+          - DECLINED
+          - DONE
+          - CANCELLED
+        rboDocumentState:
+          type: string
+          description: Статус документа в RBO
+        documentUID:
+          type: string
+          description: UID документа в DVR
+        cnum:
+          type: string
+          description: Идентификатор клиента
+        clientDocumentNumber:
+          type: integer
+          description: Номер клиентского документа
+          format: int64
+        organizationFullName:
+          type: string
+          description: Полное наименование организации
+        digest:
+          type: string
+          description: Дайджест документа
+        sourceSystem:
+          type: string
+          description: Система-источник документа
+        rboDocumentType:
+          type: string
+          description: Тип документа в RBO DVR
+          enum:
+          - CHANGE_TARIFF_REQUEST
+          - CANCEL_CHANGE_TARIFF_REQUEST
+        createdAt:
+          type: string
+          description: Дата создания записи
+          format: date-time
+        updatedAt:
+          type: string
+          description: Дата обновления записи
+          format: date-time
+      description: Данные заявки на смену тарифного плана для виджета наложения подписи
+    ClientTariffPlanChangeRequestBodyView:
+      required:
+      - body
+      - documentType
+      - id
+      - state
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Уникальный идентификатор заявки
+          format: int64
+        documentType:
+          type: string
+          description: Тип заявления
+          enum:
+          - CLIENT_TARIFF_PLAN_CHANGE_REQUEST
+          - FUTURE_CLIENT_TARIFF_PLAN_CANCEL_REQUEST
+        state:
+          type: string
+          description: Статус заявления
+          enum:
+          - UNSIGNED
+          - PARTIALLY_SIGNED
+          - SIGNED
+          - PROCESSING
+          - DECLINED
+          - DONE
+          - CANCELLED
+        body:
+          minLength: 1
+          type: string
+          description: Тело заявки
+      description: Клиентское представление заявки на смену тарифного плана
+    ClientTariffPlanChangeRequestParamsView:
+      required:
+      - cnum
+      - tariffPlan
+      type: object
+      properties:
+        cnum:
+          type: string
+          description: Идентификатор клиента
+        tariffPlan:
+          type: string
+          description: Код целевого тарифного плана
+      description: Параметры заявки на смену тарифного плана
+    ClientTariffPlanChangeRequestTemplateView:
+      required:
+      - body
+      type: object
+      properties:
+        version:
+          minimum: 1
+          type: integer
+          description: Версия шаблона
+          format: int32
+        body:
+          minLength: 1
+          type: string
+          description: Тело шаблона заявки
+      description: Шаблон заявки на смену тарифного плана
+    ClientTariffPlanChangeRequestStateView:
+      type: object
+      properties:
+        state:
+          type: string
+          description: Статус заявления
+          enum:
+          - UNSIGNED
+          - PARTIALLY_SIGNED
+          - SIGNED
+          - PROCESSING
+          - DECLINED
+          - DONE
+          - CANCELLED
+        date:
+          type: string
+          description: Дата изменения статуса
+          format: date-time
+        author:
+          type: string
+          description: Автор изменения статуса
+      description: Изменение статуса заявки на смену тарифного плана
+    ClientTariffPlanChangeRequestListView:
+      required:
+      - documentType
+      - id
+      - state
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Уникальный идентификатор
+          format: int64
+        documentType:
+          type: string
+          description: Тип заявления
+          enum:
+          - CLIENT_TARIFF_PLAN_CHANGE_REQUEST
+          - FUTURE_CLIENT_TARIFF_PLAN_CANCEL_REQUEST
+        state:
+          type: string
+          description: Статус заявления
+          enum:
+          - UNSIGNED
+          - PARTIALLY_SIGNED
+          - SIGNED
+          - PROCESSING
+          - DECLINED
+          - DONE
+          - CANCELLED
+        targetTariffPlanName:
+          type: string
+          description: Наименование тарифного плана
+        targetTariffPlanPublicName:
+          type: string
+          description: Публичное наименование тарифного плана
+        createdAt:
+          type: string
+          description: Дата создания записи
+          format: date-time
+        updatedAt:
+          type: string
+          description: Дата обновления записи
+          format: date-time
+      description: Общее представление заявки на смену тарифного плана
+    StreamingResponseBody:
+      type: object
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-tariff-change-requests-openapi.yml
+- raiffeisen-ru-tariff-change-requests-openapi.yml

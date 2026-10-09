@@ -1,0 +1,322 @@
+# x-archived-from: raiffeisen-ru-domestic-payments-iso20022-openapi.yml
+# x-archived-on: 2026-10-09
+---
+openapi: "3.0.3"
+info:
+  title: "Рублевые переводы. Импорт платежей в формате ISO 20022"
+  version: "0.3.0"
+  description: "## Описание API\nЭто API предназначено для загрузки и проверки пак\
+    етов платежей в формате **ISO 20022**, используемом в системе РПП (Рублёвые пл\
+    атежные поручения) Райффайзенбанка.\n"
+paths:
+  /v2/transfers/iso20022/unsigned:
+    post:
+      tags:
+      - "domestic-payments"
+      summary: "Импорт неподписанного платежа в формате ISO20022"
+      operationId: "unsignedDomesticPayment"
+      description: "ВАЖНО: Данный функционал недоступен для клиентов сегмента Фина\
+        нсовые институты!  \nОтправка XML-файла с неподписанными платежами.  \n[До\
+        кументация по неподписанным платежам на английском](https://cdn.rbo.raiffeisen.ru/fs/cashmanagement/unsigned-payments-en.pdf),\
+        \  \n[Документация по неподписанным платежам на русском](https://cdn.rbo.raiffeisen.ru/fs/cashmanagement/unsigned-payments-ru.pdf),\
+        \  \n[XSD-схема для валидации](https://cdn.rbo.raiffeisen.ru/fs/cashmanagement/pain.001.001.raif.xsd),\
+        \  \n[Документация API по ISO XML](https://cdn.rbo.raiffeisen.ru/fs/cashmanagement/Raiffeisen_API_isoxml_signed_V2.xlsx).\n"
+      parameters:
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "XML-документ установленного формата, представляющий данные н\
+          еподписанного платежного поручения"
+        content:
+          application/xml:
+            schema:
+              type: "string"
+        required: true
+      responses:
+        "202":
+          description: "Задача для рублевого платежа успешно создана"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "413":
+          $ref: "#/components/responses/FileIsTooLarge"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/transfers/iso20022/signed:
+    post:
+      tags:
+      - "domestic-payments"
+      summary: "Импорт подписанного с помощью XmlDSig платежа в формате ISO20022"
+      operationId: "signedDomesticPayment"
+      description: "ВАЖНО: Данный функционал недоступен для клиентов сегмента Фина\
+        нсовые институты!  \nОтправка XML-файла, подписанного с использованием **XmlDSig**.\
+        \  \n[API Документация на английском](https://cdn.rbo.raiffeisen.ru/fs/cashmanagement/api-eng.pdf),\
+        \  \n[API Документация на русском](https://cdn.rbo.raiffeisen.ru/fs/cashmanagement/api-rus.pdf),\
+        \  \n[XSD-схема для валидации](https://cdn.rbo.raiffeisen.ru/fs/cashmanagement/pain.001.001.raifsig.xsd),\
+        \  \n[Документация API по подписанным ISO XML](https://cdn.rbo.raiffeisen.ru/fs/cashmanagement/Raiffeisen_API_isoxml_signed_V2.xlsx),\
+        \  \n[Инструкция по подписи (Примеры на Java)](https://cdn.rbo.raiffeisen.ru/fs/cashmanagement/xmldsig_sign_instruction.md).\n"
+      parameters:
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "XML-документ установленного формата, представляющий данные п\
+          одписанного платежного поручения\n"
+        content:
+          application/xml:
+            schema:
+              type: "string"
+        required: true
+      responses:
+        "202":
+          description: "Задача для рублевого платежа успешно создана"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "413":
+          $ref: "#/components/responses/FileIsTooLarge"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/transfers/iso20022/{msgId}/status:
+    get:
+      tags:
+      - "domestic-payments"
+      summary: "Получение краткой квитанции по пакету платежей в формате ISO20022"
+      operationId: "domesticPackageStatus"
+      description: "ВАЖНО: Данный функционал недоступен для клиентов сегмента Фина\
+        нсовые институты!  \nПолучение краткой квитанции по пакету платежей в форм\
+        ате ISO20022.  \n[API Документация на английском](https://cdn.rbo.raiffeisen.ru/fs/cashmanagement/api-eng.pdf),\
+        \  \n[API Документация на русском](https://cdn.rbo.raiffeisen.ru/fs/cashmanagement/api-rus.pdf).\n"
+      parameters:
+      - name: "msgId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+        description: "Уникальный идентификатор пакета"
+        example: "ORCRUWIRE0170202229000030"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Статус успешно получен"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+              examples:
+                RJCT:
+                  summary: "RJCT - Документ отклонен"
+                  value: "<Document> ... <DtldSts>RJCT</DtldSts> ... </Document>\n"
+                PDNG:
+                  summary: "PDNG - Документ в очереди на обработку"
+                  value: "<Document>...<DtldSts>PDNG</DtldSts>...</Document>\n"
+                FSGN:
+                  summary: "FSGN - Документ ждет отправки"
+                  value: "<Document> ... <DtldSts>FSGN</DtldSts> ... </Document>\n"
+                ACSP:
+                  summary: "ACSP - Документ в работе у банка"
+                  value: "<Document> ... <DtldSts>ACSP</DtldSts> ... </Document>\n"
+                ATTN:
+                  summary: "ATTN - Требует внимания"
+                  value: "<Document> ... <DtldSts>ATTN</DtldSts> ... </Document>\n"
+                ACSC:
+                  summary: "ACSC - Документ исполнен"
+                  value: "<Document> ... <DtldSts>ACSC</DtldSts> ... </Document>\n"
+                CANC:
+                  summary: "CANC - Документ отозван"
+                  value: "<Document> ... <DtldSts>CANC</DtldSts> ... </Document>\n"
+                DBLC:
+                  summary: "DBLC - Платеж не был создан так как является дубликато\
+                    м"
+                  value: "<Document> ... <DtldSts>DBLC</DtldSts> ... </Document>\n"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/DocumentNotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/transfers/iso20022/{msgId}/status/full:
+    get:
+      tags:
+      - "domestic-payments"
+      summary: "Получение полной квитанции по пакету и платежам внутри пакета в фо\
+        рмате ISO20022"
+      operationId: "domesticPackageStatusFull"
+      description: "ВАЖНО: Данный функционал недоступен для клиентов сегмента Фина\
+        нсовые институты!  \nПолучение полной квитанции по пакету и платежам внутр\
+        и пакета в формате ISO20022, подробная информация по каждому платежу в пак\
+        ете.  \n[API Документация на английском](https://cdn.rbo.raiffeisen.ru/fs/cashmanagement/api-eng.pdf),\
+        \  \n[API Документация на русском](https://cdn.rbo.raiffeisen.ru/fs/cashmanagement/api-rus.pdf).\n"
+      parameters:
+      - name: "msgId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+        description: "Уникальный идентификатор пакета"
+        example: "ORCRUWIRE0170202229000030"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Статус успешно получен"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+              examples:
+                RJCT:
+                  summary: "RJCT - Документ отклонен"
+                  value: "<Document> ... <DtldSts>RJCT</DtldSts> ... </Document>\n"
+                PDNG:
+                  summary: "PDNG - Документ в очереди на обработку"
+                  value: "<Document>...<DtldSts>PDNG</DtldSts>...</Document>\n"
+                FSGN:
+                  summary: "FSGN - Документ ждет отправки"
+                  value: "<Document> ... <DtldSts>FSGN</DtldSts> ... </Document>\n"
+                ACSP:
+                  summary: "ACSP - Документ в работе у банка"
+                  value: "<Document> ... <DtldSts>ACSP</DtldSts> ... </Document>\n"
+                ATTN:
+                  summary: "ATTN - Требует внимания"
+                  value: "<Document> ... <DtldSts>ATTN</DtldSts> ... </Document>\n"
+                ACSC:
+                  summary: "ACSC - Документ исполнен"
+                  value: "<Document> ... <DtldSts>ACSC</DtldSts> ... </Document>\n"
+                CANC:
+                  summary: "CANC - Документ отозван"
+                  value: "<Document> ... <DtldSts>CANC</DtldSts> ... </Document>\n"
+                DBLC:
+                  summary: "DBLC - Платеж не был создан так как является дубликато\
+                    м"
+                  value: "<Document> ... <DtldSts>DBLC</DtldSts> ... </Document>\n"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/DocumentNotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/transfers/iso20022/{msgId}/payments/{pmtInfId}/status:
+    get:
+      tags:
+      - "domestic-payments"
+      summary: "Получение статуса конкретного платежа по его идентификатору в рамк\
+        ах ранее загруженного пакета в формате ISO20022"
+      operationId: "domesticPaymentStatus"
+      description: "ВАЖНО: Данный функционал недоступен для клиентов сегмента Фина\
+        нсовые институты!  \nПолучение статуса конкретного платежа по его идентифи\
+        катору в рамках ранее загруженного пакета.  \n[API Документация на английс\
+        ком](https://cdn.rbo.raiffeisen.ru/fs/cashmanagement/api-eng.pdf),  \n[API\
+        \ Документация на русском](https://cdn.rbo.raiffeisen.ru/fs/cashmanagement/api-rus.pdf),\
+        \  \nПримеры ответов: [pain002_001_payments_status](https://cdn.rbo.raiffeisen.ru/fs/cashmanagement/Raiffeisen_pain002_001_payments_status.xlsx).\n"
+      parameters:
+      - name: "msgId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+        example: "ORCRUWIRE0170202229000030"
+      - name: "pmtInfId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+        example: "ORCRUWIRE0040203219700010"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Статус успешно получен"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+              examples:
+                RJCT:
+                  summary: "RJCT - Документ отклонен"
+                  value: "<Document> ... <DtldSts>RJCT</DtldSts> ... </Document>\n"
+                PDNG:
+                  summary: "PDNG - Документ в очереди на обработку"
+                  value: "<Document>...<DtldSts>PDNG</DtldSts>...</Document>\n"
+                FSGN:
+                  summary: "FSGN - Документ ждет отправки"
+                  value: "<Document> ... <DtldSts>FSGN</DtldSts> ... </Document>\n"
+                ACSP:
+                  summary: "ACSP - Документ в работе у банка"
+                  value: "<Document> ... <DtldSts>ACSP</DtldSts> ... </Document>\n"
+                ATTN:
+                  summary: "ATTN - Требует внимания"
+                  value: "<Document> ... <DtldSts>ATTN</DtldSts> ... </Document>\n"
+                ACSC:
+                  summary: "ACSC - Документ исполнен"
+                  value: "<Document> ... <DtldSts>ACSC</DtldSts> ... </Document>\n"
+                CANC:
+                  summary: "CANC - Документ отозван"
+                  value: "<Document> ... <DtldSts>CANC</DtldSts> ... </Document>\n"
+                DBLC:
+                  summary: "DBLC - Платеж не был создан так как является дубликато\
+                    м"
+                  value: "<Document> ... <DtldSts>DBLC</DtldSts> ... </Document>\n"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/DocumentNotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+  responses:
+    ValidationError:
+      description: "Ошибки валидации"
+      content:
+        application/xml:
+          schema:
+            type: "string"
+    Forbidden:
+      description: "Доступ запрещён"
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    FileIsTooLarge:
+      description: "Размер файла превышает допустимый лимит"
+    InternalError:
+      description: "Внутренняя ошибка"
+    DocumentNotFound:
+      description: "Документ не найден"
+servers:
+- url: "https://api.raiffeisen.ru/domestic-payments"

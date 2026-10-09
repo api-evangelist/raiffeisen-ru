@@ -1,0 +1,548 @@
+---
+openapi: "3.0.3"
+info:
+  title: "Эквайринг. СБП"
+  version: "2.0"
+paths:
+  /sbp/v2/qrs:
+    post:
+      summary: "Регистрация QR"
+      operationId: "createQrV2"
+      description: "Метод позволяет генерировать статические QR-коды, динамические\
+        \ QR-коды и кассовую ссылку СБП (QRVariable) для каждой кассы.\nТакже с по\
+        мощью данного метода вы можете сгенерировать QR-код для оплаты с подпиской\
+        .\n\nПри каждом новом запросе будет возвращаться новый QR."
+      requestBody:
+        $ref: "#/components/requestBodies/CreateQrV2Request"
+      tags:
+      - "QR"
+      responses:
+        "200":
+          $ref: "#/components/responses/CreateQrV2Response"
+        "400":
+          $ref: "#/components/responses/GeneralErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /sbp/v2/qrs/{qrId}:
+    get:
+      parameters:
+      - $ref: "#/components/parameters/qrId"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      summary: "Получение данных по зарегистрированному QR"
+      operationId: "getQrV2"
+      responses:
+        "200":
+          $ref: "#/components/responses/CreateQrV2Response"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      description: "Метод позволяет получить данные по зарегистрированному ранее QR-к\
+        оду"
+      tags:
+      - "QR"
+components:
+  schemas:
+    QRDynamic:
+      allOf:
+      - $ref: "#/components/schemas/CreateQrV2Request"
+      - type: "object"
+        properties:
+          account:
+            type: "number"
+            description: "Счет для зачисления. Параметр используется, если необход\
+              имо разносить платежи на разные счета"
+            maximum: 20
+          additionalInfo:
+            $ref: "#/components/schemas/AdditionalInfo"
+          amount:
+            type: "number"
+            description: "Сумма в рублях"
+          currency:
+            type: "string"
+            description: "Валюта платежа. Если не заполнено, то автоматически указ\
+              ывается значение RUB"
+            enum:
+            - "RUB"
+            maxLength: 3
+            minLength: 3
+          order:
+            type: "string"
+            description: "Уникальный идентификатор заказа в системе партнёра. Реко\
+              мендуем использовать длинный формат без возможности перебора, наприм\
+              ер, использовать формат [UUID v4](https://ru.wikipedia.org/wiki/UUID)"
+            pattern: "^[A-z0-9-_.]"
+            maxLength: 40
+            minLength: 1
+          paymentDetails:
+            type: "string"
+            description: "Назначение платежа в выписке получателя."
+            maxLength: 185
+          qrType:
+            type: "string"
+            description: "Тип QR-кода. Динамический QR-код создается под каждую пр\
+              одажу. Такой QR можно оплатить только один раз, сумма зашивается сра\
+              зу в QR"
+          qrExpirationDate:
+            type: "string"
+            minLength: 1
+            description: "Срок действия QR-кода. Может содержать точную дату и вре\
+              мя или количество минут. Передача срока в минутах удобна для торговы\
+              х точек, которые не привязываются к точному времени или часовому поя\
+              су Параметр не может быть меньше текущей даты и времени. Если указыв\
+              ается в минутах, то не может быть меньше 1 минуты. Максимальное знач\
+              ение - 90 суток. Если параметр не передан, то по умолчанию QR будет\
+              \ действителен 3 суток После истечения срока действия QR-кода оплату\
+              \ по нему провести нельзя"
+            format: "YYYY-MM-DD ТHH24:MM:SS±HH:MM / +nM / +nm"
+          sbpMerchantId:
+            type: "string"
+            description: "Идентификатор зарегистрированного партнёра в СБП"
+            maxLength: 12
+          redirectUrl:
+            type: "string"
+            format: "uri"
+            description: "Ссылка для автоматического возврата плательщика из прило\
+              жения банка в приложение или на сайт магазина. Ссылка должна содержа\
+              ть https:// для web страниц или уникальную схему для мобильного прил\
+              ожения"
+          qrDescription:
+            type: "string"
+            maxLength: 32
+            description: "Описание QR-кода Может содержать любую информацию для уд\
+              обства идентификации конкретного QR-кода. Например, его местоположен\
+              ие или расположение в магазине. Отображается в ЛК и RBO как название\
+              \ QR. Не отображается покупателю и в выписке"
+          subscription:
+            type: "object"
+            description: "Используется для оплаты с последующей подпиской"
+            required:
+            - "subscriptionPurpose"
+            properties:
+              id:
+                type: "string"
+                minLength: 1
+                description: "Идентификатор подписки. Рекомендуем использовать дли\
+                  нный формат без возможности перебора, например, использовать фор\
+                  мат [UUID v4](https://ru.wikipedia.org/wiki/UUID)"
+                maxLength: 100
+              subscriptionPurpose:
+                type: "string"
+                minLength: 1
+                description: "Описание подписки, которое клиент увидит в приложени\
+                  и банка. Обязателен для подписки"
+              autoCharge:
+                $ref: "#/components/schemas/SubscriptionAutoCharge"
+              extra:
+                type: "object"
+                description: "Дополнительные поля для свободного заполнения по при\
+                  нципу key-value  Если передан объект autoCharge, то в extra необ\
+                  ходимо передать ключ, который вернется в теле [callback-уведомле\
+                  ния](#operation/сallbackPay). Это позволит соотнести подписку и\
+                  \ автоматические платежи по ней"
+                additionalProperties:
+                  type: "string"
+          extra:
+            type: "object"
+            description: "Дополнительные поля для свободного заполнения по принцип\
+              у key-value  В extra рекомендуется передавать параметры <font color\
+              \ = dark>apiClient</font> и <font color = dark>apiClientVersion</font>.\
+              \ Данная информация позволит Банку определять клиентское ПО, исправл\
+              ять ошибки и улучшать сервис"
+            properties:
+              apiClient:
+                description: "Your SBP Software"
+                type: "string"
+              apiClientVersion:
+                description: "1.0.0"
+                type: "string"
+        required:
+        - "amount"
+        - "order"
+        - "qrType"
+        - "sbpMerchantId"
+    CreateQrV2Request:
+      type: "object"
+      discriminator:
+        propertyName: "qrType"
+        mapping:
+          QRDynamic: "#/components/schemas/QRDynamic"
+          QRVariable: "#/components/schemas/QRVariable"
+          QRStatic: "#/components/schemas/QRStatic"
+      properties:
+        qrType:
+          type: "string"
+    QRVariable:
+      allOf:
+      - $ref: "#/components/schemas/CreateQrV2Request"
+      - type: "object"
+        properties:
+          account:
+            type: "number"
+            description: "Счет для зачисления. Параметр используется, если необход\
+              имо разносить платежи на разные счета"
+            maximum: 20
+          qrType:
+            type: "string"
+            description: "Тип QR-кода. Тип QRVariable - это кассовая ссылка СБП. П\
+              ечатается один раз и активируется отдельно для каждого платежа. Може\
+              т быть оплачен много раз, но только после активации. Данный тип QR-к\
+              ода не предусматривает ограничений по его общему сроку действия. Пос\
+              ле покупки блокируется до следующей активации. Если покупка не произ\
+              ошла, то QR-код деактивируется"
+          sbpMerchantId:
+            type: "string"
+            description: "Идентификатор зарегистрированного партнёра в СБП"
+            maxLength: 12
+          redirectUrl:
+            type: "string"
+            format: "uri"
+            description: "Ссылка для автоматического возврата плательщика из прило\
+              жения банка в приложение или на сайт магазина. Ссылка должна содержа\
+              ть https:// для web страниц или уникальную схему для мобильного прил\
+              ожения"
+          qrDescription:
+            type: "string"
+            maxLength: 32
+            description: "Описание QR-кода Может содержать любую информацию для уд\
+              обства идентификации конкретного QR-кода. Например, его местоположен\
+              ие или расположение в магазине. Отображается в ЛК и RBO как название\
+              \ QR. Не отображается покупателю и в выписке"
+        required:
+        - "qrType"
+        - "sbpMerchantId"
+    AdditionalInfo:
+      type: "string"
+      description: "Дополнительная информация. Может быть доступна для пользовател\
+        я в зависимости от банка, назначение платежа плательщика.\nПопадает в реес\
+        тр в колонку \"Комментарий\".\nНе может быть пустым или содержать только п\
+        робелы. Может содержать: \n  • Символы латиницы (A–Z и a–z)  \n  • Символы\
+        \ кириллицы (А-Я и а-я)  \n  • Цифры 0-9  \n  • Спецсимволы: пробел и `!`,\
+        \ `\"`, `#`, `$`, `%`, `'`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`,\
+        \ `=`, `>`, `?`, `@`, `[`, `\\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`"
+      maxLength: 140
+      example: "Дополнительная информация"
+    QRStatic:
+      allOf:
+      - $ref: "#/components/schemas/CreateQrV2Request"
+      - type: "object"
+        properties:
+          account:
+            type: "number"
+            description: "Счет для зачисления. Параметр используется, если необход\
+              имо разносить платежи на разные счета"
+            maximum: 20
+          additionalInfo:
+            $ref: "#/components/schemas/AdditionalInfo"
+          amount:
+            type: "number"
+            description: "Сумма в рублях"
+          currency:
+            type: "string"
+            description: "Валюта платежа. Обязательно для заполнения, если заполне\
+              на сумма"
+            maxLength: 3
+            minLength: 3
+            enum:
+            - "RUB"
+          order:
+            type: "string"
+            minLength: 1
+            description: "Уникальный идентификатор заказа в системе партнёра. Реко\
+              мендуем использовать длинный формат без возможности перебора. Наприм\
+              ер, использовать формат [UUID v4](https://ru.wikipedia.org/wiki/UUID)"
+            maxLength: 40
+            pattern: "^[A-z0-9-_.]"
+          paymentDetails:
+            type: "string"
+            description: "Назначение платежа в выписке получателя."
+            maxLength: 185
+          qrType:
+            description: "Тип QR-кода. Статический QR-код может быть оплачен неско\
+              лько раз. Если будет зарегистрирован статический QR-код без суммы -\
+              \ клиент самостоятельно укажет сумму в мобильном приложении. Подходи\
+              т для размещения на кассе и в благотворительных фондах"
+            type: "string"
+          qrExpirationDate:
+            type: "string"
+            description: "Срок действия QR-кода. Может содержать точную дату и вре\
+              мя или количество минут. Передача срока в минутах удобна для торговы\
+              х точек, которые не привязываются к точному времени или часовому поя\
+              су Параметр не может быть меньше текущей даты и времени. Если указыв\
+              ается в минутах, то не может быть меньше 1 минуты После истечения ср\
+              ока действия QR-кода оплату по нему провести нельзя"
+            format: "YYYY-MM-DD ТHH24:MM:SS±HH:MM / +nM / +nm"
+          sbpMerchantId:
+            type: "string"
+            description: "Идентификатор зарегистрированного партнёра в СБП"
+            maxLength: 12
+          redirectUrl:
+            type: "string"
+            format: "uri"
+            description: "Ссылка для автоматического возврата плательщика из прило\
+              жения банка в приложение или на сайт магазина. Ссылка должна содержа\
+              ть https:// для web страниц или уникальную схему для мобильного прил\
+              ожения"
+          qrDescription:
+            type: "string"
+            maxLength: 32
+            description: "Описание QR-кода Может содержать любую информацию для уд\
+              обства идентификации конкретного QR-кода. Например, его местоположен\
+              ие или расположение в магазине. Отображается в ЛК и RBO как название\
+              \ QR. Не отображается покупателю и в выписке"
+          extra:
+            type: "object"
+            description: "Дополнительные поля для свободного заполнения по принцип\
+              у key-value  В extra рекомендуется передавать параметры <font color\
+              \ = dark>apiClient</font> и <font color = dark>apiClientVersion</font>.\
+              \ Данная информация позволит Банку определять клиентское ПО, исправл\
+              ять ошибки и улучшать сервис"
+            properties:
+              apiClient:
+                description: "Your SBP Software"
+                type: "string"
+              apiClientVersion:
+                description: "1.0.0"
+                type: "string"
+        required:
+        - "order"
+        - "qrType"
+        - "sbpMerchantId"
+      title: ""
+    SubscriptionAutoCharge:
+      type: "object"
+      description: "Данные автоматического списания по подписке. Объект передается\
+        , если по подписке необходимо взимать деньги на регуряной основе. Использу\
+        ется как альтернатива [методу списания по запросу](#operation/post-sbp-v1-subscriptions-subscriptionId-orders)"
+      properties:
+        frequency:
+          type: "string"
+          enum:
+          - "MONTHLY"
+          description: "Периодичность списания по подписке Если параметр передан,\
+            \ то банк будет автоматически проводить ежемесячное списание средств с\
+            \ клиента. На данный момент поддерживается только ежемесячная периодич\
+            ность оплаты"
+        firstChargeDate:
+          type: "string"
+          format: "YYYY-MM-DD"
+          description: "Дата первого списания по подписке  Списание в указанную да\
+            ту произойдет автоматически, далее – с заданной периодичностью начиная\
+            \ с этой даты. Переданное значение должно быть не меньше 7 дней от тек\
+            ущей даты. Например, при создании подписки 1 января firstChargeDate мо\
+            жет быть 8 января или позже  Если параметр не передан, то при frequency\
+            \ = \"MONTHLY\" первое списание по подписке произойдет через месяц пос\
+            ле привязки счета клиентом"
+          example: "2024-01-25"
+        amount:
+          type: "number"
+          description: "Сумма ежемесячного списания в рублях"
+          example: 103.32
+          format: "float"
+      required:
+      - "frequency"
+      - "amount"
+  requestBodies:
+    CreateQrV2Request:
+      content:
+        application/json:
+          schema:
+            type: "object"
+            discriminator:
+              propertyName: "qrType"
+              mapping:
+                QRDynamic: "#/components/schemas/QRDynamic"
+                QRVariable: "#/components/schemas/QRVariable"
+                QRStatic: "#/components/schemas/QRStatic"
+            properties:
+              qrType:
+                type: "string"
+          examples:
+            QRDynamic:
+              value:
+                account: 40700000000000000000
+                additionalInfo: "Доп. информация"
+                amount: 1110.11
+                currency: "RUB"
+                order: "1-22-333"
+                paymentDetails: "Назначение платежа"
+                qrType: "QRDynamic"
+                extra:
+                  extraParam: "Example extra param"
+                qrExpirationDate: "2023-07-22T09:14:38+03:00"
+                sbpMerchantId: "MA0000000552"
+                redirectUrl: "https://bfkh.ru/"
+                qrDescription: "QR для оплаты заказа"
+            QRVariable:
+              value:
+                account: 40700000000000000000
+                qrType: "QRVariable"
+                sbpMerchantId: "MA0000000552"
+                redirectUrl: "https://bfkh.ru/"
+                qrDescription: "QR на главной кассе"
+            QRDynamic (2):
+              value:
+                account: 40700000000000000000
+                additionalInfo: "Доп. информация"
+                amount: 1110.11
+                currency: "RUB"
+                order: "1-22-333"
+                paymentDetails: "Назначение платежа"
+                qrType: "QRDynamic"
+                extra:
+                  extraParam: "Example extra param"
+                qrExpirationDate: "+1440M"
+                sbpMerchantId: "MA0000000552"
+                redirectUrl: "https://bfkh.ru/"
+                qrDescription: "QR для оплаты заказа"
+            QRDynamic subscription:
+              value:
+                account: 40700000000000000000
+                additionalInfo: "Доп. информация"
+                amount: 1110.11
+                currency: "RUB"
+                order: "1-22-333"
+                paymentDetails: "Назначение платежа"
+                qrType: "QRDynamic"
+                extra:
+                  extraParam: "Example extra param"
+                qrExpirationDate: "2023-07-22T09:14:38+03:00"
+                sbpMerchantId: "MA0000000552"
+                redirectUrl: "https://bfkh.ru/"
+                subscription:
+                  id: "120059"
+                  subscriptionPurpose: "Подписка на услуги"
+            QRStatic:
+              value:
+                order: "1-22-333"
+                qrType: "QRStatic"
+                extra:
+                  extraParam: "Example extra param"
+                sbpMerchantId: "MA0000000552"
+                redirectUrl: "https://bfkh.ru/"
+                qrDescription: "QR на главной кассе"
+  responses:
+    CreateQrV2Response:
+      description: "Example response"
+      content:
+        application/json:
+          schema:
+            properties:
+              qrId:
+                type: "string"
+                description: "Уникальный идентификатор QR"
+                maxLength: 32
+              qrStatus:
+                type: "string"
+                enum:
+                - "INACTIVE"
+                - "NEW"
+                - "IN_PROGRESS"
+                - "PAID"
+                - "EXPIRED"
+                - "CANCELLED"
+                description: "Статус QR-кода Статус NEW означает готовность к опла\
+                  те. QR-код с типом QRStatic или QRDynamic создается в статусе NEW,\
+                  \ QRVariable - в статусе INACTIVE"
+              qrExpirationDate:
+                type: "string"
+                description: "Опциональный параметр для указания срока действия QR-к\
+                  ода. После истечения срока действия QR-кода оплату по нему прове\
+                  сти нельзя"
+                format: "YYYY-MM-DD ТHH24:MM:SS±HH:MM"
+              payload:
+                type: "string"
+                description: "Данные для самостоятельной генерации изображения зар\
+                  егистрированного QR-кода в СБП. При открытии с мобильного устрой\
+                  ства запускает банковское приложение клиента или список для выбо\
+                  ра банка"
+              qrUrl:
+                type: "string"
+                description: "URL с изображением зарегистрированного QR-кода"
+              subscriptionId:
+                type: "string"
+                description: "Идентификатор подписки"
+          examples:
+            QRDynamic/QRStatic:
+              value:
+                qrId: "AD100004BAL7227F9BNP6KNE007J9B3K"
+                qrStatus: "NEW"
+                payload: "https://qr.nspk.ru/AD100004BAL7227F9BNP6KNE007J9B3K?type=02&bank=100000000007&sum=1&cur=RUB&crc=AB75"
+                qrUrl: "https://pay-test.raif.ru/api/sbp/v1/qr/AD100004BAL7227F9BNP6KNE007J9B3K/image"
+            QRDynamic subscription:
+              value:
+                qrId: "AD1F2CD7212E48FA919AB52EF0AEFB33"
+                qrStatus: "NEW"
+                payload: "https://qr.nspk.ru/AD1F2CD7212E48FA919AB52EF0AEFB33?type=02&bank=10000001&sum=111000&cur=RUB&crc=C08B"
+                qrUrl: "https://pay-test.raif.ru/api/sbp/v1/qr/AD1F2CD7212E48FA919AB52EF0AEFB33/image"
+                subscriptionId: "120059"
+            QRVariable:
+              value:
+                qrId: "AD100004BAL7227F9BNP6KNE007J9B3K"
+                qrStatus: "INACTIVE"
+                payload: "https://qr.nspk.ru/AS100004BAL7227F9BNP6KNE007J9B3K?type=01&bank=100000000007"
+                qrUrl: "https://pay-test.raif.ru/api/sbp/v1/qr/AD100004BAL7227F9BNP6KNE007J9B3K/image"
+    GeneralErrorResponse:
+      description: "Пример сообщения об ошибке"
+      content:
+        application/json:
+          schema:
+            properties:
+              code:
+                type: "string"
+                description: "Код ошибки"
+              value:
+                type: "string"
+                description: "Поясняющее сообщение об ошибке"
+          examples:
+            Невалидный номер заказа:
+              value:
+                code: "ERROR.INVALID_REQUEST"
+                message: "Недопустимый идентификатор заказа"
+            Заказ уже был оплачен:
+              value:
+                code: "ERROR.ORDER_NUMBER_ALREADY_REGISTERED"
+                message: "QR-код с номером заказа 1-22-333 партнера MA0000000552 и\
+                  \ успешными платежами уже зарегистрирован"
+            Невалидная дата истечения QR:
+              value:
+                code: "ERROR.QR_EXPIRATION_DATE_NOT_VALID"
+                message: "Неверная дата истечения QR-кода"
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+  parameters:
+    qrId:
+      name: "qrId"
+      in: "path"
+      required: true
+      schema:
+        type: "string"
+      description: "Идентификатор QR кода"
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+servers:
+- url: "https://api.raiffeisen.ru/raif-pay"

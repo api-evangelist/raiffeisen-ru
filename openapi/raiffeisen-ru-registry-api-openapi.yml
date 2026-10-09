@@ -1,0 +1,375 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Registry API
+  version: 1.0.0
+  description: 'Operations tagged Registry across 2 of this provider''s published API definitions: raiffeisen-ru-factoring-openapi.yml, raiffeisen-ru-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/factoring
+tags:
+- description: Реестр поставок
+  name: Registry
+paths:
+  /v1/registry/parse:
+    post:
+      description: Метод парсинга реестра поставок
+      operationId: parseRegistry
+      requestBody:
+        content:
+          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            schema:
+              format: binary
+              type: string
+        description: Файл Реестр поставок в формате xlsx
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                success:
+                  summary: Успешный парсинг реестра
+                  value:
+                    parsedPrimarySupplies:
+                    - rowNumber: 1
+                      supplyNumber: 26052021-51
+                      invoiceNumber: null
+                      additionalDocumentNumber: null
+                      signDate: '2021-05-26'
+                      invoiceSignDate: null
+                      additionalDocumentSignDate: null
+                      amount: 100.0
+                      contractNumber: 11122019-1
+                      deferralStartDate: '2021-05-26'
+                      debtorInn: '1121003135'
+                    - rowNumber: 2
+                      supplyNumber: 15062021-12
+                      invoiceNumber: '456'
+                      additionalDocumentNumber: null
+                      signDate: '2021-06-15'
+                      invoiceSignDate: '2021-06-16'
+                      additionalDocumentSignDate: null
+                      amount: 250.5
+                      contractNumber: 22233020-2
+                      deferralStartDate: '2021-06-15'
+                      debtorInn: '7701234567'
+              schema:
+                $ref: '#/components/schemas/ParsedPrimarySupplyListResponse'
+          description: OK
+        '400':
+          content:
+            application/json:
+              examples:
+                validationError:
+                  summary: Ошибка валидации
+                  value:
+                    code: REST_ERROR_5032
+                    message: Data validation failed
+                    details:
+                    - param: array[2].debtorInn
+                      code: VALIDATION_ERROR_1201
+                      message: Invalid INN format
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+          description: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      summary: Парсинг реестра поставок
+      tags:
+      - Registry
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/factoring
+components:
+  schemas:
+    RestErrorCodes:
+      description: '| code            | description                                          |
+
+        |-----------------|------------------------------------------------------|
+
+        | REST_ERROR_5001 | General service error                                |
+
+        | REST_ERROR_5004 | Agreement does not exist                             |
+
+        | REST_ERROR_5017 | DealConditions does not exist                        |
+
+        | REST_ERROR_5024 | Action is available at working hour                  |
+
+        | REST_ERROR_5025 | Supplies are not found                               |
+
+        | REST_ERROR_5026 | Approved contract does not exist                     |
+
+        | REST_ERROR_5027 | Supplies must be selected on only one deal condition |
+
+        | REST_ERROR_5028 | Approved deal conditions do not exist                |
+
+        | REST_ERROR_5029 | Approved agreement does not exist                    |
+
+        | REST_ERROR_5031 | Account for financing cannot be empty                |
+
+        | REST_ERROR_5032 | Data validation failed                               |
+
+        | REST_ERROR_5033 | File is infected                                     |
+
+        | REST_ERROR_5034 | Invalid type of file                                 |
+
+        | REST_ERROR_5035 | File is empty                                        |
+
+        | REST_ERROR_5036 | Failed to read file                                  |
+
+        | REST_ERROR_5037 | Supplier are not found                               |
+
+        | SELECTED_ORGANIZATION_REQUIRED | selectedCnum is required when several organizations are available |
+
+        | SELECTED_ORGANIZATION_NOT_ALLOWED | selectedCnum is not included in allowed organizations |
+
+        '
+      enum:
+      - REST_ERROR_5001
+      - REST_ERROR_5004
+      - REST_ERROR_5017
+      - REST_ERROR_5024
+      - REST_ERROR_5025
+      - REST_ERROR_5026
+      - REST_ERROR_5027
+      - REST_ERROR_5028
+      - REST_ERROR_5029
+      - REST_ERROR_5031
+      - REST_ERROR_5032
+      - REST_ERROR_5033
+      - REST_ERROR_5034
+      - REST_ERROR_5035
+      - REST_ERROR_5036
+      - SELECTED_ORGANIZATION_REQUIRED
+      - SELECTED_ORGANIZATION_NOT_ALLOWED
+      example: REST_ERROR_5001
+      type: string
+    ValidationErrorDetail:
+      description: Детали ошибки валидации
+      example:
+        param: array[2].debtorInn
+        code: VALIDATION_ERROR_1201
+        message: Invalid INN format
+      properties:
+        param:
+          description: Путь к ошибке во входном файле (array[{elementNumber}].{columnName})
+          example: array[2].debtorInn
+          type: string
+        code:
+          $ref: '#/components/schemas/ValidationErrorCodes'
+        message:
+          description: Сообщение об ошибке
+          example: INN must contain 10 or 12 digits
+          type: string
+      required:
+      - code
+      - message
+      - param
+      type: object
+    ValidationErrorCodes:
+      description: '| code                 | description                                          |
+
+        |----------------------|------------------------------------------------------|
+
+        | VALIDATION_ERROR_1201| Invalid INN format                                   |
+
+        | VALIDATION_ERROR_1202| Invalid date format                                  |
+
+        | VALIDATION_ERROR_1203| Invalid amount format                                |
+
+        | VALIDATION_ERROR_1204| Invalid contract number format                       |
+
+        | VALIDATION_ERROR_1205| Missing required field                               |
+
+        | VALIDATION_ERROR_1206| Invalid column count in header                       |
+
+        | VALIDATION_ERROR_1207| Invalid header name                                  |
+
+        | VALIDATION_ERROR_1208| Supply amount is not positive                        |
+
+        | VALIDATION_ERROR_1209| Duplicate row in file                                |
+
+        | VALIDATION_ERROR_1210| Date in future                                       |
+
+        | VALIDATION_ERROR_1211| Invoice sign date does not equal sign date           |
+
+        | VALIDATION_ERROR_1212| Deferral start date is earlier than sign date        |
+
+        | VALIDATION_ERROR_1213| Contract not found                                   |
+
+        | VALIDATION_ERROR_1214| Document is duplicated                               |
+
+        '
+      enum:
+      - VALIDATION_ERROR_1201
+      - VALIDATION_ERROR_1202
+      - VALIDATION_ERROR_1203
+      - VALIDATION_ERROR_1204
+      - VALIDATION_ERROR_1205
+      - VALIDATION_ERROR_1206
+      - VALIDATION_ERROR_1207
+      - VALIDATION_ERROR_1208
+      - VALIDATION_ERROR_1209
+      - VALIDATION_ERROR_1210
+      - VALIDATION_ERROR_1211
+      - VALIDATION_ERROR_1212
+      - VALIDATION_ERROR_1213
+      - VALIDATION_ERROR_1214
+      example: VALIDATION_ERROR_1201
+      type: string
+    ParsedPrimarySupplyResponse:
+      description: Результат парсинга одной строки реестра поставок
+      example:
+        rowNumber: 1
+        supplyNumber: 26052021-51
+        signDate: '2021-05-26'
+        amount: 100.0
+        contractNumber: 11122019-1
+        deferralStartDate: '2021-05-26'
+        debtorInn: '1121003135'
+      properties:
+        rowNumber:
+          description: Номер строки в файле
+          example: 1
+          type: integer
+        supplyNumber:
+          description: Номер поставки (основного документа)
+          example: 26052021-51
+          type: string
+        invoiceNumber:
+          description: Номер счета-фактуры
+          example: '123'
+          type:
+          - string
+          - 'null'
+        additionalDocumentNumber:
+          description: Номер доп. документа
+          example: '456'
+          type:
+          - string
+          - 'null'
+        signDate:
+          description: Дата поставки (основного документа)
+          example: '2021-05-26'
+          format: date
+          type: string
+        invoiceSignDate:
+          description: Дата счета-фактуры
+          example: '2021-05-27'
+          format: date
+          type:
+          - string
+          - 'null'
+        additionalDocumentSignDate:
+          description: Дата доп. документа
+          example: '2021-05-28'
+          format: date
+          type:
+          - string
+          - 'null'
+        amount:
+          description: Сумма поставки
+          example: 100.0
+          format: double
+          type: number
+        contractNumber:
+          description: Номер Контракта
+          example: 11122019-1
+          type: string
+        deferralStartDate:
+          description: Дата начала отсрочки
+          example: '2021-05-26'
+          format: date
+          type: string
+        debtorInn:
+          description: ИНН дебитора
+          example: '1121003135'
+          type: string
+      required:
+      - amount
+      - contractNumber
+      - debtorInn
+      - deferralStartDate
+      - rowNumber
+      - signDate
+      - supplyNumber
+      type: object
+    ParsedPrimarySupplyListResponse:
+      allOf:
+      - properties:
+          parsedPrimarySupplies:
+            description: Строки реестра поставок после парсинга
+            items:
+              $ref: '#/components/schemas/ParsedPrimarySupplyResponse'
+            type: array
+        type: object
+      description: Строки реестра поставок после парсинга
+      example:
+        parsedPrimarySupplies:
+        - rowNumber: 1
+          supplyNumber: 26052021-51
+          signDate: '2021-05-26'
+          amount: 100.0
+          contractNumber: 11122019-1
+          deferralStartDate: '2021-05-26'
+          debtorInn: '1121003135'
+      type: object
+    ValidationErrorResponse:
+      description: Тело расширенной ошибки
+      example:
+        code: REST_ERROR_5032
+        message: Data validation failed
+        details:
+        - param: array[2].debtorInn
+          code: VALIDATION_ERROR_1201
+          message: Invalid INN format
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Общее сообщение об ошибке
+          example: Переданы некорректные данные
+          type: string
+        details:
+          description: Список деталей ошибки
+          example:
+          - param: array[2].debtorInn
+            code: VALIDATION_ERROR_1201
+            message: Invalid INN format
+          items:
+            $ref: '#/components/schemas/ValidationErrorDetail'
+          type: array
+      required:
+      - code
+      - message
+      type: object
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-factoring-openapi.yml
+- raiffeisen-ru-factoring-openapi.yml

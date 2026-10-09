@@ -1,0 +1,867 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Contract Details API
+  version: 0.0.1
+  description: 'Operations tagged Contract Details across 2 of this provider''s published API definitions: raiffeisen-ru-currency-control-documents-openapi.yml, raiffeisen-ru-currency-control-documents-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/foreign-trade
+tags:
+- name: Contract Details
+  description: Сведения о контракте
+paths:
+  /currency-control/contract-details:
+    post:
+      operationId: createCurrencyContract
+      summary: Создание сведений о контракте
+      description: Создание сведений о контракте с нерезидентом для постановки на учет.
+      tags:
+      - Contract Details
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CurrencyContractRequest'
+      responses:
+        '201':
+          description: Контракт успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrencyContractResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+  /currency-control/contract-details/{externalId}:
+    get:
+      operationId: getCurrencyContract
+      summary: Получение сведений о контракте
+      description: Получение данных сведений о контракте с нерезидентом
+      tags:
+      - Contract Details
+      parameters:
+      - $ref: '#/components/parameters/ExternalId'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Успешное получение контракта
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrencyContractResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+  /currency-control/contract-details/{externalId}/status:
+    get:
+      operationId: getCurrencyContractStatus
+      summary: Получение статуса контракта
+      description: Получение статуса обработки сведений о контракте
+      tags:
+      - Contract Details
+      parameters:
+      - $ref: '#/components/parameters/ExternalId'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Успешное получение статуса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentStatusResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+components:
+  schemas:
+    DocumentRequestBase:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/DocumentIdentifier'
+      - $ref: '#/components/schemas/WithAttachments'
+      - $ref: '#/components/schemas/WithSignatures'
+      - type: object
+        required:
+        - resident
+        - contactPerson
+        properties:
+          resident:
+            $ref: '#/components/schemas/Resident'
+          contactPerson:
+            $ref: '#/components/schemas/ContactPerson'
+          clientComment:
+            type: string
+            maxLength: 2000
+            description: Произвольный комментарий клиента для сотрудника банка, обрабатывающего документ.
+            example: Просим связаться с контактным лицом, если потребуются дополнительные сведения.
+    WithSignatures:
+      type: object
+      properties:
+        signatures:
+          type: array
+          items:
+            $ref: '#/components/schemas/Signature'
+          description: Электронные подписи
+    SignatureResponse:
+      description: Принятая подпись; фактически использованная версия всегда возвращается явно
+      allOf:
+      - $ref: '#/components/schemas/Signature'
+      - type: object
+        required:
+        - digestVersion
+      example:
+        certificateId: cert-67890
+        digestVersion: 1
+        signature: YmFzZTY0ZW5jb2RlZA==
+    DocumentStatus:
+      type: string
+      enum:
+      - DRAFT
+      - SUBMITTED
+      - NEEDS_ANSWER
+      - ACCEPTED
+      - MODIFIED
+      - REJECTED
+      description: 'Статус документа валютного контроля.
+
+
+        `ACCEPTED`, `MODIFIED` и `REJECTED` являются финальными статусами.
+
+        `MODIFIED` означает, что документ принят Банком с замечаниями и учтён с корректировками или условиями Банка.
+
+        `NEEDS_ANSWER` означает, что Банк запросил у клиента дополнительную информацию; содержание запроса передаётся в `bankMessage` полного ответа документа.
+
+        '
+    Signature:
+      type: object
+      description: Электронная подпись документа; версия в запросе необязательна
+      required:
+      - certificateId
+      - signature
+      properties:
+        digestVersion:
+          $ref: '#/components/schemas/DigestVersion'
+        certificateId:
+          type: string
+          description: ID сертификата ЭП
+          example: cert-67890
+        signature:
+          type: string
+          contentEncoding: base64
+          description: Значение подписи (Base64)
+          example: YmFzZTY0ZW5jb2RlZA==
+      example:
+        certificateId: cert-67890
+        digestVersion: 1
+        signature: YmFzZTY0ZW5jb2RlZA==
+    ResidentForRegistration:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Resident'
+      - type: object
+        required:
+        - address
+        - kpp
+    RegistrationReason:
+      type: string
+      enum:
+      - NO_CONDITIONS
+      - PRELIMINARY_AGREEMENT
+      - EXPORT_CONTRACT_LATER
+      description: Основание постановки на учет контракта
+    CurrencyContractRequest:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/DocumentRequestBase'
+      - type: object
+        required:
+        - contract
+        - counterparties
+        - registrationReason
+        properties:
+          resident:
+            $ref: '#/components/schemas/ResidentForRegistration'
+          contract:
+            $ref: '#/components/schemas/CurrencyContract'
+          dealSubject:
+            $ref: '#/components/schemas/DealSubject'
+          counterparties:
+            type: array
+            minItems: 1
+            items:
+              $ref: '#/components/schemas/Counterparty'
+          registrationReason:
+            $ref: '#/components/schemas/RegistrationReason'
+          rightsTransfer:
+            $ref: '#/components/schemas/RightsTransfer'
+    Error:
+      type: object
+      required:
+      - code
+      - message
+      properties:
+        code:
+          type: string
+          description: 'Код ошибки.
+
+
+            Известные значения:
+
+            - `VALIDATION_ERROR` - Ошибка валидации данных запроса
+
+            - `UNAUTHORIZED` - Токен доступа отсутствует или недействителен
+
+            - `FORBIDDEN` - Недостаточно прав для выполнения операции
+
+            - `NOT_FOUND` - Запрашиваемый объект не найден
+
+            - `CONFLICT` - Конфликт текущего состояния объекта
+
+            - `UNSUPPORTED_DIGEST_VERSION` - Версия дайджеста неизвестна или не поддерживается для новых подписей
+
+            - `INVALID_SIGNATURE` - Подпись не соответствует содержимому документа
+
+            - `CERTIFICATE_EXPIRED` - Срок действия сертификата истёк
+
+            - `CERTIFICATE_REVOKED` - Сертификат отозван удостоверяющим центром
+
+            - `CERTIFICATE_NOT_FOUND` - Сертификат с указанным идентификатором не найден
+
+            - `UNSUPPORTED_SIGNATURE_FORMAT` - Формат подписи не поддерживается
+
+            - `INVALID_CERTIFICATE_ALGORITHM` - Алгоритм сертификата не соответствует требованиям
+
+            - `FILE_TOO_LARGE` - Размер файла превышает максимально допустимый
+
+            - `UNSUPPORTED_FORMAT` - Формат файла не поддерживается
+
+            - `INVALID_FILE_NAME` - Имя файла содержит недопустимые символы
+
+            - `VIRUS_DETECTED` - В файле обнаружен вирус
+
+            - `STORAGE_ERROR` - Ошибка файлового хранилища
+
+            - `FILE_NOT_FOUND` - Файл с указанным идентификатором не найден
+
+            - `ACCESS_DENIED` - Доступ к файлу запрещён
+
+            - `FILE_BLOCKED` - Файл заблокирован
+
+            - `FILE_EXPIRED` - Истёк срок доступности невостребованного файла
+
+            - `FILE_DELETED` - Файл удалён по истечении срока хранения
+
+            - `INTERNAL_ERROR` - Внутренняя ошибка сервера
+
+
+            Список не является закрытым и может расширяться без изменения версии API.
+
+            '
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          description: Описание ошибки
+          example: Ошибка валидации данных
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Имя поля
+                example: externalId
+              message:
+                type: string
+                description: Описание ошибки поля
+                example: Некорректный формат UUID
+          description: Детали по полям
+    CurrencyContractResponse:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/CurrencyContractRequest'
+      - $ref: '#/components/schemas/DocumentResponseBase'
+      - type: object
+        properties:
+          passportNumber:
+            type: string
+            description: Уникальный номер контракта, присвоенный банком
+            example: 25062025/0001/0000/2/1
+    ContractType:
+      type: string
+      enum:
+      - IMPORT
+      - EXPORT
+      - MIX_TRADE
+      description: Тип контракта
+    DocumentIdentifier:
+      type: object
+      required:
+      - externalId
+      - date
+      properties:
+        externalId:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор во внешней системе
+          example: 550e8400-e29b-41d4-a716-446655440000
+        date:
+          type: string
+          format: date
+          description: Дата составления документа
+          example: '2025-06-01'
+        number:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 9999999
+          description: Номер документа
+          example: 1
+    ResidentAddress:
+      type: object
+      properties:
+        region:
+          type: string
+          description: Субъект Российской Федерации
+          example: г. Москва
+        area:
+          type: string
+          description: Район в регионе
+          example: Центральный
+        city:
+          type: string
+          description: Город
+          example: Москва
+        settlement:
+          type: string
+          description: Населенный пункт
+          example: п. Коммунарка
+        street:
+          type: string
+          description: Улица (проспект, переулок и т.д.)
+          example: ул. Ленина
+        house:
+          type: string
+          description: Номер дома (владение)
+          example: '10'
+        block:
+          type: string
+          description: Корпус (строение)
+          example: '1'
+        office:
+          type: string
+          description: Офис (квартира)
+          example: '100'
+    FileContentHash:
+      type: string
+      pattern: ^[0-9a-f]{64}$
+      description: 'SHA-256 исходных байтов файла без multipart-обрамления и преобразований, в шестнадцатеричном виде, нижний регистр.
+
+
+        Алгоритм фиксирован: SHA-256, отдельное поле не передаётся.
+
+        '
+      example: ae5555eadcc27795e54c6a268684e9457539b07d4e13763fe391d53a6605f887
+    DocumentStatusResponse:
+      type: object
+      required:
+      - status
+      properties:
+        status:
+          $ref: '#/components/schemas/DocumentStatus'
+        statusComment:
+          type: string
+          description: Комментарий к статусу
+          example: Документ принят в обработку
+    RightsTransfer:
+      type: object
+      required:
+      - type
+      - name
+      - documentNumber
+      - documentDate
+      properties:
+        type:
+          $ref: '#/components/schemas/RightsTransferType'
+        name:
+          type: string
+          description: Наименование (ФИО для физического лица)
+          example: ООО "Цессия"
+        address:
+          $ref: '#/components/schemas/RightsTransferAddress'
+        ogrn:
+          type: string
+          pattern: ^[0-9]{13}$
+          description: ОГРН (для юридического лица)
+          example: '1027700234567'
+        ogrnDate:
+          type: string
+          format: date
+          description: Дата внесения ОГРН в госреестр
+          example: '2003-05-20'
+        inn:
+          type: string
+          pattern: ^[0-9]{10,12}$
+          description: ИНН
+          example: '7702345678'
+        kpp:
+          type: string
+          pattern: ^[0-9]{9}$
+          description: КПП (для юридического лица)
+          example: '770201001'
+        documentNumber:
+          type: string
+          description: Номер документа о переходе прав
+          example: ДС-1
+        documentDate:
+          type: string
+          format: date
+          description: Дата документа о переходе прав
+          example: '2025-06-01'
+        countryCode:
+          type: string
+          description: Код страны (для нерезидента, ОКСМ)
+          example: '840'
+    DigestVersion:
+      type: integer
+      minimum: 1
+      description: 'Версия правил формирования дайджеста для типа документа из этого запроса.
+
+
+        - правила данной версии фиксируют канонизацию, состав допустимых полей, исключения, порядок массивов и алгоритм хэша вложений;
+
+        - версии разных типов документов продвигаются независимо: изменение состава полей одного типа не повышает версию остальных;
+
+        - если не передана, backend выбирает актуальную версию на начало обработки нового документа и сохраняет её вместе с подписью;
+
+        - клиент вычисляет подпись до отправки запроса и должен использовать актуальную публикованную версию правил, даже если поле не передано;
+
+        - выбранная или переданная версия включается в подписываемый текст; правила и формат дайджеста описаны в документации «Подпись документов — формирование дайджеста»;
+
+        - неизвестная или не принимаемая версия — `400 UNSUPPORTED_DIGEST_VERSION`.
+
+        '
+      example: 1
+    DocumentResponseBase:
+      type: object
+      required:
+      - status
+      properties:
+        signatures:
+          type: array
+          items:
+            $ref: '#/components/schemas/SignatureResponse'
+          description: Применённые подписи с сохранённой версией digest, включая выбранную backend
+        status:
+          $ref: '#/components/schemas/DocumentStatus'
+        statusComment:
+          type: string
+          description: Комментарий к статусу
+          example: Документ принят в обработку
+        submittedDate:
+          type: string
+          format: date
+          description: Дата отправки в Банк
+          example: '2025-06-02'
+        acceptanceDate:
+          type: string
+          format: date
+          description: Дата принятия/возврата Банком
+          example: '2025-06-03'
+        officerName:
+          type: string
+          description: Исполнитель в Банке
+          example: Петров Петр Петрович
+        bankMessage:
+          type: string
+          description: Сообщение Банка с причиной отказа, запросом дополнительной информации или замечаниями к документу
+          example: Предоставьте документ, подтверждающий изменение суммы контракта
+    ContactPerson:
+      type: object
+      required:
+      - name
+      - phone
+      properties:
+        name:
+          type: string
+          description: ФИО контактного лица
+          example: Иванов Иван Иванович
+        phone:
+          type: string
+          description: Телефон контактного лица
+          example: +7 495 123-45-67
+    CurrencyContract:
+      type: object
+      required:
+      - type
+      - date
+      - currencyCode
+      - currencyName
+      properties:
+        type:
+          $ref: '#/components/schemas/ContractType'
+        number:
+          type: string
+          description: Номер контракта
+          example: 123-А
+        withoutNumber:
+          type: boolean
+          description: Признак «Без номера»
+          example: false
+        date:
+          type: string
+          format: date
+          description: Дата контракта
+          example: '2025-05-01'
+        amount:
+          type: string
+          description: Сумма контракта в валюте контракта
+          example: '1000000.00'
+        withoutAmount:
+          type: boolean
+          description: Признак «Без суммы»
+          example: false
+        currencyCode:
+          type: string
+          description: Код валюты контракта (ОКВ, 3 символа)
+          example: '840'
+        currencyName:
+          type: string
+          description: Наименование валюты контракта
+          example: Доллар США
+        finishDate:
+          type: string
+          format: date
+          description: Дата завершения исполнения обязательств
+          example: '2025-12-31'
+        previousPassportNumber:
+          type: string
+          maxLength: 22
+          description: Ранее присвоенный уникальный номер контракта при переводе из другого банка
+          example: 24010001/0001/0000/2/1
+    Attachment:
+      type: object
+      description: 'Вложение к документу; поля переносятся из ответа загрузки.
+
+
+        - в digest входят `fileId`, `fileName` и `contentHash`; алгоритм SHA-256 фиксирован правилами;
+
+        - банк сверяет имя и хэш с сохранённым файлом; несовпадение — `400 VALIDATION_ERROR`;
+
+        - переданные значения не заменяются серверными перед проверкой подписи.
+
+        '
+      required:
+      - fileId
+      - fileName
+      - contentHash
+      properties:
+        fileId:
+          type: string
+          format: uuid
+          description: ID загруженного файла
+          example: 550e8400-e29b-41d4-a716-446655440000
+        fileName:
+          type: string
+          description: Имя из ответа загрузки
+          example: files-content-sample.pdf
+        contentHash:
+          $ref: '#/components/schemas/FileContentHash'
+      example:
+        fileId: 550e8400-e29b-41d4-a716-446655440000
+        fileName: files-content-sample.pdf
+        contentHash: ae5555eadcc27795e54c6a268684e9457539b07d4e13763fe391d53a6605f887
+    DealSubject:
+      type: object
+      description: 'Предмет сделки: товары, получатели и сведения о поставке для комплаенс-проверки.
+
+        '
+      properties:
+        cnFea:
+          type: array
+          description: Товары с кодами ТН ВЭД (Commodity Nomenclature of Foreign Economic Activity). Допускается пустой массив.
+          items:
+            $ref: '#/components/schemas/CnFeaItem'
+        recipients:
+          type: array
+          description: Получатели товаров. Допускается пустой массив.
+          items:
+            $ref: '#/components/schemas/GoodsRecipient'
+        finalDeliveryAddress:
+          type: string
+          maxLength: 200
+          description: Адрес или место конечной поставки товаров
+          example: Россия, г. Москва, ул. Складская, д. 10
+        goodsRoute:
+          type: string
+          maxLength: 200
+          description: Маршрут следования товаров
+          example: Шанхай — Владивосток — Москва
+      example:
+        cnFea:
+        - code: '9403609009'
+          name: Деревянная мебель
+          scope: Обустройство жилых помещений
+        recipients:
+        - name: ООО «Мебель»
+        finalDeliveryAddress: Россия, г. Москва, ул. Складская, д. 10
+        goodsRoute: Шанхай — Владивосток — Москва
+    Resident:
+      type: object
+      required:
+      - name
+      - inn
+      properties:
+        name:
+          type: string
+          description: Наименование резидента
+          example: ООО "Ромашка"
+        inn:
+          type: string
+          pattern: ^[0-9]{10,12}$
+          description: ИНН резидента (10 цифр для организаций, 12 для ИП)
+          example: '7701234567'
+        address:
+          $ref: '#/components/schemas/ResidentAddress'
+        kpp:
+          type: string
+          pattern: ^[0-9]{9}$
+          description: КПП резидента
+          example: '770101001'
+        ogrn:
+          type: string
+          pattern: ^[0-9]{13}$
+          description: ОГРН
+          example: '1027700123456'
+        ogrnDate:
+          type: string
+          format: date
+          description: Дата внесения в госреестр
+          example: '2002-11-15'
+    RightsTransferAddress:
+      type: object
+      properties:
+        region:
+          type: string
+          description: Субъект Российской Федерации
+          example: г. Москва
+        area:
+          type: string
+          description: Район в регионе
+          example: Центральный
+        city:
+          type: string
+          description: Город
+          example: Москва
+        settlement:
+          type: string
+          description: Населенный пункт
+          example: п. Коммунарка
+        street:
+          type: string
+          description: Улица (проспект, переулок и т.д.)
+          example: ул. Тверская
+        house:
+          type: string
+          description: Номер дома (владение)
+          example: '1'
+        block:
+          type: string
+          description: Корпус (строение)
+          example: '1'
+        office:
+          type: string
+          description: Офис (квартира)
+          example: '10'
+    RightsTransferType:
+      type: string
+      enum:
+      - RESIDENT_LEGAL_OR_ENTREPRENEUR
+      - INDIVIDUAL
+      - NON_RESIDENT
+      description: Тип лица в переходе прав
+      example: RESIDENT_LEGAL_OR_ENTREPRENEUR
+    Counterparty:
+      type: object
+      required:
+      - name
+      - countryCode
+      - countryName
+      properties:
+        name:
+          type: string
+          description: Наименование нерезидента
+          example: ABC Corp Ltd
+        countryCode:
+          type: string
+          description: Код страны (ОКСМ, 3 цифры)
+          example: '840'
+        countryName:
+          type: string
+          description: Наименование страны
+          example: США
+        affiliatedPerson:
+          type: boolean
+          description: Признак аффилированного лица. true = аффилированное лицо (в форме "*")
+          example: false
+    GoodsRecipient:
+      type: object
+      description: Получатель товаров.
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          maxLength: 400
+          description: Наименование получателя
+          example: ООО «Мебель»
+      example:
+        name: ООО «Мебель»
+    WithAttachments:
+      type: object
+      properties:
+        attachments:
+          type: array
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: 'Вложения: `fileId`, `fileName` и `contentHash` из успешного ответа `POST /currency-control/files`.
+
+
+            **Проверки сервера:**
+
+            - принадлежность файлов клиенту, срок доступности и ограничения документа;
+
+            - недоступное вложение — `400 VALIDATION_ERROR` по `attachments[N].fileId`;
+
+            - для справки о подтверждающих документах размер каждого вложения не должен превышать 10485760 байт.
+
+
+            **Жизненный цикл:**
+
+            - при успешном сохранении документа (включая `DRAFT`) связь и отмена удаления невостребованного файла фиксируются атомарно; из метаданных исчезает поле `expiresAt`;
+
+            - использованный файл не возвращается в режим невостребованного после удаления ссылки;
+
+            - хранение и доступ сохраняются до окончания срока хранения всех связанных документов.
+
+
+            > **Внимание:** при гонке с очисткой либо сохраняется документ с защищённым файлом, либо запрос отклоняется.
+
+            > Ошибка или откат не отменяют срок.
+
+            '
+    CnFeaItem:
+      type: object
+      description: Сведения о товаре с кодом Товарной номенклатуры внешнеэкономической деятельности (ТН ВЭД).
+      required:
+      - code
+      properties:
+        code:
+          type: string
+          minLength: 8
+          maxLength: 10
+          pattern: ^[0-9]{8,10}(?![\s\S])
+          description: Код ТН ВЭД
+          example: '9403609009'
+        name:
+          type: string
+          maxLength: 400
+          description: Наименование товара
+          example: Деревянная мебель
+        scope:
+          type: string
+          maxLength: 240
+          description: Сфера применения товара
+          example: Обустройство жилых помещений
+      example:
+        code: '9403609009'
+        name: Деревянная мебель
+        scope: Обустройство жилых помещений
+  parameters:
+    ExternalId:
+      name: externalId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Уникальный идентификатор во внешней системе
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  responses:
+    NotFoundError:
+      description: Запрашиваемый объект не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ForbiddenError:
+      description: Недостаточно прав для выполнения операции
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ValidationError:
+      description: Ошибка валидации данных
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalError:
+      description: Внутренняя ошибка
+    ConflictError:
+      description: Конфликт с текущим состоянием ресурса
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Аутентификация не пройдена
+x-refined-from:
+- raiffeisen-ru-currency-control-documents-openapi.yml
+- raiffeisen-ru-currency-control-documents-openapi.yml

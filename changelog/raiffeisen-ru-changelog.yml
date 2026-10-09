@@ -1,0 +1,105 @@
+generated: '2026-10-09'
+method: searched
+source: https://pay.raif.ru/doc/ecom.html#section/Istoriya-izmenenij
+description: 'Dated change-history tables ("История изменений") published in the Raif Pay API docs, plus the developer.raiffeisen.ru news feed. Changes are dated, not versioned; no entry is marked breaking
+  by the provider. Older notable change: 29.07.2022 hosts changed (production e-commerce.raiffeisen.ru → pay.raif.ru; test ecom.test.raiffeisen.ru → pay-test.raif.ru), which was breaking for integrators.'
+docs: https://pay.raif.ru/doc/ecom.html
+versioning:
+  scheme: dated change table; URI major versions
+  current: null
+entries:
+- version: null
+  date: '2026-10-02'
+  api: Raiffeisen API developer portal
+  breaking: false
+  highlights:
+  - Теперь можно оставить отзыв об API (FeedbackPortal)
+  source: https://developer.raiffeisen.ru/news
+- version: null
+  date: '2026-06-08'
+  api: Raif Pay payment form (ecom)
+  breaking: false
+  highlights:
+  - Добавлен платеж по подписке со сплитованием
+  source: https://pay.raif.ru/doc/ecom.html
+- version: null
+  date: '2026-05-25'
+  api: Raif Pay payment form (ecom)
+  breaking: false
+  highlights:
+  - Добавлены методы создания и опроса статусов возвратов с возможностью сплитования
+  source: https://pay.raif.ru/doc/ecom.html
+- version: null
+  date: '2026-05-15'
+  api: Raif Pay payment form (ecom)
+  breaking: false
+  highlights:
+  - Добавлена возмжность сплитования платежа для всех способов оплаты
+  source: https://pay.raif.ru/doc/ecom.html
+- version: null
+  date: '2026-03-06'
+  api: Raif Pay payment form (ecom)
+  breaking: false
+  highlights:
+  - Добавлены подписки для всех способов оплаты
+  source: https://pay.raif.ru/doc/ecom.html
+- version: null
+  date: '2026-02-20'
+  api: Raif Pay payment form (ecom)
+  breaking: false
+  highlights:
+  - Добавлены шаблоны коллбеков
+  source: https://pay.raif.ru/doc/ecom.html
+- version: null
+  date: '2025-09-02'
+  api: Raif Pay payment form (ecom)
+  breaking: false
+  highlights:
+  - Добавлен сценарий работы с подпиской
+  source: https://pay.raif.ru/doc/ecom.html
+- version: null
+  date: '2025-09-01'
+  api: Raif Pay payment form (ecom)
+  breaking: false
+  highlights:
+  - В фискальные чеки добавлены поля timezone (тег 1011, для ФФД 1.2), onlinePayment (тег 1125) и plannedStatus (тег 2003)
+  source: https://pay.raif.ru/doc/ecom.html
+- version: null
+  date: '2025-08-10'
+  api: Raif Pay payment form (ecom)
+  breaking: false
+  highlights:
+  - Добавлен метод формирования заказа с получением короткой ссылки
+  source: https://pay.raif.ru/doc/ecom.html
+- version: null
+  date: '2025-05-20'
+  api: Raif Pay payment form (ecom)
+  breaking: false
+  highlights:
+  - Добавлен ФФД 1.2 для сервиса "Модулькасса" и обновлена инструкция подключения фискализации
+  source: https://pay.raif.ru/doc/ecom.html
+- version: null
+  date: '2025-02-14'
+  api: Raif Pay payment form (ecom)
+  breaking: false
+  highlights:
+  - Добавлен ФФД 1.2 для сервиса "Orange Data" и обновлена инструкция подключения фискализации
+  source: https://pay.raif.ru/doc/ecom.html
+- version: null
+  date: '2026-02-20'
+  api: Raif Pay SBP
+  breaking: false
+  highlights:
+  - Добавлены шаблоны коллбеков
+  source: https://pay.raif.ru/doc/sbp.html
+- version: null
+  date: '2024-10-18'
+  api: Raif Pay SBP
+  breaking: false
+  highlights:
+  - Добавлен метод разделения платежа при создании qr или заказов на кассовую ссылку
+  source: https://pay.raif.ru/doc/sbp.html
+docs_pages:
+- https://pay.raif.ru/doc/ecom.html
+- https://pay.raif.ru/doc/sbp.html
+- https://developer.raiffeisen.ru/news

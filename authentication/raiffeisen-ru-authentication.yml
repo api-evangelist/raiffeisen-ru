@@ -1,0 +1,59 @@
+generated: '2026-10-09'
+method: searched
+source: https://developer.raiffeisen.ru/docs/howToStart/tokens/howToGetTokensByCodeFlow; https://pay.raif.ru/doc/ecom.html; openapi/raiffeisen-ru-authorization-openapi.yml, openapi/raiffeisen-ru-raif-pay-corporate-cards-openapi.yml,
+  openapi/raiffeisen-ru-raif-pay-payment-form-openapi.yml, openapi/raiffeisen-ru-raif-pay-payouts-openapi.yml, openapi/raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml, openapi/raiffeisen-ru-raif-pay-sbp-b2b-transfers-openapi.yml,
+  openapi/raiffeisen-ru-raif-pay-sbp-openapi.yml, openapi/raiffeisen-ru-raif-pay-whitelabel-ecom-openapi.yml
+summary:
+  types:
+  - apiKey
+  - http
+  api_key_in:
+  - cookie
+schemes:
+- name: bearerAuth
+  type: http
+  scheme: bearer
+  bearerFormat: JWT
+  description: Access Token, полученный в ответе /oauth2/token.
+  sources:
+  - openapi/raiffeisen-ru-authorization-openapi.yml
+  - openapi/raiffeisen-ru-raif-pay-corporate-cards-openapi.yml
+  - openapi/raiffeisen-ru-raif-pay-payment-form-openapi.yml
+  - openapi/raiffeisen-ru-raif-pay-payouts-openapi.yml
+  - openapi/raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml
+  - openapi/raiffeisen-ru-raif-pay-sbp-b2b-transfers-openapi.yml
+  - openapi/raiffeisen-ru-raif-pay-sbp-openapi.yml
+  - openapi/raiffeisen-ru-raif-pay-whitelabel-ecom-openapi.yml
+- name: UserTokenAuth
+  type: apiKey
+  in: cookie
+  parameter: X-USER-ACCESS-TOKEN
+  sources:
+  - openapi/raiffeisen-ru-raif-pay-payouts-openapi.yml
+- name: oauth2-authorization-code (documented)
+  type: oauth2
+  flow: authorizationCode
+  pkce: S256
+  authorizationUrl: https://sso.rbo.raiffeisen.ru/authorize
+  scopes:
+  - openid
+  - profile
+  - email
+  - phone
+  description: 'Documented Code Flow: GET https://sso.rbo.raiffeisen.ru/authorize?scope=openid profile email phone&client_id=…&response_type=code&redirect_uri=…&state=…&nonce=…&prompt=login&code_challenge=…;
+    /token uses HTTP Basic client_id:client_secret; access and ID tokens then sent as Authorization: Bearer plus ID-Token header; refresh via refresh_token. Prerequisites: be a bank client, submit and sign
+    an integration application in the online bank. Tokens can alternatively be issued in the online bank.'
+  source: https://developer.raiffeisen.ru/docs/howToStart/tokens/howToGetTokensByCodeFlow
+- name: raif-pay-secretKey
+  type: http
+  scheme: bearer
+  description: 'Raif Pay server-to-server requests: header Authorization = "Bearer " + secretKey; publicId is the public merchant identifier used to open the payment form. secretKey is generated in the
+    online bank or merchant cabinet.'
+  source: https://pay.raif.ru/doc/ecom.html
+docs: https://developer.raiffeisen.ru/docs/howToStart/tokens/howToGetTokens
+docs_pages:
+- https://developer.raiffeisen.ru/docs/howToStart/tokens/howToGetTokens
+- https://developer.raiffeisen.ru/docs/howToStart/tokens/howToGetTokensByCodeFlow
+- https://developer.raiffeisen.ru/docs/howToStart/tokens/howToGetTokensInOnlineBank
+- https://developer.raiffeisen.ru/docs/support
+- https://pay.raif.ru/doc/ecom.html#section/Avtorizaciya

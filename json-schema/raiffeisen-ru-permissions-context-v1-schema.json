@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-permissions-context-v1-schema.json",
+  "title": "PermissionsContextV1",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-user-permissions-openapi.yml#/components/schemas/PermissionsContextV1",
+  "type": "object",
+  "required": [
+    "userId",
+    "aud",
+    "contracts"
+  ],
+  "properties": {
+    "userId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "aud": {
+      "type": "string"
+    },
+    "contracts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ContractContextV1"
+      }
+    }
+  },
+  "$defs": {
+    "ContractContextV1": {
+      "type": "object",
+      "required": [
+        "cnum",
+        "contractStatus"
+      ],
+      "properties": {
+        "cnum": {
+          "type": "string"
+        },
+        "contractStatus": {
+          "$ref": "#/$defs/ContractStatus"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PermissionsV1"
+          },
+          "default": []
+        }
+      }
+    },
+    "ContractStatus": {
+      "type": "string",
+      "enum": [
+        "ACTIVE",
+        "BLOCKED",
+        "TERMINATED"
+      ]
+    },
+    "PermissionsV1": {
+      "type": "object",
+      "required": [
+        "name",
+        "actions"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

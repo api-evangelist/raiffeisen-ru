@@ -1,0 +1,217 @@
+# x-archived-from: raiffeisen-ru-cbr-exchange-rates-openapi.yml
+# x-archived-on: 2026-10-09
+---
+openapi: "3.0.4"
+info:
+  title: "Справочная информация. Курсы валют ЦБ РФ"
+  description: "## Описание API\nЭто API предназначено для получения курсов валют\
+    \ ЦБ.\n"
+  version: "0.30.0"
+tags:
+- name: "Rates API"
+  description: "API курса валют ЦБ"
+paths:
+  /v1/currencies/rates/{currencyFrom}/{currencyTo}:
+    get:
+      tags:
+      - "Rates API"
+      summary: "Запрос курса валют ЦБ за указанный период"
+      operationId: "rateByDate"
+      description: "Запрос курса валют ЦБ за указанный период"
+      parameters:
+      - name: "currencyFrom"
+        in: "path"
+        description: "Базовая валюта (RUB, EUR и.т.д)"
+        required: true
+        schema:
+          type: "string"
+          enum:
+          - "RUB"
+      - name: "currencyTo"
+        in: "path"
+        description: "Целевая валюта (AUD,  и.т.д)"
+        required: true
+        schema:
+          type: "string"
+          enum:
+          - "HUF"
+          - "INR"
+          - "USD"
+          - "CZK"
+          - "XDR"
+          - "AUD"
+          - "CAD"
+          - "SEK"
+          - "KRW"
+          - "ZAR"
+          - "BRL"
+          - "UAH"
+          - "UZS"
+          - "AMD"
+          - "SGD"
+          - "AZN"
+          - "BYR"
+          - "NOK"
+          - "CNY"
+          - "PLN"
+          - "JPY"
+          - "DKK"
+          - "TMT"
+          - "BYN"
+          - "TJS"
+          - "CHF"
+          - "TRY"
+          - "MDL"
+          - "BGN"
+          - "KGS"
+          - "KZT"
+          - "HKD"
+          - "GBP"
+          - "RON"
+          - "EUR"
+          - "AED"
+          - "THB"
+          - "VND"
+          - "RSD"
+          - "NZD"
+          - "GEL"
+          - "IDR"
+          - "EGP"
+          - "QAR"
+      - name: "date"
+        in: "query"
+        description: "Дата"
+        required: true
+        schema:
+          type: "string"
+          format: "date"
+          pattern: "yyyy-MM-dd"
+      - name: "source"
+        in: "query"
+        description: "Источник курса"
+        required: false
+        schema:
+          type: "string"
+          enum:
+          - "CBR"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "Результат курса валют"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Rate"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  schemas:
+    Rate:
+      type: "object"
+      description: "Курс валют"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          description: "Идентификатор"
+        currencyFrom:
+          type: "string"
+          description: "Базовая валюта (RUB, EUR и.т.д)"
+          enum:
+          - "RUB"
+        currencyTo:
+          type: "string"
+          description: "Целевая валюта (AUD,  и.т.д)"
+          enum:
+          - "HUF"
+          - "INR"
+          - "USD"
+          - "CZK"
+          - "XDR"
+          - "AUD"
+          - "CAD"
+          - "SEK"
+          - "KRW"
+          - "ZAR"
+          - "BRL"
+          - "UAH"
+          - "UZS"
+          - "AMD"
+          - "SGD"
+          - "AZN"
+          - "BYR"
+          - "NOK"
+          - "CNY"
+          - "PLN"
+          - "JPY"
+          - "DKK"
+          - "TMT"
+          - "BYN"
+          - "TJS"
+          - "CHF"
+          - "TRY"
+          - "MDL"
+          - "BGN"
+          - "KGS"
+          - "KZT"
+          - "HKD"
+          - "GBP"
+          - "RON"
+          - "EUR"
+          - "AED"
+          - "THB"
+          - "VND"
+          - "RSD"
+          - "NZD"
+          - "GEL"
+          - "IDR"
+          - "EGP"
+          - "QAR"
+        value:
+          type: "number"
+          description: "Значение"
+        date:
+          type: "string"
+          description: "Дата"
+          format: "date-time"
+        source:
+          type: "string"
+          description: "Источник курса"
+          enum:
+          - "CBR"
+      required:
+      - "currencyFrom"
+      - "currencyTo"
+      - "date"
+      - "id"
+      - "source"
+      - "value"
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+servers:
+- url: "https://api.raiffeisen.ru/exchange-rate"

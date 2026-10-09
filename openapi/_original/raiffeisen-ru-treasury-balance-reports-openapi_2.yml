@@ -1,0 +1,310 @@
+# x-archived-from: raiffeisen-ru-treasury-balance-reports-openapi.yml
+# x-archived-on: 2026-10-09
+---
+openapi: "3.0.3"
+info:
+  version: "0.0.17"
+  title: "Единое казначейство. Отчеты об остатках на счетах"
+paths:
+  /v1/treasuries/{id}/reports/account-balances:
+    post:
+      summary: "Заказать отчет об остатках на счетах"
+      description: "Возвращает id отчета. Отчет включает все компании казначейства\
+        \ при наличии доступа к головной, иначе — только доступные"
+      operationId: "createAccountBalancesReport"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+        description: "id Единого Казначейства"
+      - $ref: "#/components/parameters/CurrencyQueryParam"
+      - name: "format"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+          enum:
+          - "EXCEL"
+        description: "Формат"
+        example: "EXCEL"
+      - name: "dateFrom"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+          format: "date"
+        example: "2025-05-01"
+        description: "Дата начала отчета в формате yyyy-MM-dd"
+      - name: "dateTo"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+          format: "date"
+        example: "2025-05-02"
+        description: "Дата окончания отчета в формате yyyy-MM-dd"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "202":
+          description: "Accepted"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportResponse"
+              examples:
+                simple:
+                  $ref: "#/components/examples/ReportResponseExample"
+        "400":
+          description: "Bad request"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Treasury not found"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      tags:
+      - "reports"
+  /v1/treasuries/{id}/reports:
+    get:
+      summary: "Получить список отчетов"
+      description: "Возвращает список созданных пользователем отчетов для конкретн\
+        ого Единого Казначейства при наличии доступа"
+      operationId: "getReports"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+        description: "id Единого Казначейства"
+      - $ref: "#/components/parameters/CurrencyQueryParam"
+      - in: "query"
+        name: "limit"
+        required: false
+        schema:
+          default: 15
+          format: "int32"
+          type: "integer"
+      - in: "query"
+        name: "offset"
+        required: false
+        schema:
+          default: 0
+          format: "int32"
+          type: "integer"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TreasuryReportsResponse"
+              examples:
+                simple:
+                  $ref: "#/components/examples/TreasuryReportsResponseExample"
+          description: "OK"
+        "400":
+          description: "Bad request"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Treasury not found"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      tags:
+      - "reports"
+  /v1/treasuries/{id}/reports/{reportId}:
+    get:
+      summary: "Скачать отчет"
+      description: "Скачать отчет"
+      operationId: "downloadReport"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+        description: "id Единого Казначейства"
+      - name: "reportId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+          format: "UUID"
+        description: "id отчета"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: "string"
+                format: "binary"
+          headers:
+            Content-Disposition:
+              schema:
+                type: "string"
+              description: "Название файла"
+              example: "attachment; filename=\"report.xlsx\""
+          description: "OK"
+        "400":
+          description: "Bad request"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Treasury not found"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      tags:
+      - "reports"
+components:
+  headers:
+    Accept-Language:
+      description: "Опциональный заголовок (ru-RU или en-US)"
+      schema:
+        type: "string"
+      example: "ru-RU"
+  parameters:
+    CurrencyQueryParam:
+      name: "currency"
+      in: "query"
+      required: true
+      schema:
+        pattern: "^[A-Z]{3}$"
+        type: "string"
+      description: "Валюта счетов"
+      example: "RUB"
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+  schemas:
+    ReportResponse:
+      type: "object"
+      required:
+      - "id"
+      properties:
+        id:
+          type: "string"
+          description: "Version 4 UUID"
+          format: "UUID"
+    TreasuryReportsResponse:
+      type: "object"
+      required:
+      - "reports"
+      - "offset"
+      - "limit"
+      - "totalCount"
+      properties:
+        reports:
+          items:
+            $ref: "#/components/schemas/ReportFullResponse"
+          type: "array"
+          description: "Отчеты"
+        offset:
+          type: "integer"
+          format: "int32"
+        limit:
+          type: "integer"
+          format: "int32"
+        totalCount:
+          type: "integer"
+          format: "int64"
+    ReportFullResponse:
+      type: "object"
+      required:
+      - "id"
+      - "createdAt"
+      - "status"
+      - "period"
+      properties:
+        id:
+          type: "string"
+          format: "UUID"
+          description: "id Отчета"
+        createdAt:
+          format: "date-time"
+          type: "string"
+          description: "Дата создания отчета"
+          example: "2025-01-01T00:00:00+03:00"
+        status:
+          type: "string"
+          enum:
+          - "COMPLETED"
+          - "IN_PROGRESS"
+          - "FAILED"
+          description: "Статус отчета"
+          example: "COMPLETED"
+        period:
+          $ref: "#/components/schemas/Period"
+    Period:
+      type: "object"
+      required:
+      - "dateFrom"
+      - "dateTo"
+      description: "За какой период сформирован отчет"
+      properties:
+        dateFrom:
+          format: "date"
+          type: "string"
+          example: "2023-10-01"
+          description: "Дата начала отчета в формате yyyy-MM-dd"
+        dateTo:
+          format: "date"
+          type: "string"
+          example: "2023-10-31"
+          description: "Дата окончания отчета в формате yyyy-MM-dd"
+  examples:
+    ReportResponseExample:
+      summary: "Пример ответа при заказе отчета"
+      value:
+        id: "b3bbb456-dd0d-489d-9bc7-8b250e7808c9"
+    TreasuryReportsResponseExample:
+      summary: "Пример ответа для получения списка заказанных отчетов пользователе\
+        м"
+      value:
+        reports:
+        - id: "b3bbb456-dd0d-489d-9bc7-8b250e7808c9"
+          createdAt: "2025-01-01"
+          status: "COMPLETED"
+        - id: "e20a4fa3-1457-4984-8dfa-c543209f40c1"
+          createdAt: "2025-01-02"
+          status: "COMPLETED"
+        offset: 0
+        limit: 10
+        totalCount: 2
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+servers:
+- url: "https://api.raiffeisen.ru/treasury"

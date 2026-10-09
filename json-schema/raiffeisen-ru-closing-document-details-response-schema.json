@@ -1,0 +1,1068 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-closing-document-details-response-schema.json",
+  "title": "ClosingDocumentDetailsResponse",
+  "description": "Детальная информация о закрывающем документе",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-invoices-openapi.yml#/components/schemas/ClosingDocumentDetailsResponse",
+  "type": "object",
+  "properties": {
+    "cnum": {
+      "type": "string",
+      "description": "Уникальный идентификатор организации"
+    },
+    "document": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ConsignmentNote"
+        },
+        {
+          "$ref": "#/$defs/UPD"
+        },
+        {
+          "$ref": "#/$defs/WorkAct"
+        }
+      ],
+      "description": "Содержимое закрывающего документа"
+    },
+    "type": {
+      "type": "string",
+      "description": "Тип закрывающего документа",
+      "enum": [
+        "BILL",
+        "WORK_ACT",
+        "CONSIGNMENT_NOTE",
+        "UPD",
+        "INVOICE_FACTURA"
+      ]
+    },
+    "linkedDocuments": {
+      "type": "array",
+      "description": "Связанные со счетом закрывающие документы",
+      "items": {
+        "$ref": "#/$defs/CDDetailsLinkedDocumentResponse"
+      }
+    },
+    "createdOn": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Дата и время создания документа"
+    }
+  },
+  "required": [
+    "cnum",
+    "createdOn",
+    "document",
+    "linkedDocuments",
+    "type"
+  ],
+  "$defs": {
+    "AbstractClosingDocumentResponse": {
+      "type": "object",
+      "description": "Базовая модель закрывающего документа",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Тип закрывающего документа",
+          "enum": [
+            "BILL",
+            "WORK_ACT",
+            "CONSIGNMENT_NOTE",
+            "UPD",
+            "INVOICE_FACTURA"
+          ]
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "AdditionalInfo": {
+      "type": "object",
+      "description": "Дополнительная информация УПД",
+      "properties": {
+        "documentNumber": {
+          "type": "string",
+          "description": "Номер документа"
+        },
+        "documentDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата документа"
+        },
+        "operationType": {
+          "type": "string",
+          "description": "Тип операции"
+        },
+        "correctionNumber": {
+          "type": "string",
+          "description": "Номер исправления"
+        },
+        "correctionDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата исправления"
+        },
+        "paymentDocumentNumber": {
+          "type": "string",
+          "description": "Номер платежно-расчетного документа"
+        },
+        "paymentDocumentDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата платежно-расчетного документа"
+        }
+      },
+      "required": [
+        "documentDate",
+        "documentNumber"
+      ]
+    },
+    "BankRequisites": {
+      "type": "object",
+      "description": "Банковские реквизиты",
+      "properties": {
+        "bic": {
+          "type": "string",
+          "description": "БИК банка"
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование банка"
+        },
+        "accountNumber": {
+          "type": "string",
+          "description": "Номер счета"
+        },
+        "corrAccountNumber": {
+          "type": "string",
+          "description": "Номер корреспондентского счета"
+        }
+      }
+    },
+    "Buyer": {
+      "type": "object",
+      "description": "Покупатель",
+      "properties": {
+        "inn": {
+          "type": "string",
+          "description": "ИНН"
+        },
+        "innType": {
+          "type": "string",
+          "description": "Тип участника. INDIVIDUAL (ФЛ) / IE (ИП) / COMPANY (ООО)",
+          "enum": [
+            "INDIVIDUAL",
+            "IE",
+            "COMPANY"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование"
+        },
+        "address": {
+          "type": "string",
+          "description": "Адрес"
+        },
+        "kpp": {
+          "type": "string",
+          "description": "КПП"
+        },
+        "okpo": {
+          "type": "string",
+          "description": "ОКПО"
+        },
+        "receiver": {
+          "type": "boolean",
+          "description": "Признак является ли покупатель получателем груза"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "Номер телефона"
+        },
+        "bankRequisites": {
+          "$ref": "#/$defs/BankRequisites",
+          "description": "Банковские реквизиты"
+        }
+      },
+      "required": [
+        "innType",
+        "name",
+        "receiver"
+      ]
+    },
+    "CDDetailsLinkedDocumentResponse": {
+      "type": "object",
+      "description": "Связанный документ в детальной информации о закрывающем документе",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Идентификатор связанного документа"
+        },
+        "type": {
+          "type": "string",
+          "description": "Тип закрывающего документа",
+          "enum": [
+            "BILL",
+            "WORK_ACT",
+            "CONSIGNMENT_NOTE",
+            "UPD",
+            "INVOICE_FACTURA"
+          ]
+        },
+        "documentNumber": {
+          "type": "string",
+          "description": "Номер связанного документа"
+        },
+        "documentDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата связанного документа"
+        },
+        "totalPrice": {
+          "type": "number",
+          "description": "Итоговая сумма"
+        },
+        "totalVatAmount": {
+          "type": "number",
+          "description": "Итоговый НДС"
+        },
+        "payer": {
+          "$ref": "#/$defs/Payer",
+          "description": "Плательщик"
+        },
+        "items": {
+          "type": "array",
+          "description": "Список товаров",
+          "items": {
+            "$ref": "#/$defs/ItemMiniResponse"
+          }
+        }
+      },
+      "required": [
+        "documentDate",
+        "id",
+        "items",
+        "totalPrice",
+        "totalVatAmount",
+        "type"
+      ]
+    },
+    "ConsignmentNote": {
+      "description": "Модель товарной накладной",
+      "allOf": [
+        {
+          "$ref": "#/$defs/AbstractClosingDocumentResponse"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "goods": {
+              "$ref": "#/$defs/Goods",
+              "description": "Товары"
+            },
+            "additionalInfo": {
+              "$ref": "#/$defs/ConsignmentNoteAdditionalInfo",
+              "description": "Дополнительная информация"
+            },
+            "seller": {
+              "$ref": "#/$defs/Seller",
+              "description": "Продавец"
+            },
+            "consignor": {
+              "$ref": "#/$defs/Consignor",
+              "description": "Отправитель груза"
+            },
+            "buyer": {
+              "$ref": "#/$defs/Buyer",
+              "description": "Покупатель"
+            },
+            "receiver": {
+              "$ref": "#/$defs/Receiver",
+              "description": "Получатель груза"
+            }
+          }
+        }
+      ],
+      "required": [
+        "additionalInfo",
+        "buyer",
+        "goods",
+        "seller",
+        "type"
+      ]
+    },
+    "ConsignmentNoteAdditionalInfo": {
+      "type": "object",
+      "description": "Дополнительная информация товарной накладной",
+      "properties": {
+        "documentNumber": {
+          "type": "string",
+          "description": "Номер документа"
+        },
+        "documentDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата документа"
+        },
+        "documentBase": {
+          "$ref": "#/$defs/DocumentBase",
+          "description": "Документ-основание"
+        },
+        "waybill": {
+          "$ref": "#/$defs/Waybill",
+          "description": "Транспортная накладная"
+        },
+        "operationType": {
+          "type": "string",
+          "description": "Тип операции"
+        }
+      },
+      "required": [
+        "documentBase",
+        "documentDate",
+        "documentNumber"
+      ]
+    },
+    "Consignor": {
+      "type": "object",
+      "description": "Отправитель груза",
+      "properties": {
+        "inn": {
+          "type": "string",
+          "description": "ИНН"
+        },
+        "innType": {
+          "type": "string",
+          "description": "Тип участника. INDIVIDUAL (ФЛ) / IE (ИП) / COMPANY (ООО)",
+          "enum": [
+            "INDIVIDUAL",
+            "IE",
+            "COMPANY"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование"
+        },
+        "address": {
+          "type": "string",
+          "description": "Адрес"
+        },
+        "kpp": {
+          "type": "string",
+          "description": "КПП"
+        },
+        "okpo": {
+          "type": "string",
+          "description": "ОКПО"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "Номер телефона"
+        },
+        "bankRequisites": {
+          "$ref": "#/$defs/BankRequisites",
+          "description": "Банковские реквизиты"
+        }
+      },
+      "required": [
+        "innType",
+        "name"
+      ]
+    },
+    "Customer": {
+      "type": "object",
+      "description": "Заказчик",
+      "properties": {
+        "inn": {
+          "type": "string",
+          "description": "ИНН"
+        },
+        "innType": {
+          "type": "string",
+          "description": "Тип участника. INDIVIDUAL (ФЛ) / IE (ИП) / COMPANY (ООО)",
+          "enum": [
+            "INDIVIDUAL",
+            "IE",
+            "COMPANY"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование"
+        },
+        "kpp": {
+          "type": "string",
+          "description": "КПП"
+        },
+        "address": {
+          "type": "string",
+          "description": "Адрес"
+        }
+      },
+      "required": [
+        "innType",
+        "name"
+      ]
+    },
+    "DocumentBase": {
+      "type": "object",
+      "description": "Документ-основание",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Наименование документа"
+        },
+        "number": {
+          "type": "string",
+          "description": "Номер документа"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата документа"
+        }
+      },
+      "required": [
+        "date",
+        "name",
+        "number"
+      ]
+    },
+    "Executor": {
+      "type": "object",
+      "description": "Исполнитель",
+      "properties": {
+        "inn": {
+          "type": "string",
+          "description": "ИНН"
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование"
+        },
+        "address": {
+          "type": "string",
+          "description": "Адрес"
+        },
+        "kpp": {
+          "type": "string",
+          "description": "КПП"
+        }
+      },
+      "required": [
+        "inn",
+        "name"
+      ]
+    },
+    "Goods": {
+      "type": "object",
+      "description": "Товары",
+      "properties": {
+        "items": {
+          "type": "array",
+          "description": "Список товаров",
+          "items": {
+            "$ref": "#/$defs/Item"
+          }
+        },
+        "totalPrice": {
+          "type": "number",
+          "description": "Итоговая сумма"
+        },
+        "totalVatAmount": {
+          "type": "number",
+          "description": "Итоговый НДС"
+        }
+      },
+      "required": [
+        "items",
+        "totalPrice",
+        "totalVatAmount"
+      ]
+    },
+    "Item": {
+      "type": "object",
+      "description": "Модель единицы товара",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Наименование единицы товара"
+        },
+        "count": {
+          "type": "number",
+          "description": "Количество"
+        },
+        "price": {
+          "type": "number",
+          "description": "Цена единицы товара"
+        },
+        "vat": {
+          "$ref": "#/$defs/Unit",
+          "description": "НДС"
+        },
+        "unit": {
+          "$ref": "#/$defs/Unit",
+          "description": "Единица измерения"
+        },
+        "sum": {
+          "type": "number",
+          "description": "Итоговая стоимость"
+        },
+        "vatAmount": {
+          "type": "number",
+          "description": "Сумма НДС"
+        },
+        "productCode": {
+          "type": "string",
+          "description": "Код товара"
+        },
+        "productTypeCode": {
+          "type": "string",
+          "description": "Код вида товара"
+        },
+        "originCountry": {
+          "$ref": "#/$defs/OriginCountry",
+          "description": "Страна происхождения"
+        },
+        "customsDeclarationNumber": {
+          "type": "string",
+          "description": "Номер таможенной декларации"
+        }
+      },
+      "required": [
+        "count",
+        "name",
+        "price",
+        "sum",
+        "unit",
+        "vat",
+        "vatAmount"
+      ]
+    },
+    "ItemMiniResponse": {
+      "type": "object",
+      "description": "Модель товара",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Идентификатор товара (возвращается в ответах по счетам, у закрывающих документов отсутствует)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование единицы товара."
+        },
+        "count": {
+          "type": "number",
+          "description": "Количество"
+        },
+        "price": {
+          "type": "number",
+          "description": "Цена единицы товара"
+        },
+        "vat": {
+          "$ref": "#/$defs/Unit",
+          "description": "НДС"
+        },
+        "unit": {
+          "$ref": "#/$defs/Unit",
+          "description": "Единица измерения"
+        },
+        "sum": {
+          "type": "number",
+          "description": "Итоговая стоимость"
+        },
+        "vatAmount": {
+          "type": "number",
+          "description": "НДС"
+        }
+      },
+      "required": [
+        "count",
+        "name",
+        "price",
+        "sum",
+        "unit",
+        "vat",
+        "vatAmount"
+      ]
+    },
+    "Name": {
+      "type": "object",
+      "description": "ФИО",
+      "properties": {
+        "lastName": {
+          "type": "string",
+          "description": "Фамилия",
+          "minLength": 1
+        },
+        "firstName": {
+          "type": "string",
+          "description": "Имя",
+          "minLength": 1
+        },
+        "middleName": {
+          "type": "string",
+          "description": "Отчество"
+        }
+      },
+      "required": [
+        "firstName",
+        "lastName"
+      ]
+    },
+    "OriginCountry": {
+      "type": "object",
+      "description": "Страна происхождения товара",
+      "properties": {
+        "digitalCode": {
+          "type": "string",
+          "description": "Цифровой код страны (ОКСМ)"
+        },
+        "shortName": {
+          "type": "string",
+          "description": "Краткое наименование страны"
+        }
+      },
+      "required": [
+        "digitalCode",
+        "shortName"
+      ]
+    },
+    "Participant": {
+      "type": "object",
+      "description": "Участник УПД",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Тип участника. INDIVIDUAL (ФЛ) / IE (ИП) / COMPANY (ООО)",
+          "enum": [
+            "INDIVIDUAL",
+            "IE",
+            "COMPANY"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование участника"
+        },
+        "fio": {
+          "$ref": "#/$defs/Name",
+          "description": "ФИО участника"
+        },
+        "inn": {
+          "type": "string",
+          "description": "ИНН"
+        },
+        "address": {
+          "type": "string",
+          "description": "Адрес участника"
+        },
+        "kpp": {
+          "type": "string",
+          "description": "КПП"
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "Payer": {
+      "type": "object",
+      "description": "Плательщик",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Тип плательщика. INDIVIDUAL (ФЛ) / LEGAL (юр. лицо) / NONE (без типа)",
+          "enum": [
+            "INDIVIDUAL",
+            "LEGAL",
+            "NONE"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование плательщика"
+        },
+        "inn": {
+          "type": "string",
+          "description": "ИНН плательщика"
+        },
+        "kpp": {
+          "type": "string",
+          "description": "КПП плательщика"
+        },
+        "address": {
+          "type": "string",
+          "description": "Адрес плательщика"
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "Receiver": {
+      "type": "object",
+      "description": "Получатель груза",
+      "properties": {
+        "inn": {
+          "type": "string",
+          "description": "ИНН"
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование"
+        },
+        "innType": {
+          "type": "string",
+          "description": "Тип участника. INDIVIDUAL (ФЛ) / IE (ИП) / COMPANY (ООО)",
+          "enum": [
+            "INDIVIDUAL",
+            "IE",
+            "COMPANY"
+          ]
+        },
+        "address": {
+          "type": "string",
+          "description": "Адрес"
+        },
+        "kpp": {
+          "type": "string",
+          "description": "КПП"
+        },
+        "okpo": {
+          "type": "string",
+          "description": "ОКПО"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "Номер телефона"
+        },
+        "bankRequisites": {
+          "$ref": "#/$defs/BankRequisites",
+          "description": "Банковские реквизиты"
+        }
+      },
+      "required": [
+        "innType",
+        "name"
+      ]
+    },
+    "Seller": {
+      "type": "object",
+      "description": "Продавец",
+      "properties": {
+        "cnum": {
+          "type": "string",
+          "description": "CNUM организации"
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование продавца"
+        },
+        "inn": {
+          "type": "string",
+          "description": "ИНН"
+        },
+        "address": {
+          "type": "string",
+          "description": "Адрес"
+        },
+        "kpp": {
+          "type": "string",
+          "description": "КПП"
+        },
+        "okpo": {
+          "type": "string",
+          "description": "ОКПО"
+        },
+        "consignor": {
+          "type": "boolean",
+          "description": "Признак является ли продавец отправителем груза"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "Номер телефона"
+        },
+        "bankRequisites": {
+          "$ref": "#/$defs/BankRequisites",
+          "description": "Банковские реквизиты"
+        }
+      },
+      "required": [
+        "cnum",
+        "inn",
+        "name"
+      ]
+    },
+    "ServiceList": {
+      "type": "object",
+      "description": "Список услуг",
+      "properties": {
+        "items": {
+          "type": "array",
+          "description": "Список услуг",
+          "items": {
+            "$ref": "#/$defs/ItemMiniResponse"
+          }
+        },
+        "totalPrice": {
+          "type": "number",
+          "description": "Итоговая сумма"
+        },
+        "totalVatAmount": {
+          "type": "number",
+          "description": "Итоговый НДС"
+        }
+      },
+      "required": [
+        "items",
+        "totalPrice",
+        "totalVatAmount"
+      ]
+    },
+    "Signatory": {
+      "type": "object",
+      "description": "Подписант/ответственное лицо",
+      "properties": {
+        "position": {
+          "type": "string",
+          "description": "Должность"
+        },
+        "fullName": {
+          "type": "string",
+          "description": "ФИО полностью"
+        }
+      }
+    },
+    "TransferInfo": {
+      "type": "object",
+      "description": "Информация о передаче/приемке УПД",
+      "properties": {
+        "document": {
+          "$ref": "#/$defs/DocumentBase",
+          "description": "Документ-основание передачи"
+        },
+        "transportationInfo": {
+          "type": "string",
+          "description": "Данные о транспортировке и грузе"
+        },
+        "shippingDocumentNumber": {
+          "type": "string",
+          "description": "Номер документа об отгрузке"
+        },
+        "shippingDocumentDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата документа об отгрузке"
+        },
+        "sellerTransferEmployee": {
+          "$ref": "#/$defs/Signatory",
+          "description": "Представитель продавца, передавший товар/услуги"
+        },
+        "transferDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата отгрузки, передачи"
+        },
+        "sellerAdditionalInfo": {
+          "type": "string",
+          "description": "Иные сведения об отгрузке, передаче"
+        },
+        "sellerResponsiblePerson": {
+          "$ref": "#/$defs/Signatory",
+          "description": "Ответственный продавца за правильность оформления"
+        },
+        "buyerReceiptEmployee": {
+          "$ref": "#/$defs/Signatory",
+          "description": "Представитель покупателя, принявший товар/услуги"
+        },
+        "receiptDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата получения, приемки"
+        },
+        "buyerAdditionalInfo": {
+          "type": "string",
+          "description": "Иные сведения о получении, приемке"
+        },
+        "buyerResponsiblePerson": {
+          "$ref": "#/$defs/Signatory",
+          "description": "Ответственный покупателя за правильность оформления"
+        },
+        "sellerEconomicSubject": {
+          "type": "string",
+          "description": "Наименование экономического субъекта - составителя документа продавца"
+        },
+        "buyerEconomicSubject": {
+          "type": "string",
+          "description": "Наименование экономического субъекта - составителя документа покупателя"
+        }
+      },
+      "required": [
+        "document",
+        "transferDate"
+      ]
+    },
+    "UPD": {
+      "description": "Модель универсального передаточного документа (УПД)",
+      "allOf": [
+        {
+          "$ref": "#/$defs/AbstractClosingDocumentResponse"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "description": "Статус УПД"
+            },
+            "goods": {
+              "$ref": "#/$defs/Goods",
+              "description": "Товары"
+            },
+            "additionalInfo": {
+              "$ref": "#/$defs/AdditionalInfo",
+              "description": "Дополнительная информация"
+            },
+            "transferInfo": {
+              "$ref": "#/$defs/TransferInfo",
+              "description": "Информация о передаче/приемке"
+            },
+            "seller": {
+              "$ref": "#/$defs/Seller",
+              "description": "Продавец"
+            },
+            "shipper": {
+              "$ref": "#/$defs/Participant",
+              "description": "Грузоотправитель"
+            },
+            "buyer": {
+              "$ref": "#/$defs/Participant",
+              "description": "Покупатель"
+            },
+            "receiver": {
+              "$ref": "#/$defs/Participant",
+              "description": "Грузополучатель"
+            }
+          }
+        }
+      ],
+      "required": [
+        "additionalInfo",
+        "buyer",
+        "goods",
+        "seller",
+        "status",
+        "transferInfo",
+        "type"
+      ]
+    },
+    "Unit": {
+      "type": "object",
+      "description": "Модель единицы измерения",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Кодовое название"
+        },
+        "abbreviation": {
+          "type": "string",
+          "description": "Единица измерения"
+        },
+        "value": {
+          "type": "string",
+          "description": "Значение"
+        }
+      },
+      "required": [
+        "abbreviation",
+        "name",
+        "value"
+      ]
+    },
+    "Waybill": {
+      "type": "object",
+      "description": "Транспортная накладная",
+      "properties": {
+        "number": {
+          "type": "string",
+          "description": "Номер транспортной накладной"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата транспортной накладной"
+        }
+      }
+    },
+    "WorkAct": {
+      "description": "Модель акта выполненных работ",
+      "allOf": [
+        {
+          "$ref": "#/$defs/AbstractClosingDocumentResponse"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "services": {
+              "$ref": "#/$defs/ServiceList",
+              "description": "Услуги"
+            },
+            "additionalInfo": {
+              "$ref": "#/$defs/WorkActAdditionalInfo",
+              "description": "Дополнительная информация"
+            },
+            "executor": {
+              "$ref": "#/$defs/Executor",
+              "description": "Исполнитель"
+            },
+            "customer": {
+              "$ref": "#/$defs/Customer",
+              "description": "Заказчик"
+            }
+          }
+        }
+      ],
+      "required": [
+        "additionalInfo",
+        "customer",
+        "executor",
+        "services",
+        "type"
+      ]
+    },
+    "WorkActAdditionalInfo": {
+      "type": "object",
+      "description": "Дополнительная информация акта выполненных работ",
+      "properties": {
+        "documentNumber": {
+          "type": "string",
+          "description": "Номер документа"
+        },
+        "documentDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата документа"
+        },
+        "upperComment": {
+          "type": "string",
+          "description": "Комментарий вверху бланка документа"
+        },
+        "lowerComment": {
+          "type": "string",
+          "description": "Комментарий внизу бланка документа"
+        }
+      },
+      "required": [
+        "documentDate"
+      ]
+    }
+  }
+}

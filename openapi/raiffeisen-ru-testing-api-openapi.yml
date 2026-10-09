@@ -1,0 +1,109 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Testing API
+  version: '0.1'
+  contact:
+    email: ecom@raiffeisen.ru
+    name: Support e-mail
+    x-team-id: 932
+    x-short-team-name: FPS B2B
+  x-logo:
+    url: images/raifflogo.png
+    backgroundColor: '#FFFFFF'
+    altText: Raiff logo
+  description: 'Operations tagged testing across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-sbp-b2b-openapi.json, raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://pay-test.raif.ru
+  description: Sandbox
+- url: https://pay.raif.ru
+  description: Production
+tags:
+- name: Testing
+  x-displayName: Тестирование СБП
+  description: Для получения тестовых данных для интеграции напишите на ecom@raiffeisen.ru.
+paths:
+  /api/sandbox/b2b/sbp/v1/qrs/{qrId}/payment:
+    post:
+      summary: Создание тестовой оплаты
+      description: '!! Данные endpoint можно использовать только в ТЕСТОВОМ окружении !!'
+      tags:
+      - Testing
+      operationId: createTestPayment
+      parameters:
+      - $ref: '#/components/parameters/QrId'
+      requestBody:
+        $ref: '#/components/requestBodies/RequestBodyOfSandBoxPayment'
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+components:
+  schemas:
+    ErrorResponseDto:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки запроса.
+        message:
+          type: string
+          description: Описание ошибки
+    Amount:
+      type: number
+      format: float
+      maximum: 1000000
+      description: Сумма операции в рублях
+      example: 8573.79
+  parameters:
+    QrId:
+      name: qrId
+      in: path
+      required: true
+      description: Уникальный идентификатор платёжной ссылки
+      schema:
+        type: string
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: INVALID_DATA
+                message: Некорректные данные
+  requestBodies:
+    RequestBodyOfSandBoxPayment:
+      content:
+        application/json:
+          schema:
+            required:
+            - amount
+            type: object
+            properties:
+              amount:
+                $ref: '#/components/schemas/Amount'
+      required: true
+  securitySchemes:
+    BearerAuth:
+      type: http
+      description: '[Bearer secretKey](#tag/authorization)
+
+
+        example: eyJ0eXA***
+
+        '
+      scheme: bearer
+      bearerFormat: JWT
+      x-internal: false
+x-refined-from:
+- raiffeisen-ru-raif-pay-sbp-b2b-openapi.json
+- raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml

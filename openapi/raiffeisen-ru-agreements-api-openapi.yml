@@ -1,0 +1,427 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Agreements API
+  version: 1.0.0
+  description: 'Operations tagged Agreements across 2 of this provider''s published API definitions: raiffeisen-ru-trade-finance-agreements-openapi.yml, raiffeisen-ru-trade-finance-agreements-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/trade-finance
+tags:
+- name: Agreements
+  description: Соглашения
+paths:
+  /v1/agreements:
+    post:
+      tags:
+      - Agreements
+      summary: Получение Соглашений
+      operationId: getAgreements
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgreementsFilterRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgreementsResponse'
+              examples:
+                simple:
+                  summary: Список соглашений
+                  description: Возвращает список соглашений для указанных CNUM
+                  value:
+                    offset: 0
+                    limit: 20
+                    totalCount: 35
+                    data:
+                    - id: 21615
+                      number: Agreement_123
+                      status: ACTIVE
+                      statusName: Действует
+                      endDate: '2028-05-30'
+                      amount: 770000.0
+                      currency: RUR
+                      deadLineDate: '2027-05-10'
+                      agreementDate: '2024-11-19'
+                      guaranteeTypes:
+                      - Гарантия платежа
+                      - Гарантия возврата аванса
+                      - Тендерная гарантия
+                      - Гарантия исполнения обязательств в гарантийный период
+                      - Гарантия исполнения контракта
+                      guaranteeTypeCodes:
+                      - PAY
+                      - ADV
+                      - TND
+                      - WAR
+                      - PERF
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/trade-finance
+  /v1/agreements/{id}:
+    get:
+      tags:
+      - Agreements
+      summary: Получение информации по соглашению
+      operationId: getAgreementById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        explode: false
+        schema:
+          type: integer
+          format: int64
+          example: 21615
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgreementResponse'
+              examples:
+                simple:
+                  summary: Соглашение по идентификатору
+                  description: Возвращает информацию о соглашении по указанному идентификатору
+                  value:
+                    id: 21615
+                    number: Agreement_123
+                    status: ACTIVE
+                    statusName: Действует
+                    endDate: '2028-05-30'
+                    amount: 770000.0
+                    currency: RUR
+                    deadLineDate: '2027-05-10'
+                    agreementDate: '2024-11-19'
+                    guaranteeTypes:
+                    - Гарантия платежа
+                    - Гарантия возврата аванса
+                    - Тендерная гарантия
+                    - Гарантия исполнения обязательств в гарантийный период
+                    - Гарантия исполнения контракта
+                    guaranteeTypeCodes:
+                    - PAY
+                    - ADV
+                    - TND
+                    - WAR
+                    - PERF
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/trade-finance
+  /v1/agreements/agreements/count:
+    get:
+      tags:
+      - Agreements
+      summary: Количество соглашений
+      operationId: countAgreements
+      parameters:
+      - name: cnums
+        in: query
+        required: true
+        explode: true
+        schema:
+          type: array
+          example:
+          - '407016'
+          items:
+            type: string
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiCountAgreementsResponse'
+              examples:
+                simple:
+                  summary: Количество соглашений
+                  description: Возвращает количество соглашений для указанных CNUM
+                  value:
+                    count: 35
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/trade-finance
+components:
+  responses:
+    UnprocessableEntity:
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+  schemas:
+    ErrorResponseItemDto:
+      type: object
+      properties:
+        code:
+          type: string
+        detail:
+          type: string
+        meta:
+          type: object
+        id:
+          type: string
+        source:
+          $ref: '#/components/schemas/ErrorSource'
+    UiCountAgreementsResponse:
+      type: object
+      properties:
+        activeCount:
+          type: integer
+          description: Количество активных соглашений
+          format: int32
+          example: 55
+        expiredCount:
+          type: integer
+          description: Количество истекших соглашений
+          format: int32
+          example: 37
+    Order:
+      required:
+      - sortBy
+      properties:
+        priority:
+          type: integer
+          format: int32
+          example: 1
+        sortBy:
+          type: string
+          example: number
+        orderBy:
+          $ref: '#/components/schemas/SortDirection'
+    AgreementsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgreementResponse'
+      allOf:
+      - $ref: '#/components/schemas/Pagination'
+    AgreementResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Идентификатор версии соглашения
+          format: int64
+          example: 21615
+        number:
+          type: string
+          description: Номер соглашения
+          example: Agreement_123
+        status:
+          type: string
+          description: Статус соглашения (системное наименование)
+          example: ACTIVE
+        statusName:
+          type: string
+          description: Статус соглашения (наименование для статуса)
+          example: Действует
+        endDate:
+          type: string
+          format: date
+          example: '2028-05-30'
+        amount:
+          type: number
+          format: decimal
+          example: 770000.0
+        currency:
+          type: string
+          example: RUR
+        deadLineDate:
+          type: string
+          format: date
+          example: '2027-05-10'
+        agreementDate:
+          type: string
+          format: date
+          example: '2024-11-19'
+        guaranteeTypes:
+          type: array
+          example:
+          - Гарантия платежа
+          - Гарантия возврата аванса
+          - Тендерная гарантия
+          - Гарантия исполнения обязательств в гарантийный период
+          - Гарантия исполнения контракта
+          items:
+            type: string
+        guaranteeTypeCodes:
+          type: array
+          example:
+          - PAY
+          - ADV
+          - ADV223
+          - TND223
+          - TND44
+          - TND615
+          - TND
+          - WAR
+          - WAR223
+          - WAR44
+          - WAR615
+          - PERF
+          - PERF44
+          - PERF223
+          - PERF615
+          items:
+            type: string
+    AgreementsFilterRequest:
+      required:
+      - filter
+      type: object
+      properties:
+        filter:
+          $ref: '#/components/schemas/AgreementsFilter'
+        paging:
+          $ref: '#/components/schemas/Paging'
+        order:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+    SortDirection:
+      type: string
+      enum:
+      - ASC
+      - DESC
+    AgreementsFilter:
+      type: object
+      properties:
+        cnums:
+          type: array
+          items:
+            type: string
+            example: '407016'
+    Paging:
+      required:
+      - limit
+      - offset
+      properties:
+        offset:
+          type: integer
+          format: int32
+          example: 60
+        limit:
+          type: integer
+          format: int32
+          example: 20
+    ErrorSource:
+      type: object
+      properties:
+        pointer:
+          type: string
+    ErrorResponseDto:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseItemDto'
+    Pagination:
+      required:
+      - limit
+      - offset
+      - totalCount
+      type: object
+      properties:
+        offset:
+          type: integer
+          format: int32
+          example: 0
+        limit:
+          type: integer
+          format: int32
+          example: 20
+        totalCount:
+          type: integer
+          format: int64
+          example: 35
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-trade-finance-agreements-openapi.yml
+- raiffeisen-ru-trade-finance-agreements-openapi.yml

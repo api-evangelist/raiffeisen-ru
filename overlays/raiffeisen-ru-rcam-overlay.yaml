@@ -1,0 +1,21 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist overlay for Raiffeisen Capital Asset Management API
+  version: 1.0.0
+extends: ../openapi/_original/raiffeisen-ru-rcam-openapi.yml
+x-generated: '2026-10-09'
+x-method: generated
+actions:
+- target: $.info
+  description: Catalog provenance (API Evangelist).
+  update:
+    x-apis-json-aid: raiffeisen-ru
+    x-provider: Raiffeisenbank (Russia)
+    x-api-name: Raiffeisen Capital Asset Management API
+    x-mcp-discovery: https://api.raiffeisen.ru/developer-portal/public/mcp
+- target: $
+  description: Link the provider documentation page for this API (from apis.yml humanURL).
+  update:
+    externalDocs:
+      description: Provider documentation (developer.raiffeisen.ru)
+      url: https://developer.raiffeisen.ru/docs/api/8e0be7bf-8b00-4d65-8573-006ba615c4a4

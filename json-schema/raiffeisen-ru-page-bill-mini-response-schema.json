@@ -1,0 +1,358 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-page-bill-mini-response-schema.json",
+  "title": "PageBillMiniResponse",
+  "description": "Страница со списком счетов на оплату",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-invoices-openapi.yml#/components/schemas/PageBillMiniResponse",
+  "type": "object",
+  "properties": {
+    "totalElements": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Всего элементов"
+    },
+    "totalPages": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Всего страниц"
+    },
+    "first": {
+      "type": "boolean",
+      "description": "Признак первой страницы"
+    },
+    "last": {
+      "type": "boolean",
+      "description": "Признак последней страницы"
+    },
+    "statusIsUpdating": {
+      "type": "boolean",
+      "description": "Признак того, что статусы счетов сейчас обновляются"
+    },
+    "numberOfElements": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Количество элементов на текущей странице"
+    },
+    "pageable": {
+      "$ref": "#/$defs/Pageable",
+      "description": "Информация о пагинации"
+    },
+    "size": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Размер страницы"
+    },
+    "content": {
+      "type": "array",
+      "description": "Список счетов на оплату",
+      "items": {
+        "$ref": "#/$defs/BillMiniResponse"
+      }
+    },
+    "number": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Номер текущей страницы"
+    },
+    "sort": {
+      "$ref": "#/$defs/Sort",
+      "description": "Информация о сортировке"
+    },
+    "empty": {
+      "type": "boolean",
+      "description": "Признак пустой страницы"
+    }
+  },
+  "$defs": {
+    "BillMiniResponse": {
+      "type": "object",
+      "description": "Краткая информация о счете на оплату",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Идентификатор счета"
+        },
+        "cnum": {
+          "type": "string",
+          "description": "CNUM организации"
+        },
+        "status": {
+          "type": "string",
+          "description": "Статус счета на оплату",
+          "enum": [
+            "PAYMENT_PENDING",
+            "PAID"
+          ]
+        },
+        "createdDate": {
+          "type": "number",
+          "description": "Дата и время создания счета (количество секунд с начала эпохи Unix, десятичная дробь с наносекундами)"
+        },
+        "invoiceDate": {
+          "type": "number",
+          "description": "Дата выставления счета (количество секунд с начала эпохи Unix, десятичная дробь с наносекундами)"
+        },
+        "docNumber": {
+          "type": "string",
+          "description": "Номер документа"
+        },
+        "payer": {
+          "$ref": "#/$defs/PayerMiniResponse",
+          "description": "Плательщик"
+        },
+        "payee": {
+          "$ref": "#/$defs/PayeeMiniResponse",
+          "description": "Получатель платежа"
+        },
+        "amount": {
+          "type": "number",
+          "description": "Сумма счета"
+        },
+        "items": {
+          "type": "array",
+          "description": "Список товаров",
+          "items": {
+            "$ref": "#/$defs/ItemMiniResponse"
+          }
+        },
+        "linkedDocuments": {
+          "type": "array",
+          "description": "Связанные закрывающие документы",
+          "items": {
+            "$ref": "#/$defs/CDListLinkedDocumentResponse"
+          }
+        },
+        "numberOfRemainingLinkedDocuments": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Количество связанных документов, которые не вернулись в ответе"
+        },
+        "receipts": {
+          "type": "array",
+          "description": "Связанные чеки самозанятых",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "required": [
+        "amount",
+        "cnum",
+        "createdDate",
+        "docNumber",
+        "id",
+        "invoiceDate",
+        "items",
+        "linkedDocuments",
+        "numberOfRemainingLinkedDocuments",
+        "payee",
+        "payer",
+        "receipts",
+        "status"
+      ]
+    },
+    "CDListLinkedDocumentResponse": {
+      "type": "object",
+      "description": "Список связанных документов",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Идентификатор связанного документа"
+        },
+        "type": {
+          "type": "string",
+          "description": "Тип связанного документа. Одно из значений BILL, WORK_ACT, CONSIGNMENT_NOTE, INVOICE_FACTURA"
+        },
+        "documentNumber": {
+          "type": "string",
+          "description": "Номер связанного документа"
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ]
+    },
+    "ItemMiniResponse": {
+      "type": "object",
+      "description": "Модель товара",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Идентификатор товара (возвращается в ответах по счетам, у закрывающих документов отсутствует)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Наименование единицы товара."
+        },
+        "count": {
+          "type": "number",
+          "description": "Количество"
+        },
+        "price": {
+          "type": "number",
+          "description": "Цена единицы товара"
+        },
+        "vat": {
+          "$ref": "#/$defs/Unit",
+          "description": "НДС"
+        },
+        "unit": {
+          "$ref": "#/$defs/Unit",
+          "description": "Единица измерения"
+        },
+        "sum": {
+          "type": "number",
+          "description": "Итоговая стоимость"
+        },
+        "vatAmount": {
+          "type": "number",
+          "description": "НДС"
+        }
+      },
+      "required": [
+        "count",
+        "name",
+        "price",
+        "sum",
+        "unit",
+        "vat",
+        "vatAmount"
+      ]
+    },
+    "Pageable": {
+      "type": "object",
+      "description": "Информация о пагинации",
+      "properties": {
+        "paged": {
+          "type": "boolean",
+          "description": "Признак постраничного вывода"
+        },
+        "pageNumber": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Номер страницы"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Размер страницы"
+        },
+        "unpaged": {
+          "type": "boolean",
+          "description": "Признак непостраничного вывода"
+        },
+        "offset": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Смещение от начала выборки"
+        },
+        "sort": {
+          "$ref": "#/$defs/Sort",
+          "description": "Информация о сортировке"
+        }
+      }
+    },
+    "PayeeMiniResponse": {
+      "type": "object",
+      "description": "Получатель платежа",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Наименование получателя платежа"
+        },
+        "inn": {
+          "type": "string",
+          "description": "ИНН получателя платежа"
+        },
+        "kpp": {
+          "type": "string",
+          "description": "КПП получателя платежа"
+        },
+        "address": {
+          "type": "string",
+          "description": "Адрес получателя платежа"
+        }
+      }
+    },
+    "PayerMiniResponse": {
+      "type": "object",
+      "description": "Плательщик",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Наименование плательщика"
+        },
+        "type": {
+          "type": "string",
+          "description": "Тип плательщика. INDIVIDUAL (ФЛ) / LEGAL (юр. лицо) / NONE (без типа)",
+          "enum": [
+            "INDIVIDUAL",
+            "LEGAL",
+            "NONE"
+          ]
+        },
+        "inn": {
+          "type": "string",
+          "description": "ИНН плательщика"
+        },
+        "kpp": {
+          "type": "string",
+          "description": "КПП плательщика"
+        },
+        "address": {
+          "type": "string",
+          "description": "Адрес плательщика"
+        }
+      }
+    },
+    "Sort": {
+      "type": "object",
+      "description": "Информация о сортировке",
+      "properties": {
+        "sorted": {
+          "type": "boolean",
+          "description": "Признак отсортированного результата"
+        },
+        "unsorted": {
+          "type": "boolean",
+          "description": "Признак неотсортированного результата"
+        },
+        "empty": {
+          "type": "boolean",
+          "description": "Признак отсутствия сортировки"
+        }
+      }
+    },
+    "Unit": {
+      "type": "object",
+      "description": "Модель единицы измерения",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Кодовое название"
+        },
+        "abbreviation": {
+          "type": "string",
+          "description": "Единица измерения"
+        },
+        "value": {
+          "type": "string",
+          "description": "Значение"
+        }
+      },
+      "required": [
+        "abbreviation",
+        "name",
+        "value"
+      ]
+    }
+  }
+}

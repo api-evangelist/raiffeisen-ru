@@ -1,0 +1,356 @@
+# x-archived-from: raiffeisen-ru-raif-pay-notifications-openapi.yml
+# x-archived-on: 2026-10-09
+---
+openapi: "3.0.3"
+info:
+  title: "(Черновик) Сервис уведомлений Raif Pay"
+  version: "1.0"
+  description: "API сервиса уведомлений Raif Pay"
+paths:
+  /v1/merchants/{publicId}/notifications:
+    post:
+      summary: "Создание уведомления"
+      operationId: "postV1Notifications"
+      description: "Метод создание уведомления"
+      tags:
+      - "notification-external"
+      parameters:
+      - schema:
+          type: "string"
+        in: "path"
+        name: "publicId"
+        description: "Идентификатор мерчанта"
+        required: true
+        example: "123456-7890"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        required: true
+        description: "Создание уведомления"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNotificationRequest"
+            examples:
+              createPaymentSlip:
+                summary: "Создание настроек квитанции"
+                value:
+                  type: "PAYMENT_SLIP"
+                  orderNumber: "123-123"
+                  customer:
+                    email: "test@test.ru"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateNotificationResponse"
+              examples:
+                Ответ создания уведомления:
+                  summary: "Успешное создание уведомления"
+                  value:
+                    id: "09b9f34d-e6d1-432d-87a6-61ec5e4018cb"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneralError"
+              examples:
+                Тело ошибки:
+                  summary: "Ошибка"
+                  value:
+                    code: "ERROR_CODE"
+                    message: "Описание ошибки"
+                    traceId: "c396fda4d36c4f12"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/merchants/{publicId}/notifications/{id}:
+    delete:
+      summary: "Удаление уведомления"
+      operationId: "deleteV1Notification"
+      description: "Удаление уведомления"
+      tags:
+      - "notification-external"
+      parameters:
+      - schema:
+          type: "string"
+        in: "path"
+        name: "publicId"
+        description: "Идентификатор мерчанта"
+        required: true
+        example: "123456-7890"
+      - schema:
+          type: "string"
+        in: "path"
+        name: "id"
+        description: "Идентификатор уведомления"
+        required: true
+        example: "09b9f34d-e6d1-432d-87a6-61ec5e4018cb"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneralError"
+              examples:
+                Тело ошибки:
+                  summary: "Ошибка"
+                  value:
+                    code: "ERROR_CODE"
+                    message: "Описание ошибки"
+                    traceId: "c396fda4d36c4f12"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v1/merchants/{publicId}/notification-settings:
+    post:
+      summary: "Создание настроек уведомлений на мерчанте"
+      operationId: "postV1NotificationSettings"
+      description: "Метод создания настроек уведомлений на мерчанте"
+      tags:
+      - "notification-settings-external"
+      parameters:
+      - $ref: "#/components/parameters/RoleToken"
+      - schema:
+          type: "string"
+        in: "path"
+        name: "publicId"
+        description: "Идентификатор мерчанта"
+        required: true
+        example: "123456-7890"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      requestBody:
+        description: "Создание настройки уведомления"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNotificationSettingsRequest"
+            examples:
+              createPaymentSlipSettings:
+                summary: "Пример создания настроек квитанции"
+                value:
+                  type: "PAYMENT_SLIP"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneralError"
+              examples:
+                Тело ошибки:
+                  summary: "Ошибка"
+                  value:
+                    code: "ERROR_CODE"
+                    message: "Описание ошибки"
+                    traceId: "c396fda4d36c4f12"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    get:
+      summary: "Получение настроек уведомлений на мерчанте"
+      operationId: "getV1NotificationSettings"
+      description: "Получение настроек уведомлений на мерчанте"
+      tags:
+      - "notification-settings-external"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationSettingsResponse"
+              examples:
+                Настроены квитанции:
+                  summary: "Настройки квитанции"
+                  value:
+                  - id: "09b9f34d-e6d1-432d-87a6-61ec5e4018cb"
+                    type: "PAYMENT_SLIP"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      parameters:
+      - schema:
+          type: "string"
+        in: "path"
+        name: "publicId"
+        description: "Идентификатор мерчанта"
+        required: true
+      - schema:
+          type: "string"
+          enum:
+          - "PAYMENT_SLIP"
+        in: "query"
+        name: "type"
+        description: "Тип уведомления"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+  /v1/merchants/{publicId}/notification-settings/{id}:
+    delete:
+      summary: "Удаление настройки уведомления на мерчанте"
+      operationId: "deleteV1NotificationSettings"
+      description: "Удаление настройки уведомления на мерчанте"
+      tags:
+      - "notification-settings-external"
+      responses:
+        "200":
+          description: "OK"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      parameters:
+      - schema:
+          type: "string"
+        in: "path"
+        name: "publicId"
+        description: "Идентификатор мерчанта"
+        required: true
+      - schema:
+          type: "string"
+          format: "uuid"
+        in: "path"
+        name: "id"
+        description: "Идентификатор настройки"
+        required: true
+      - $ref: "#/components/parameters/RoleToken"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+components:
+  schemas:
+    NotificationType:
+      type: "string"
+      description: "Тип уведомления"
+      enum:
+      - "PAYMENT_SLIP"
+      example: "PAYMENT_SLIP"
+    Customer:
+      title: "Customer"
+      type: "object"
+      description: "Данные о покупателе"
+      properties:
+        email:
+          type: "string"
+          description: "Почта покупателя"
+          example: "test@test.ru"
+      required:
+      - "email"
+    GeneralError:
+      title: "GeneralError"
+      type: "object"
+      description: "Объект ошибки"
+      properties:
+        code:
+          type: "string"
+          description: "Код ошибки запроса"
+          example: "ERROR_CODE"
+        message:
+          type: "string"
+          description: "Описание ошибки"
+          example: "Описание ошибки"
+        traceId:
+          type: "string"
+          description: "Идентификатор выполнения запроса при наличии ошибки"
+          example: "c396fda4d36c4f12"
+    CreateNotificationSettingsRequest:
+      type: "object"
+      title: "CreateNotificationSettingsRequest"
+      description: "Запрос на создание настроек уведомлений"
+      properties:
+        type:
+          $ref: "#/components/schemas/NotificationType"
+      required:
+      - "type"
+    CreateNotificationRequest:
+      type: "object"
+      title: "CreateNotificationRequest"
+      description: "Запрос на создание уведомления"
+      properties:
+        type:
+          type: "string"
+          description: "Тип уведомления"
+          example: "PAYMENT_SLIP"
+        customer:
+          $ref: "#/components/schemas/Customer"
+        orderNumber:
+          type: "string"
+          description: "Номер заказа"
+          example: "order-test"
+      required:
+      - "type"
+      - "customer"
+      - "orderNumber"
+    CreateNotificationResponse:
+      type: "object"
+      title: "CreateNotificationResponse"
+      description: "Ответ на запрос создания уведомления"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          description: "Идентификатор уведомления"
+          example: "09b9f34d-e6d1-432d-87a6-61ec5e4018cb"
+    NotificationSettingsResponse:
+      description: "Ответ с настройками уведомлений"
+      type: "array"
+      items:
+        properties:
+          id:
+            type: "string"
+            format: "uuid"
+            description: "Идентификатор настройки"
+            example: "09b9f34d-e6d1-432d-87a6-61ec5e4018cb"
+          type:
+            $ref: "#/components/schemas/NotificationType"
+  parameters:
+    RoleToken:
+      name: "roleToken"
+      in: "header"
+      required: true
+      description: "Аутентификационный токен в системе Raif Pay"
+      schema:
+        type: "string"
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+tags:
+- name: "notification-external"
+- name: "notification-settings-external"
+servers:
+- url: "https://api.raiffeisen.ru/raif-pay"

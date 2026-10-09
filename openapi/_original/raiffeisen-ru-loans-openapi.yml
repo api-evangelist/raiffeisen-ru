@@ -1,0 +1,1428 @@
+---
+openapi: "3.0.3"
+info:
+  description: "API кредитования юридических лиц"
+  title: "Финансирование. Кредитование"
+  version: "1.0.0"
+servers:
+- url: "https://api.raiffeisen.ru/loans-financing"
+tags:
+- description: "Соглашение"
+  name: "Agreement"
+- description: "Информация о клиенте"
+  name: "ClientInfo"
+- description: "Досрочное погашение"
+  name: "EarlyRepayment"
+- description: "Транш"
+  name: "Loan"
+paths:
+  /v1/agreements/by-cnums:
+    get:
+      description: "Метод получение соглашений пользователя по параметрам"
+      operationId: "getAgreementsByCnums"
+      parameters:
+      - description: "Список клиентских номеров (список CNUM)"
+        in: "query"
+        name: "cnumList"
+        required: true
+        schema:
+          example:
+          - "AAABBB"
+          - "BBBAAA"
+          items:
+            example: "AAABBB"
+            type: "string"
+          type: "array"
+          uniqueItems: true
+      - description: "Признак - нужны только активные соглашения"
+        in: "query"
+        name: "activeOnly"
+        required: false
+        schema:
+          example: true
+          type: "boolean"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreditLineDtoResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Метод получение соглашений пользователя по параметрам"
+      tags:
+      - "Agreement"
+  /v1/client-info/accounts:
+    get:
+      description: "Метод получения информации по счетам клиента (для оформления д\
+        осрочного погашения кредита). Метод предназначен только для использования\
+        \ в сценариях связанных с кредитованием ЮЛ и может возвращать не все счета\
+        \ клиента."
+      operationId: "getClientAccounts"
+      parameters:
+      - description: "Список клиентских номеров (список CNUM)"
+        in: "query"
+        name: "cnumList"
+        required: true
+        schema:
+          example:
+          - "AAABBB"
+          - "BBBAAA"
+          items:
+            example: "AAABBB"
+            type: "string"
+          type: "array"
+          uniqueItems: true
+      - description: "ISO код валюты счета клиента"
+        in: "query"
+        name: "filterByCurrency"
+        required: false
+        schema:
+          example: "RUB"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClientInfoAccountDtoResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Получение информации по счетам клиента (для оформления досрочного\
+        \ погашения кредита)"
+      tags:
+      - "ClientInfo"
+  /v1/loans:
+    get:
+      description: "Метод для получения списка кредитных линий по идентификатору ф\
+        асилити и статусу"
+      operationId: "getLoans"
+      parameters:
+      - description: "Идентификатор фасилити"
+        in: "query"
+        name: "facilityId"
+        required: true
+        schema:
+          example: "AAABBB12345"
+          type: "string"
+      - description: "Фильтровать неактивные кредитные линии"
+        in: "query"
+        name: "activeOnly"
+        required: false
+        schema:
+          example: true
+          type: "boolean"
+      - description: "Лимит"
+        in: "query"
+        name: "limit"
+        required: false
+        schema:
+          example: 10
+          format: "int32"
+          type: "integer"
+      - description: "Список клиентских номеров (список CNUM)"
+        in: "query"
+        name: "cnumList"
+        required: true
+        schema:
+          example:
+          - "AAABBB"
+          - "BBBAAA"
+          items:
+            example: "AAABBB"
+            type: "string"
+          type: "array"
+          uniqueItems: true
+      - description: "ISO код валюты"
+        in: "query"
+        name: "currency"
+        required: false
+        schema:
+          example: "RUB"
+          type: "string"
+      - description: "Только подходящие для досрочных погашений"
+        in: "query"
+        name: "onlyValidForEarlyRepayment"
+        required: false
+        schema:
+          example: true
+          type: "boolean"
+      - description: "Плановая дата досрочного погашения"
+        in: "query"
+        name: "plannedRepaymentDate"
+        required: false
+        schema:
+          example: "2020-01-01"
+          format: "date"
+          type: "string"
+      - description: "Язык"
+        in: "query"
+        name: "acceptLanguage"
+        required: false
+        schema:
+          example: "ru"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoanResponse"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Метод для получения списка кредитных линий по идентификатору фасил\
+        ити и статусу"
+      tags:
+      - "Loan"
+  /v1/early-repayment/to-be-signed:
+    get:
+      description: "Метод для получения списка досрочных погашений, готовых для по\
+        дписания"
+      operationId: "getEarlyRepaymentsToBeSigned"
+      parameters:
+      - description: "Страница"
+        in: "query"
+        name: "page"
+        required: true
+        schema:
+          example: 0
+          format: "int32"
+          type: "integer"
+      - description: "Количество элементов на странице"
+        in: "query"
+        name: "itemsPerPage"
+        required: true
+        schema:
+          example: 50
+          format: "int32"
+          type: "integer"
+      - description: "Список клиентских номеров (список CNUM)"
+        in: "query"
+        name: "cnumList"
+        required: true
+        schema:
+          example:
+          - "AAABBB"
+          - "BBBAAA"
+          items:
+            example: "AAABBB"
+            type: "string"
+          type: "array"
+          uniqueItems: true
+      - description: "Список идентификаторов досрочных погашений"
+        in: "query"
+        name: "idList"
+        required: false
+        schema:
+          example:
+          - "123e4567-e89b-12d3-a456-426614174000"
+          items:
+            example: "123e4567-e89b-12d3-a456-426614174000"
+            format: "uuid"
+            type: "string"
+          type: "array"
+          uniqueItems: true
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageableResultEarlyRepaymentStateDto"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Метод для получения списка досрочных погашений, готовых для подпис\
+        ания"
+      tags:
+      - "EarlyRepayment"
+  /v1/early-repayment/sign:
+    post:
+      description: "Метод для получения информации о подписании досрочного погашен\
+        ия"
+      operationId: "getEarlyRepaymentSignInformation"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetEarlyRepaymentRequestSignInformationDto"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignInformationResponseDto"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Метод для получения информации о подписании досрочного погашения"
+      tags:
+      - "EarlyRepayment"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/early-repayment/accept-signature:
+    post:
+      description: "Метод подписаниия досрочного погашения с помощью цифровой подп\
+        иси"
+      operationId: "acceptSignature"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcceptCryptoProSignatureRequestDto"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Метод подписаниия досрочного погашения с помощью цифровой подписи"
+      tags:
+      - "EarlyRepayment"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+  /v1/early-repayment:
+    delete:
+      description: "Метод для удаления досрочного погашения"
+      operationId: "deleteEarlyRepayment"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EarlyRepaymentDeleteRequestDto"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Метод для удаления досрочного погашения"
+      tags:
+      - "EarlyRepayment"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+    get:
+      description: "Метод получения досрочного погашения по id"
+      operationId: "getEarlyRepayment"
+      parameters:
+      - description: "Идентификатор досрочного погашения"
+        example: "123e4567-e89b-12d3-a456-426614174000"
+        in: "query"
+        name: "earlyRepaymentId"
+        required: true
+        schema:
+          example: "123e4567-e89b-12d3-a456-426614174000"
+          format: "uuid"
+          type: "string"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EarlyRepaymentStateWithCommissionInfoDto"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Метод получения досрочного погашения по id"
+      tags:
+      - "EarlyRepayment"
+    post:
+      description: "Метод создания нового досрочного погашения"
+      operationId: "createEarlyRepayment"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EarlyRepaymentCreationRequestDto"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EarlyRepaymentSaveResultDto"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Метод создания нового досрочного погашения"
+      tags:
+      - "EarlyRepayment"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+    put:
+      description: "Метод для обновления досрочного погашения"
+      operationId: "updateEarlyRepayment"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EarlyRepaymentUpdateRequestDto"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EarlyRepaymentSaveResultDto"
+          description: "OK"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseErrorResponse"
+          description: "BAD_REQUEST"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+      summary: "Метод для обновления досрочного погашения"
+      tags:
+      - "EarlyRepayment"
+      parameters:
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      - $ref: "#/components/parameters/IdTokenHeader"
+components:
+  schemas:
+    CreditLineDtoResponse:
+      example:
+      - facilityId: "AAABBB12345"
+        cnumList:
+        - "AAABBB"
+        loanMaxPeriod: 12
+        percentRateType:
+        - "FIXED"
+        loanMaxPeriodType: "MONTH"
+        status: "LIVE"
+        agreement:
+          id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          number: "12345-MSK"
+          startDate: "2020-01-01"
+          lastAvailabilityDate: "2120-01-01"
+          expiryDate: "2220-01-01"
+          revolving: true
+        segment: "MIDDLE"
+      items:
+        $ref: "#/components/schemas/CreditLineDto"
+      type: "array"
+    CreditLineDto:
+      description: "Информация по кредитной линии"
+      example:
+        facilityId: "AAABBB12345"
+        cnumList:
+        - "AAABBB"
+        loanMaxPeriod: 12
+        percentRateType:
+        - "FIXED"
+        loanMaxPeriodType: "MONTH"
+        status: "LIVE"
+        agreement:
+          id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          number: "12345-MSK"
+          startDate: "2020-01-01"
+          lastAvailabilityDate: "2120-01-01"
+          expiryDate: "2220-01-01"
+          revolving: true
+        segment: "MIDDLE"
+      properties:
+        facilityId:
+          description: "Идентификатор фасилити"
+          example: "AAABBB12345"
+          type: "string"
+        cnumList:
+          description: "Список клиентских номеров (список CNUM)"
+          example:
+          - "AAABBB"
+          - "BBBAAA"
+          items:
+            type: "string"
+          type: "array"
+          uniqueItems: true
+        loanMaxPeriod:
+          description: "Период"
+          example: 12
+          type: "number"
+        percentRateType:
+          description: "Типы ставки"
+          example:
+          - "FIXED"
+          items:
+            $ref: "#/components/schemas/PercentRateType"
+          type: "array"
+          uniqueItems: true
+        loanMaxPeriodType:
+          $ref: "#/components/schemas/LoanMaxPeriodType"
+        status:
+          $ref: "#/components/schemas/CreditLineStatus"
+        agreement:
+          $ref: "#/components/schemas/Agreement"
+        segment:
+          $ref: "#/components/schemas/Segment"
+      type: "object"
+    BaseErrorResponse:
+      description: "Данные об ошибке"
+      example:
+        timestamp: "2000-01-23T04:56:07.000+00:00"
+        message: "Error message"
+      properties:
+        timestamp:
+          description: "Дата и время возникновения ошибки"
+          example: "2000-01-23T04:56:07Z"
+          format: "date-time"
+          type: "string"
+        message:
+          description: "Сообщение об ошибке"
+          example: "Error message"
+          type: "string"
+      type: "object"
+    ClientInfoAccountDtoResponse:
+      example:
+      - accountNumber: "40702810123456789012"
+        organizationCnum: "AAABBB"
+        availableBalance: 1.2345678901E8
+        currency: "RUB"
+      items:
+        $ref: "#/components/schemas/ClientInfoAccountDto"
+      type: "array"
+      uniqueItems: true
+    ClientInfoAccountDto:
+      description: "Информация по счету клиента"
+      example:
+        accountNumber: "40702810123456789012"
+        organizationCnum: "AAABBB"
+        availableBalance: 1.2345678901E8
+        currency: "RUB"
+      properties:
+        accountNumber:
+          description: "Номер счета"
+          example: "40702810123456789012"
+          type: "string"
+        organizationCnum:
+          description: "Клиентский номер (CNUM)"
+          example: "AAABBB"
+          type: "string"
+        availableBalance:
+          description: "Доступный баланс"
+          example: 1.2345678901E8
+          type: "number"
+        currency:
+          description: "Валюта счета"
+          example: "RUB"
+          type: "string"
+      type: "object"
+    LoanResponse:
+      example:
+      - loanId: "ABCDEF"
+        organizationCnum: "AAABBB"
+        status: "ACTIVE"
+        amount: 10000.12
+        currency: "RUB"
+        interestRate: 10.23
+        drawdownDate: "2020-01-01"
+        scheduleType: "ANNUITY"
+        facilityId: "AAABBB12345"
+        originalAmount: 1000000.12
+        maturityDate: "2030-01-01"
+        valueDate: "2020-01-02"
+        nextPrincipalDate: "2025-01-01"
+        nextPrincipalPayment: 10.23
+        nextInterestDate: "2025-01-02"
+        nextInterestPayment: 1.23
+        baseRate: "FIXED"
+        disabledNextInterestPayment: false
+        rolloverDate: "2025-03-01"
+        baseRateChangeIndicator: "daily"
+        baseRateDescription: "Fixed rate"
+        principalAmount: 10000.23
+        interestRateType: "VAR"
+        loanType: "HT"
+        loanInterestForCurrentOperday: 1.23
+      items:
+        $ref: "#/components/schemas/Loan"
+      type: "array"
+    Loan:
+      allOf:
+      - $ref: "#/components/schemas/BaseLoan"
+      - properties:
+          principalAmount:
+            description: "Сумма основного долга транша"
+            type: "number"
+          interestRateType:
+            description: "Тип процентной ставки"
+            type: "string"
+          loanType:
+            description: "Тип транша"
+            type: "string"
+          loanInterestForCurrentOperday:
+            description: "Сумма начисленных процентов по траншу на момент открытия\
+              \ операционного дня"
+            type: "number"
+      description: "Информация по траншу"
+      example:
+        loanId: "ABCDEF"
+        organizationCnum: "AAABBB"
+        status: "ACTIVE"
+        amount: 10000.12
+        currency: "RUB"
+        interestRate: 10.23
+        drawdownDate: "2020-01-01"
+        scheduleType: "ANNUITY"
+        facilityId: "AAABBB12345"
+        originalAmount: 1000000.12
+        maturityDate: "2030-01-01"
+        valueDate: "2020-01-02"
+        nextPrincipalDate: "2025-01-01"
+        nextPrincipalPayment: 10.23
+        nextInterestDate: "2025-01-02"
+        nextInterestPayment: 1.23
+        baseRate: "FIXED"
+        disabledNextInterestPayment: false
+        rolloverDate: "2025-03-01"
+        baseRateChangeIndicator: "daily"
+        baseRateDescription: "Fixed rate"
+        principalAmount: 10000.23
+        interestRateType: "VAR"
+        loanType: "HT"
+        loanInterestForCurrentOperday: 1.23
+      type: "object"
+    PageableResultEarlyRepaymentStateDto:
+      description: "Страница с информацией о досрочных погашениях"
+      example:
+        data:
+        - facilityId: "AAABBB12345"
+          loanId: "ABCDEF"
+          repaymentType: "PARTIAL"
+          partialRepaymentKind: "REDUCE_NEXT"
+          repaymentDate: "2020-01-01"
+          repaymentAmount: 1000000.23
+          repaymentCurrency: "RUB"
+          accountNumber: "45201810600000480000"
+          notice: "Some valuable notice"
+          repaymentId: "123e4567-e89b-12d3-a456-426614174000"
+          organizationCnum: "AAABBB"
+          repaymentNumber: 12345
+          status: "READY_FOR_SIGN"
+          createdAt: "2000-01-23T04:56:07.000+00:00"
+          bankComment: "Early repayment bank comment"
+          lastSignResult: "DIGESTS_NOT_EQUAL"
+          interestAmount: 10.23
+          cancelRepaymentInfo:
+            id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+            number: 1234
+          smsSignedDocumentsPackage:
+            id: "457-408943-23"
+            number: 457
+        totalDataRecordsCount: 50
+      properties:
+        data:
+          description: "Список с информацией о досрочных погашениях"
+          example:
+          - facilityId: "AAABBB12345"
+            loanId: "ABCDEF"
+            repaymentType: "PARTIAL"
+            partialRepaymentKind: "REDUCE_NEXT"
+            repaymentDate: "2020-01-01"
+            repaymentAmount: 1000000.23
+            repaymentCurrency: "RUB"
+            accountNumber: "45201810600000480000"
+            notice: "Some valuable notice"
+            repaymentId: "123e4567-e89b-12d3-a456-426614174000"
+            organizationCnum: "AAABBB"
+            repaymentNumber: 12345
+            status: "READY_FOR_SIGN"
+            createdAt: "2000-01-23T04:56:07.000+00:00"
+            bankComment: "Early repayment bank comment"
+            lastSignResult: "DIGESTS_NOT_EQUAL"
+            interestAmount: 10.23
+            cancelRepaymentInfo:
+              id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+              number: 1234
+            smsSignedDocumentsPackage:
+              id: "457-408943-23"
+              number: 457
+          items:
+            $ref: "#/components/schemas/EarlyRepaymentStateDto"
+          type: "array"
+        totalDataRecordsCount:
+          description: "Общее количество досрочных погашений"
+          example: 50
+          format: "int32"
+          type: "integer"
+      type: "object"
+    GetEarlyRepaymentRequestSignInformationDto:
+      description: "Получении информация о подписании досрочных погашений"
+      example:
+        ids:
+        - "123e4567-e89b-12d3-a456-426614174000"
+      properties:
+        ids:
+          description: "Список идентификаторов досрочных погашений"
+          example:
+          - "123e4567-e89b-12d3-a456-426614174000"
+          items:
+            example: "123e4567-e89b-12d3-a456-426614174000"
+            format: "uuid"
+            type: "string"
+          type: "array"
+      type: "object"
+    SignInformationResponseDto:
+      description: "Информация о подписанных документах"
+      example:
+        documents:
+        - id: "123e4567-e89b"
+          currency: "RUB"
+          sum: 10000.23
+          docName: "Заявление на досрочное погашение"
+          digest: "ZG9jdW1lbnQgZGlnZXN0"
+          sourceSystem: "CDL"
+          cnum: "AAABBB"
+          docNumber: "123456"
+          date: "2000-01-01T00:00:00.000+00:00"
+          organization: "ООО Рога и Копыта"
+          type: "REPAYMENT"
+          account: "45201810600000480000"
+          addInfo:
+            key: "value"
+      properties:
+        documents:
+          description: "Документы"
+          example:
+          - id: "123e4567-e89b"
+            currency: "RUB"
+            sum: 10000.23
+            docName: "Заявление на досрочное погашение"
+            digest: "ZG9jdW1lbnQgZGlnZXN0"
+            sourceSystem: "CDL"
+            cnum: "AAABBB"
+            docNumber: "123456"
+            date: "2000-01-01T00:00:00.000+00:00"
+            organization: "ООО Рога и Копыта"
+            type: "REPAYMENT"
+            account: "45201810600000480000"
+            addInfo:
+              key: "value"
+          items:
+            $ref: "#/components/schemas/Document"
+          type: "array"
+      type: "object"
+    AcceptCryptoProSignatureRequestDto:
+      description: "Signature for early repayment request"
+      example:
+        id: "123e4567-e89b-12d3-a456-426614174000"
+        signatureValue: "ZGlnaXRhbCBzaWduYXR1cmU="
+      properties:
+        id:
+          description: "Идентификатор досрочного погашения"
+          example: "123e4567-e89b-12d3-a456-426614174000"
+          format: "uuid"
+          type: "string"
+        signatureValue:
+          description: "ЭЦП"
+          example: "ZGlnaXRhbCBzaWduYXR1cmU="
+          type: "string"
+      required:
+      - "id"
+      - "signatureValue"
+      type: "object"
+    EarlyRepaymentStateWithCommissionInfoDto:
+      allOf:
+      - $ref: "#/components/schemas/EarlyRepaymentStateDto"
+      - properties:
+          commissionInfo:
+            $ref: "#/components/schemas/CommissionInfoWithTreasuryCalculationIdDto"
+      description: "Информация о досрочном погашении с информацией по комиссии"
+      example:
+        facilityId: "AAABBB12345"
+        loanId: "ABCDEF"
+        repaymentType: "PARTIAL"
+        partialRepaymentKind: "REDUCE_NEXT"
+        repaymentDate: "2020-01-01"
+        repaymentAmount: 1000000.23
+        repaymentCurrency: "RUB"
+        accountNumber: "45201810600000480000"
+        notice: "Some valuable notice"
+        repaymentId: "123e4567-e89b-12d3-a456-426614174000"
+        organizationCnum: "AAABBB"
+        repaymentNumber: 12345
+        status: "READY_FOR_SIGN"
+        createdAt: "2000-01-23T04:56:07.000+00:00"
+        bankComment: "Early repayment bank comment"
+        lastSignResult: "DIGESTS_NOT_EQUAL"
+        interestAmount: 10.23
+        cancelRepaymentInfo:
+          id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          number: 1234
+        smsSignedDocumentsPackage:
+          id: "457-408943-23"
+          number: 457
+        commissionInfo:
+          value: 1234.56
+          status: "CALCULATED"
+          treasuryCalculationId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+    EarlyRepaymentUpdateRequestDto:
+      allOf:
+      - $ref: "#/components/schemas/EarlyRepaymentCreationRequestDto"
+      - properties:
+          earlyRepaymentId:
+            description: "Идентификатор досрочного погашения"
+            format: "uuid"
+            type: "string"
+        required:
+        - "earlyRepaymentId"
+      description: "Информация об обновляемом досрочном погашении"
+      example:
+        facilityId: "AAABBB12345"
+        loanId: "ABCDEF"
+        repaymentType: "PARTIAL"
+        partialRepaymentKind: "REDUCE_NEXT"
+        repaymentDate: "2020-01-01"
+        repaymentAmount: 1000000.23
+        repaymentCurrency: "RUB"
+        accountNumber: "45201810600000480000"
+        notice: "Some valuable notice"
+        cnumList:
+        - "AAABBB"
+        earlyRepaymentId: "123e4567-e89b-12d3-a456-426614174000"
+    EarlyRepaymentSaveResultDto:
+      description: "Информация о сохраненном досрочном погашении"
+      example:
+        earlyRepaymentId: "123e4567-e89b-12d3-a456-426614174000"
+        earlyRepaymentNumber: 12345
+        earlyRepaymentStatus: "READY_FOR_SIGN"
+      properties:
+        earlyRepaymentId:
+          description: "Идентификатор досрочного погашения"
+          example: "123e4567-e89b-12d3-a456-426614174000"
+          format: "uuid"
+          type: "string"
+        earlyRepaymentNumber:
+          description: "Номер досрочного погашения"
+          example: 12345
+          format: "int64"
+          type: "integer"
+        earlyRepaymentStatus:
+          $ref: "#/components/schemas/RequestStatus"
+      type: "object"
+    EarlyRepaymentCreationRequestDto:
+      allOf:
+      - $ref: "#/components/schemas/BaseEarlyRepaymentDto"
+      - properties:
+          cnumList:
+            description: "Список клиентских номеров (список CNUM)"
+            items:
+              type: "string"
+            type: "array"
+            uniqueItems: true
+      description: "Информация о создаваемом досрочном погашении"
+      example:
+        facilityId: "AAABBB12345"
+        loanId: "ABCDEF"
+        repaymentType: "PARTIAL"
+        partialRepaymentKind: "REDUCE_NEXT"
+        repaymentDate: "2020-01-01"
+        repaymentAmount: 1000000.23
+        repaymentCurrency: "RUB"
+        accountNumber: "45201810600000480000"
+        notice: "Some valuable notice"
+        cnumList:
+        - "AAABBB"
+    EarlyRepaymentDeleteRequestDto:
+      description: "Информация об удаляемом досрочном погашении"
+      example:
+        facilityId: "AAABBB12345"
+        earlyRepaymentId: "123e4567-e89b-12d3-a456-426614174000"
+        cnumList:
+        - "AAABBB"
+      properties:
+        facilityId:
+          description: "Идентификатор фасилити"
+          example: "AAABBB12345"
+          type: "string"
+        earlyRepaymentId:
+          description: "Идентификатор досрочного погашения"
+          example: "123e4567-e89b-12d3-a456-426614174000"
+          format: "uuid"
+          type: "string"
+        cnumList:
+          description: "Список клиентских номеров (список CNUM)"
+          example:
+          - "AAABBB"
+          - "BBBAAA"
+          items:
+            example: "AAABBB"
+            type: "string"
+          type: "array"
+          uniqueItems: true
+      required:
+      - "earlyRepaymentId"
+      type: "object"
+    PercentRateType:
+      enum:
+      - "FIXED"
+      - "RUONIA_1M"
+      - "RUONIA_3M"
+      - "RUONIA_FLOOR"
+      - "FLOATING"
+      - "VARIABLE"
+      example: "FIXED"
+      type: "string"
+    LoanMaxPeriodType:
+      description: "Период"
+      enum:
+      - "DAY"
+      - "MONTH"
+      example: "MONTH"
+      type: "string"
+    CreditLineStatus:
+      description: "Статус кредитной линии"
+      enum:
+      - "LIVE"
+      - "EXPIRY"
+      - "DELETED"
+      - "N_A"
+      example: "LIVE"
+      type: "string"
+    Agreement:
+      description: "Данные по соглашению"
+      example:
+        id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        number: "12345-MSK"
+        startDate: "2020-01-01"
+        lastAvailabilityDate: "2120-01-01"
+        expiryDate: "2220-01-01"
+        revolving: true
+      properties:
+        id:
+          description: "Идентификатор соглашения"
+          example: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          type: "string"
+        number:
+          description: "Номер соглашения"
+          example: "12345-MSK"
+          type: "string"
+        startDate:
+          description: "Дата старта соглашения"
+          example: "2020-01-01"
+          format: "date"
+          type: "string"
+        lastAvailabilityDate:
+          description: "Дата окончания периода доступности"
+          example: "2120-01-01"
+          format: "date"
+          type: "string"
+        expiryDate:
+          description: "Дата погашения соглашения"
+          example: "2220-01-01"
+          format: "date"
+          type: "string"
+        revolving:
+          description: "Возобновляемость кредитной линии"
+          example: true
+          type: "boolean"
+      type: "object"
+    Segment:
+      description: "Сегмент клиента"
+      enum:
+      - "SMALL"
+      - "MICRO"
+      - "MIDDLE"
+      - "LARGE"
+      example: "MIDDLE"
+      type: "string"
+    BaseLoan:
+      description: "Основная информация по траншу"
+      example:
+        loanId: "ABCDEF"
+        organizationCnum: "AAABBB"
+        status: "ACTIVE"
+        amount: 10000.12
+        currency: "RUB"
+        interestRate: 10.23
+        drawdownDate: "2020-01-01"
+        scheduleType: "ANNUITY"
+        facilityId: "AAABBB12345"
+        originalAmount: 1000000.12
+        maturityDate: "2030-01-01"
+        valueDate: "2020-01-02"
+        nextPrincipalDate: "2025-01-01"
+        nextPrincipalPayment: 10.23
+        nextInterestDate: "2025-01-02"
+        nextInterestPayment: 1.23
+        baseRate: "FIXED"
+        disabledNextInterestPayment: false
+        rolloverDate: "2025-03-01"
+        baseRateChangeIndicator: "daily"
+        baseRateDescription: "Fixed rate"
+      properties:
+        loanId:
+          description: "Идентификатор транша"
+          type: "string"
+        organizationCnum:
+          description: "Клиентский номер (CNUM)"
+          type: "string"
+        status:
+          $ref: "#/components/schemas/LoanStatus"
+        amount:
+          description: "Сумма транша"
+          type: "number"
+        currency:
+          description: "Валюта транша"
+          type: "string"
+        interestRate:
+          description: "Ставка"
+          type: "number"
+        drawdownDate:
+          description: "Дата выдачи транша"
+          format: "date"
+          type: "string"
+        scheduleType:
+          $ref: "#/components/schemas/ScheduleType"
+        facilityId:
+          description: "Идентификатор фасилити"
+          type: "string"
+        originalAmount:
+          description: "Начальная сумма транша"
+          type: "number"
+        maturityDate:
+          description: "Дата погашения транша"
+          format: "date"
+          type: "string"
+        valueDate:
+          description: "Дата совершения операции (даты выдачи)"
+          format: "date"
+          type: "string"
+        nextPrincipalDate:
+          description: "Дата следующего погашения основного долга транша"
+          format: "date"
+          type: "string"
+        nextPrincipalPayment:
+          description: "Сумма следующего погашения основного долга транша"
+          type: "number"
+        nextInterestDate:
+          description: "Дата следующего погашения процентов по траншу"
+          format: "date"
+          type: "string"
+        nextInterestPayment:
+          description: "Сумма следующего погашения процентов по траншу"
+          type: "number"
+        baseRate:
+          description: "Код ставки"
+          type: "string"
+        disabledNextInterestPayment:
+          description: "Отображать ли сумму следующего погашения процентов по тран\
+            шу"
+          type: "boolean"
+        rolloverDate:
+          description: "Дата следующей смены ставки"
+          format: "date"
+          type: "string"
+        baseRateChangeIndicator:
+          description: "Индикатор, определяющий периодичность смены процентной ста\
+            вки"
+          type: "string"
+        baseRateDescription:
+          description: "Наименование ставки на локальном языке пользователя"
+          type: "string"
+      type: "object"
+    EarlyRepaymentStateDto:
+      allOf:
+      - $ref: "#/components/schemas/BaseEarlyRepaymentDto"
+      - properties:
+          repaymentId:
+            description: "Идентификатор досрочного погашения"
+            format: "uuid"
+            type: "string"
+          organizationCnum:
+            description: "Клиентский номер (CNUM)"
+            type: "string"
+          repaymentNumber:
+            description: "Номер досрочного погашения"
+            format: "int64"
+            type: "integer"
+          status:
+            $ref: "#/components/schemas/RequestStatus"
+          createdAt:
+            description: "Дата и время создания досрочного погашения"
+            format: "date-time"
+            type: "string"
+          bankComment:
+            description: "Комментарий банка"
+            type: "string"
+          lastSignResult:
+            $ref: "#/components/schemas/SignResult"
+          interestAmount:
+            description: "Сумма процентов"
+            type: "number"
+          cancelRepaymentInfo:
+            $ref: "#/components/schemas/CancelRepaymentInfoDto"
+          smsSignedDocumentsPackage:
+            $ref: "#/components/schemas/SmsSignedDocumentsPackageDto"
+      description: "Информация о досрочном погашении"
+      example:
+        facilityId: "AAABBB12345"
+        loanId: "ABCDEF"
+        repaymentType: "PARTIAL"
+        partialRepaymentKind: "REDUCE_NEXT"
+        repaymentDate: "2020-01-01"
+        repaymentAmount: 1000000.23
+        repaymentCurrency: "RUB"
+        accountNumber: "45201810600000480000"
+        notice: "Some valuable notice"
+        repaymentId: "123e4567-e89b-12d3-a456-426614174000"
+        organizationCnum: "AAABBB"
+        repaymentNumber: 12345
+        status: "READY_FOR_SIGN"
+        createdAt: "2000-01-23T04:56:07.000+00:00"
+        bankComment: "Early repayment bank comment"
+        lastSignResult: "DIGESTS_NOT_EQUAL"
+        interestAmount: 10.23
+        cancelRepaymentInfo:
+          id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+          number: 1234
+        smsSignedDocumentsPackage:
+          id: "457-408943-23"
+          number: 457
+    Document:
+      description: "Информация о документе"
+      example:
+        id: "123e4567-e89b"
+        currency: "RUB"
+        sum: 10000.23
+        docName: "Заявление на досрочное погашение"
+        digest: "ZG9jdW1lbnQgZGlnZXN0"
+        sourceSystem: "CDL"
+        cnum: "AAABBB"
+        docNumber: "123456"
+        date: "2000-01-01T00:00:00.000+00:00"
+        organization: "ООО Рога и Копыта"
+        type: "REPAYMENT"
+        account: "45201810600000480000"
+        addInfo:
+          key: "value"
+      properties:
+        id:
+          description: "Идентификатор документа"
+          type: "string"
+        currency:
+          description: "Валюта документа"
+          type: "string"
+        sum:
+          description: "Сумма документа"
+          type: "number"
+        docName:
+          description: "Имя документа"
+          type: "string"
+        digest:
+          description: "Дайджест документа, закодированный в формате base64"
+          type: "string"
+        sourceSystem:
+          description: "Система-источник документа"
+          type: "string"
+        cnum:
+          description: "Клиентский номер (CNUM)"
+          type: "string"
+        docNumber:
+          description: "Номер документа"
+          type: "string"
+        date:
+          description: "Дата документа"
+          format: "date-time"
+          type: "string"
+        organization:
+          description: "Наименование компании"
+          type: "string"
+        type:
+          $ref: "#/components/schemas/DocumentType"
+        account:
+          description: "Номер счета"
+          type: "string"
+        addInfo:
+          additionalProperties:
+            type: "string"
+          description: "Дополнительная информация"
+          type: "object"
+      type: "object"
+    CommissionInfoWithTreasuryCalculationIdDto:
+      allOf:
+      - $ref: "#/components/schemas/CommissionInfoDto"
+      - properties:
+          treasuryCalculationId:
+            description: "Идентификатор комиссии"
+            format: "uuid"
+            type: "string"
+      description: "Информация по комиссии досрочного погашения с идентификатором\
+        \ комиссии"
+      example:
+        value: 1234.56
+        status: "CALCULATED"
+        treasuryCalculationId: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+    RequestStatus:
+      description: "Статус досрочного погашения или транша"
+      enum:
+      - "DRAFT"
+      - "READY_FOR_SIGN"
+      - "PARTLY_SIGNED"
+      - "SIGNED"
+      - "IN_PROGRESS"
+      - "POSTED"
+      - "PROCESSED"
+      - "REJECTED"
+      - "REMOVED"
+      - "CANCELLED"
+      example: "READY_FOR_SIGN"
+      type: "string"
+    BaseEarlyRepaymentDto:
+      description: "Основная информация по досрочному погашению"
+      example:
+        facilityId: "AAABBB12345"
+        loanId: "ABCDEF"
+        repaymentType: "PARTIAL"
+        partialRepaymentKind: "REDUCE_NEXT"
+        repaymentDate: "2020-01-01"
+        repaymentAmount: 1000000.23
+        repaymentCurrency: "RUB"
+        accountNumber: "45201810600000480000"
+        notice: "Some valuable notice"
+      properties:
+        facilityId:
+          description: "Идентификатор фасилити"
+          type: "string"
+        loanId:
+          description: "Идентификатор транша"
+          type: "string"
+        repaymentType:
+          $ref: "#/components/schemas/EarlyRepaymentType"
+        partialRepaymentKind:
+          $ref: "#/components/schemas/PartialEarlyRepaymentKind"
+        repaymentDate:
+          description: "Дата погашения"
+          format: "date"
+          type: "string"
+        repaymentAmount:
+          description: "Сумма погашения"
+          type: "number"
+        repaymentCurrency:
+          description: "Валюта погашения"
+          type: "string"
+        accountNumber:
+          description: "Счет погашения"
+          pattern: "^$|\\d{20}"
+          type: "string"
+        notice:
+          description: "Примечание"
+          type: "string"
+      type: "object"
+    LoanStatus:
+      description: "Статус транша"
+      enum:
+      - "ACTIVE"
+      - "INACTIVE"
+      - "REMOVED"
+      - "N_A"
+      example: "ACTIVE"
+      type: "string"
+    ScheduleType:
+      description: "Тип погашения транша"
+      enum:
+      - "ANNUITY"
+      - "FREE_SCHEDULE"
+      - "BY_EQUAL_PARTS"
+      - "BULLET_PAYMENT"
+      - "BY_EQUAL_PARTS_WITH_BULLET"
+      - "NO_SCHEDULE"
+      example: "ANNUITY"
+      type: "string"
+    SignResult:
+      description: "Информация о подписании"
+      enum:
+      - "DIGESTS_NOT_EQUAL"
+      - "INVALID_DATE"
+      - "INVALID_STATUS"
+      example: "DIGESTS_NOT_EQUAL"
+      type: "string"
+    CancelRepaymentInfoDto:
+      description: "Данные об отмене досрочного погашения"
+      example:
+        id: "bf1d1868-a98e-4ae5-976f-0c4e21e0d510"
+        number: 1234
+      properties:
+        id:
+          description: "Идентификатор отмены досрочного погашения"
+          format: "uuid"
+          type: "string"
+        number:
+          description: "Номер отмены досрочного погашения"
+          format: "int64"
+          type: "integer"
+      type: "object"
+    SmsSignedDocumentsPackageDto:
+      description: "Информация о пакете подписанных документов"
+      example:
+        id: "457-408943-23"
+        number: 457
+      properties:
+        id:
+          description: "Идентификатор пакета документов"
+          type: "string"
+        number:
+          description: "Номер пакета документов"
+          format: "int64"
+          type: "integer"
+      type: "object"
+    DocumentType:
+      description: "Тип документа"
+      enum:
+      - "CREDIT"
+      - "REPAYMENT"
+      - "CANCEL_REPAYMENT"
+      example: "REPAYMENT"
+      type: "string"
+    CommissionInfoDto:
+      description: "Информация по комиссии досрочного погашения"
+      example:
+        value: 1234.56
+        status: "CALCULATED"
+      properties:
+        value:
+          description: "Значение комиссии"
+          type: "number"
+        status:
+          $ref: "#/components/schemas/CommissionStatus"
+      type: "object"
+    EarlyRepaymentType:
+      description: "Тип досрочного погашения"
+      enum:
+      - "PARTIAL"
+      - "FULL"
+      - "CANCEL"
+      example: "PARTIAL"
+      type: "string"
+    PartialEarlyRepaymentKind:
+      description: "Тип частичного погашения"
+      enum:
+      - "REDUCE_NEXT"
+      - "REDUCE_LAST"
+      - "REDUCE_ALL"
+      example: "REDUCE_NEXT"
+      type: "string"
+    CommissionStatus:
+      description: "Статус комиссии досрочного погашения"
+      enum:
+      - "NOT_PROVIDED"
+      - "CHECK_LATER"
+      - "CALCULATED"
+      - "MANUAL_CALCULATED"
+      example: "CALCULATED"
+      type: "string"
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="

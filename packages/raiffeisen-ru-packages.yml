@@ -1,0 +1,45 @@
+generated: '2026-10-09'
+method: searched
+source: https://pay.raif.ru/doc/ecom.html#section/SDK
+description: 'First-party Raif Pay (e-commerce acquiring) SDKs linked from the SDK section of the Raif Pay payment-form API docs ("Доступные SDK:
+  JS SDK, PHP SDK, NODE SDK, JAVA SDK"). No first-party SDK was found for the corporate banking APIs on developer.raiffeisen.ru.'
+packages:
+- name: raiffeisen-ecom/payment-sdk
+  registry: packagist
+  url: https://packagist.org/packages/raiffeisen-ecom/payment-sdk
+  repository: https://github.com/Raiffeisen-DGTL/ecom-sdk-php
+  language: PHP
+  official: false
+  version: v1.1.55
+  published: '2023-03-23'
+  note: version/date from repo.packagist.org/p2/raiffeisen-ecom/payment-sdk.json
+  ownership_audit: 'registry metadata names neither the provider''s domain nor its GitHub org: official downgraded (harvest-packages.py --audit)'
+- name: '@raiffeisen-ecom/payment-sdk-node'
+  registry: npm
+  url: https://www.npmjs.com/package/@raiffeisen-ecom/payment-sdk-node
+  repository: https://github.com/Raiffeisen-DGTL/ecom-sdk-node
+  language: JavaScript (Node.js)
+  official: true
+  version: 1.1.49
+  published: '2023-10-18'
+  note: version/date from registry.npmjs.org
+  ownership_audit: metadata names raiffeisen.ru
+- name: Raif Pay JS SDK (payment.min.js)
+  registry: cdn
+  url: https://pay.raif.ru/pay/sdk/v2/payment.min.js
+  repository: https://github.com/Raiffeisen-DGTL/ecom-sdk-javascript
+  language: JavaScript (browser)
+  official: true
+  version: null
+  published: null
+  note: Distributed as a script tag from pay.raif.ru/pay/sdk/v2/ (payment.min.js, payment.styled.min.js); only the major path segment v2 is pinned,
+    the build itself is unpinned and has no registry metadata.
+- name: ecom-sdk-java
+  registry: none
+  url: https://github.com/Raiffeisen-DGTL/ecom-sdk-java
+  language: Java
+  official: true
+  version: null
+  published: null
+  note: Linked as "JAVA SDK" from the Raif Pay docs, but the GitHub repository returned HTTP 404 on 2026-10-09 and no Raiffeisen artifact was
+    found on Maven Central search; link appears dead.

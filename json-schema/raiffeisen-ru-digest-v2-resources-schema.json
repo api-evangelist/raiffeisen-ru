@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-digest-v2-resources-schema.json",
+  "title": "DigestV2Resources",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-content-macroeconomic-reviews-openapi.yml#/components/schemas/DigestV2Resources",
+  "type": "object",
+  "properties": {
+    "content": {
+      "type": "array",
+      "description": "Список обзоров макроэкономики",
+      "items": {
+        "$ref": "#/$defs/DigestResource"
+      }
+    },
+    "offset": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Смещение, с которого начинается выборка данных"
+    },
+    "limit": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Максимальное количество записей"
+    },
+    "totalCount": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Общее количество записей по запросу"
+    }
+  },
+  "required": [
+    "content",
+    "limit",
+    "offset",
+    "totalCount"
+  ],
+  "$defs": {
+    "DigestPromoResource": {
+      "type": "object",
+      "description": "",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Id рекламы вебинара"
+        },
+        "webinarId": {
+          "type": "string",
+          "description": "Id вебинара"
+        }
+      },
+      "required": [
+        "webinarId"
+      ]
+    },
+    "DigestResource": {
+      "type": "object",
+      "description": "",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Id контента"
+        },
+        "new": {
+          "type": "boolean",
+          "description": "Статус прочитанности"
+        },
+        "status": {
+          "type": "string",
+          "description": "Статус публикации",
+          "enum": [
+            "SCHEDULED",
+            "PUBLISHED"
+          ]
+        },
+        "rating": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Оценка"
+        },
+        "title": {
+          "type": "string",
+          "description": "Заголовок"
+        },
+        "subtitle": {
+          "type": "string",
+          "description": "Подзаголовок"
+        },
+        "publishDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Дата публикации"
+        },
+        "topics": {
+          "type": "array",
+          "description": "Темы обзора",
+          "items": {
+            "$ref": "#/$defs/DigestTopicResource"
+          }
+        },
+        "promo": {
+          "$ref": "#/$defs/DigestPromoResource",
+          "description": "Промо вебинара"
+        }
+      },
+      "required": [
+        "new",
+        "publishDate",
+        "status",
+        "subtitle",
+        "title",
+        "topics"
+      ]
+    },
+    "DigestTopicResource": {
+      "type": "object",
+      "description": "",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Id темы обзора"
+        },
+        "title": {
+          "type": "string",
+          "description": "Заголовок"
+        },
+        "body": {
+          "type": "string",
+          "description": "Описание"
+        },
+        "link": {
+          "$ref": "#/$defs/LinkResource",
+          "description": "Ссылка на исходный текст"
+        },
+        "order": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Порядковый номер темы"
+        }
+      },
+      "required": [
+        "body",
+        "link",
+        "order",
+        "title"
+      ]
+    },
+    "LinkResource": {
+      "type": "object",
+      "description": "",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Ссылка на статью"
+        },
+        "label": {
+          "type": "string",
+          "description": "Текст для гиперссылки"
+        }
+      },
+      "required": [
+        "label",
+        "url"
+      ]
+    }
+  }
+}

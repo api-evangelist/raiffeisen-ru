@@ -1,0 +1,376 @@
+---
+openapi: "3.0.3"
+info:
+  title: "Контент. Продуктовые новости"
+  version: "1.0.0"
+paths:
+  /v2/contents/product-news:
+    get:
+      tags:
+      - "Новости о продуктах"
+      summary: "Получить список новостей о продуктах"
+      operationId: "v2GetProductNews"
+      parameters:
+      - name: "limit"
+        in: "query"
+        required: true
+        style: "form"
+        explode: true
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "offset"
+        in: "query"
+        required: true
+        style: "form"
+        explode: true
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "Raiff-App-Version"
+        in: "header"
+        description: "Версия приложения"
+        required: true
+        schema:
+          default: "4.0.0"
+        example: "4.0.0"
+      - name: "Accept-Language"
+        in: "header"
+        description: "Язык приложения, ru или en"
+        required: false
+        schema:
+          default: "ru"
+        example: "ru"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductNewsV2Resources"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /v2/contents/product-news/{id}:
+    get:
+      tags:
+      - "Новости о продуктах"
+      summary: "Получить новость о продукте по id"
+      operationId: "v2GetProductNews_(1)"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "id новости"
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+          description: "Ссылка для скачивания"
+      - name: "Raiff-App-Version"
+        in: "header"
+        description: "Версия приложения"
+        required: true
+        schema:
+          default: "4.0.0"
+        example: "4.0.0"
+      - name: "Accept-Language"
+        in: "header"
+        description: "Язык приложения, ru или en"
+        required: false
+        schema:
+          default: "ru"
+        example: "ru"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "400":
+          description: "CNT-115 - Контент с типом [${contentType}] не найден"
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: "integer"
+                    format: "int32"
+                  error:
+                    type: "string"
+                  message:
+                    type: "string"
+              example:
+                code: 400
+                error: "CNT-115"
+                message: "Контент с типом [${contentType}] не найден"
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductNewsV2Resource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  schemas:
+    ProductNewsV2Resource:
+      type: "object"
+      description: ""
+      example:
+        id: "id"
+        colorStyle: "oslo1"
+        style:
+          accentColor: "PastelAccent.oslo1"
+          backgroundColor: "PastelSurface.oslo1"
+          contentBackgroundColor: "PastelSurface.oslo2"
+        cnums:
+        - "427929"
+        media:
+          url: "https://cdn.rbo.raiffeisen.ru/offerpics/cdm/01.png"
+          type: "IMAGE"
+        publishDate: "2024-09-17T09:53:03+03:00"
+        slides:
+        - body: "Мы разработали новый формат общения с клиентом. Хотите узнать ?"
+          order: 1
+          button:
+            label: "Да"
+            url: "raiffeisen-business-plus://contacts-form/2?type=PRODUCT_NEWS"
+          contactForm:
+            label: "Связаться с менеджером"
+      properties:
+        id:
+          type: "string"
+          description: "Id контента"
+        cnums:
+          type: "array"
+          description: "Список CNUM (уникальный идентификатор клиента в банке), дл\
+            я которой предназначена новость"
+          items:
+            type: "string"
+          uniqueItems: true
+        new:
+          type: "boolean"
+          description: "Статус прочитанности"
+        status:
+          type: "string"
+          description: "Статус публикации"
+          enum:
+          - "SCHEDULED"
+          - "PUBLISHED"
+        title:
+          type: "string"
+          description: "Заголовок новости"
+        subtitle:
+          type: "string"
+          description: "Подзаголовок новости"
+        publishDate:
+          type: "string"
+          format: "date-time"
+          description: "Дата публикации"
+        media:
+          $ref: "#/components/schemas/ProductNewsMediaResource"
+          description: "Информация о медиа"
+        style:
+          $ref: "#/components/schemas/ColorStyleOpenApi"
+          description: "Информация о цвете для новости"
+        slides:
+          type: "array"
+          description: "Слайды новости"
+          items:
+            $ref: "#/components/schemas/ProductNewsSlideResource"
+      required:
+      - "cnums"
+      - "media"
+      - "new"
+      - "publishDate"
+      - "slides"
+      - "status"
+      - "style"
+      - "subtitle"
+      - "title"
+    ProductNewsV2Resources:
+      type: "object"
+      description: ""
+      example:
+        content:
+        - id: "id"
+          colorStyle: "oslo1"
+          style:
+            accentColor: "PastelAccent.oslo1"
+            backgroundColor: "PastelSurface.oslo1"
+            contentBackgroundColor: "PastelSurface.oslo2"
+          cnums:
+          - "427929"
+          media:
+            url: "https://cdn.rbo.raiffeisen.ru/offerpics/cdm/01.png"
+            type: "IMAGE"
+          publishDate: "2024-09-17T09:53:03+03:00"
+          slides:
+          - body: "Мы разработали новый формат общения с клиентом. Хотите узнать ?"
+            order: 1
+            button:
+              label: "Да"
+              url: "raiffeisen-business-plus://contacts-form/2?type=PRODUCT_NEWS"
+            contactForm:
+              label: "Связаться с менеджером"
+        offset: 0
+        limit: 100
+        totalCount: 1
+      properties:
+        content:
+          type: "array"
+          description: "Список новостей"
+          items:
+            $ref: "#/components/schemas/ProductNewsV2Resource"
+        offset:
+          type: "integer"
+          format: "int32"
+          description: "Смещение, с которого начинается выборка данных"
+        limit:
+          type: "integer"
+          format: "int32"
+          description: "Максимальное количество записей"
+        totalCount:
+          type: "integer"
+          format: "int64"
+          description: "Общее количество записей по запросу"
+      required:
+      - "content"
+      - "limit"
+      - "offset"
+      - "totalCount"
+    MediaResource:
+      type: "object"
+      description: ""
+      properties:
+        host:
+          type: "string"
+          description: "Адрес сервера, где хранится медиа"
+        path:
+          type: "string"
+          description: "Путь до медиа"
+        type:
+          type: "string"
+          description: "Тип медиа"
+          enum:
+          - "VIDEO"
+          - "IMAGE"
+          - "MP4"
+          - "MP3"
+          - "PDF"
+          - "PPT"
+          - "PPTX"
+          - "XLS"
+          - "XLSX"
+          - "PNG"
+          - "JPEG"
+      required:
+      - "host"
+      - "path"
+      - "type"
+    ColorStyleOpenApi:
+      type: "object"
+      description: ""
+      properties:
+        backgroundColor:
+          type: "string"
+          description: "Цвет слайдов"
+        contentBackgroundColor:
+          type: "string"
+          description: "Цвет фона для текста"
+        accentColor:
+          type: "string"
+          description: "Цвет текста"
+      required:
+      - "accentColor"
+      - "backgroundColor"
+      - "contentBackgroundColor"
+    ProductNewsMediaResource:
+      type: "object"
+      description: ""
+      properties:
+        url:
+          type: "string"
+          description: "Ссылка для скачивания"
+        type:
+          type: "string"
+          description: "Тип медиа"
+          enum:
+          - "IMAGE"
+      required:
+      - "type"
+      - "url"
+    ProductNewsSlideResource:
+      type: "object"
+      description: ""
+      properties:
+        id:
+          type: "string"
+          description: "Id контента"
+        body:
+          type: "string"
+          description: "Текст слайда"
+        button:
+          $ref: "#/components/schemas/ButtonResource"
+          description: "Информация о кнопке"
+        order:
+          type: "integer"
+          format: "int64"
+          description: "Номер порядка слайда"
+        contactForm:
+          $ref: "#/components/schemas/ContactFormResource"
+          description: "Информация для контактной формы"
+      required:
+      - "body"
+      - "order"
+    ButtonResource:
+      type: "object"
+      description: ""
+      properties:
+        label:
+          type: "string"
+          description: "Название кнопки"
+        url:
+          type: "string"
+          description: "URL адрес, на который ссылается кнопка"
+      required:
+      - "label"
+      - "url"
+    ContactFormResource:
+      type: "object"
+      description: ""
+      properties:
+        label:
+          type: "string"
+          description: "Заголовок для контактной формы"
+      required:
+      - "label"
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+servers:
+- url: "https://api.raiffeisen.ru/media-content"

@@ -1,0 +1,252 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Пермиссии V1 API
+  version: 0.3.0
+  description: 'Operations tagged Пермиссии V1 across 2 of this provider''s published API definitions: raiffeisen-ru-user-permissions-openapi.yml, raiffeisen-ru-user-permissions-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/permissions
+tags:
+- name: Пермиссии V1
+paths:
+  /api/v1/permissions:
+    get:
+      tags:
+      - Пермиссии V1
+      operationId: permissionsV1Legacy
+      deprecated: true
+      summary: Получить пермиссии пользователя
+      parameters:
+      - name: cnum
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: x-system-id
+        in: header
+        required: false
+        description: Идентификатор сервиса-потребителя
+        schema:
+          type: string
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionsContextV1'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+              examples:
+                EmployeeNotFound:
+                  summary: Сотрудник не найден
+                  value:
+                    code: employee_not_found
+                    message: df9924ce-3212-4354-b3dd-e3dc80d4c3e7
+                RoleNotFound:
+                  summary: Роль пользователя не найдена
+                  value:
+                    code: role_not_found
+                    message: Role id dcba1f96-91e9-4a89-a149-70c60b4da06a
+                UserHasNoRoleAssigned:
+                  summary: У пользователя не установлена роль
+                  value:
+                    code: role_not_found
+                    message: User with id dcba1f96-91e9-4a89-a149-70c60b4da06a has no role assigned
+                UserRoleNotFound:
+                  summary: Роль, утсановлнная у пользователя, не найдена
+                  value:
+                    code: role_not_found
+                    message: User id dcba1f96-91e9-4a89-a149-70c60b4da06a
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/permissions
+  /api/v1/permissions/{object_path}:
+    get:
+      tags:
+      - Пермиссии V1
+      operationId: permissionsV1LegacyByObj
+      deprecated: true
+      summary: Получить пермиссии пользователя по объекту
+      parameters:
+      - name: object_path
+        in: path
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
+        style: simple
+        explode: false
+      - name: cnum
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: x-system-id
+        in: header
+        required: false
+        description: Идентификатор сервиса-потребителя
+        schema:
+          type: string
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionsContextV1'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+              examples:
+                BadRequest:
+                  summary: В path не передан параметр запроса
+                  value:
+                    code: bad_request
+                    message: bad request
+                EmployeeNotFound:
+                  summary: Сотрудник не найден
+                  value:
+                    code: employee_not_found
+                    message: df9924ce-3212-4354-b3dd-e3dc80d4c3e7
+                RoleNotFound:
+                  summary: Роль пользователя не найдена
+                  value:
+                    code: role_not_found
+                    message: Role id dcba1f96-91e9-4a89-a149-70c60b4da06a
+                UserHasNoRoleAssigned:
+                  summary: У пользователя не установлена роль
+                  value:
+                    code: role_not_found
+                    message: User with id dcba1f96-91e9-4a89-a149-70c60b4da06a has no role assigned
+                UserRoleNotFound:
+                  summary: Роль, утсановлнная у пользователя, не найдена
+                  value:
+                    code: role_not_found
+                    message: User id dcba1f96-91e9-4a89-a149-70c60b4da06a
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/permissions
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  schemas:
+    ContractStatus:
+      type: string
+      enum:
+      - ACTIVE
+      - BLOCKED
+      - TERMINATED
+    PermissionsV1:
+      type: object
+      required:
+      - name
+      - actions
+      properties:
+        name:
+          type: string
+        actions:
+          type: array
+          items:
+            type: string
+    ErrorResponseDTO:
+      type: object
+      description: Стандартизированный ответ с ошибкой
+      required:
+      - code
+      properties:
+        code:
+          type: string
+          description: Код ошибки
+        message:
+          type: string
+          description: Сообщение об ошибке
+        messageData:
+          type:
+          - object
+          - 'null'
+          description: Дополнительная информация об ошибке
+          additionalProperties: true
+    ContractContextV1:
+      type: object
+      required:
+      - cnum
+      - contractStatus
+      properties:
+        cnum:
+          type: string
+        contractStatus:
+          $ref: '#/components/schemas/ContractStatus'
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionsV1'
+          example:
+          - name: masspayments
+            actions:
+            - view
+            - create
+            - import
+          default: []
+    PermissionsContextV1:
+      type: object
+      required:
+      - userId
+      - aud
+      - contracts
+      properties:
+        userId:
+          type: string
+          format: uuid
+        aud:
+          type: string
+        contracts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContractContextV1'
+x-refined-from:
+- raiffeisen-ru-user-permissions-openapi.yml
+- raiffeisen-ru-user-permissions-openapi.yml

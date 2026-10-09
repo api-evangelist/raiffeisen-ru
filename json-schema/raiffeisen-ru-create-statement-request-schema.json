@@ -1,0 +1,317 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-create-statement-request-schema.json",
+  "title": "CreateStatementRequest",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-payroll-openapi.yml#/components/schemas/CreateStatementRequest",
+  "required": [
+    "payload"
+  ],
+  "type": "object",
+  "properties": {
+    "payload": {
+      "$ref": "#/$defs/StatementPayload"
+    },
+    "signatures": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Массив всех подписей, необходимых для подписания ведомости.\n\nКогда заполнять:\n- Если создаёте подписанную ведомость — укажите все подписи согласно схеме подписи\n- Если создаёте неподписанную ведомость — поле не нужно передавать в запросе\n"
+    },
+    "digest": {
+      "type": "string",
+      "description": "Дайджест (хеш-сумма) содержимого payload.\n\nКогда заполнять:\n- Если создаёте подписанную ведомость — укажите дайджест\n- Если создаёте неподписанную ведомость — поле не нужно передавать в запросе\n"
+    }
+  },
+  "$defs": {
+    "ConversionCurrency": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 3,
+      "description": "Буквенный код валюты",
+      "enum": [
+        "USD",
+        "EUR",
+        "CNY"
+      ]
+    },
+    "ConversionPercent": {
+      "required": [
+        "percent",
+        "currency"
+      ],
+      "type": "object",
+      "description": "Массив процентов конвертации в валюту (в ведомости может быть максимум 2 валюты)",
+      "properties": {
+        "percent": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Процент конвертации в валюте"
+        },
+        "currency": {
+          "$ref": "#/$defs/ConversionCurrency"
+        }
+      }
+    },
+    "ConversionRate": {
+      "required": [
+        "rate",
+        "currency"
+      ],
+      "type": "object",
+      "properties": {
+        "rate": {
+          "type": "number",
+          "format": "double",
+          "description": "Курс конвертации в валюте",
+          "minimum": 0,
+          "exclusiveMinimum": true
+        },
+        "currency": {
+          "$ref": "#/$defs/ConversionCurrency"
+        }
+      }
+    },
+    "Currency": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 3,
+      "description": "Буквенный код валюты счета-получателя сотрудника",
+      "enum": [
+        "RUR"
+      ]
+    },
+    "ExternalId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40,
+      "pattern": "^[a-z0-9\\-]+$",
+      "description": "Уникальный идентификатор ведомости во внешней системе"
+    },
+    "IncomeCode": {
+      "type": "integer",
+      "description": "Код вида дохода по ведомости (справочник).\nДопустимые значения:\n- 1 - При переводе денежных средств, являющихся заработной платой и/или иными доходами, в отношении которых установлены ограничения размеров удержания\n- ...\n\nМожно не передавать — ведомость будет обработана. Система вернёт предупреждение об отсутствии кода вида дохода для неподписанной ведомости.\n",
+      "enum": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "OrderNumber": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Порядковый номер перевода в ведомости"
+    },
+    "ReportingPeriod": {
+      "description": "Дата отчётного периода. Можно не передавать в запросе — ведомость будет обработана корректно.",
+      "type": "object",
+      "required": [
+        "year",
+        "month"
+      ],
+      "properties": {
+        "year": {
+          "type": "integer",
+          "description": "Год отчетного периода"
+        },
+        "month": {
+          "type": "integer",
+          "description": "Месяц отчетного периода"
+        }
+      }
+    },
+    "ResponsiblePerson": {
+      "type": "object",
+      "description": "Ответственное лицо. Можно не передавать в запросе — ведомость будет обработана корректно.",
+      "required": [
+        "fullName",
+        "phone"
+      ],
+      "properties": {
+        "fullName": {
+          "type": "string",
+          "maxLength": 250,
+          "description": "ФИО ответственного лица"
+        },
+        "phone": {
+          "type": "string",
+          "maxLength": 16,
+          "description": "Номер телефона ответственного лица"
+        }
+      }
+    },
+    "StatementPayload": {
+      "required": [
+        "externalId",
+        "account",
+        "transfersCount",
+        "totalAmount",
+        "enrollmentCode",
+        "transfers"
+      ],
+      "type": "object",
+      "description": "Запрос на создание ведомости",
+      "properties": {
+        "externalId": {
+          "$ref": "#/$defs/ExternalId"
+        },
+        "account": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 20,
+          "pattern": "^[0-9]+$",
+          "description": "Банковский счёт ЮЛ для списания средств"
+        },
+        "transfersCount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Количество переводов в ведомости"
+        },
+        "totalAmount": {
+          "type": "number",
+          "format": "double",
+          "description": "Общая сумма выплат по ведомости",
+          "minimum": 0,
+          "exclusiveMinimum": true
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата формирования ведомости в формате YYYY-MM-DD. Можно не передавать — по умолчанию подставится текущая дата."
+        },
+        "number": {
+          "type": "integer",
+          "description": "Номер ведомости. Можно не передавать — система автоматически сгенерирует следующий порядковый номер для компании в текущем году.\n",
+          "minimum": 1,
+          "maximum": 999999
+        },
+        "conversionRates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ConversionRate"
+          },
+          "description": "Массив курсов конвертации для переводов с конвертацией валюты.\n\nКогда заполнять:\n- Если в ведомости есть переводы с конвертацией валюты — укажите курсы для всех валют, участвующих в конвертации\n- Если все переводы в рублях (RUR) без конвертации — поле не нужно передавать в запросе\n\nОграничения:\n- Максимум 2 валюты конвертации в ведомости (например, EUR и USD при основной валюте RUR)\n"
+        },
+        "enrollmentCode": {
+          "type": "string",
+          "description": "Код вида зачисления по ведомости (справочник).\nДопустимые значения:\n- \"01\" - Заработная плата\n- \"02\" - Аванс\n- \"03\" - Больничные\n- \"04\" - Премия\n- \"05\" - Отпускные\n- ...\n\nСправочник видов зачислений доступен [по ссылке](https://www.raiffeisen.ru/retail/payroll/payment_purpose)\n"
+        },
+        "incomeCode": {
+          "$ref": "#/$defs/IncomeCode"
+        },
+        "purpose": {
+          "type": "string",
+          "maxLength": 118,
+          "description": "Назначение платежной ведомости. Можно не передавать — система автоматически сгенерирует по правилу: \"Оплата {название вида зачисления в соответствии с enrollmentCode}\".\n\nПример: enrollmentCode \"01\" (Заработная плата) → purpose: \"Оплата Заработная плата\"\n"
+        },
+        "responsiblePerson": {
+          "$ref": "#/$defs/ResponsiblePerson"
+        },
+        "reportingPeriod": {
+          "$ref": "#/$defs/ReportingPeriod"
+        },
+        "transfers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Transfer"
+          },
+          "minItems": 1,
+          "maxItems": 10000,
+          "description": "Массив переводов"
+        }
+      }
+    },
+    "Transfer": {
+      "type": "object",
+      "required": [
+        "firstName",
+        "lastName",
+        "orderNumber",
+        "account",
+        "amount",
+        "currency"
+      ],
+      "properties": {
+        "lastName": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Фамилия сотрудника"
+        },
+        "firstName": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Имя сотрудника"
+        },
+        "middleName": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Отчество сотрудника"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double",
+          "description": "Сумма перевода",
+          "minimum": 0,
+          "exclusiveMinimum": true
+        },
+        "orderNumber": {
+          "$ref": "#/$defs/OrderNumber"
+        },
+        "personnelNumber": {
+          "type": "string",
+          "maxLength": 60,
+          "description": "Табельный номер сотрудника"
+        },
+        "birthDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Дата рождения сотрудника в формате YYYY-MM-DD"
+        },
+        "account": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 20,
+          "pattern": "^\\d{5}810\\d{12}$",
+          "description": "Банковский счет сотрудника"
+        },
+        "bic": {
+          "type": "string",
+          "minLength": 9,
+          "maxLength": 9,
+          "pattern": "^[0-9]+$",
+          "description": "БИК банка-получателя счета сотрудника, указывается обязательно для внешних переводов (не в АО Райффайзенбанк)"
+        },
+        "cardNumber": {
+          "type": "string",
+          "minLength": 14,
+          "maxLength": 20,
+          "pattern": "^[0-9]{14,20}$",
+          "description": "Номер карты сотрудника"
+        },
+        "currency": {
+          "$ref": "#/$defs/Currency"
+        },
+        "conversion": {
+          "type": "array",
+          "description": "Массив процентов конвертации валюты для данного перевода.\n\nКогда заполнять:\n- Если перевод требует конвертации валюты — укажите проценты распределения по валютам\n- Если перевод в рублях (RUR) без конвертации — поле не нужно передавать в запросе\n\nОграничения:\n- Максимум 2 валюты конвертации в одном переводе\n",
+          "items": {
+            "$ref": "#/$defs/ConversionPercent"
+          }
+        },
+        "deductionAmount": {
+          "type": "number",
+          "format": "double",
+          "description": "Сумма удержания",
+          "minimum": 0,
+          "exclusiveMinimum": true
+        }
+      }
+    }
+  }
+}

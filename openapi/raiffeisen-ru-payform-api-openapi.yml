@@ -1,0 +1,2325 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Payform API
+  version: '1.0'
+  contact:
+    email: ecom@raiffeisen.ru
+    name: Support e-mail
+    x-team-id: 178
+    x-short-team-name: PAPAS
+  x-description-i18n:
+    eng: '# Connection to acquiring
+
+
+      To connect, fill out an application in [the online bank](https://www.rbo.raiffeisen.ru/sign-form/internet-acquiring) or [the mobile application.](https://rbo.page.link/internet)
+
+
+      For questions about working with the API, please contact Raiffeisenbank support service:
+
+      - email: ecom@raiffeisen.ru
+
+
+      ### Preparatory activities
+
+      To accept payments:
+
+      * Fill out the [application](https://www.rbo.raiffeisen.ru/sign-form/internet-acquiring) to connect acquiring
+
+      * Choose an integration method and implement it
+
+      * Make test payments
+
+
+      ### Payment page integration methods
+
+      To integrate the payment page, use:
+
+      * A ready-made library that allows you to open a popup for entering payment data and transfer a complex data structure
+
+      * Redirecting the client to the Raiffeisenbank payment page
+
+
+      # Operation scheme
+
+      ## Bank payment form
+
+      Demonstration of the payment form:
+
+
+      [Payment form](https://pay.raif.ru/pay/demo.html)
+
+
+      During the payment process, the user performs the following actions:
+
+      * The user adds goods/services to the store cart and clicks the "Pay" button
+
+      * The partner opens a payment form
+
+      * The user enters the bank card details on the payment form and confirms the payment
+
+
+      <a href=''images/payment_form_scheme_en.svg'' target=''_blank''><img src=''images/payment_form_scheme_en.svg''></a>
+
+
+      # API
+
+      Interaction is carried out via the HTTP protocol using the `POST` `GET` `PUT` `DELETE` methods.
+
+
+      When sending requests to open a payment form and create an order with opening a payment form, the API returns a response in the HTML document format, responses to other requests are returned in JSON format.
+
+
+      ## Authorization
+
+      To authorize requests, you need:
+
+      * `publicId` - The identifier that is used to open the payment form and is public.
+
+      * `secretKey` - A secret key that is used for inter-service interaction. It is private, must be stored in a secure place and must not be transferred to third parties.
+
+
+      | Circuit           | URL address       |
+
+      |------------------|-------------------------|
+
+      | Production       |https://pay.raif.ru      |
+
+      | Test             |https://pay-test.raif.ru |
+
+
+      Inter-service requests are authorized using the secret key `secretKey`. The authorization parameter is passed in the `Authorization` header, the value of which is formed as `Bearer + secretKey`
+
+
+      You can view the production `publicId` and generate a `secretKey` in the [Online Bank](https://www.rbo.raiffeisen.ru/acquiring/mcp#/), or [Personal Account](https://pay.raif.ru/account/#/auth).
+
+
+      Instructions for generating `secretKey` can be found in the Help Center:
+
+      * [Generate a secret key in Online Banking](https://help.pay.raif.ru/sbp/rbo/secretkey)
+
+      * [Generate a secret key in your Personal Account](https://help.pay.raif.ru/sbp/lk/secretkey)
+
+
+      To generate a `secretKey` in the test circuit, you must contact the support service ecom@raiffeisen.ru
+
+
+      # Testing
+
+      ## Acquiring
+
+      `Bank payment form`:
+
+      | PAN of a bank card| Card validity period| CVV | OTP code| Payment scenario   |
+
+      |-------------------|---------------------|-----|---------|--------------------|
+
+      | 4000001000000018  | 12/35               | 880 |   1234  | Successfull payment|
+
+      | 4000001000000018  | 12/35               | 880 |   1111  | Unsuccessful payment|
+
+
+      For a full payment testing cycle, you must specify a payment amount greater than 10 rubles.
+
+
+      ## SBP
+
+      For a full testing cycle, Raiffeisenbank provides the opportunity to use a demo application for QR code payment on behalf of the buyer:
+
+      [WEB application for payment by QR code](https://pay.raif.ru/pay/rfuture/)
+
+
+      The application can be opened in the browser of any device with a camera. After opening the application, you need to click on the "Scan QR" button (if necessary, allow the browser to access the camera) and scan the image of the test QR code.
+
+
+      **Bank apps won''t work for QR code payments in the test environment**
+
+
+      # SDK
+
+      Using JS SDK allows you to open a form from the frontend part in a pop-up window, or redirect the user to the Raiffeisenbank page, which provides a seamless payment scenario for the client.
+
+
+      Additionally, you can customize the payment form interface and transfer additional parameters for subsequent payment.
+
+      You can customize the visual part of the form (company name, logo, button color) in the [Payment Form Configurator](https://pay.raif.ru/pay/configurator/).
+
+
+      The payment form configurator also allows you to obtain code for embedding it into a JS library.
+
+      Available SDK:
+
+      * [JS SDK](https://github.com/Raiffeisen-DGTL/ecom-sdk-javascript)
+
+      * [PHP SDK](https://github.com/Raiffeisen-DGTL/ecom-sdk-php)
+
+      * [NODE SDK](https://github.com/Raiffeisen-DGTL/ecom-sdk-node)
+
+      * [JAVA SDK](https://github.com/Raiffeisen-DGTL/ecom-sdk-java)
+
+
+      JS SDK allows you to open a payment form from the frontend of your application. When using other SDKs to work with the payment form, you must either use the methods described in the [[Payment form]](#tag/payform) section yourself, or use the JS SDK additionally.
+
+
+      Plugins for various CMS can also be found on [GitHub](https://github.com/Raiffeisen-DGTL/).
+
+
+      Questions regarding solution support can be sent to technical support: ecom@raiffeisen.ru'
+  x-logo:
+    url: images/raifflogo.png
+    backgroundColor: '#FFFFFF'
+    altText: Raiff logo
+  description: 'Operations tagged payform across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-payment-form-openapi.json, raiffeisen-ru-raif-pay-payment-form-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://pay-test.raif.ru/api
+  description: Sandbox
+- url: https://pay.raif.ru/api
+  description: Production
+tags:
+- name: payform
+  x-displayName: Платежная форма банка
+  x-x-displayName-i18n:
+    eng: Bank's payment form
+  description: 'Простой способ для интеграции. Клиента необходимо перенаправить на платежную форму, передав параметры заказа.
+
+
+    [[Схема взаимодействия]](#section/Shema-raboty/Platezhnaya-forma-banka).'
+  x-description-i18n:
+    eng: 'Easy way to integrate. The client must be redirected to the payment form, passing the order parameters.
+
+      '
+paths:
+  /pay:
+    get:
+      servers:
+      - url: https://pay-test.raif.ru
+        description: Sandbox
+      - url: https://pay.raif.ru
+        description: Production
+      summary: Открытие платежной формы
+      x-summary-i18n:
+        eng: Opening a payment form
+      tags:
+      - payform
+      responses:
+        '200':
+          description: OK
+      operationId: get-pay
+      description: При редиректе клиента на полученный URL откроется форма для оплаты. Для проверки суммы, поступившей от клиента, рекомендуется настроить Уведомление о платеже и сверять суммы созданного заказа и оплаты. Кастомизация интерфейса платежной формы или передача дополнительных полей в данном варианте интеграции недоступна.
+      x-description-i18n:
+        eng: When the client redirects to the received URL, a form for payment will open. To check the amount received from the client, it is recommended to set up [Payment Notification](https://pay.raif.ru/doc/ecom.html#tag/Callback/operation/%D1%81allbackTransaction) and check the order amount and the amount payment.  Customization of the form interface or transfer of additional fields is not available in this integration option.
+      parameters:
+      - schema:
+          type: string
+        in: query
+        name: publicId
+        description: Идентификатор мерчанта в системе Банка
+        x-description-i18n:
+          eng: Merchant ID in the Bank system
+        required: true
+      - schema:
+          type: string
+          pattern: ^[A-z0-9-_.]+$
+          maxLength: 40
+          example: order-test
+        in: query
+        name: orderId
+        description: Идентификатор заказа в системе мерчанта
+        x-description-i18n:
+          eng: Order id
+      - schema:
+          type: number
+          minimum: 0.01
+        in: query
+        name: amount
+        required: true
+        description: Сумма платежа в рублях. Для копеек доступно два знака после точки.
+        x-description-i18n:
+          eng: Payment amount in rubles. The minimum payment by card is 10 rubles. Two signs after the dot are available for kopecks.
+      - schema:
+          type: string
+          maxLength: 140
+          format: URL encoded
+          example: '%D0%9A%D0%BE%D0%BC%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%80%D0%B8%D0%B9'
+        in: query
+        name: comment
+        description: Комментарий. Не может быть пустым или содержать только пробелы. Может содержать:<br>• Символы латинского алфавита (A–Z и a–z) с десятичными кодами из диапазонов [065-090] и [097-122] в кодировке UTF-8;<br>• Символы русского алфавита (А-Я и а-я) с десятичными кодами из диапазона [1040-1103] в кодировке UTF-8;<br>• Цифры 0-9 с десятичными кодами из диапазона [048-057] в кодировке UTF-8;<br>• Специальные символы с десятичными кодами из диапазонов [032-047], [058-064], [091-096], [123-126] в кодировке UTF-8; - Символ «№» под номером 8470 в кодировке UTF-8
+        x-description-i18n:
+          eng: Comment. Cannot be empty or contain only spaces. May contain:<br>• Latin alphabet characters (A–Z and a–z) with decimal codes from the ranges [065–090] and [097–122] in UTF-8 encoding;<br>• Symbols of the Russian alphabet (A-Z and a-ya) with decimal codes from the range [1040-1103] in UTF-8 encoding;<br>• Digits 0-9 with decimal codes from the range [048-057] in UTF-8 encoding;<br>• Special characters with decimal codes from the ranges [032-047], [058-064], [091-096], [123-126] in UTF-8 encoding; - Character "№" under number 8470 in UTF-8 encoding'
+      - schema:
+          type: string
+          format: uri
+        in: query
+        name: successUrl
+        description: URL-адрес ресурса, куда будет перенаправлен плательщик в случае успешной оплаты
+        x-description-i18n:
+          eng: URL of the resource where the client will be redirected in case of successful
+      - schema:
+          type: string
+          format: uri
+        in: query
+        name: failUrl
+        description: URL-адрес ресурса, куда будет перенаправлен плательщик в случае неуспешной оплаты
+        x-description-i18n:
+          eng: URL of the resource where the client will be redirected in case of payment failure
+      - schema:
+          type: string
+          enum:
+          - ONLY_SBP
+          - ONLY_ACQUIRING
+        in: query
+        name: paymentMethod
+        description: Метод оплаты
+        x-description-i18n:
+          eng: Payment method
+      - schema:
+          type: string
+          enum:
+          - ru
+          - en
+          default: ru
+        in: query
+        name: locale
+        description: Язык, используемый в интерфейсе платежной формы
+        x-description-i18n:
+          eng: Form language
+      - schema:
+          type: string
+          format: YYYY-MM-DDТHH24:MM:SS±HH:MM
+        in: query
+        name: expirationDate
+        description: Срок жизни заказа. YYYY-MM-DDТHH24:MM:SS±HH:MM
+        x-description-i18n:
+          eng: Lifetime of the order. YYYY-MM-DDТHH24:MM:SS±HH:MM
+      - schema:
+          type: string
+          format: uri
+        in: query
+        name: successSbpUrl
+        description: Ссылка для автоматического возврата плательщика из приложения Банка в приложение или на сайт мерчанта. Ссылка должна содержать https:// для web-страниц или уникальную схему для мобильного приложения
+        x-description-i18n:
+          eng: Link for automatic redirect of the payer from the banks app to the app or to the stores website. The link must contain https:// for web pages or a unique scheme for a mobile application.
+      - schema:
+          type: string
+          maxLength: 140
+          format: URL encoded
+        in: query
+        name: paymentDetails
+        description: Назначение платежа в выписке, используется при оплате по СБП
+        x-description-i18n:
+          eng: Payment details for statement, only for SBP
+    post:
+      servers:
+      - url: https://pay-test.raif.ru
+        description: Sandbox
+      - url: https://pay.raif.ru
+        description: Production
+      summary: Создание заказа с открытием формы
+      operationId: post-pay
+      responses:
+        '200':
+          description: OK
+          content: {}
+        '415':
+          $ref: '#/components/responses/Error415Response'
+      description: Метод позволяет создать заказ с открытием формы
+      requestBody:
+        $ref: '#/components/requestBodies/CreateOrderPayFormRequest'
+      x-summary-i18n:
+        eng: Create a order and open a payment form
+      x-codeSamples:
+      - lang: JavaScript
+        source: "paymentPage.openPopup({\namount: 10.10,\norderId: 'order-test',\nextra: {\n  email: 'test@test.ru',\n  login: 'testLogin',\n  phone: '79191234567'\n  },\nstyle: {\n  button: {\n    backgroundColor: '#ffc800',\n    textColor: '#542595',\n    hoverTextColor: '#ffc800',\n    hoverBackgroundColor: '#542595',\n    borderRadius: '3px'\n          },\n  header: {\n    logo: 'https://www.raiffeisen.ru/common/new/images/logo-raif.svg',\n    titlePlace: 'RIGHT'\n          }\n    },\n  comment: 'Тирольский пирог с яблоками, грушами, ветчиной, сыром, ананасами, 50см'\n          })\n  .then(function() {\n  //console.log(\"Спасибо\");\n          })\n  .catch(function() {\n  //console.log(\"Неудача\");\n          });\n  );\n"
+      - lang: Node
+        source: "const amount = 10;\nconst orderId = 'testOrder';\nconst query = {\n  successUrl: 'https://test.ru/',\n  receipt: {\n    customer: { ... },\n    items: { ... }\n  }\n};\n\nclient.postPayUrl(amount, orderId, query);\n"
+      x-description-i18n:
+        eng: Сreate a order and open a payment form
+      tags:
+      - payform
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: Production
+  /v1/merchants/{publicId}/subscription-form:
+    parameters:
+    - $ref: '#/components/parameters/publicId'
+    post:
+      summary: Оформление подписки на форме
+      x-summary-i18n:
+        eng: Subscribing on the payment form
+      operationId: post-v1-merchants-publicId-forms
+      responses:
+        '200':
+          $ref: '#/components/responses/CreateSubscriptionFormResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralError'
+              examples:
+                Example 1:
+                  value:
+                    code: ERROR.BAD_REQUEST
+                    message: Некорректная сумма
+                    traceId: fb3d0232a3dba2d2490ca1283c6bddd4
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralError'
+              examples:
+                Example 1:
+                  $ref: '#/components/examples/WL_ERROR_403_FORBIDDEN'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralError'
+              examples:
+                Example 1:
+                  $ref: '#/components/examples/GENERAL_INTERNAL_ERROR_500'
+      tags:
+      - payform
+      requestBody:
+        $ref: '#/components/requestBodies/CreateSubscriptionFormRequest'
+      description: 'Метод позволяет получить ссылку на форму для привязки счета СБП или карты плательщиком, а также сформировать подписку с автоматическими списаниями.
+
+
+        После успешного оформления привязки у мерчанта появляется возможность проводить безакцептные списания.'
+      x-description-i18n:
+        eng: 'This method allows you to obtain a link to the payment form for the payer to link their SBP account or card, as well as to create a subscription with automatic recurring charges.<br>
+
+          After successful binding, the merchant gains the ability to perform unaccepted charges.'
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: Production
+  /v1/merchants/{publicId}/orders:
+    parameters:
+    - $ref: '#/components/parameters/publicId'
+    post:
+      summary: Создание заказа с получением платежной ссылки
+      x-summary-i18n:
+        eng: Creating an order with receiving a payment link
+      operationId: post-payments-v1-merchants-publicId-orders-payment-link2
+      responses:
+        '200':
+          $ref: '#/components/responses/CreateOrderResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralError'
+              examples:
+                Некорректное время жизни заказа:
+                  value:
+                    code: ERROR.BAD_REQUEST
+                    message: Некорректно передан параметр expirationDate, минимальное время действия 60 секунд
+                    traceId: fb3d0232a3dba2d2490ca1283c6bddd4
+                Некорректные суммы:
+                  value:
+                    code: ERROR.BAD_REQUEST
+                    message: Суммы чека и заказа не совпадают
+                    traceId: 616de1dcb49f76de332aadf3df5e6b1c
+                Ошибка сохранения чека:
+                  value:
+                    code: ERROR.BAD_REQUEST
+                    message: Чек '%s' в статусе '%s', действие невозможно
+                    traceId: bc99e7f47c6bc38315321906973f5cf28
+                Ошибки валидации в чеке:
+                  value:
+                    code: ERROR.BAD_REQUEST
+                    message: Сумма значений поля 'payments' не совпадает с суммой чека
+                    traceId: bc799e7f47c6bc38315321906973f5cf28
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralError'
+              examples:
+                Доступ запрещен:
+                  value:
+                    code: ERROR.FORBIDDEN
+                    message: Доступ запрещен
+                    traceId: abb066c61a7c8b74af83f245c7706813
+                Мерчант не найден:
+                  value:
+                    code: ERROR.FORBIDDEN
+                    message: Мерчант с publicId = '%s' не зарегистрирован в сервисе
+                    traceId: abbasd2c61a7c8b74af83f245c7706813
+                Способ оплаты недоступен:
+                  value:
+                    code: ERROR.FORBIDDEN
+                    message: Нет доступных способов оплаты для мерчанта
+                    traceId: abbasd2c61a7c8b74af82345c7706813
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralError'
+              examples:
+                Внутренняя ошибка сервиса:
+                  value:
+                    code: ERROR.INTERNAL_ERROR
+                    message: Внутренняя ошибка сервиса
+                    traceId: abb066c61a7c8b74af83f245c7706813
+      description: Метод позволяет сформировать заказ и получить платежную ссылку для последующего редиректа / открытия на стороне мерчанта. Метод также позволяет изменить данные заказа, если заказ уже был сформирован ранее.
+      x-description-i18n:
+        eng: The method allows you to create an order and get a payment link for subsequent redirect / opening on the merchant side. The method also allows you to change the order details if the order has already been created earlier.
+      tags:
+      - payform
+      requestBody:
+        $ref: '#/components/requestBodies/CreateOrderRequest'
+      security:
+      - secretKey: []
+      parameters: []
+      x-internal: false
+    servers:
+    - url: https://pay-test.raif.ru/api
+      description: Sandbox
+    - url: https://pay.raif.ru/api
+      description: Production
+components:
+  schemas:
+    CreatedOrderPayform:
+      allOf:
+      - $ref: '#/components/schemas/GeneralOrder'
+      - type: object
+        properties:
+          paymentDetails:
+            type: string
+            description: Назначение платежа в выписке, используется при оплате по СБП
+            x-description-i18n:
+              eng: Payment details for statement, only for SBP
+            maxLength: 140
+          status:
+            $ref: '#/components/schemas/OrderStatus'
+          payformUrl:
+            type: string
+            format: uri
+            description: Ссылка на оплату
+            x-description-i18n:
+              eng: Payment link
+            example: https://pay.raif.ru/pay?payformId=1238ana84
+            minLength: 1
+          receipt:
+            allOf:
+            - type: object
+              properties:
+                receiptNumber:
+                  type: string
+                  description: Уникальный номер чека. Всегда равен идентификатору заказа `id`.
+                  x-description-i18n:
+                    eng: Unique receipt number. Always equal to the order ID `id`.
+                  pattern: ^[A-Za-z0-9-_.]+$
+                  maxLength: 40
+            - $ref: '#/components/schemas/FiscalReceiptBasic'
+          subscription:
+            $ref: '#/components/schemas/Subscription'
+          paymentSlip:
+            $ref: '#/components/schemas/PaymentSlip'
+          splits:
+            $ref: '#/components/schemas/Split'
+    SubscriptionAutoCharge:
+      title: SubscriptionAutoCharge
+      type: object
+      description: Данные автоматического списания по подписке. Объект передается, если по подписке необходимо взимать деньги на регулярной основе.
+      x-description-i18n:
+        eng: Automatic subscription debit data. This item is passed if the subscription requires recurring payments.
+      properties:
+        frequency:
+          type: string
+          description: 'Периодичность списания по подписке<br>
+
+            Если параметр передан, то банк будет автоматически проводить ежемесячное списание средств.'
+          x-description-i18n:
+            eng: 'Subscription debit frequency<br>
+
+              If this parameter is passed, the bank will automatically debit funds monthly.'
+          enum:
+          - MONTHLY
+        firstChargeDate:
+          type: string
+          format: date
+          description: 'Дата первого списания по подписке<br>
+
+            Списание в указанную дату произойдет автоматически, далее – с заданной периодичностью начиная с этой даты. Переданное значение должно быть не меньше 7 дней от текущей даты. Например, при создании подписки 1 января firstChargeDate может быть 8 января или позже.<br>
+
+            Если параметр не передан, то при `frequency` равен `MONTHLY` первое списание по подписке произойдет через месяц после привязки счета клиентом.'
+          x-description-i18n:
+            eng: 'Date of first subscription charge<br>
+
+              The debit will be automatically debited on the specified date. Then, it will be debited at the specified frequency starting from that date. The value passed must be at least 7 days old. For example, if you create a subscription on January 1st, firstChargeDate could be January 8th or later.
+
+              If the parameter is not passed, then if `frequency` is equal to `MONTHLY`, the first subscription charge will occur one month after the client links the account.'
+        amount:
+          type: number
+          description: Сумма платежа в рублях. Для копеек доступно два знака после точки.
+          x-description-i18n:
+            eng: Payment amount in rubles. For kopecks, two decimal places are allowed.
+          minimum: 1
+      required:
+      - frequency
+      - amount
+    SubscriptionFormResponse:
+      title: SubscriptionFormResponse
+      type: object
+      properties:
+        payformUrl:
+          type: string
+          format: uri
+          description: Ссылка на форму для подписки
+          x-description-i18n:
+            eng: Subscription form URL
+        subscription:
+          $ref: '#/components/schemas/Subscription'
+    OrderComment:
+      title: OrderComment
+      type: string
+      description: 'Комментарий. Доступен в реестрах и Онлайн-Банке. Не может быть пустым или содержать только пробелы. Может содержать:<br>
+
+        • Символы латиницы (A–Z и a–z) <br>
+
+        • Символы кириллицы (А-Я и а-я) <br>
+
+        • Цифры 0-9 <br>
+
+        • Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`<br>
+
+        • Спецсимвол `№`'
+      x-description-i18n:
+        eng: 'Comment. Cannot be empty or contain only spaces. May contain:<br>
+
+          • Latin symbols (A–Z и a–z); <br>
+
+          • Cyrillic symbols (А-Я и а-я); <br>
+
+          • Digits 0-9;<br>
+
+          • Special symbols: spaces and `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`<br>
+
+          • Special symbol №
+
+          '
+      maxLength: 140
+      pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
+      example: Тестовый комментарий
+    OrderStatus:
+      title: OrderStatus
+      type: object
+      description: Статус заказа
+      x-description-i18n:
+        eng: Order status
+      minProperties: 1
+      properties:
+        value:
+          $ref: '#/components/schemas/OrderStatusValue'
+        date:
+          type: string
+          description: Дата создания заказа
+          x-description-i18n:
+            eng: Order creation date
+          format: date-time
+          example: '2025-01-10T20:10:00+03:00'
+          minLength: 1
+    FiscalReceiptBasic:
+      title: Receipt
+      type: object
+      x-description-i18n:
+        eng: Receipt data
+      description: Данные чека. Объект должен быть передан, если подключена фискализация чеков. При отсутствии объекта receipt чек не будет создан. Если объект receipt был передан, но заполнен некорректно, сервис вернет ошибку.
+      properties:
+        customer:
+          type: object
+          description: Данные покупателя
+          x-description-i18n:
+            eng: Buyer details
+          properties:
+            email:
+              type: string
+              description: '`Тег ФФД — 1008` <br>
+
+                E-mail покупателя для отправки чека. Если объект customer не передан, то чек отправляется на электронную почту мерчанта'
+              x-description-i18n:
+                eng: '`Tag FFD - 1008` <br>
+
+                  Buyer''s email for sending a receipt. If the customer object is not passed, the receipt is sent to the merchant''s email
+
+                  '
+              example: customer@test.ru
+              maxLength: 64
+              format: email
+            name:
+              type: string
+              description: '`Тег ФФД — 1227` <br>
+
+                ФИО покупателя (ФФД 1.05)'
+              x-description-i18n:
+                eng: '`Tag FFD - 1227` <br>
+
+                  Full name of the buyer (FFD 1.05)
+
+                  '
+              example: Иванов Иван Иванович
+              maxLength: 256
+            inn:
+              type: string
+              description: '`Тег ФФД — 1228` <br>
+
+                ИНН покупателя. Может содержать только 10 или 12 цифр'
+              x-description-i18n:
+                eng: '`Tag FFD - 1228` <br>
+
+                  Buyer''s tax identification number of 10 or 12 digits'
+              pattern: ^(?:[0-9]{10}|[0-9]{12})$
+              example: '7707083893'
+            extra:
+              type: object
+              description: Дополнительная информация о покупателе (ФФД 1.2)<br>Объект свободного наполнения, передается в ОФД без изменений. Если Вам необходимо передать доп. данные покупателя в extra, то сверьтесь с протоколом Вашего ОФД
+              x-description-i18n:
+                eng: Additional information about the buyer (FFD 1.2)<br>An object of free filling, transferred to the OFD without changes. If you need to transfer additional buyer data to extra, then check with the protocol of your OFD
+              additionalProperties:
+                type: string
+          required:
+          - email
+        timezone:
+          type: string
+          description: '`Тег ФФД — 1011` <br/>
+
+            Часовая зона (+02:00, +03:00... +11:00). Только для ФФД 1.2'
+          x-description-i18n:
+            eng: '`Tag FFD - 1011` <br>
+
+              Time zone (+02:00, +03:00... +11:00). Only for FFD 1.2
+
+              '
+        onlinePayment:
+          type: boolean
+          description: '`Тег ФФД — 1125` <br/>
+
+            Признак расчета в Интернете'
+          x-description-i18n:
+            eng: '`Tag FFD - 1125` <br>
+
+              Internet settlement flag
+
+              '
+        items:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          maxItems: 100
+          description: Позиции чека
+          x-description-i18n:
+            eng: Receipt items
+          items:
+            $ref: '#/components/schemas/receiptItem'
+        payments:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          description: Данные об оплате<br>Объект заполняется только для чеков с зачетом аванса или частичной предоплаты. Если чек содержит только безналичный вид оплаты (без зачета аванса/частичной предоплаты), то объект payments не заполняется.<br>Если payments не передан, то по умолчанию заполняется безналичным видом оплаты и ее суммой, которая равна сумме чека
+          x-description-i18n:
+            eng: Payment types info. Object must be passed only for receipts that include prepaid amount (either advance or partial prepayment receipts)<br> If null, then value E_PAYMENT is set by default, with the total receipt amount
+          items:
+            $ref: '#/components/schemas/payments'
+        additionalUserProperty:
+          $ref: '#/components/schemas/additionalUserProperty'
+      required:
+      - items
+    PaymentMethod:
+      title: PaymentMethod
+      type: string
+      enum:
+      - ACQUIRING
+      - SBP
+      description: 'Способ оплаты
+
+        - `SBP` - Оплата по СБП
+
+        - `ACQUIRING` - Оплата по карте'
+      x-description-i18n:
+        eng: 'Payment method
+
+          - `SBP` - Payment via SBP
+
+          - `ACQUIRING` - Payment by card
+
+          '
+    JsSdkPaymentSlip:
+      title: С квитанцией
+      allOf:
+      - $ref: '#/components/schemas/JsSdk'
+      - type: object
+        properties:
+          paymentSlip:
+            $ref: '#/components/schemas/PaymentSlip'
+    GeneralOrder:
+      title: Заказ
+      type: object
+      description: Заказ
+      x-description-i18n:
+        eng: Order
+      properties:
+        id:
+          type: string
+          description: Идентификатор заказа. Если не передан будет сформирован на стороне Банка. Рекомендуем использовать [UUID v4](https://ru.wikipedia.org/wiki/UUID)
+          x-description-i18n:
+            eng: Order ID. If not transmitted, it will be generated on the Bank side. We recommend using [UUID v4](https://ru.wikipedia.org/wiki/UUID)
+          maxLength: 40
+          pattern: ^[A-Za-z0-9-_.]+$
+          example: order-test
+        amount:
+          type: number
+          description: Сумма платежа в рублях. Для копеек доступно два знака после точки.
+          x-description-i18n:
+            eng: Payment amount in rubles. For kopecks, two signs after the dot are available.
+          exclusiveMinimum: 0
+        comment:
+          $ref: '#/components/schemas/OrderComment'
+        extra:
+          $ref: '#/components/schemas/Extra'
+        expirationDate:
+          type: string
+          format: date-time
+          description: Срок жизни заказа
+          x-description-i18n:
+            eng: Lifetime of the order. YYYY-MM-DDТHH24:MM:SS±HH:MM
+          example: '2025-01-10T20:10:00+03:00'
+      required:
+      - amount
+    JsSdk:
+      title: Без чека
+      type: object
+      properties:
+        publicId:
+          type: string
+          description: Идентификатор мерчанта в системе Банка
+          x-description-i18n:
+            eng: Merchant ID in the Bank system
+          example: 000001680200002-80200002
+        orderId:
+          type: string
+          description: Идентификатор заказа. Если не передан будет сформирован на стороне Банка. Рекомендуем использовать [UUID v4](https://ru.wikipedia.org/wiki/UUID)
+          x-description-i18n:
+            eng: Order ID in the merchant system
+          maxLength: 40
+          pattern: ^[A-Za-z0-9-_.]+$
+          example: order-test
+        amount:
+          type: number
+          example: 1200.37
+          description: Сумма платежа в рублях. Для копеек доступно два знака после точки.
+          x-description-i18n:
+            eng: Payment amount in rubles. For kopecks, two signs after the dot are available.
+          minimum: 0.01
+        comment:
+          $ref: '#/components/schemas/OrderComment'
+        successUrl:
+          type: string
+          format: uri
+          description: 'Адрес, на который будет перенаправлен плательщик с платежной формы в случае успешной оплаты<br>
+
+            * Допускается использование схемы `http` или `https`, за которой следует `://` и последовательность символов без пробелов.
+
+            '
+          x-description-i18n:
+            eng: URL of the resource where the client will be redirected in case of successful
+        failUrl:
+          type: string
+          format: uri
+          description: 'Адрес, на который будет перенаправлен плательщик с платежной формы в случае неуспешной оплаты<br>
+
+            * Допускается использование схемы `http` или `https`, за которой следует `://` и последовательность символов без пробелов.
+
+            '
+          x-description-i18n:
+            eng: URL of the resource where the client will be redirected in case of payment failure
+        extra:
+          $ref: '#/components/schemas/Extra'
+        paymentMethod:
+          $ref: '#/components/schemas/PayformPaymentMethod'
+        locale:
+          type: string
+          example: ru
+          description: Язык, используемый в интерфейсе платежной формы
+          x-description-i18n:
+            eng: Language used in the payment form interface
+          enum:
+          - ru
+          - en
+          minLength: 2
+          maxLength: 2
+          default: ru
+        expirationDate:
+          type: string
+          description: Срок жизни заказа
+          x-description-i18n:
+            eng: Lifetime of the order. YYYY-MM-DDТHH24:MM:SS±HH:MM
+          example: '2025-01-10T20:10:00+03:00'
+          format: date-time
+        successSbpUrl:
+          type: string
+          description: 'Ссылка, по котрой плательщик будет перенаправлен из приложения Банка в приложение или на сайт мерчанта в случае успешной оплаты по СБП
+
+            * Допускается использование схемы `http` или `https`, за которой следует `://` и последовательность символов без пробелов.
+
+            * Допускается использование схемы, начинающейся с буквы латинского алфавита и содержащей цифры, за которыми следует `://` и непробельная последовательность символов.
+
+            '
+          x-description-i18n:
+            eng: Link for automatic redirect of the payer from the banks app to the app or to the stores website. The link must contain https:// for web pages or a unique scheme for a mobile application.
+          example: https://bfkh.ru/
+          pattern: ^[A-Za-z][A-Za-z0-9]*://\S+$
+        paymentDetails:
+          type: string
+          description: Назначение платежа в выписке, используется при оплате по СБП
+          x-description-i18n:
+            eng: Payment details for statement, only for SBP
+          maxLength: 140
+          example: Назначение платежа
+      required:
+      - publicId
+      - amount
+    PayformPaymentMethod:
+      title: PayformPaymentMethod
+      type: string
+      enum:
+      - ONLY_SBP
+      - ONLY_ACQUIRING
+      description: "Способ оплаты\n  - `ONLY_SBP` - Оплата по СБП\n  - `ONLY_ACQUIRING` - Оплата по карте"
+      x-description-i18n:
+        eng: 'Payment method
+
+          - `ONLY_SBP` - Payment via SBP
+
+          - `ONLY_ACQUIRING` - Payment by card
+
+          '
+    Extra:
+      title: Extra
+      type: object
+      description: Дополнительные поля в формате key-value. Отображаются в реестрах.
+      x-description-i18n:
+        eng: Additional fields in key-value format. Displayed in registries
+      additionalProperties:
+        type: string
+    SubscriptionForm:
+      title: SubscriptionForm
+      type: object
+      properties:
+        methods:
+          type: array
+          description: Способы привязки, доступные на форме. Если не передать, будут включены все способы, доступные мерчанту.
+          x-description-i18n:
+            eng: Payment methods available on the form. If not specified, all methods available to the merchant will be included.
+          items:
+            $ref: '#/components/schemas/PaymentMethod'
+        locale:
+          type: string
+          default: RU
+          enum:
+          - RU
+          - EN
+          description: Язык, используемый в интерфейсе формы
+          x-description-i18n:
+            eng: The language used in the form interface
+        returnUrls:
+          type: object
+          description: Адреса для перенаправления плательщика на ресурсы мерчанта
+          x-description-i18n:
+            eng: Addresses for redirecting the payer to the merchant's resources
+          properties:
+            successUrl:
+              type: string
+              format: uri
+              description: 'Адрес, на который будет перенаправлен плательщик с платежной формы в случае успешной привязки<br>
+
+                * Допускается использование схемы `http` или `https`, за которой следует `://` и последовательность символов без пробелов.
+
+                '
+              x-description-i18n:
+                eng: 'The address to which the payer will be redirected from the payment form in case of successful linking<br>
+
+                  * The scheme `http` or `https` followed by `://` and a sequence of characters without spaces is allowed.
+
+                  '
+            failUrl:
+              type: string
+              format: uri
+              description: 'Адрес, на который будет перенаправлен плательщик с платежной формы в случае неуспешной привязки<br>
+
+                * Допускается использование схемы `http` или `https`, за которой следует `://` и последовательность символов без пробелов.
+
+                '
+              x-description-i18n:
+                eng: 'The address to which the payer will be redirected from the payment form in case of unsuccessful linking<br>
+
+                  * The scheme `http` or `https` followed by `://` and a sequence of characters without spaces is allowed.
+
+                  '
+            successSbpUrl:
+              type: string
+              pattern: ^[A-Za-z][A-Za-z0-9]*://\S+$
+              description: 'Ссылка, по котрой плательщик будет перенаправлен из приложения Банка в приложение или на сайт мерчанта в случае успешной привязки по СБП<br>
+
+                * Допускается использование схемы `http` или `https`, за которой следует `://` и последовательность символов без пробелов.
+
+                * Допускается использование схемы, начинающейся с буквы латинского алфавита и содержащей цифры, за которыми следует `://` и непробельная последовательность символов.
+
+                '
+              x-description-i18n:
+                eng: 'A link that will redirect the payer from the Bank''s application to the merchant''s application or website in the event of successful linking via the SBP.
+
+                  * The scheme `http` or `https` followed by `://` and a sequence of characters without spaces is allowed.
+
+                  * A scheme starting with a Latin letter and containing numbers followed by `://` and a non-space character sequence is allowed.
+
+                  '
+        subscription:
+          $ref: '#/components/schemas/Subscription'
+      required:
+      - subscription
+    CreateOrderPayform:
+      title: CreateOrderPayform
+      allOf:
+      - $ref: '#/components/schemas/GeneralOrder'
+      - type: object
+        properties:
+          paymentDetails:
+            type: string
+            description: Назначение платежа в выписке, используется при оплате по СБП
+            x-description-i18n:
+              eng: Payment details for statement, only for SBP
+            maxLength: 140
+            example: Назначение платежа
+          paymentMethods:
+            type: array
+            description: 'Способы оплаты, отображаемые плательщику на платежной форме.
+
+              Если не передать, будут включены все способы оплаты, доступные мерчанту.
+
+              '
+            x-description-i18n:
+              eng: 'Payment methods displayed to the payer on the payment form.
+
+                If not passed, all payment methods available to the merchant will be included.
+
+                '
+            items:
+              $ref: '#/components/schemas/PaymentMethod'
+          locale:
+            type: string
+            description: Язык, используемый в интерфейсе платежной формы
+            x-description-i18n:
+              eng: Language used in the payment form interface
+            enum:
+            - RU
+            - EN
+            default: RU
+            example: RU
+          returnUrls:
+            type: object
+            description: Адреса для перенаправления плательщика на ресурсы мерчанта
+            x-description-i18n:
+              eng: Addresses for redirecting the payer to the merchant's resources
+            properties:
+              successUrl:
+                type: string
+                description: 'Адрес, на который будет перенаправлен плательщик с платежной формы в случае успешной оплаты<br>
+
+                  * Допускается использование схемы `http` или `https`, за которой следует `://` и последовательность символов без пробелов.
+
+                  '
+                x-description-i18n:
+                  eng: URL of the resource where the client will be redirected in case of successful
+                format: uri
+              failUrl:
+                type: string
+                description: 'Адрес, на который будет перенаправлен плательщик с платежной формы в случае неуспешной оплаты<br>
+
+                  * Допускается использование схемы `http` или `https`, за которой следует `://` и последовательность символов без пробелов.
+
+                  '
+                x-description-i18n:
+                  eng: URL of the resource where the client will be redirected in case of payment failure
+                format: uri
+              successSbpUrl:
+                type: string
+                description: 'Ссылка, по котрой плательщик будет перенаправлен из приложения Банка в приложение или на сайт мерчанта в случае успешной оплаты по СБП<br>
+
+                  * Допускается использование схемы `http` или `https`, за которой следует `://` и последовательность символов без пробелов.
+
+                  * Допускается использование схемы, начинающейся с буквы латинского алфавита и содержащей цифры, за которыми следует `://` и непробельная последовательность символов.
+
+                  '
+                x-description-i18n:
+                  eng: 'A link by which the payer will be redirected from the Bank application to the merchant''s application or website in case of successful payment via the SBP. The link must contain https:// for web pages, or a unique scheme for the mobile application.
+
+                    '
+                example: someapp://test-site.ru/thank_you/order-test?success=true
+                pattern: ^[A-Za-z][A-Za-z0-9]*://\S+$
+          receipt:
+            $ref: '#/components/schemas/FiscalReceiptBasic'
+          paymentSlip:
+            $ref: '#/components/schemas/PaymentSlip'
+          subscription:
+            $ref: '#/components/schemas/Subscription'
+          splits:
+            $ref: '#/components/schemas/Split'
+    Split:
+      title: Split
+      type: array
+      description: 'Набор параметров для сплитования платежа.<br>
+
+        Сплитование позволяет ТСП передавать параметры распределения суммы платежа или возврата между контрагентами.<br>
+
+        Сумма всех объектов сплита должна быть равна сумме операции.<br>
+
+        При взаиморасчетах суммы платежей, указанные в сплите, увеличивают суммы к перечислению контрагентам, а суммы возвратов — уменьшают их.<br>
+
+        Сплитование доступно только при агрегированной схеме взаиморасчетов. Чтобы настроить агрегированную схему, обратитесь в техническую поддержку банка: ecom@raiffeisen.ru. Подробнее см. в разделе [Схема взаиморасчетов](#tag/SettlementSchemes).'
+      x-description-i18n:
+        eng: 'Set of parameters for payment splitting.<br>
+
+          Payment splitting allows the merchant to pass parameters for distributing a payment or refund amount among counterparties.<br>
+
+          The total amount of all split objects must be equal to the operation amount.<br>
+
+          In settlements, payment amounts specified in the split increase the amounts to be transferred to counterparties, while refund amounts decrease them.<br>
+
+          Payment splitting is available only with the aggregated settlement scheme. To set up the aggregated scheme, contact bank technical support: ecom@raiffeisen.ru. See [Settlement schemes](#tag/SettlementSchemes).'
+      items:
+        type: object
+        properties:
+          accountId:
+            type: string
+            description: "\t\nstring\nИдентификтор реквизитов, которые были получены от поддержки."
+            x-description-i18n:
+              eng: ID of the bank account details obtained from support
+          amount:
+            type: number
+            description: Сумма зачисления
+            x-description-i18n:
+              eng: Crediting amount
+            format: float
+            exclusiveMinimum: 0
+        required:
+        - accountId
+        - amount
+    payments:
+      type: object
+      title: платежи
+      x-title-i18n:
+        eng: payments
+      required:
+      - type
+      - amount
+      description: Данные об оплате и ее видах
+      x-description-i18n:
+        eng: Info on payment and its types
+      properties:
+        type:
+          type: string
+          description: Вид оплаты. Возможные значения:<br/>• E_PAYMENT – безналичная оплата<br/>• PREPAID – предварительная оплата (зачет аванса и/или предыдущих платежей)
+          x-description-i18n:
+            eng: Payment type. Valid values:<br/>• E_PAYMENT – electronic payment<br/>• PREPAID – prepaid amount (advance payment and/or previous payments)
+          example: PREPAID
+          enum:
+          - E_PAYMENT
+          - PREPAID
+        amount:
+          type: number
+          description: '`Тег ФФД — 1081. Сумма по чеку безналичными` <br/>
+
+            `Тег ФФД — 1251. Сумма по чеку предоплатой (зачетом аванса и(или) предыдущих платежей)` <br/>
+
+            Сумма оплаты<br/>Сумма всех переданных amount должна равняться итоговой сумме чека'
+          x-description-i18n:
+            eng: '`The tag FDF — 1081. Receipt amount non-cash payment` <br/>
+
+              `The tag FDF — 1251. Receipt amount prepayment (advance payment and(or) previous payment)` <br/>
+
+              Amount paid'
+          example: 1200
+    receiptItem:
+      type: object
+      title: ФФД 1.05 | ФФД 1.2
+      properties:
+        name:
+          type: string
+          maxLength: 128
+          description: '`Тег ФФД — 1030` <br/>
+
+            Наименование товара, работы, услуги, иного предмета расчета'
+          x-description-i18n:
+            eng: '`The tag FDF — 1030` <br/>
+
+              Name of goods, work, service, other payment objects'
+          example: Шоколадный торт
+        price:
+          type: number
+          description: '`Тег ФФД — 1079` <br/>
+
+            Цена за единицу товара, работы, услуги, иного предмета расчета в рублях (8 символов на целую часть, 2 на дробную)'
+          x-description-i18n:
+            eng: '`The tag FDF — 1079` <br/>
+
+              Price per unit of goods, work, services, other payment objects in rubles (8 characters for a whole part, 2 for a fractional part)'
+          example: 1200
+        quantity:
+          type: number
+          description: '`Тег ФФД — 1023` <br/>
+
+            Количество/вес (5 символов на целую часть, 3 на дробную)'
+          x-description-i18n:
+            eng: '`The tag FDF — 1023` <br/>
+
+              Quantity / weight (5 characters for a whole part, 3 for a fractional part)'
+          example: 1
+        amount:
+          type: number
+          description: '`Тег ФФД — 1043` <br/>
+
+            Сумма в рублях. Должна равняться произведению цены на количество (price * quantity). 8 символов на целую часть, 2 на дробную'
+          x-description-i18n:
+            eng: '`The tag FDF — 1023` <br/>
+
+              Amount in rubles. Must be equal to price * quantity (8 characters for a whole part, 2 for a fractional part)'
+          example: 1200
+        paymentObject:
+          type: string
+          description: '`Тег ФФД — 1212` <br/>
+
+            Признак предмета расчёта. Возможные значения:
+
+            <br/>• COMMODITY – товар, который не является подакцизным и не подлежит маркировке (ФФД 1.05 и ФФД 1.2)
+
+            <br/>• EXCISE – подакцизный товар, который не подлежит маркировке (ФФД 1.05 и ФФД 1.2)
+
+            <br/>• JOB – работа (ФФД 1.05 и ФФД 1.2)
+
+            <br/>• SERVICE – услуга (ФФД 1.05 и ФФД 1.2)
+
+            <br/>• PAYMENT – платеж (ФФД 1.05 и ФФД 1.2)
+
+            <br/>• ANOTHER – иной предмет расчета (ФФД 1.05 и ФФД 1.2)<br/>
+
+            <br/>• COMMODITY_MARKING_NO_CODE – товар, который не является подакцизным, подлежит маркировке, но не имеет кода маркировки (ФФД 1.2)
+
+            <br/>• COMMODITY_MARKING_WITH_CODE – товар, который не является подакцизным, подлежит маркировке и имеет код маркировки (ФФД 1.2)
+
+            <br/>• EXCISE_MARKING_NO_CODE – подакцизный товар, который подлежит маркировке, но не имеет кода маркировки (ФФД 1.2)
+
+            <br/>• EXCISE_MARKING_WITH_CODE – подакцизный товар, который подлежит маркировке и имеет код маркировки (ФФД 1.2)<br/>
+
+            <br/>Для авансовых чеков и чеков частичной предоплаты должен заполняться значением PAYMENT. Если параметр не передан, то заполняется значением COMMODITY по умолчанию'
+          x-description-i18n:
+            eng: '`The tag FDF — 1212` <br/>
+
+              Payment object type. Valid values:
+
+              <br/>• COMMODITY – good (FFD 1.05 and FFD 1.2)
+
+              <br/>• EXCISE – excisable good (FFD 1.05 and FFD 1.2)
+
+              <br/>• JOB – job (FFD 1.05 and FFD 1.2)
+
+              <br/>• SERVICE – service (FFD 1.05 and FFD 1.2)
+
+              <br/>• PAYMENT – payment (FFD 1.05 and FFD 1.2)
+
+              <br/>• ANOTHER – another payment object (FFD 1.05 and FFD 1.2)
+
+              <br/>• COMMODITY_MARKING_NO_CODE – marked good that has no marking code (FFD 1.2)
+
+              <br/>• COMMODITY_MARKING_WITH_CODE – marked good that has a marking code (FFD 1.2)
+
+              <br/>• EXCISE_MARKING_NO_CODE – excisable good that has no marking code (FFD 1.2)
+
+              <br/>• EXCISE_MARKING_WITH_CODE – excisable good that has a marking code (FFD 1.2)<br/>
+
+              <br/>For advance payments and prepayments value PAYMENT must be passed. If null, value COMMODITY will be set by default'
+          enum:
+          - COMMODITY
+          - EXCISE
+          - JOB
+          - SERVICE
+          - PAYMENT
+          - ANOTHER
+          - COMMODITY_MARKING_NO_CODE
+          - COMMODITY_MARKING_WITH_CODE
+          - EXCISE_MARKING_NO_CODE
+          - EXCISE_MARKING_WITH_CODE
+          example: COMMODITY_MARKING_WITH_CODE
+        paymentMode:
+          type: string
+          description: '`Тег ФФД — 1214` <br/>
+
+            Способ расчета. Возможные значения:<br/>
+
+            • FULL_PREPAYMENT – 100% предоплата до момента передачи предмета расчета<br/>
+
+            • FULL_PAYMENT – полная оплата в момент передачи предмета расчета<br/>
+
+            • ADVANCE – аванс<br/>
+
+            • PREPAYMENT – частичная предоплата до момента передачи предмета расчета<br/>
+
+            • CREDIT – Передача в кредит<br/>
+
+            • CREDIT_PAYMENT – Оплата кредита<br/>
+
+            Если параметр не передан, по умолчанию устанавливается значение FULL_PREPAYMENT'
+          x-description-i18n:
+            eng: '`The tag FDF — 1214` <br/>
+
+              Payment mode. Valid values:<br/>
+
+              • FULL_PREPAYMENT – 100% prepayment<br/>
+
+              • FULL_PAYMENT – full payment<br/>
+
+              • ADVANCE – advance payment<br/>
+
+              • PREPAYMENT – partial prepayment<br/>
+
+              • CREDIT – credit<br/>
+
+              • CREDIT_PAYMENT – credit payment<br/>
+
+              If null, the value FULL_PREPAYMENT is set dy default'
+          enum:
+          - FULL_PREPAYMENT
+          - FULL_PAYMENT
+          - ADVANCE
+          - PREPAYMENT
+          - CREDIT
+          - CREDIT_PAYMENT
+          example: FULL_PREPAYMENT
+        measurementUnit:
+          type: string
+          description: '`Тег ФФД — 2108` <br/>
+
+            Единица измерения товара, работы, услуги, иного предмета расчета.
+
+            <br/> Для ФФД 1.05 передавать строковое значение до 16 символов включительно.
+
+            <br/> Для ФФД 1.2 передавать значения из списка:
+
+            <br/>• PIECE – штука/единица/дробный товар
+
+            <br/>• GRAM – грамм
+
+            <br/>• KILOGRAM – килограмм
+
+            <br/>• TON – тонна
+
+            <br/>• CENTIMETER – сантиметр
+
+            <br/>• DECIMETER – дециметр
+
+            <br/>• METER – метр
+
+            <br/>• SQUARE_CENTIMETER – кв. сантиметр
+
+            <br/>• SQUARE_DECIMETER – кв. дециметр
+
+            <br/>• SQUARE_METER – кв. метр
+
+            <br/>• MILLILITER – миллилитр
+
+            <br/>• LITER – литр
+
+            <br/>• CUBIC_METER – куб. метр
+
+            <br/>• KILOWATT_HOUR – киловатт-час
+
+            <br/>• GIGACALORIE – гигакалория
+
+            <br/>• DAY – сутки/день
+
+            <br/>• HOUR – час
+
+            <br/>• MINUTE – минута
+
+            <br/>• SECOND – секунда
+
+            <br/>• KILOBYTE – килобайт
+
+            <br/>• MEGABYTE – мегабайт
+
+            <br/>• GIGABYTE – гигабайт
+
+            <br/>• TERABYTE – терабайт
+
+            <br/>• OTHER – иное
+
+            <br/>Если передано значение не из списка выше, то в ОФД автоматически будет передано OTHER
+
+            '
+          x-description-i18n:
+            eng: '`The tag FDF — 2108` <br/>
+
+              Unit of measurement of goods, work, services, other payment objects
+
+              <br/> If FFD 1.05, string value up to 16 symbols has to be passed.
+
+              <br/> If FFD 1.2, value from the list is accepted:
+
+              <br/>• PIECE – a piece
+
+              <br/>• GRAM – gram
+
+              <br/>• KILOGRAM – kilogram
+
+              <br/>• TON – ton
+
+              <br/>• CENTIMETER – centimeter
+
+              <br/>• DECIMETER – decimeter
+
+              <br/>• METER – meter
+
+              <br/>• SQUARE_CENTIMETER – sq. centimeter
+
+              <br/>• SQUARE_DECIMETER – sq. decimeter
+
+              <br/>• SQUARE_METER – sq. meter
+
+              <br/>• MILLILITER – milliliter
+
+              <br/>• LITER – liter
+
+              <br/>• CUBIC_METER – c. meter
+
+              <br/>• KILOWATT_HOUR – kilowatt-hour
+
+              <br/>• GIGACALORIE – gigacalorie
+
+              <br/>• DAY – day or 24 hours
+
+              <br/>• HOUR – an hour
+
+              <br/>• MINUTE – a minute
+
+              <br/>• SECOND – a second
+
+              <br/>• KILOBYTE – a kilobyte
+
+              <br/>• MEGABYTE – a megabyte
+
+              <br/>• GIGABYTE – a gigabyte
+
+              <br/>• TERABYTE – a terabyte
+
+              <br/>• OTHER – other
+
+              <br/>If passed value in off the list, value OTHER will passed automatically to OFD'''
+          example: PIECE
+        nomenclatureCode:
+          type: string
+          description: '`Тег ФФД — 1162` <br/>
+
+            Номенклатурный код товара в 16-ричном представлении с пробелами или в формате GS1 DataMatrix. Только для ФФД 1.05.
+
+            <br/>Примеры: ''''00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00'''' или ''''010463003407001221CMK45BrhN0WLf''''
+
+            <br/>Если вы используете БИФИТ или Чек-Онлайн, номенклатурный код должен быть передан строго в 16-ричном представлении с пробелами. Если LIFE PAY или Эвотор – строго в формате GS1 DataMatrix'
+          x-description-i18n:
+            eng: '`The tag FDF — 1162` <br/>
+
+              Product code in hexadecimal divided by spaces or in GS1 DataMatrix format. For FFD 1.05 only.
+
+              <br/>For example, "00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00" or "010463003407001221CMK45BrhN0WLf"
+
+              <br/>If you use BIFIT or Chekonline, the nomenclature code must be passed strictly in hexadecimal (hex) notation with spaces.
+
+              <br/>If you use LIFE PAY or Evotor, the nomenclature code must be passed strictly in GS1 DataMatrix format'
+          pattern: ^([a-fA-F0-9]{2}$)|(^([a-fA-F0-9]{2}\s){1,31}[a-fA-F0-9]{2}|01(?<gtin>\d{14})21(?<serial>[a-zA-Z0-9!" % &'()*+\/\-.,:;=<>?_]{13})([a-zA-Z0-9!" % &'()*+\/\- .,:;=<>?_]{1,119})?|(?<gtin1>\d{14})(?<serial1>[a-zA-Z0-9!" %&'()*+\/\-.,:;=<>?_]{11})[a-zA-Z0-9!" %&'()*+\/\-.,:;=<>?_]{4})$
+          maxLength: 150
+          example: 00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00
+        vatType:
+          type: string
+          description: '`Тег ФФД — 1199` <br/>
+
+            Ставка НДС на позицию чека. Возможные значения:<br/>
+
+            • NONE – без НДС<br/>• VAT0 – НДС по ставке 0%<br/>
+
+            • VAT10 – НДС чека по ставке 10%<br/>
+
+            • VAT110 – НДС чека по расчетной ставке 10/110<br/>
+
+            • VAT20 – НДС чека по ставке 20%<br/>
+
+            • VAT120 – НДС чека по расчетной ставке 20/120<br/>
+
+            • VAT5 – НДС чека по ставке 5%<br/>
+
+            • VAT105 – НДС чека по расчетной ставке 5/105<br/>
+
+            • VAT7 – НДС чека по ставке 7%<br/>
+
+            • VAT107 – НДС чека по расчетной ставке 7/107<br/>
+
+            • VAT22 – НДС чека по ставке 22%<br/>
+
+            • VAT122 – НДС чека по расчетной ставке 22/122'
+          x-description-i18n:
+            eng: '`The tag FDF — 1199` <br/>
+
+              VAT rate on each receipt item. Valid values:<br/>
+
+              • NONE – no VAT<br/>
+
+              • VAT0 – 0% VAT<br/>
+
+              • VAT10 – 10% VAT<br/>
+
+              • VAT110 – 10/110 VAT<br/>
+
+              • VAT20 – 20% VAT<br/>
+
+              • VAT120 – 20/120 VAT<br/>
+
+              • VAT5  – 5% VAT<br/>
+
+              • VAT105 – 5/105 VAT<br/>
+
+              • VAT7 – 7% VAT<br/>
+
+              • VAT107 – 7/107 VAT<br/>
+
+              • VAT22 – 22% VAT<br/>
+
+              • VAT122 – 22/122 VAT'
+          enum:
+          - NONE
+          - VAT0
+          - VAT10
+          - VAT110
+          - VAT20
+          - VAT120
+          - VAT5
+          - VAT105
+          - VAT7
+          - VAT107
+          - VAT22
+          - VAT122
+          example: VAT20
+        agentType:
+          type: string
+          description: '`Тег ФФД — 1222` <br/>
+
+            Признак агента по предмету расчета. Опциональный параметр, который заполняется только для операций через агента. Возможные значения:<br/>
+
+            • BANK_PAYING_AGENT – банковский платежный агент<br/>
+
+            • BANK_PAYING_SUBAGENT – банковский платежный субагент<br/>
+
+            • PAYING_AGENT – платежный агент<br/>
+
+            • PAYING_SUBAGENT – платежный субагент<br/>
+
+            • ATTORNEY – поверенный<br/>
+
+            • COMMISSION_AGENT – комиссионер<br/>
+
+            • ANOTHER – другой тип агента'
+          x-description-i18n:
+            eng: '`The tag FDF — 1222` <br/>
+
+              Agent type. Optional parameter which is required for agent operations only.<br/>
+
+              Valid values:<br/>• BANK_PAYING_AGENT – bank paying agent<br/>
+
+              • BANK_PAYING_SUBAGENT – bank paying subagent<br/>
+
+              • PAYING_AGENT – paying agent<br/>
+
+              • PAYING_SUBAGENT – paying subagent<br/>
+
+              • ATTORNEY – attorney<br/>
+
+              • COMMISSION_AGENT – commission agent<br/>
+
+              • «ANOTHER» – another agent type'
+          enum:
+          - BANK_PAYING_AGENT
+          - BANK_PAYING_SUBAGENT
+          - PAYING_AGENT
+          - PAYING_SUBAGENT
+          - ATTORNEY
+          - COMMISSION_AGENT
+          - ANOTHER
+          example: ANOTHER
+        supplierInfo:
+          type: object
+          description: Данные о поставщике. Обязательно к заполнению, если заполнен параметр agentType
+          x-description-i18n:
+            eng: Supplier information. Required if agentType is filled in
+          properties:
+            phone:
+              type: string
+              description: '`Тег ФФД — 1171` <br/>
+
+                Телефон поставщика. Заполняется по формату "+79991234567", после кода +7 должно быть указано 10 цифр'
+              x-description-i18n:
+                eng: '`The tag FDF — 1171` <br/>
+
+                  Supplier phone number. Filled in with Russian country code in format "+79991234567". The country code +7 must be followed by 10 digits'
+              format: +7XXXXXXXXXX
+              example: '+79991234567'
+            name:
+              type: string
+              description: '`Тег ФФД — 1225` <br/>
+
+                Наименование поставщика'
+              x-description-i18n:
+                eng: '`The tag FDF — 1225` <br/>
+
+                  Supplier name'
+              example: ООО «Ромашка»
+            inn:
+              type: string
+              description: '`Тег ФФД — 1226` <br/>
+
+                ИНН поставщика. Может содержать только цифры в количестве 10 или 12 символов'
+              x-description-i18n:
+                eng: '`The tag FDF — 1226` <br/>
+
+                  Supplier tax code of 10 or 12 digits'
+              maxLength: 12
+              example: '287381373424'
+          required:
+          - inn
+        marking:
+          type: object
+          description: 'Данные маркировки. Только для ФФД 1.2
+
+            <br/>Обязательно к заполнению, если предметом расчета является маркированный товар, который имеет код маркировки''
+
+            '
+          x-description-i18n:
+            eng: 'Marking data. Relevant for FFD 1.2 only
+
+              <br/>Must be passed for marked goods that have marking codes
+
+              '
+          properties:
+            quantity:
+              type: object
+              description: '`Тег ФФД — 1291` <br/>
+
+                Дробное количество маркированного товара
+
+                <br/>Обязательно к заполнению, если предметом расчета является дробный маркированный товар, который имеет код маркировки.
+
+                В таком случае параметр measurementUnit должен иметь значение PIECE
+
+                '
+              x-description-i18n:
+                eng: '`The tag FDF — 1291` <br/>
+
+                  Fractional amount of marking goods
+
+                  <br/>Must be passed for marked goods that have marking codes. If so, value PIECE must be passed in measurementUnit
+
+                  '
+              properties:
+                numerator:
+                  type: integer
+                  description: '`Тег ФФД — 1293` <br/>
+
+                    Числитель дробной части'
+                  x-description-i18n:
+                    eng: '`The tag FDF — 1293` <br/>
+
+                      Fraction numerator'
+                  example: 1
+                denominator:
+                  type: integer
+                  description: '`Тег ФФД — 1294` <br/>
+
+                    Знаменатель дробной части'
+                  x-description-i18n:
+                    eng: '`The tag FDF — 1294` <br/>
+
+                      Fraction denominator'
+                  example: 3
+              required:
+              - numerator
+              - denominator
+            code:
+              type: object
+              description: Код маркировки
+              x-description-i18n:
+                eng: Marking code data
+              required:
+              - format
+              - value
+              properties:
+                format:
+                  type: string
+                  description: Формат кода маркировки
+                  x-description-i18n:
+                    eng: Marking code format
+                  enum:
+                  - UNKNOWN
+                  - EAN8
+                  - EAN13
+                  - ITF14
+                  - GS1M
+                  - SHORT
+                  - FUR
+                  - EGAIS20
+                  - EGAIS30
+                  example: GS1M
+                value:
+                  type: string
+                  description: '`Тег ФФД — 1300. Нераспознанный код товара` <br/>
+
+                    `Тег ФФД — 1301. КТ EAN-8` <br/>
+
+                    `Тег ФФД — 1302. КТ EAN-13` <br/>
+
+                    `Тег ФФД — 1303. КТ ITF-14` <br/>
+
+                    `Тег ФФД — 1305. КТ GS1.М` <br/>
+
+                    `Тег ФФД — 1306. КТ КМК, (SHORT)` <br/>
+
+                    `Тег ФФД — 1307. КТ Меховые изделия, (FUR)` <br/>
+
+                    `Тег ФФД — 1308. КТ ЕГАИС-3.0, (EGAIS20)` <br/>
+
+                    `Тег ФФД — 1309. КТ ЕГАИС-3.0, (EGAIS30)` <br/>
+
+                    Код маркировки. Должен соответствовать формату, переданному в параметре format'
+                  x-description-i18n:
+                    eng: '`The tag FDF — 1300. Undefined item code` <br/>
+
+                      `The tag FDF — 1301. Item code EAN-8` <br/>
+
+                      `The tag FDF — 1302. Item code EAN-13` <br/>
+
+                      `The tag FDF — 1303. Item code ITF-14` <br/>
+
+                      `The tag FDF — 1305. Item code GS1.М` <br/>
+
+                      `The tag FDF — 1306. Item code SHORT` <br/>
+
+                      `The tag FDF — 1307. Item code FUR` <br/>
+
+                      `The tag FDF — 1308. Item code EGAIS20` <br/>
+
+                      `The tag FDF — 1309. Item code EGAIS30` <br/>
+
+                      Marking code. Value must match the format'
+                  example: MDEwNDYwNzQyODY3OTA5MDIxNmVKSWpvV0g1NERkVSA5MWZmZDAgOTJzejZrU1BpckFwZk1CZnR2TGJvRTFkbFdDLzU4aEV4UVVxdjdCQmtabWs0PQ==
+                plannedStatus:
+                  type: integer
+                  minimum: 1
+                  maximum: 6
+                  description: '`Тег 2003 — планируемый статус маркированного торвара` <br/>
+
+                    Только маркировок вида GS1M и SHORT<br/>
+
+                    1 - Штучный товар, подлежащий обязательной маркировке
+
+                    средством идентификации, реализован<br/>
+
+                    2 - Мерный товар, подлежащий обязательной маркировке
+
+                    средством идентификации, в стадии реализации<br/>
+
+                    3 - Штучный товар, подлежащий обязательной маркировке
+
+                    средством идентификации, возвращен<br/>
+
+                    4 - Часть товара, подлежащего обязательной маркировке
+
+                    средством идентификации, возвращена<br/>
+
+                    5 - Штучный товар, подлежащий обязательной маркировке
+
+                    средством идентификации, в стадии реализации<br/>
+
+                    6 - Мерный товар, подлежащий обязательной маркировке
+
+                    средством идентификации, реализован<br/>'
+          required:
+          - code
+        sectoralProperties:
+          type: array
+          minItems: 1
+          maxItems: 5
+          description: '`Тег ФФД — 1260` <br/>
+
+            Отраслевые реквизиты предмета расчета. Только для ФФД 1.2 <br/>
+
+            Большинство ОФД поддерживают обработку только 1 элемента в массиве. Если Вам необходимо передавать более 1 элемента в массиве, то сверьтесь с протоколом Вашего ОФД
+
+            '
+          x-description-i18n:
+            eng: '`The tag FDF — 1260` <br/>
+
+              Sectoral properties. Relevant for FFD 1.2 only <br/>
+
+              Most OFD support processing of only 1 element in an array. If you need to transfer more than 1 element in an array, then check with the protocol of your OFD
+
+              '
+          items:
+            type: object
+            properties:
+              federalId:
+                type: string
+                description: '`Тег ФФД — 1262` <br/>
+
+                  Идентификатор Федерального органа исполнительной власти. Должно принимать одно из значений справочника в соответствии с [приказом ФНС России](https://www.nalog.gov.ru/rn77/about_fts/docs/10020801/)'
+                x-description-i18n:
+                  eng: '`The tag FDF — 1262` <br/>
+
+                    Identifier of the Federal Executive Authority. Must take one of the directory values in accordance with [the order of the Federal Tax Service of Russia](https://www.nalog.gov.ru/rn77/about_fts/docs/10020801/)'
+                example: '030'
+              documentDate:
+                type: string
+                format: date
+                description: '`Тег ФФД — 1263` <br/>
+
+                  Дата нормативного акта федерального органа исполнительной власти, регламентирующего порядок заполнения поля «значение отраслевого реквизита»'
+                x-description-i18n:
+                  eng: '`The tag FDF — 1263` <br/>
+
+                    Date of the normative act of the federal executive body regulating the procedure for filling in the field "value of the sectoral property"'
+                example: '2023-11-21'
+              documentNumber:
+                type: string
+                description: '`Тег ФФД — 1264` <br/>
+
+                  Номер нормативного акта федерального органа исполнительной власти, регламентирующего порядок заполнения поля «значение отраслевого реквизита»'
+                x-description-i18n:
+                  eng: '`The tag FDF — 1264` <br/>
+
+                    Number of the normative act of the federal executive body, regulating the procedure for filling in the field "value of the sectoral property"'
+                example: '1944'
+              value:
+                type: string
+                description: '`Тег ФФД — 1265` <br/>
+
+                  Значение отраслевого реквизита. Заполнение регламентируется нормативным актом федерального органа исполнительной власти'
+                x-description-i18n:
+                  eng: '`The tag FDF — 1265` <br/>
+
+                    The value of the sectoral property. Filling is regulated by the normative act of the federal executive authority'
+                example: UUID=2ce10bdb-6515-4d37-be04-dd475b98c728&Time=1692691702067
+            required:
+            - federalId
+            - documentDate
+            - documentNumber
+            - value
+      required:
+      - name
+      - price
+      - quantity
+      - amount
+      - vatType
+    additionalUserProperty:
+      type: object
+      required:
+      - name
+      - value
+      description: '`Тег ФФД — 1084` <br/>
+
+        Дополнительный реквизит пользователя'
+      x-description-i18n:
+        eng: '`The tag FDF — 1084` <br/>
+
+          Additional user property'
+      properties:
+        name:
+          type: string
+          description: '`Тег ФФД — 1085` <br/>
+
+            Наименование дополнительного реквизита пользователя'
+          x-description-i18n:
+            eng: '`The tag FDF — 1085` <br/>
+
+              Additional user property name'
+          maxLength: 64
+        value:
+          type: string
+          description: '`Тег ФФД — 1086` <br/>
+
+            Значение дополнительного реквизита пользователя'
+          x-description-i18n:
+            eng: '`The tag FDF — 1086` <br/>
+
+              Additional user property value'
+          maxLength: 256
+    OrderStatusValue:
+      title: OrderStatusValue
+      type: string
+      enum:
+      - NEW
+      - PAID
+      - EXPIRED
+      - CANCELLED
+    SubscriptionCustomer:
+      title: SubscriptionCustomer
+      type: object
+      description: Данные покупателя по подписке
+      x-description-i18n:
+        eng: Subscription customer data
+      properties:
+        email:
+          type: string
+          description: Email покупателя
+          x-description-i18n:
+            eng: Customer email
+          example: customer@test.ru
+          maxLength: 64
+          format: email
+      required:
+      - email
+    PaymentSlip:
+      title: PaymentSlip
+      type: object
+      x-description-i18n:
+        eng: Payment slip
+      description: '`В РАЗРАБОТКЕ` <br>
+
+        Данные квитанции. Следует заполнять, если подключен функционал квитанций и необходимо кастомизировать данные, которые отобразятся в квитанции'
+      properties:
+        sellerName:
+          type: string
+          description: Название магазина, которое будет отражено в квитанции. Если не заполнено, то квитанции будет отображено название мерчанта
+          x-description-i18n:
+            eng: The name of the store that will appear on the payment slip
+          example: Магазин у дома
+      required:
+      - sellerName
+    Error415:
+      title: Error415
+      type: object
+      properties:
+        timestamp:
+          type: string
+          description: Время ответа сервиса
+          x-description-i18n:
+            eng: Service response time
+          example: '2024-12-15T06:36:32+03:00'
+        status:
+          type: integer
+          description: Код состояния HTTP-запроса
+          x-description-i18n:
+            eng: HTTP Request Status Code
+          example: 415
+        error:
+          type: string
+          description: Описание ошибки
+          x-description-i18n:
+            eng: Error description
+          example: Unsupported Media Type
+        path:
+          type: string
+          description: Путь запроса
+          x-description-i18n:
+            eng: Request path
+    GeneralError:
+      title: General Error
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки запроса
+          x-description-i18n:
+            eng: Request error code
+        message:
+          type: string
+          description: Описание ошибки
+          x-description-i18n:
+            eng: Error description
+        traceId:
+          type: string
+          description: Идентификатор выполнения запроса при наличии ошибки
+          x-description-i18n:
+            eng: Request ID if there is an error
+    Subscription:
+      title: Subscription
+      type: object
+      description: Данные для оформления подписки и будущих рекурентных платежей. Результат подписки зависит от плательщика. При успешной подписке будет отправлено [[Уведомление о подписке (v2)]](#tag/Callback/operation/subscriptionNotificationV2).
+      x-description-i18n:
+        eng: Subscription data. Subscription results depend on the payer. If the subscription is successful [[a subscription notification (v2) will be sent to the merchant's address]](#tag/Callback/operation/subscriptionNotificationV2).
+      properties:
+        id:
+          type: string
+          description: Идентификатор подписки. Рекомендуем использовать длинный формат без возможности перебора, например, использовать формат [UUIDv4](https://ru.wikipedia.org/wiki/UUID)
+          x-description-i18n:
+            eng: Subscription ID. We recommend using a long, non-threadable format, such as [UUIDv4](https://ru.wikipedia.org/wiki/UUID)
+          maxLength: 40
+          example: a7631fbb-f94f-4c17-1e13-0e96a3a77113
+          pattern: ^[A-Za-z0-9-_.]+$
+        purpose:
+          type: string
+          description: 'Описание подписки<br>
+
+            Может содержать:<br>
+
+            * Символы латиницы (A-Z и a-z)
+
+            * Символы кириллицы (А-Я и а-я)
+
+            * Цифры 0-9
+
+            * Спецсимволы: `(`, `)`, `!`, `@`, `[`, `]`, `#`, `+`, `=`, `-`, `|`, `.`, `,`'
+          x-description-i18n:
+            eng: 'Subscription description<br>
+
+              May contain:<br>
+
+              * Latin characters (A-Z и a-z)
+
+              * Cyrillic symbols (А-Я и а-я)
+
+              * Numbers 0-9
+
+              * Special characters: `(`, `)`, `!`, `@`, `[`, `]`, `#`, `+`, `=`, `-`, `|`, `.`, `,`'
+          maxLength: 140
+          example: Подписка на интернет магазин
+          pattern: ^[A-Za-zА-Яа-я0-9 ()!@\[\]#+=_\|.,-]+$
+        autoCharge:
+          $ref: '#/components/schemas/SubscriptionAutoCharge'
+        customer:
+          $ref: '#/components/schemas/SubscriptionCustomer'
+        autoAcceptance:
+          type: boolean
+          default: false
+          description: 'Флаг для управления привязкой карты. Если флаг установлен в `true`, чекбокс привязки на платежной форме будет установлен по умолчанию на согласие плательщика с привязкой карты.<br>
+
+            Для управления флагом необходима дополнительная настройка со стороны Банка. <br>
+
+            Поле используется только для метода [[Создание заказа с получением платежной ссылки]](#tag/payform/operation/post-payments-v1-merchants-publicId-orders-payment-link2)
+
+            '
+          x-description-i18n:
+            eng: 'Flag for managing card binding. If the flag is set to `true`, the binding checkbox on the payment form will be checked by default to indicate the payer''s consent to binding the card.<br>
+
+              Additional configuration on the Bank''s side is required to manage this flag. <br>
+
+              The field is only used for the [[Create order with payment link]](#tag/payform/operation/post-payments-v1-merchants-publicId-orders-payment-link2) method
+
+              '
+      required:
+      - purpose
+    JsSdkFiscal:
+      title: С чеком (ФФД 1.05 | ФФД 1.2)
+      allOf:
+      - $ref: '#/components/schemas/JsSdk'
+      - type: object
+        properties:
+          receipt:
+            allOf:
+            - type: object
+              properties:
+                receiptNumber:
+                  type: string
+                  description: Уникальный номер чека. Если значение не передано, то заполняется номером заказа (orderId)
+                  x-description-i18n:
+                    eng: Unique receipt number. If the value is not passed, it is filled with the order number (orderId)
+                  example: '3000827351831'
+                  pattern: ^[A-Za-z0-9_-]+$
+                  maxLength: 99
+            - $ref: '#/components/schemas/FiscalReceiptBasic'
+            description: Данные чека. Объект должен быть передан, если подключена фискализация чеков. При отсутствии объекта receipt чек не будет создан. В случае некорректного формата объекта receipt чек так же не будет создан, при этом открытие платежной формы не блокируется, и заказ может быть оплачен.
+            x-description-i18n:
+              eng: Receipt data. The object must be transferred if receipt fiscalization is enabled. If the receipt object is missing, the receipt will not be created. If the receipt object format is incorrect, the receipt will also not be created, but the opening of the payment form is not blocked, and the order can be paid.
+  examples:
+    WL_ERROR_403_FORBIDDEN:
+      value:
+        code: ERROR.FORBIDDEN
+        message: Доступ запрещен
+        traceId: abb066c61a7c8b74af83f245c7706813
+    GENERAL_INTERNAL_ERROR_500:
+      value:
+        code: ERROR.INTERNAL_ERROR
+        message: Внутренняя ошибка сервиса
+        traceId: abb066c61a7c8b74af83f245c7706813
+    SUBSCRIPTION.CREATE_SUBSCRIPTION_WITH_PAYMENT:
+      value:
+        id: order-test
+        amount: 540
+        comment: Тестовый комментарий
+        extra:
+          email: pavel@mail.ru
+        paymentDetails: Оплата молока на Фрунзе 1
+        returnUrls:
+          successUrl: https://example.com
+          failUrl: https://example.com
+          successSbpUrl: someapp://test-site.ru/thank_you/order-test?success=true
+        subscription:
+          id: subscription-test
+          purpose: Подписка на интернет магазин
+          customer:
+            email: customer@test.ru
+  requestBodies:
+    CreateOrderPayFormRequest:
+      content:
+        application/json:
+          schema:
+            oneOf:
+            - $ref: '#/components/schemas/JsSdk'
+            - $ref: '#/components/schemas/JsSdkFiscal'
+            - $ref: '#/components/schemas/JsSdkPaymentSlip'
+    CreateOrderRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateOrderPayform'
+          examples:
+            С чеком:
+              value:
+                id: order-test
+                amount: 1200
+                comment: Тестовый комментарий
+                paymentDetails: Назначение платежа
+                paymentMethods:
+                - ACQUIRING
+                returnUrls:
+                  successUrl: https://example.com
+                  failUrl: https://example.com
+                  successSbpUrl: someapp://test-site.ru/thank_you/order-test?success=true
+                receipt:
+                  customer:
+                    email: customer@test.ru
+                    name: Иванов Иван Иванович
+                    extra:
+                      property1: string
+                      property2: string
+                  items:
+                  - name: Шоколадный торт
+                    price: 1200
+                    quantity: 1
+                    amount: 1200
+                    paymentObject: COMMODITY_MARKING_WITH_CODE
+                    paymentMode: FULL_PAYMENT
+                    measurementUnit: PIECE
+                    nomenclatureCode: 00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00
+                    vatType: VAT20
+                    agentType: ANOTHER
+                    supplierInfo:
+                      phone: '+79991234567'
+                      name: ООО «Ромашка»
+                      inn: '287381373424'
+                    marking:
+                      quantity:
+                        numerator: 1
+                        denominator: 3
+                      code:
+                        format: GS1M
+                        value: MDEwNDYwNzQyODY3OTA5MDIxNmVKSWpvV0g1NERkVSA5MWZmZDAgOTJzejZrU1BpckFwZk1CZnR2TGJvRTFkbFdDLzU4aEV4UVVxdjdCQmtabWs0PQ==
+                    sectoralProperties:
+                    - federalId: '030'
+                      documentDate: '2023-11-21'
+                      documentNumber: '1944'
+                      value: UUID=2ce10bdb-6515-4d37-be04-dd475b98c728&Time=1692691702067
+                  additionalUserProperty:
+                    name: string
+                    value: string
+            Без чека:
+              value:
+                id: order-test
+                amount: 1200
+                comment: Тестовый комментарий
+                paymentDetails: Назначение платежа
+                paymentMethods:
+                - ACQUIRING
+                locale: RU
+                returnUrls:
+                  successUrl: https://example.com
+                  failUrl: https://example.com
+                  successSbpUrl: someapp://test-site.ru/thank_you/order-test?success=true
+            С квитанцией:
+              value:
+                id: order-test
+                amount: 1200
+                comment: Тестовый комментарий
+                paymentDetails: Назначение платежа
+                paymentMethods:
+                - ACQUIRING
+                locale: RU
+                returnUrls:
+                  successUrl: https://example.com
+                  failUrl: https://example.com
+                  successSbpUrl: someapp://test-site.ru/thank_you/order-test?success=true
+                paymentSlip:
+                  sellerName: Магазин у дома
+            С оформлением подписки:
+              $ref: '#/components/examples/SUBSCRIPTION.CREATE_SUBSCRIPTION_WITH_PAYMENT'
+    CreateSubscriptionFormRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SubscriptionForm'
+  responses:
+    CreateOrderResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreatedOrderPayform'
+          examples:
+            С чеком:
+              value:
+                id: order-test
+                amount: 1200
+                comment: Тестовый комментарий
+                extra:
+                  property1: string
+                  property2: string
+                expirationDate: '2025-01-10T20:10:00+03:00'
+                paymentDetails: string
+                status:
+                  value: NEW
+                  date: '2025-01-10T20:10:00+03:00'
+                payformUrl: https://pay.raif.ru/pay?payformId=1238ana84
+                receipt:
+                  receiptNumber: string
+                  customer:
+                    email: customer@test.ru
+                    name: Иванов Иван Иванович
+                    extra:
+                      property1: string
+                      property2: string
+                  items:
+                  - name: Шоколадный торт
+                    price: 1200
+                    quantity: 1
+                    amount: 1200
+                    paymentObject: COMMODITY_MARKING_WITH_CODE
+                    paymentMode: FULL_PAYMENT
+                    measurementUnit: PIECE
+                    nomenclatureCode: 00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00
+                    vatType: VAT20
+                    agentType: ANOTHER
+                    supplierInfo:
+                      phone: '+79991234567'
+                      name: ООО «Ромашка»
+                      inn: '287381373424'
+                    marking:
+                      quantity:
+                        numerator: 1
+                        denominator: 3
+                      code:
+                        format: GS1M
+                        value: MDEwNDYwNzQyODY3OTA5MDIxNmVKSWpvV0g1NERkVSA5MWZmZDAgOTJzejZrU1BpckFwZk1CZnR2TGJvRTFkbFdDLzU4aEV4UVVxdjdCQmtabWs0PQ==
+                    sectoralProperties:
+                    - federalId: '030'
+                      documentDate: '2023-11-21'
+                      documentNumber: '1944'
+                      value: UUID=2ce10bdb-6515-4d37-be04-dd475b98c728&Time=1692691702067
+                  payments:
+                  - type: E_PAYMENT
+                    amount: 1200
+                  additionalUserProperty:
+                    name: string
+                    value: string
+            Без чека:
+              value:
+                id: order-test
+                amount: 1200
+                comment: Тестовый комментарий
+                extra:
+                  property1: string
+                  property2: string
+                expirationDate: '2025-01-10T20:10:00+03:00'
+                paymentDetails: string
+                status:
+                  value: NEW
+                  date: '2025-01-10T20:10:00+03:00'
+                payformUrl: https://pay.raif.ru/pay?payformId=1238ana84
+            С квитанцией:
+              value:
+                id: order-test
+                amount: 1200
+                comment: Тестовый комментарий
+                extra:
+                  property1: string
+                  property2: string
+                expirationDate: '2025-01-10T20:10:00+03:00'
+                paymentDetails: string
+                status:
+                  value: NEW
+                  date: '2025-01-10T20:10:00+03:00'
+                payformUrl: https://pay.raif.ru/pay?payformId=1238ana84
+                paymentSlip:
+                  sellerName: Магазин у дома
+            С подпиской:
+              value:
+                id: order-test
+                amount: 540
+                comment: Тестовый комментарий
+                extra:
+                  email: pavel@mail.ru
+                expirationDate: '2025-01-10T20:10:00+03:00'
+                paymentDetails: Оплата молока на Фрунзе 1
+                status:
+                  value: NEW
+                  date: '2025-01-10T20:10:00+03:00'
+                payformUrl: https://pay.raif.ru/pay?payformId=1238ana84
+                subscription:
+                  id: subscription-test
+                  purpose: Подписка на интернет магазин
+    Error415Response:
+      description: Unsupported Media Type. Check content type in header parameters.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error415'
+    CreateSubscriptionFormResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SubscriptionFormResponse'
+  parameters:
+    publicId:
+      name: publicId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Идентификатор мерчанта в системе Банка
+      x-description-i18n:
+        eng: Merchant ID in the Bank system
+  securitySchemes:
+    secretKey:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Указывается в заголовке `Authorization` в формате `Bearer <secretKey>`.
+
+
+        Подробная информация содержится в разделе [Авторизация](#section/API/Avtorizaciya)'
+      x-description-i18n:
+        eng: 'Specified in the `Authorization` header in the format `Bearer <secretKey>`.
+
+
+          Detailed information is contained in the [Authorization] section (#section/API/Authorizaciya)
+
+          '
+x-refined-from:
+- raiffeisen-ru-raif-pay-payment-form-openapi.json
+- raiffeisen-ru-raif-pay-payment-form-openapi.yml

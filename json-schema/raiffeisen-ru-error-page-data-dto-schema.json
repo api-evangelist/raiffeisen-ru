@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-error-page-data-dto-schema.json",
+  "title": "ErrorPageDataDTO",
+  "description": "JSON данные, встроенные в HTML страницу /error внутри script#viewData с типом application/json.\nЭти данные используются React SPA для отображения error page.",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-authorization-openapi.yml#/components/schemas/ErrorPageDataDTO",
+  "type": "object",
+  "required": [
+    "pageType",
+    "pageData"
+  ],
+  "properties": {
+    "pageType": {
+      "type": "string",
+      "enum": [
+        "ERROR"
+      ]
+    },
+    "pageData": {
+      "type": "object",
+      "required": [
+        "errorPageContext",
+        "errorDetails"
+      ],
+      "properties": {
+        "errorPageContext": {
+          "type": "object",
+          "required": [
+            "csrf"
+          ],
+          "properties": {
+            "csrf": {
+              "type": "string",
+              "description": "CSRF токен для background-запросов со страницы ошибки."
+            }
+          }
+        },
+        "errorDetails": {
+          "type": "object",
+          "required": [
+            "errorCode",
+            "actions"
+          ],
+          "properties": {
+            "errorCode": {
+              "type": "string",
+              "description": "Код ошибки для frontend error page.\nВозможные значения:\n- `unknown-error` — неизвестная ошибка\n- `fatal-error` — фатальная ошибка\n- `user-is-blocked` — пользователь заблокирован\n- `consent.*` — ошибки шага consent\n- `authenticate.sms-otp.*` — ошибки аутентификации SMS-OTP\n- `challenge.sms-otp.*` — ошибки ввода SMS-OTP кода"
+            },
+            "actions": {
+              "type": "array",
+              "description": "Список действий, доступных пользователю на странице ошибки.",
+              "items": {
+                "$ref": "#/$defs/ErrorActionItemDTO"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "ErrorActionItemDTO": {
+      "type": "object",
+      "required": [
+        "action"
+      ],
+      "description": "Действие, доступное пользователю на странице ошибки.\nКаждое действие отображается как кнопка или ссылка на error page.",
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "Тип действия:\n- `RELOAD` — обновление страницы (редирект на /login)\n- `RETRY_LOGIN` — повторная попытка входа (редирект на /login/restart для перезапуска flow)\n- `REDIRECT` — редирект на внешний URL",
+          "enum": [
+            "RELOAD",
+            "RETRY_LOGIN",
+            "REDIRECT"
+          ]
+        },
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "URL для действия. Обязателен для RELOAD, RETRY_LOGIN и REDIRECT."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,74 @@
+generated: '2026-10-09'
+method: searched
+source: https://developer.raiffeisen.ru/docs/sandbox
+description: 'Two sandboxes. (1) Raiffeisen API sandbox at https://sandbox.api.raiffeisen.ru for the corporate banking APIs: Code Flow authentication, ruble payments in ISO 20022 (pain.001.001.raif) and
+  account statements, with per-session synthetic credentials kept 24 hours. "Данные песочницы полностью синтетические ... подпись проверяется структурно, без криптографии." (2) Raif Pay test contour https://pay-test.raif.ru
+  for acquiring/SBP, with published test card and negative-test amounts.'
+docs:
+- https://developer.raiffeisen.ru/docs/sandbox
+- https://developer.raiffeisen.ru/docs/sandbox/tokens
+- https://developer.raiffeisen.ru/docs/sandbox/payments
+- https://developer.raiffeisen.ru/docs/sandbox/statements
+- https://developer.raiffeisen.ru/docs/sandbox/test-values
+- https://pay.raif.ru/doc/ecom.html#section/Testirovanie
+- https://pay.raif.ru/doc/sbp.html
+modes:
+- name: Raiffeisen API sandbox
+  base_url: https://sandbox.api.raiffeisen.ru
+  session: Данные хранятся 24 часа, затем удаляются.
+  credentials: Client ID / Client Secret issued automatically per browser session
+- name: Raif Pay test
+  base_url: https://pay-test.raif.ru
+  production_base_url: https://pay.raif.ru
+test_values:
+  source: https://developer.raiffeisen.ru/docs/sandbox/test-values
+  deterministic: 'Значения детерминированы: одинаковый ввод всегда даёт одинаковый результат.'
+  online_bank_login:
+    login_password: test_user / sandbox
+    result: Успешный вход, возврат кода авторизации
+  tokens:
+  - object: access_token, id_token
+    lifetime: 24 часа
+  - object: refresh_token
+    lifetime: 30 дней
+  - object: Код авторизации
+    behavior: Повторный обмен → 400 invalid_grant
+  message_scenarios:
+  - action: Повторная отправка с тем же MsgId
+    result: Обычно HTTP 400 + RJCT
+  - action: Запрос статуса по неизвестному msgId
+    result: HTTP 200 + NPMT «Платёж не найден»
+  - action: NbOfTxs ≠ числу PmtInf
+    result: Первоначально HTTP 200 + PDNG , затем после асинхронной проверки RJCT
+  - action: CtrlSum ≠ сумме InstdAmt
+    result: Первоначально HTTP 200 + PDNG , затем RJCT
+  - action: Отправка без ds:Signature
+    result: HTTP 400 + RJCT — XML не соответствует XSD
+test_cards:
+  source: https://pay.raif.ru/doc/ecom.html
+  cards:
+  - pan: '4000001000000018'
+    expiry: 12/35
+    cvv: '880'
+    otp: '1234'
+    result: Успешная оплата
+  - pan: '4000001000000018'
+    expiry: 12/35
+    cvv: '880'
+    otp: '1111'
+    result: Неуспешная оплата
+  note: Для полного цикла тестирования оплаты необходимо указывать сумму платежа больше 10 рублей.
+negative_test_amounts:
+- amount: '99.51'
+  error: Недостаточно денежных средств для проведения операции
+- amount: '99.93'
+  error: Транзакция не может быть завершена – ошибка на стороне эмитента
+- amount: '99.61'
+  error: Сумма авторизации превысила расходный лимит по карте
+- amount: '99.41'
+  error: На счете Плательщика недостаточно средств для проведения операции
+  scope: Списание по СБП подписке
+  source: https://pay.raif.ru/doc/sbp.html
+tooling:
+- Each sandbox request can be copied as cURL; a Postman collection is offered on the sandbox payments page
+- 'Raif Pay SBP: web demo application to pay test QR codes ("WEB-приложение для оплаты по QR-коду"); real bank apps do not work in the test environment'

@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-deliverable-conversion-blotter-request-schema.json",
+  "title": "DeliverableConversionBlotterRequest",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-fx-openapi.yml#/components/schemas/DeliverableConversionBlotterRequest",
+  "type": "object",
+  "required": [
+    "offset",
+    "limit"
+  ],
+  "properties": {
+    "offset": {
+      "type": "integer",
+      "description": "Значение смещения строк из истории"
+    },
+    "limit": {
+      "type": "integer",
+      "description": "Ограничение на количество строк из истории, не более 1000 записей в одном запросе"
+    },
+    "filter": {
+      "type": "array",
+      "description": "Объект с параметрами фильтрации.\nДоступные фильтры (property):\n- id — номер заявки\n- creationDate — дата создания (from/to)\n- processingDate — дата обработки (from/to)\n- sendDate — дата отправления (from/to)\n- creator.signer.name — автор\n- tradeDate — дата заключения сделки (from/to)\n- clientBuyAccount.currency — валюта зачисления\n- clientSellAccount.currency — валюта списания\n- clientBuyAmount — сумма зачисления\n- clientSellAmount — сумма списания\n- price — обменный курс\n- participant.signer.name — подписант\n- comment — заметка\n- status — статус",
+      "items": {
+        "$ref": "#/$defs/BlotterFilterItem"
+      }
+    },
+    "sort": {
+      "type": "array",
+      "description": "Объект с параметрами сортировки",
+      "items": {
+        "$ref": "#/$defs/BlotterSortItem"
+      }
+    }
+  },
+  "$defs": {
+    "BlotterFilterItem": {
+      "type": "object",
+      "required": [
+        "property",
+        "clause"
+      ],
+      "properties": {
+        "property": {
+          "type": "string",
+          "description": "Параметр фильтрации",
+          "enum": [
+            "id",
+            "creationDate",
+            "processingDate",
+            "sendDate",
+            "creator.signer.name",
+            "tradeDate",
+            "clientBuyAccount.currency",
+            "clientSellAccount.currency",
+            "clientBuyAmount",
+            "clientSellAmount",
+            "price",
+            "participant.signer.name",
+            "comment",
+            "status"
+          ]
+        },
+        "clause": {
+          "type": "array",
+          "description": "Значение фильтра"
+        }
+      }
+    },
+    "BlotterSortItem": {
+      "type": "object",
+      "properties": {
+        "property": {
+          "type": "string",
+          "description": "Объект с параметрами сортировки.\nДоступные паарметры (property):\n- creationDate\n- sendDate\n- processingDate\n- creator.signer.name"
+        },
+        "direction": {
+          "type": "string",
+          "description": "Направление сортировки, с возможными значениями \"ASC\" или \"DESC\"",
+          "enum": [
+            "ASC",
+            "DESC"
+          ]
+        }
+      }
+    }
+  }
+}

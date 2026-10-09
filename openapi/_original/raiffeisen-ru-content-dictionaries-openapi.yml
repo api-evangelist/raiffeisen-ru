@@ -1,0 +1,86 @@
+---
+openapi: "3.0.3"
+info:
+  title: "Контент. Словари"
+  version: "1.0.0"
+paths:
+  /v1/dictionaries/colors:
+    get:
+      tags:
+      - "dictionaries-v-1-controller"
+      summary: "Получить словарь цветов"
+      operationId: "v1GetColorDictionary"
+      parameters:
+      - name: "Raiff-App-Version"
+        in: "header"
+        description: "Версия приложения"
+        required: true
+        schema:
+          default: "4.0.0"
+        example: "4.0.0"
+      - name: "Accept-Language"
+        in: "header"
+        description: "Язык приложения, ru или en"
+        required: false
+        schema:
+          default: "ru"
+        example: "ru"
+      - $ref: "#/components/parameters/IdTokenHeader"
+      - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ColorResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  schemas:
+    ColorResource:
+      type: "object"
+      description: ""
+      example:
+        color: "PastelSurface.oslo1"
+        hex: "#DCE6FF"
+      properties:
+        color:
+          type: "string"
+          description: "Название цвета"
+        hex:
+          type: "string"
+          description: "Код цвета в формате HEX"
+      required:
+      - "color"
+      - "hex"
+  responses:
+    Unauthorized:
+      description: "Аутентификация не пройдена"
+    InternalError:
+      description: "Внутренняя ошибка"
+  parameters:
+    IdTokenHeader:
+      name: "Id-Token"
+      in: "header"
+      description: "Идентификационный токен пользователя"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "SUQgVE9LRU4gRk9SIFRFU1RJTkc="
+    AuthorizationHeader:
+      name: "Authorization"
+      in: "header"
+      description: "Токен доступа"
+      required: true
+      schema:
+        type: "string"
+        format: "byte"
+        example: "Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc="
+servers:
+- url: "https://api.raiffeisen.ru/media-content"

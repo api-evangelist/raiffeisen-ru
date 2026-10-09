@@ -1,0 +1,226 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Future Client Tariff Plan Controller API
+  version: 1.0.0
+  description: 'Operations tagged future-client-tariff-plan-controller across 2 of this provider''s published API definitions: raiffeisen-ru-client-tariffs-openapi.yml, raiffeisen-ru-client-tariffs-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/client-tariffs
+tags:
+- name: future-client-tariff-plan-controller
+paths:
+  /v1/client/{cnum}/tariff-plan/public/future:
+    get:
+      tags:
+      - future-client-tariff-plan-controller
+      summary: getFutureClientTariffPlanPublicProjectionsByCnum
+      description: Возвращает публичные проекции будущих тарифных планов клиента
+      operationId: getFutureClientTariffPlanPublicProjectionsByCnum
+      parameters:
+      - name: cnum
+        in: path
+        description: Идентификатор клиента
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: Номер страницы
+        required: false
+        schema:
+          minimum: 0
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        description: Размер страницы
+        required: false
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+          default: 10
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PageResponseFutureClientTariffPlanPublicView'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError4xx'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/client-tariffs
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
+  schemas:
+    PageResponseFutureClientTariffPlanPublicView:
+      required:
+      - content
+      - hasNext
+      - hasPrevious
+      - number
+      - size
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/FutureClientTariffPlanPublicView'
+        size:
+          type: integer
+          format: int32
+        number:
+          type: integer
+          format: int32
+        hasNext:
+          type: boolean
+        hasPrevious:
+          type: boolean
+    FutureClientTariffPlanPublicView:
+      required:
+      - activateAt
+      - client
+      - clientTariffPlanVersion
+      - id
+      - servicePackage
+      - servicePackageName
+      - tariffPlan
+      - tariffPlanDocumentId
+      - tariffPlanName
+      - tariffPlanPublicName
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Уникальный идентификатор
+          format: int64
+        client:
+          type: string
+          description: Cnum клиента
+        tariffPlan:
+          type: string
+          description: Код тарифного плана
+        tariffPlanName:
+          type: string
+          description: Наименование тарифного плана
+        tariffPlanPublicName:
+          type: string
+          description: Публичное наименование тарифного плана
+        servicePackage:
+          type: string
+          description: Код сервисного пакета
+        servicePackageName:
+          type: string
+          description: Наименование сервисного пакета
+        activateAt:
+          type: string
+          description: Дата активации
+          format: date-time
+        clientTariffPlanVersion:
+          type: string
+          description: Версия тарифного плана клиента
+        tariffPlanDocumentId:
+          type: integer
+          description: Идентификатор документа тарифного плана
+          format: int64
+      description: Публичное представление будущего тарифного плана клиента
+    ApiError4xx:
+      required:
+      - code
+      - data
+      - message
+      - status
+      - traceId
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки для обработки на клиенте
+          example: oct.not-found
+        traceId:
+          type: string
+          description: Идентификатор трассировки в распределенной системе
+          example: cf9924bed9c41f689f97728a50dbc035
+        message:
+          type: string
+          description: Сообщение об ошибке
+          example: Record not found
+        data:
+          type: object
+          description: Дополнительные данные об ошибке (например, список нарушенных полей валидации)
+          example:
+            key: value
+        status:
+          type: string
+          description: HTTP-статус, соответствующий ошибке
+          example: 400 BAD_REQUEST
+          enum:
+          - 400 BAD_REQUEST
+          - 401 UNAUTHORIZED
+          - 402 PAYMENT_REQUIRED
+          - 403 FORBIDDEN
+          - 404 NOT_FOUND
+          - 405 METHOD_NOT_ALLOWED
+          - 406 NOT_ACCEPTABLE
+          - 407 PROXY_AUTHENTICATION_REQUIRED
+          - 408 REQUEST_TIMEOUT
+          - 409 CONFLICT
+          - 410 GONE
+          - 411 LENGTH_REQUIRED
+          - 412 PRECONDITION_FAILED
+          - 413 CONTENT_TOO_LARGE
+          - 413 PAYLOAD_TOO_LARGE
+          - 414 URI_TOO_LONG
+          - 415 UNSUPPORTED_MEDIA_TYPE
+          - 416 REQUESTED_RANGE_NOT_SATISFIABLE
+          - 417 EXPECTATION_FAILED
+          - 418 I_AM_A_TEAPOT
+          - 421 MISDIRECTED_REQUEST
+          - 422 UNPROCESSABLE_CONTENT
+          - 422 UNPROCESSABLE_ENTITY
+          - 423 LOCKED
+          - 424 FAILED_DEPENDENCY
+          - 425 TOO_EARLY
+          - 426 UPGRADE_REQUIRED
+          - 428 PRECONDITION_REQUIRED
+          - 429 TOO_MANY_REQUESTS
+          - 431 REQUEST_HEADER_FIELDS_TOO_LARGE
+          - 451 UNAVAILABLE_FOR_LEGAL_REASONS
+      description: Модель ошибки API
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-client-tariffs-openapi.yml
+- raiffeisen-ru-client-tariffs-openapi.yml

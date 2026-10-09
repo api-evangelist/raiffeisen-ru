@@ -1,0 +1,540 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Files API
+  version: 0.0.1
+  description: 'Operations tagged Files across 2 of this provider''s published API definitions: raiffeisen-ru-currency-control-documents-openapi.yml, raiffeisen-ru-currency-control-documents-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/foreign-trade
+tags:
+- name: Files
+  description: Загрузка, проверка и скачивание вложений
+paths:
+  /currency-control/files:
+    post:
+      operationId: uploadFile
+      summary: Загрузка одного файла
+      description: 'Загрузка ровно одного файла через `multipart/form-data` с необязательной категорией.
+
+
+        **Формат:**
+
+        - имя и MIME-тип передаются в части `file`, размер определяется сервером;
+
+        - при отсутствии `category` используется `OTHER`;
+
+        - повторный POST может создать новый файл;
+
+        - повторные части `file`/`category`, неизвестные поля и неизвестная категория отклоняются.
+
+
+        **Ограничения:**
+
+        - файл должен быть непустым, размером не более 20971520 байт;
+
+        - имя обязательно; разрешены расширения `pdf`, `tif`, `tiff`, `jpeg`, `jpg`, `gif`, `bmp`, `png` в нижнем регистре;
+
+        - символы ` : ? \ " * | /` в имени запрещены;
+
+        - расширение, MIME-тип и фактический формат должны соответствовать друг другу.
+
+
+        **После загрузки:**
+
+        - ответ `201` возвращается после сохранения, валидации и антивирусной проверки;
+
+        - ответ содержит `fileId`, `fileName`, `fileSize`, `contentType`, `category`, `uploadedAt`, `contentHash` и `expiresAt`;
+
+        - SHA-256 вычисляется сервером по сохранённым исходным байтам файла без преобразований;
+
+        - метаданные `fileId`, `fileName` и `contentHash` сразу пригодны для `attachments`; содержимое файла после выдачи ID неизменно.
+
+
+        > **Внимание:** `expiresAt` назначается политикой банка; конкретная длительность в API не фиксируется.
+
+        > Срок не сокращается для выданного `fileId`. При наступлении срока невостребованный файл становится
+
+        > недоступен и подлежит удалению. GET-запросы срок не продлевают.'
+      tags:
+      - Files
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FileUploadRequest'
+            encoding:
+              file:
+                contentType: application/pdf, image/tiff, image/jpeg, image/gif, image/bmp, image/png
+      responses:
+        '201':
+          description: Файл сохранён, проверен и готов к прикреплению
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUploadResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: '- `FORBIDDEN` — недостаточно прав;
+
+            - `VIRUS_DETECTED` — в файле обнаружен вирус.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: '`FILE_TOO_LARGE` — размер файла превышает 20971520 байт'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: '`UNSUPPORTED_FORMAT` — неподдерживаемый Content-Type запроса или формат файла'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      - $ref: '#/components/parameters/IdTokenHeader'
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+  /currency-control/files/{fileId}:
+    get:
+      operationId: getFileMetadata
+      summary: Получение метаданных файла
+      description: 'Актуальные метаданные файла владельца, включая `contentHash` и `expiresAt`.
+
+
+        - `expiresAt` — срок доступности невостребованного файла; после успешного прикрепления к документу, включая черновик, поле отсутствует;
+
+        - GET не продлевает срок хранения;
+
+        - после истечения срока возвращается `410`, если запись уже не сохранена — `404`.'
+      tags:
+      - Files
+      parameters:
+      - name: fileId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Уникальный идентификатор файла
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Актуальные метаданные файла
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileMetadata'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '410':
+          $ref: '#/components/responses/FileGoneError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+  /currency-control/files/{fileId}/content:
+    get:
+      operationId: downloadFile
+      summary: Скачивание файла
+      description: 'Возвращает исходные байты файла напрямую.
+
+
+        - путь стабилен для `fileId`, каждый запрос требует авторизации владельца;
+
+        - файл сохраняет доступность после проведения документа на срок хранения всех связанных документов;
+
+        - чтение не продлевает `expiresAt` невостребованного файла;
+
+        - истёкший или удалённый файл — `410`, при отсутствии записи — `404`;
+
+        - заблокированное содержимое — `403 FILE_BLOCKED`.'
+      tags:
+      - Files
+      parameters:
+      - name: fileId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Уникальный идентификатор файла
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Исходное бинарное содержимое файла
+          headers:
+            Content-Disposition:
+              required: true
+              description: Имя файла; для не-ASCII используется filename* с кодированием UTF-8
+              schema:
+                type: string
+                example: attachment; filename="files-content-sample.pdf"
+            Content-Length:
+              description: Размер содержимого в байтах, если заголовок присутствует
+              schema:
+                type: integer
+                minimum: 1
+                example: 1457
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+                example: <binary file content>
+            image/tiff:
+              schema:
+                type: string
+                format: binary
+                example: <binary file content>
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+                example: <binary file content>
+            image/gif:
+              schema:
+                type: string
+                format: binary
+                example: <binary file content>
+            image/bmp:
+              schema:
+                type: string
+                format: binary
+                example: <binary file content>
+            image/png:
+              schema:
+                type: string
+                format: binary
+                example: <binary file content>
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '410':
+          $ref: '#/components/responses/FileGoneError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+components:
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    FileGoneError:
+      description: Истёк срок доступности невостребованного файла (FILE_EXPIRED) или файл удалён (FILE_DELETED)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: FILE_EXPIRED
+            message: Истёк срок доступности невостребованного файла
+    ForbiddenError:
+      description: Недостаточно прав для выполнения операции
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ValidationError:
+      description: Ошибка валидации данных
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalError:
+      description: Внутренняя ошибка
+    NotFoundError:
+      description: Запрашиваемый объект не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    FileUploadRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - file
+      properties:
+        file:
+          type: string
+          format: binary
+          description: 'Ровно один непустой файл размером не более 20971520 байт, не массив и не Base64.
+
+
+            - имя передаётся в `filename` части multipart, MIME-тип — в `Content-Type` части;
+
+            - ограничения размера применяются к фактическим байтам файла на сервере.
+
+            '
+          example: <binary file content>
+        category:
+          $ref: '#/components/schemas/FileCategory'
+      example:
+        file: <binary file content>
+        category: CONTRACT
+    FileCategory:
+      type: string
+      description: 'Категория содержимого файла.
+
+
+        **В запросе:**
+
+        - при отсутствии `category` используется `OTHER`;
+
+        - сервер проверяет значение по поддерживаемому справочнику;
+
+        - неподдерживаемая категория — `400 VALIDATION_ERROR` по полю `category`;
+
+        - пустая строка и `null` не допускаются;
+
+        - неподдерживаемое значение не преобразуется в `OTHER` автоматически.
+
+
+        **В ответе:**
+
+        - набор известных значений может расширяться;
+
+        - клиент должен принимать и сохранять неизвестные ему значения категории.
+
+
+        **Известные значения:**
+
+        - `CONTRACT` — Контракт
+
+        - `LOAN_AGREEMENT` — Кредитный договор или договор займа
+
+        - `SUPPLEMENTARY_AGREEMENT` — Дополнительное соглашение к контракту или кредитному договору
+
+        - `SUPPORTING_DOCUMENT` — Обосновывающий или подтверждающий документ (счёт, акт, накладная и т. п.)
+
+        - `REGISTERED_DEAL_PASSPORT_REPORT` — Ведомость банковского контроля (ВБК)
+
+        - `CURRENCY_TRANSACTION_INFORMATION` — Сведения о валютных операциях
+
+        - `SUPPORTING_DOCUMENT_CERTIFICATE` — Справка о подтверждающих документах
+
+        - `OTHER` — Иное или категория не определена
+
+        '
+      default: OTHER
+      example: CONTRACT
+    Error:
+      type: object
+      required:
+      - code
+      - message
+      properties:
+        code:
+          type: string
+          description: 'Код ошибки.
+
+
+            Известные значения:
+
+            - `VALIDATION_ERROR` - Ошибка валидации данных запроса
+
+            - `UNAUTHORIZED` - Токен доступа отсутствует или недействителен
+
+            - `FORBIDDEN` - Недостаточно прав для выполнения операции
+
+            - `NOT_FOUND` - Запрашиваемый объект не найден
+
+            - `CONFLICT` - Конфликт текущего состояния объекта
+
+            - `UNSUPPORTED_DIGEST_VERSION` - Версия дайджеста неизвестна или не поддерживается для новых подписей
+
+            - `INVALID_SIGNATURE` - Подпись не соответствует содержимому документа
+
+            - `CERTIFICATE_EXPIRED` - Срок действия сертификата истёк
+
+            - `CERTIFICATE_REVOKED` - Сертификат отозван удостоверяющим центром
+
+            - `CERTIFICATE_NOT_FOUND` - Сертификат с указанным идентификатором не найден
+
+            - `UNSUPPORTED_SIGNATURE_FORMAT` - Формат подписи не поддерживается
+
+            - `INVALID_CERTIFICATE_ALGORITHM` - Алгоритм сертификата не соответствует требованиям
+
+            - `FILE_TOO_LARGE` - Размер файла превышает максимально допустимый
+
+            - `UNSUPPORTED_FORMAT` - Формат файла не поддерживается
+
+            - `INVALID_FILE_NAME` - Имя файла содержит недопустимые символы
+
+            - `VIRUS_DETECTED` - В файле обнаружен вирус
+
+            - `STORAGE_ERROR` - Ошибка файлового хранилища
+
+            - `FILE_NOT_FOUND` - Файл с указанным идентификатором не найден
+
+            - `ACCESS_DENIED` - Доступ к файлу запрещён
+
+            - `FILE_BLOCKED` - Файл заблокирован
+
+            - `FILE_EXPIRED` - Истёк срок доступности невостребованного файла
+
+            - `FILE_DELETED` - Файл удалён по истечении срока хранения
+
+            - `INTERNAL_ERROR` - Внутренняя ошибка сервера
+
+
+            Список не является закрытым и может расширяться без изменения версии API.
+
+            '
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          description: Описание ошибки
+          example: Ошибка валидации данных
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Имя поля
+                example: externalId
+              message:
+                type: string
+                description: Описание ошибки поля
+                example: Некорректный формат UUID
+          description: Детали по полям
+    FileUploadResponse:
+      description: При загрузке срок expiresAt всегда задан, файл ещё не использован в документе
+      allOf:
+      - $ref: '#/components/schemas/FileMetadata'
+      - type: object
+        required:
+        - expiresAt
+      example:
+        fileId: 550e8400-e29b-41d4-a716-446655440000
+        fileName: files-content-sample.pdf
+        fileSize: 1457
+        contentType: application/pdf
+        category: CONTRACT
+        uploadedAt: '2025-06-15T10:15:00Z'
+        contentHash: ae5555eadcc27795e54c6a268684e9457539b07d4e13763fe391d53a6605f887
+        expiresAt: '2025-07-15T10:15:00Z'
+    FileContentHash:
+      type: string
+      pattern: ^[0-9a-f]{64}$
+      description: 'SHA-256 исходных байтов файла без multipart-обрамления и преобразований, в шестнадцатеричном виде, нижний регистр.
+
+
+        Алгоритм фиксирован: SHA-256, отдельное поле не передаётся.
+
+        '
+      example: ae5555eadcc27795e54c6a268684e9457539b07d4e13763fe391d53a6605f887
+    FileMetadata:
+      type: object
+      description: Метаданные файла; срок expiresAt применяется только к невостребованному файлу
+      required:
+      - fileId
+      - fileName
+      - fileSize
+      - contentType
+      - category
+      - uploadedAt
+      - contentHash
+      properties:
+        fileId:
+          type: string
+          format: uuid
+          description: ID сохранённого и проверенного файла
+          example: 550e8400-e29b-41d4-a716-446655440000
+        fileName:
+          type: string
+          description: Исходное имя файла из multipart-части file
+          example: files-content-sample.pdf
+        fileSize:
+          type: integer
+          minimum: 1
+          maximum: 20971520
+          description: Фактический размер содержимого в байтах
+          example: 1457
+        contentType:
+          type: string
+          enum:
+          - application/pdf
+          - image/tiff
+          - image/jpeg
+          - image/gif
+          - image/bmp
+          - image/png
+          description: MIME-тип файла
+          example: application/pdf
+        category:
+          $ref: '#/components/schemas/FileCategory'
+          description: Переданная категория или OTHER
+        uploadedAt:
+          type: string
+          format: date-time
+          description: Время завершения сохранения и проверок в UTC
+          example: '2025-06-15T10:15:00Z'
+        expiresAt:
+          type: string
+          format: date-time
+          description: 'Время окончания доступности невостребованного файла в UTC.
+
+
+            Поле присутствует только для файла, который ещё не прикреплён к документу. После успешного прикрепления, включая черновик, поле отсутствует в ответе: файл хранится вместе с документами, включая их финальные статусы.
+
+
+            > **Примечание:** отсутствие поля не означает бессрочное хранение.
+
+            '
+          example: '2025-07-15T10:15:00Z'
+        contentHash:
+          $ref: '#/components/schemas/FileContentHash'
+      example:
+        fileId: 550e8400-e29b-41d4-a716-446655440000
+        fileName: files-content-sample.pdf
+        fileSize: 1457
+        contentType: application/pdf
+        category: CONTRACT
+        uploadedAt: '2025-06-15T10:15:00Z'
+        expiresAt: '2025-07-15T10:15:00Z'
+        contentHash: ae5555eadcc27795e54c6a268684e9457539b07d4e13763fe391d53a6605f887
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-currency-control-documents-openapi.yml
+- raiffeisen-ru-currency-control-documents-openapi.yml

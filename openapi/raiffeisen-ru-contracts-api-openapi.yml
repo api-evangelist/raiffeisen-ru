@@ -1,0 +1,480 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Contracts API
+  version: 1.0.0
+  description: 'Operations tagged Contracts across 2 of this provider''s published API definitions: raiffeisen-ru-foreign-trade-contracts-openapi.yml, raiffeisen-ru-foreign-trade-contracts-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.raiffeisen.ru/foreign-trade
+tags:
+- name: Contracts
+paths:
+  /v1/contracts:
+    get:
+      operationId: getForeignTradeContracts
+      summary: Получение списка внешнеэкономических контрактов
+      description: 'Позволяет получить полный список учетных контрактов, поставленных на учет в банке или переведенных из других банков, с отражением всех изменений и основных характеристик: номер контракта, дата, сумма, сальдо по ведомости банковского контроля, статус и другие параметры. Предназначен для консолидации данных, фильтрации по бизнес-признакам (например, страна контрагента, активные/закрытые контракты) и может использоваться для автоматизации сбора данных, отслеживания состояния контрактов и интеграции информации в корпоративные системы учета и отчетности для управления внешнеэкономической деятельностью.'
+      parameters:
+      - $ref: '#/components/parameters/cnumParam'
+      - $ref: '#/components/parameters/passportStatusParam'
+      - $ref: '#/components/parameters/passportTypeParam'
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/offsetParam'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ForeignTradeContract'
+                  totalElements:
+                    type: integer
+                    description: Общее количество данных во всей выборке
+                    minimum: 0
+                  totalPages:
+                    type: integer
+                    description: Общее количество страниц
+                    minimum: 0
+                required:
+                - items
+                - totalPages
+                - totalElements
+              examples:
+                getList:
+                  summary: Список учетных контрактов
+                  value:
+                    items:
+                    - id: 500a7c17-081a-4e49-a97f-6641ecd65ebd
+                      cnum: '111111'
+                      passportNumber: 11111111/1111/1111/1/1
+                      passportDate: '2025-05-26'
+                      passportType: EXPORT
+                      passportStatus: ACTIVE
+                      passportAutoRenewal: true
+                      passportCloseReason: 6.1.1
+                      passportCloseDate: '2025-05-26'
+                      contractNumber: 3-25
+                      contractDate: '2025-05-26'
+                      contractCloseDate: '2025-05-26'
+                      contractCurrency: RUB
+                      contractAmount: 1000000
+                      contractBalance: 1000000
+                      contractBalanceDate: '2025-03-19T10:40:15Z'
+                      contractFixProc: '5'
+                      contractLibor: Л06CNY
+                      contractOtherProc: EURIBOR 3M
+                      contractAllowProc: '26'
+                      contractBic: '44525700'
+                      residentName: Наименование организации
+                      residentInn: '1111111111'
+                      nonResidents:
+                      - name: Китай
+                        country: CN
+                      modifPassportNumber: '1'
+                      modifPassportDate: '2025-05-26'
+                      fixedPaymentsFrequencyCode: '003'
+                      nonFixedPaymentsInfo: 3 дня
+                      userComment: Текст пользовательской заметки
+                    totalElements: 1
+                    totalPages: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      tags:
+      - Contracts
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+  /v1/contracts/export:
+    get:
+      operationId: exportForeignTradeContracts
+      summary: Экспорт списка внешнеэкономических контрактов
+      description: 'Позволяет выгрузить данные по учетным контрактам, доступные через метод "получения списка внешнеэкономических контрактов", в формате Excel для удобного анализа, фильтрации и формирования отчетов. Может использоваться клиентом как для ручного анализа, так и для импорта данных в сторонние системы, включая те, где файловый обмен предпочтительнее API-интеграции.
+
+
+        Данные представленные в таблице:
+
+        * Организация
+
+        * ИНН организации
+
+        * № УК
+
+        * Дата УК
+
+        * Статус
+
+        * Контракт
+
+        * Дата контракта
+
+        * Валюта контракта
+
+        * Сумма контракта
+
+        * Дата завершения обязательств
+
+        * Контрагент
+
+        * Страна контрагента
+
+        * Сальдо в валюте контракта
+
+        * Дата сальдо
+
+        * Номер переоформления УК
+
+        * Дата переоформления УК
+
+        * Основание закрытия УК
+
+        * Дата закрытия УК
+
+        * Автопролонгация
+
+        * Процентная ставка
+
+        * Ставка ЛИБОР
+
+        * Другие методы определения % ставки
+
+        * Размер % надбавки
+
+        * Периодичность фиксированных платежей
+
+        * Информация по нефиксированным платежам
+
+        * Заметки'
+      parameters:
+      - $ref: '#/components/parameters/cnumParam'
+      - $ref: '#/components/parameters/passportStatusParam'
+      - $ref: '#/components/parameters/passportTypeParam'
+      - $ref: '#/components/parameters/IdTokenHeader'
+      - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/vnd.ms-excel:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      tags:
+      - Contracts
+    servers:
+    - url: https://api.raiffeisen.ru/foreign-trade
+components:
+  schemas:
+    ForeignTradeContractStatus:
+      type: string
+      description: "Статус учетного контракта:\n  * ACTIVE - Активный (действующий контракт)\n  * EXPIRED - Истек (контракт с истекшей датой завершения исполнения обязательств, но не снятый с учета)\n  * CLOSED - Закрыт (снятый с учета контракт)\n"
+      enum:
+      - ACTIVE
+      - EXPIRED
+      - CLOSED
+    NonResident:
+      type: object
+      description: Контрагент
+      required:
+      - name
+      - country
+      properties:
+        name:
+          type: string
+          description: "### Наименование контрагент\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *Контрагент*\n\nПредставление в ведомости банковского контроля:\n- Раздел I. Учетная информация\n  - Подраздел 2. Реквизиты нерезидента (нерезидентов)\n    - [Графа 1. Наименование](https://www.consultant.ru/document/cons_doc_LAW_282089/f1da4fd5f48a0bf822637fbccb9fca007a83442b/)\n"
+          example: Китай
+        country:
+          type: string
+          description: "### Код страны контрагента\n\nФормат: [ISO 3166, UPPER ALPHA-2](https://en.wikipedia.org/wiki/ISO_3166-1)\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *Страна контрагента*\n\nПредставление в ведомости банковского контроля:\n- Раздел I. Учетная информация\n  - Подраздел 2. Реквизиты нерезидента (нерезидентов)\n    - [Страна](https://www.consultant.ru/document/cons_doc_LAW_282089/f1da4fd5f48a0bf822637fbccb9fca007a83442b/)\n"
+          example: CN
+    ForeignTradeContractType:
+      type: string
+      description: "Тип учетного контракта, который соответствует коду вида контракта, присвоенному банком УК при принятии его на учет:\n  * EXPORT - Экспортный. [Код вида контракта 1, 3](https://www.consultant.ru/document/cons_doc_LAW_282089/b635b2110e70ade16c201e301ef6a530e54ef0ae/)\n  * IMPORT - Импортный. [Код вида контракта 2, 4](https://www.consultant.ru/document/cons_doc_LAW_282089/b635b2110e70ade16c201e301ef6a530e54ef0ae/)\n  * MIXED - Смешанный. [Код вида контракта 9](https://www.consultant.ru/document/cons_doc_LAW_282089/b635b2110e70ade16c201e301ef6a530e54ef0ae/)\n  * CREDIT - Кредитный. [Код вида контракта 5, 6](https://www.consultant.ru/document/cons_doc_LAW_282089/9f68760b7e765c35ee0d80316de721713d8afb19/)\n"
+      enum:
+      - EXPORT
+      - IMPORT
+      - MIXED
+      - CREDIT
+    ErrorResponse:
+      type: object
+      description: Ответ с ошибками
+      required:
+      - code
+      - message
+      - traceId
+      properties:
+        code:
+          type: string
+          description: Код ошибки
+        message:
+          type: string
+          description: Описание ошибки
+        traceId:
+          type: string
+          description: Уникальный идентификатор запроса в системе трейсинга, который позволяет в деталях проследить за историей выполнения запроса. Используется при поиске ошибок в распределенных системах
+        errors:
+          type: object
+          description: Детализация ошибок
+    ForeignTradeContract:
+      required:
+      - id
+      - cnum
+      - passportNumber
+      - passportStatus
+      - passportAutoRenewal
+      - contractNumber
+      - contractDate
+      - contractCloseDate
+      - contractCurrency
+      - contractAmount
+      - residentName
+      - residentInn
+      - nonResidents
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор контракта
+          example: 500a7c17-081a-4e49-a97f-6641ecd65ebd
+        cnum:
+          type: string
+          description: Идентификатор организации
+          example: 111111
+        passportNumber:
+          type: string
+          pattern: ^d{2}(0[1-9]|1[012])d{4}/d{4}/(GU|d{2})d{2}/[1-69]/[0-3]$
+          description: "### № УК\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *№ УК*\n\nПредставление в ведомости банковского контроля:\n- Приложение 4. Ведомость банковского контроля по контракту (Код формы по ОКУД 0406008)\n  - [Уникальный номер контракта](https://www.consultant.ru/document/cons_doc_LAW_282089/9957a0df6134f9dfcbb3cddccd542473a66b28ac/)\n- Приложение 5. Ведомость банковского контроля по кредитному договору (Код формы по ОКУД 0406006)\n  - [Уникальный номер контракта](https://www.consultant.ru/document/cons_doc_LAW_282089/238005ae170ae453ac1ef60561f60514ed1a1b83/)\n"
+          example: 11111111/1111/1111/1/1
+        passportDate:
+          type: string
+          format: date
+          description: "### Дата УК  \n\nФормат: YYYY-MM-DD [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *Дата УК *\n\nПредставление в ведомости банковского контроля:\n- Приложение 4. Ведомость банковского контроля по контракту (Код формы по ОКУД 0406008)\n  - [От](https://www.consultant.ru/document/cons_doc_LAW_282089/9957a0df6134f9dfcbb3cddccd542473a66b28ac/)\n- Приложение 5. Ведомость банковского контроля по кредитному договору (Код формы по ОКУД 0406006)\n  - [От](https://www.consultant.ru/document/cons_doc_LAW_282089/238005ae170ae453ac1ef60561f60514ed1a1b83/)\n"
+        passportType:
+          $ref: '#/components/schemas/ForeignTradeContractType'
+        passportStatus:
+          $ref: '#/components/schemas/ForeignTradeContractStatus'
+        passportAutoRenewal:
+          type: boolean
+          description: '### Автопролонгация
+
+            Проставленный валютным котролером признак того, что контракт имеет условия автопролонгации или он бессрочный
+
+            '
+        passportCloseReason:
+          type: string
+          description: "### Основание закрытия УК\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *Основание закрытия УК*\n\nПредставление в ведомости банковского контроля:\n- Раздел I. Учетная информация\n  - Подраздел 4. Сведения о постановке на учет, переводе и снятии с учета контракта\n    - [Графа 5. Основание снятия с учета контракта](https://www.consultant.ru/document/cons_doc_LAW_282089/338236aa126a0f69378486a201c22c9f717781fd/)\n"
+          example: 6.1.1
+        passportCloseDate:
+          type: string
+          format: date
+          description: "### Дата закрытия УК\n\nФормат: YYYY-MM-DD [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *Дата закрытия УК*\n\nПредставление в ведомости банковского контроля:\n- Раздел I. Учетная информация\n  - Подраздел 4. Сведения о постановке на учет, переводе и снятии с учета контракта\n    - [Графа 4. Дата снятия с учета контракта](https://www.consultant.ru/document/cons_doc_LAW_282089/338236aa126a0f69378486a201c22c9f717781fd/)\n"
+        contractNumber:
+          type: string
+          description: "### Контракт\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *Контракт*\n\nПредставление в ведомости банковского контроля:\n- Раздел I. Учетная информация\n  - Подраздел 3. Общие сведения о контракте\n    - [Графа 1. N](https://www.consultant.ru/document/cons_doc_LAW_282089/e2f7ba6cd28c99bee3aed70fe43a3ecc0ed813f1/)\n"
+          example: 3-25
+        contractDate:
+          type: string
+          format: date
+          description: "### Дата контракта\n\nФормат: YYYY-MM-DD [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *Дата контракта*\n\nПредставление в ведомости банковского контроля:\n- Раздел I. Учетная информация\n  - Подраздел 3. Общие сведения о контракте\n    - [Графа 2. Дата](https://www.consultant.ru/document/cons_doc_LAW_282089/e2f7ba6cd28c99bee3aed70fe43a3ecc0ed813f1/)\n"
+        contractCloseDate:
+          type: string
+          format: date
+          description: "### Дата завершения обязательств\n\nФормат: YYYY-MM-DD [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *Дата завершения обязательств*\n\nПредставление в ведомости банковского контроля:\n- Раздел I. Учетная информация\n  - Подраздел 3. Общие сведения о контракте\n    - [Графа 6. Дата завершения исполнения обязательств по контракту](https://www.consultant.ru/document/cons_doc_LAW_282089/e2f7ba6cd28c99bee3aed70fe43a3ecc0ed813f1/)\n"
+        contractCurrency:
+          type: string
+          description: "### Валюта контракта\n\nФормат: [ISO 4217, UPPER ALPHA-3](https://en.wikipedia.org/wiki/ISO_4217)\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *Валюта контракта*\n\nПредставление в ведомости банковского контроля:\n  - Раздел I. Учетная информация\n    - Подраздел 3. Общие сведения о контракте\n      - [Валюта контракта](https://www.consultant.ru/document/cons_doc_LAW_282089/e2f7ba6cd28c99bee3aed70fe43a3ecc0ed813f1/)\n"
+          example: RUB
+        contractAmount:
+          type: number
+          description: "### Сумма контракта\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *Сумма контракта*\n\nПредставление в ведомости банковского контроля:\n  - Раздел I. Учетная информация\n    - Подраздел 3. Общие сведения о контракте\n      - [Графа 5. Сумма контракта](https://www.consultant.ru/document/cons_doc_LAW_282089/e2f7ba6cd28c99bee3aed70fe43a3ecc0ed813f1/)\n"
+          example: 1000000
+        contractBalance:
+          type: number
+          description: "### Сальдо в валюте контракта (Расчитывается на предыдущий банковский день)\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *Сальдо в валюте контракта*\n\nПредставление в ведомости банковского контроля:\n- Раздел V. Итоговые данные расчетов по контракту\n  - [Графа 9. Сальдо расчетов](https://www.consultant.ru/document/cons_doc_LAW_282089/48e973ab0b4cf432db19bebe9caf0cf4f7f61049/)\n"
+          example: 1000000
+        contractBalanceDate:
+          type: string
+          description: '### Актуальная дата и время расчетов сальдо в валюте контракта
+
+
+            Формат: YYYY-MM-DDThh:mm:ss+tz [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+
+
+            Представление в справочнике контрактов и кредитных договоров RBO: *Дата сальдо*
+
+            '
+          example: '2025-03-19T10:40:15Z'
+        contractFixProc:
+          type: string
+          description: "### Фиксированный размер процентной ставки\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *участвует в формировании колонки \"Процентная ставка\"*\n\nПредставление в ведомости банковского контроля:\n- Раздел I. Учетная информация\n  - Подраздел 7.1. Процентные платежи, предусмотренные кредитным договором (за исключением платежей по возврату основного долга)\n    - [Графа 1. Фиксированный размер процентной ставки, % годовых](https://www.consultant.ru/document/cons_doc_LAW_282089/a7621c11376a01ea1da0d064d03ff8d35bdb0b3e/)\n"
+          example: 5
+        contractLibor:
+          type: string
+          description: "### Код ставки ЛИБОР\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *участвует в формировании колонки \"Процентная ставка\"*\n\nПредставление в ведомости банковского контроля:\n- Раздел I. Учетная информация\n  - Подраздел 7.1. Процентные платежи, предусмотренные кредитным договором (за исключением платежей по возврату основного долга)\n    - [Графа 2. Код ставки ЛИБОР](https://www.consultant.ru/document/cons_doc_LAW_282089/a7621c11376a01ea1da0d064d03ff8d35bdb0b3e/)\n"
+          example: Л06CNY
+        contractOtherProc:
+          type: string
+          description: "### Другие методы определения процентной ставки\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *участвует в формировании колонки \"Процентная ставка\"*\n\nПредставление в ведомости банковского контроля:\n- Раздел I. Учетная информация\n  - Подраздел 7.1. Процентные платежи, предусмотренные кредитным договором (за исключением платежей по возврату основного долга)\n    - [Графа 3. Другие методы определения процентной ставки](https://www.consultant.ru/document/cons_doc_LAW_282089/a7621c11376a01ea1da0d064d03ff8d35bdb0b3e/)\n"
+          example: EURIBOR 3M
+        contractAllowProc:
+          type: string
+          description: "### Размер процентной надбавки (дополнительных платежей) к базовой процентной ставке, % годовых\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *участвует в формировании колонки \"Процентная ставка\"*\n\nПредставление в ведомости банковского контроля:\n- Раздел I. Учетная информация\n  - Подраздел 7.1. Процентные платежи, предусмотренные кредитным договором (за исключением платежей по возврату основного долга)\n    - [Графа 4. Размер процентной надбавки (дополнительных платежей) к базовой процентной ставке, % годовых](https://www.consultant.ru/document/cons_doc_LAW_282089/a7621c11376a01ea1da0d064d03ff8d35bdb0b3e/)\n"
+          example: 26
+        contractBic:
+          type: string
+          description: БИК филиала банка учетного контракта
+          example: 9612224
+        residentName:
+          type: string
+          description: "### Организация\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *Организация*\n\nПредставление в ведомости банковского контроля:\n- Раздел I. Учетная информация\n  - Подраздел 1. Сведения о резиденте\n    - [Графа 1.1. Наименование](https://www.consultant.ru/document/cons_doc_LAW_282089/e80b296183716c537b769658efbbc33fd8a1b6b8/)\n"
+          example: Наименование организации
+        residentInn:
+          type: string
+          description: "### ИНН организации\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *ИНН организации*\n\nПредставление в ведомости банковского контроля:\n- Раздел I. Учетная информация\n  - Подраздел 1. Сведения о резиденте\n    - [Графа 1.5. ИНН/КПП](https://www.consultant.ru/document/cons_doc_LAW_282089/e80b296183716c537b769658efbbc33fd8a1b6b8/) (только ИНН)\n"
+          example: 1111111111
+        nonResidents:
+          type: array
+          description: "## Список контрагентов \n\nПредставление в справочнике контрактов и кредитных договоров RBO: *участвует в формировании колонок \"Контрагент\" и \"Страна контрагента\"*\n\nПредставление в ведомости банковского контроля:\n- Раздел I. Учетная информация\n  - [Подраздел 2. Реквизиты нерезидента (нерезидентов)](https://www.consultant.ru/document/cons_doc_LAW_282089/f1da4fd5f48a0bf822637fbccb9fca007a83442b/)\n"
+          items:
+            $ref: '#/components/schemas/NonResident'
+        modifPassportNumber:
+          type: string
+          description: "## Номер переоформления УК \n\nПредставление в справочнике контрактов и кредитных договоров RBO: *Номер переоформления УК*\n\nПредставление в ведомости банковского контроля:\n- Раздел I. Учетная информация\n  - Подраздел 5. Сведения о внесении изменений в раздел I \"Учетная информация\"\n    - [Графа 3. \"N\" документа, на основании которого внесены изменения в раздел \"I. Учетная информация\"](https://www.consultant.ru/document/cons_doc_LAW_282089/a1b0d2e108f001fe8432ad6b1771e015d272bbc4/)\n"
+          example: '1'
+        modifPassportDate:
+          type: string
+          format: date
+          description: "## Дата переоформления УК \n\nФормат: YYYY-MM-DD [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *Дата переоформления УК*\n\nПредставление в ведомости банковского контроля:\n- Раздел I. Учетная информация\n  - Подраздел 5. Сведения о внесении изменений в раздел I \"Учетная информация\"\n    - [Графа 4. \"Дата\" документа, на основании которого внесены изменения в раздел \"I. Учетная информация\"](https://www.consultant.ru/document/cons_doc_LAW_282089/a1b0d2e108f001fe8432ad6b1771e015d272bbc4/)\n"
+        fixedPaymentsFrequencyCode:
+          type: string
+          description: 'Код периодичности фиксированных платежей
+
+            - 001 = Ежедекадные
+
+            - 002 = Ежемесячные
+
+            - 003 = Ежеквартальные
+
+            - 004 = Полугодовые
+
+            - 005 = Ежегодные
+
+            - 006 = Иной случай
+
+            '
+        nonFixedPaymentsInfo:
+          type: string
+          description: Информация по нефиксированным платежам
+        userComment:
+          type: string
+          description: '### Заметки пользователя
+
+
+            Представление в справочнике контрактов и кредитных договоров RBO: *Заметки*
+
+            '
+          example: Текст пользовательской заметки
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            errorExample:
+              summary: Bad Request
+              value:
+                code: BAD_REQUEST
+                message: Ошибки в полях запроса
+                traceId: string
+                errors:
+                  offset: должно быть больше или равно 0
+                  limit: должно быть не меньше 1
+                  passportStatus[0]: должно соответствовать "CLOSED|ACTIVE|EXPIRED"
+                  passportType[0]: должно соответствовать "EXPORT|IMPORT|MIXED|CREDIT"
+    InternalError:
+      description: Внутренняя ошибка
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    cnumParam:
+      name: cnum
+      description: Уникальных идентификатор клиента (CNUM), по которому нужно отфильтровать список
+      in: query
+      required: false
+      schema:
+        type: string
+    offsetParam:
+      name: offset
+      description: Позиция курсора, с которой нужно начать выборку
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    passportStatusParam:
+      name: passportStatus
+      description: Список статусов учетных контрактов, по которым нужно отфильтровать список
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/ForeignTradeContractStatus'
+    passportTypeParam:
+      name: passportType
+      description: Список типов учетных контрактов, по которым нужно отфильтровать список
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/ForeignTradeContractType'
+    limitParam:
+      name: limit
+      description: Максимальное количество контрактов в ответе
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 100
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+x-refined-from:
+- raiffeisen-ru-foreign-trade-contracts-openapi.yml
+- raiffeisen-ru-foreign-trade-contracts-openapi.yml

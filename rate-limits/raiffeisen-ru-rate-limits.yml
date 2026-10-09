@@ -1,0 +1,9 @@
+generated: '2026-10-09'
+method: none
+source: https://developer.raiffeisen.ru/docs/support; https://pay.raif.ru/doc/ecom.html; https://pay.raif.ru/doc/sbp.html
+name: Raiffeisenbank (Russia) rate limits
+published: false
+limit_count: 0
+limits: []
+note: 'No request rate limits, rate-limit headers or 429 responses are documented on developer.raiffeisen.ru (howToStart, sandbox, support pages) or in the Raif Pay ecom/SBP docs, and none of the 54 saved
+  contracts declares a 429 or X-RateLimit/Retry-After header. Related operational timing only: final statements for working days are available the next day after 4:00 MSK.'

@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-report-task-schema.json",
+  "title": "ReportTask",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-brokerage-reports-openapi.yml#/components/schemas/ReportTask",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "#/$defs/ReportTaskId"
+    },
+    "reportType": {
+      "$ref": "#/$defs/ReportTypeInfo"
+    },
+    "agreementNumber": {
+      "type": "string",
+      "description": "Номер брокерского договора"
+    },
+    "account": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Номер счёта"
+    },
+    "periodFrom": {
+      "type": "string",
+      "format": "date",
+      "description": "Начало периода отчёта"
+    },
+    "periodTo": {
+      "type": "string",
+      "format": "date",
+      "description": "Окончание периода отчёта"
+    },
+    "handleIfExists": {
+      "type": "boolean",
+      "description": "Признак повторного формирования, применённый к задаче: false — при наличии отчёта за тот же период возвращается ранее сформированный результат; true — отчёт формируется заново"
+    },
+    "status": {
+      "$ref": "#/$defs/ReportTaskStatus"
+    },
+    "source": {
+      "$ref": "#/$defs/ReportTaskSource"
+    },
+    "fileId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid",
+      "deprecated": true,
+      "description": "Устаревший идентификатор основного файла; используйте files"
+    },
+    "printedFormFileId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid",
+      "deprecated": true,
+      "description": "Устаревший идентификатор печатной формы; используйте files"
+    },
+    "files": {
+      "type": "array",
+      "description": "Сформированные файлы отчёта",
+      "items": {
+        "$ref": "#/$defs/ReportFile"
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Дата и время создания задачи"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Дата и время последнего обновления задачи"
+    }
+  },
+  "$defs": {
+    "ReportFile": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/ReportFileId"
+        },
+        "fileType": {
+          "$ref": "#/$defs/ReportFileTypeCode"
+        },
+        "nameRus": {
+          "type": "string",
+          "description": "Название типа файла на русском языке"
+        },
+        "nameEng": {
+          "type": "string",
+          "description": "Название типа файла на английском языке"
+        },
+        "fileName": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Имя файла"
+        },
+        "signatureType": {
+          "$ref": "#/$defs/SignatureType"
+        }
+      }
+    },
+    "ReportFileId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Идентификатор файла отчёта"
+    },
+    "ReportFileTypeCode": {
+      "type": "string",
+      "description": "Код типа файла отчёта",
+      "enum": [
+        "SIMPLE_DOCUMENTARY",
+        "PRINTED_FORM",
+        "QES",
+        "FACSIMILE"
+      ]
+    },
+    "ReportTaskId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Идентификатор задачи на формирование отчёта"
+    },
+    "ReportTaskSource": {
+      "type": "string",
+      "description": "Источник создания задачи",
+      "enum": [
+        "RBO",
+        "PUBLIC_API_GATEWAY"
+      ]
+    },
+    "ReportTaskStatus": {
+      "type": "string",
+      "description": "Статус задачи на формирование отчёта",
+      "enum": [
+        "NEW",
+        "IN_PROGRESS",
+        "FAILED",
+        "DONE"
+      ]
+    },
+    "ReportType": {
+      "type": "string",
+      "description": "Тип отчёта",
+      "enum": [
+        "STATEMENT_FOR_1C",
+        "BROKERAGE_REPORT"
+      ]
+    },
+    "ReportTypeInfo": {
+      "required": [
+        "type",
+        "desc"
+      ],
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ReportType"
+        },
+        "desc": {
+          "type": "string",
+          "description": "Описание типа отчёта"
+        }
+      }
+    },
+    "SignatureType": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/SignatureTypeCode"
+        },
+        "nameRus": {
+          "type": "string",
+          "description": "Название типа подписи на русском языке"
+        },
+        "nameEng": {
+          "type": "string",
+          "description": "Название типа подписи на английском языке"
+        }
+      }
+    },
+    "SignatureTypeCode": {
+      "type": "string",
+      "description": "Код типа подписи",
+      "enum": [
+        "NONE",
+        "QES",
+        "FACSIMILE"
+      ]
+    }
+  }
+}

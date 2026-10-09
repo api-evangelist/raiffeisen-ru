@@ -1,0 +1,13 @@
+generated: '2026-10-09'
+method: none
+source: https://www.raiffeisen.ru/business/product/help/payment_fees/
+name: Raiffeisenbank (Russia) API pricing
+audience: unclear
+pricing_basis: none
+published: false
+plan_count: 0
+plans: []
+delivery:
+  delivery: managed
+note: No API pricing page found. API access is part of corporate banking service (must be a bank client). The Raif Pay docs link "Тарифы и каталог API" to https://openapi.raif.ru/catalog/categories, which
+  returned HTTP 404 on 2026-10-09. The www.raiffeisen.ru payment_fees page is a business banking fee schedule, not API pricing.

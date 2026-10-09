@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-login-step-request-dto-schema.json",
+  "title": "LoginStepRequestDTO",
+  "description": "Поля формы зависят от текущего stepType. CSRF токен передаётся в обязательном поле _csrf.",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-authorization-openapi.yml#/components/schemas/LoginStepRequestDTO",
+  "type": "object",
+  "required": [
+    "_csrf"
+  ],
+  "properties": {
+    "principal": {
+      "type": "string",
+      "description": "Логин для шага username-password или номер телефона для шага phone."
+    },
+    "credentials": {
+      "type": "string",
+      "format": "password",
+      "description": "Пароль для шагов username-password/password или код для sms-otp/email-otp."
+    },
+    "selected_scope_groups": {
+      "type": "string",
+      "description": "Выбранные группы scopes для consent, через запятую."
+    },
+    "smart-token": {
+      "type": "string",
+      "description": "Токен CAPTCHA, когда stepViewData.captchaRequired равен true."
+    },
+    "_csrf": {
+      "type": "string",
+      "description": "CSRF токен из viewData.pageData.authenticationFlowContext.csrf."
+    }
+  }
+}

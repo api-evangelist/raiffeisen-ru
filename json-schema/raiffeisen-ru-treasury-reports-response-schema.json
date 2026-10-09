@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/raiffeisen-ru/main/json-schema/raiffeisen-ru-treasury-reports-response-schema.json",
+  "title": "TreasuryReportsResponse",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/raiffeisen-ru-treasury-balance-reports-openapi.yml#/components/schemas/TreasuryReportsResponse",
+  "type": "object",
+  "required": [
+    "reports",
+    "offset",
+    "limit",
+    "totalCount"
+  ],
+  "properties": {
+    "reports": {
+      "items": {
+        "$ref": "#/$defs/ReportFullResponse"
+      },
+      "type": "array",
+      "description": "Отчеты"
+    },
+    "offset": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "limit": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "totalCount": {
+      "type": "integer",
+      "format": "int64"
+    }
+  },
+  "$defs": {
+    "Period": {
+      "type": "object",
+      "required": [
+        "dateFrom",
+        "dateTo"
+      ],
+      "description": "За какой период сформирован отчет",
+      "properties": {
+        "dateFrom": {
+          "format": "date",
+          "type": "string",
+          "description": "Дата начала отчета в формате yyyy-MM-dd"
+        },
+        "dateTo": {
+          "format": "date",
+          "type": "string",
+          "description": "Дата окончания отчета в формате yyyy-MM-dd"
+        }
+      }
+    },
+    "ReportFullResponse": {
+      "type": "object",
+      "required": [
+        "id",
+        "createdAt",
+        "status",
+        "period"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "UUID",
+          "description": "id Отчета"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "type": "string",
+          "description": "Дата создания отчета"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "COMPLETED",
+            "IN_PROGRESS",
+            "FAILED"
+          ],
+          "description": "Статус отчета"
+        },
+        "period": {
+          "$ref": "#/$defs/Period"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,870 @@
+openapi: 3.2.0
+info:
+  title: Raiffeisen Ru Expenses Categories API
+  version: '0.1'
+  contact:
+    email: dcc@raiffeisen.ru
+    name: Support e-mail
+    x-team-id: 228
+    x-short-team-name: Corporate Cards
+  x-description-i18n:
+    eng: "Automated card issuance via API or registry. This allows you to issue corporate cards without documents or passports. Send us a list of cardholders via a registry through your online banking or API—we’ll issue the cards for you.\n\n# Registry\n\n1. Send the list of employees via online banking in XLS, CSV, or XML format. You can fill out the employee list manually or export it from your accounting system.\n\n2. If you order cards at a [bank branch](https://docs.google.com/spreadsheets/d/1lT-qOCGrAW7u9IFn8tDWwO1bnUt_gNPEncINGvVVbKE), delivery takes 3-5 business days.\n   If you order cards to be delivered to cardholders' addresses (only for XLS and CSV formats), delivery takes 5-7 business days, depending on the region. Cardholders will receive an SMS notification when their card is ready.\n\n## Registry Format\n  Template: <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/Заявление на выпуск карт для нерезидентов v2.xlsx'\" color=\"primary\">XLS</Button>\n\n  Examples: <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/xml_registry1.xml'\" color=\"primary\">XML_1</Button> <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/xml_registry2.xml'\" color=\"primary\">XML_2</Button> <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/csv_registry.csv'\" color=\"primary\">CSV</Button>\n\n   Parameter Name                     | Value\n  ------------------------------------|------------------------------------------------------------------------------------------\n   ИдПервичногоДокумента              | Unique registry identifier on the Company's side\n   РасчетныйСчетОрганизации           | Company account opened with the Bank to which the cards will be linked\n   ВидВклада/КодВидаВклада            | Card type <br> (MIR_CORPORATE/ MIR_CORPORATE_VIRTUAL/ CASH_IN&OUT)\n   Фамилия                            | Last name of the employee-cardholder\n   Имя                                | First name of the employee-cardholder\n   Отчество                           | Middle name of the employee-cardholder\n   ЭмбоссированныйТекст               | First and last name of the employee-cardholder in Latin script (to be printed on the card)\n   ОтделениеБанка/ ФилиалОтделенияБанка | Bank branch code where the cards will be delivered\n   Пол                                | Gender of the employee-cardholder\n   ДатаРождения                       | Date of birth\n   МестоРождения.СтранаНазвание       | Country of birth\n   Серия                              | Passport series (Russian passport)\n   Номер                              | Passport number (Russian passport)\n   ДатаВыдачи                         | Passport issue date\n   КемВыдан                           | Passport issuing authority\n   Гражданство                        | Citizenship\n   АдресПрописки.Страна               | Country of registration\n   АдресПрописки.РегионНазвание       | Region of registration address\n   АдресПрописки.НаселенныйПунктНазвание | Locality of registration address\n   АдресПрописки.УлицаНазвание        | Street of registration address <br> (if absent, specify \"Нет\")\n   АдресПрописки.Дом                  | House number of registration address\n   МобильныйТелефон                   | Employee-cardholder’s mobile phone <br> (79210000001 or 9210000001)\n   Суточный лимит <br> (CSV file)     | Daily cash withdrawal limit\n   Месячный лимит <br> (CSV file)     | Monthly spending limit\n   Секретное слово <br> (CSV file)    | Cardholder’s secret word\n   Индекс доставки <br> (CSV file)    | Delivery postal code\n   Регион доставки <br> (CSV file)    | Delivery region\n   Населенный пункт доставки <br> (CSV file) | Delivery locality\n   Улица доставки <br> (CSV file)     | Delivery street\n   Дом доставки <br> (CSV file)       | Delivery house number\n   Корпус доставки <br> (CSV file)    | Delivery building/block\n\n## Instructions for Exporting Registry from 1С\n[Instructions for Exporting Registry from 1С](https://docs.google.com/document/d/1xk9q9MDW1qx9oqQI64FF9PUBdShuLc-rgYuciY2SbzI)\n\n## List of Bank Branches for Card Pickup\n[List of Bank Branches for Card Pickup](https://docs.google.com/spreadsheets/d/1lT-qOCGrAW7u9IFn8tDWwO1bnUt_gNPEncINGvVVbKE)\n\n# About the API\n\nAfter signing the contract, you will receive an email with authorization details for the service.\n\n1. Integrate our API with your accounting system.\n2. Send the list of employees.\n3. Check card issuance status.\n4. Within 3-5 business days, the cards will be delivered to the bank branch. Cardholders will receive an SMS notification.\n\nCommunication is carried out via HTTP using GET/POST methods (each request description specifies the required method and address).\n   - POST requests use JSON arguments.\n   - GET requests work with query strings.\n\nThe API always returns a response in JSON format, regardless of the request type.\n   - Every response includes a message code (`code`). If a logical error occurs during processing, the API will also return an error description (`message`).\n\n## Authorization\n\nTo authorize requests, the following is required:\n- `secretKey` – a secret key used for inter-service communication.\n\nIMPORTANT: The secret key must be stored securely. Do not publish it on third-party resources or share it with unauthorized parties.\n\nInter-service requests are authorized via the API secret key (`SECRET_KEY`). The authorization parameter is specified in the `Authorization` header, formatted as `\"Bearer SECRET_KEY\"`.\n"
+  x-logo:
+    url: images/raifflogo.png
+    backgroundColor: '#FFFFFF'
+    altText: Raiff logo
+  description: 'Operations tagged expenses-categories-api across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-corporate-cards-openapi.json, raiffeisen-ru-raif-pay-corporate-cards-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://pay-test.raif.ru
+  description: Sandbox
+- url: https://pay.raif.ru
+  description: Production
+security:
+- Authorization: []
+tags:
+- name: expenses-categories-api
+  x-displayName: Категории трат
+  x-x-displayName-i18n:
+    eng: Expense categories
+  description: 'API для управления категориями трат:
+
+    * Получение категорий MCC
+
+    * Создание и применение категорий трат по категориям и MCC
+
+    * Получение сохраненных категорий трат'
+  x-description-i18n:
+    eng: 'API for managing expense categories:
+
+      * Get MCC categories
+
+      * Create and apply expense categories by categories and MCC
+
+      * Get client saved expense categories
+
+      '
+paths:
+  /api/v1/cards/expenses-categories:
+    get:
+      tags:
+      - expenses-categories-api
+      summary: Получение категорий трат
+      description: Получение категорий трат с опциональным списком MCC
+      operationId: getExpenseCategories
+      parameters:
+      - $ref: '#/components/parameters/WithMccQuery'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Список категорий
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseCategoriesPage'
+              examples:
+                Список категорий (withMcc=true):
+                  $ref: '#/components/examples/ExpenseCategoriesExample'
+                Список категорий (withMcc=false):
+                  $ref: '#/components/examples/ExpenseCategoriesWithoutMccExample'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401_unauthorized'
+        '500':
+          $ref: '#/components/responses/500_internal_error'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+  /api/v1/cards/expenses-categories/{id}:
+    get:
+      tags:
+      - expenses-categories-api
+      summary: Получение MCC по категории траты
+      description: Возвращает категорию траты с опциональным списком MCC
+      operationId: getExpenseCategory
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Идентификатор категории (UUID)
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/WithMccQuery'
+      responses:
+        '200':
+          description: Информация о категории
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseCategory'
+              examples:
+                Категория трат (withMcc=true):
+                  $ref: '#/components/examples/ExpenseCategoryExample'
+                Категория трат (withMcc=false):
+                  $ref: '#/components/examples/ExpenseCategoryWithoutMccExample'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401_unauthorized'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500_internal_error'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+  /api/v1/cards/restrictions/expenses-categories:
+    get:
+      tags:
+      - expenses-categories-api
+      summary: Получение ограничений по установленным категорий трат
+      operationId: getClientExpenseCategoryRestrictions
+      parameters:
+      - $ref: '#/components/parameters/EntityTypeQuery'
+      - $ref: '#/components/parameters/EntityIdQuery'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Список установленных категорий трат
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientRestrictionsPage'
+              examples:
+                Список категорий трат:
+                  $ref: '#/components/examples/ClientRestrictionsExample'
+                Пустой список:
+                  $ref: '#/components/examples/EmptyClientRestrictionsExample'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401_unauthorized'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500_internal_error'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+  /api/v1/cards/restrictions/{id}/expenses-categories:
+    put:
+      tags:
+      - expenses-categories-api
+      summary: Установка ограничения на категорию трат по ID
+      operationId: applyExpenseCategoryRestriction
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Идентификатор категории трат
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplyExpenseCategoryRestrictionRequest'
+      responses:
+        '200':
+          description: Категория трат установлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatedRestrictionResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401_unauthorized'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500_internal_error'
+    delete:
+      tags:
+      - expenses-categories-api
+      summary: Снятие категории трат
+      operationId: removeExpenseCategoryRestriction
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Идентификатор ограничения категории трат
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplyExpenseCategoryRestrictionRequest'
+      responses:
+        '204':
+          description: Категория траты удалена
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401_unauthorized'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500_internal_error'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+  /api/v1/cards/expenses-categories/client:
+    get:
+      tags:
+      - expenses-categories-api
+      summary: Получение сохраненных категорий трат
+      description: Возвращает сохраненный список категорий трат
+      operationId: getExpenseCategoryRestrictionNames
+      parameters:
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Сохраненный список категорий трат
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestrictionNamesPage'
+              examples:
+                Список наименований категорий трат:
+                  $ref: '#/components/examples/RestrictionNamesPageExample'
+                Пустой список:
+                  $ref: '#/components/examples/EmptyRestrictionNamesPageExample'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401_unauthorized'
+        '500':
+          $ref: '#/components/responses/500_internal_error'
+    post:
+      tags:
+      - expenses-categories-api
+      summary: Создание категории трат
+      description: 'Создание категории трат: по категории или MCC'
+      operationId: createExpenseCategoryRestriction
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExpenseCategoryRestrictionRequest'
+            examples:
+              Создание категории трат по категориям:
+                $ref: '#/components/examples/CreateExpenseCategoryRestrictionRequestExample'
+              Создание категории трат по MCC:
+                $ref: '#/components/examples/CreateExpenseCategoryRestrictionByMccRequestExample'
+      responses:
+        '200':
+          description: Категория трат создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatedExpenseCategoryResponse'
+              examples:
+                Категория трат создана:
+                  $ref: '#/components/examples/CreatedRestrictionResponseExample'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401_unauthorized'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500_internal_error'
+    servers:
+    - url: https://pay-test.raif.ru
+      description: Sandbox
+    - url: https://pay.raif.ru
+      description: Production
+components:
+  responses:
+    '404':
+      description: Информация не найдена
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Код ошибки
+                example: Not Found
+              message:
+                type: string
+                description: Описание ошибки
+                example: Информация не найдена
+              traceId:
+                type: string
+                description: Trace id запроса
+            required:
+            - code
+            - message
+    500_internal_error:
+      description: Внутренняя ошибка
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Код ошибки
+                example: Internal Server Error
+              message:
+                type: string
+                description: Описание ошибки
+                example: some message
+              traceId:
+                type: string
+                description: Trace id запроса
+            required:
+            - code
+            - message
+    401_unauthorized:
+      description: Не авторизован
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Код ошибки
+                example: Unauthorized
+              message:
+                type: string
+                description: Описание ошибки
+                example: Не авторизован
+              traceId:
+                type: string
+                description: Trace id запроса
+            required:
+            - code
+            - message
+    '400':
+      description: Некорректный запрос
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Код ошибки
+                example: Bad Request
+              message:
+                type: string
+                description: Описание ошибки
+                example: Некорректные данные
+              traceId:
+                type: string
+                description: Trace id запроса
+            required:
+            - code
+            - message
+  examples:
+    EmptyRestrictionNamesPageExample:
+      summary: Пустой список наименований категорий трат
+      value:
+        data: []
+        offset: 0
+        limit: 30
+        totalCount: 0
+    EmptyClientRestrictionsExample:
+      summary: Пустой список установленных категорий трат
+      value:
+        data: []
+        offset: 0
+        limit: 30
+        totalCount: 0
+    RestrictionNamesPageExample:
+      summary: Сохраненный список категорий трат
+      value:
+        data:
+        - id: 9fa85f64-5717-4562-b3fc-2c963f66afac
+          name: Запрет для командировок
+          details:
+            actionType: DENY
+            type: BY_CATEGORY
+            categories:
+            - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+              name: Авиабилеты
+            mccCodes:
+            - '3000'
+            - '3001'
+        - id: afa85f64-5717-4562-b3fc-2c963f66afad
+          name: Только снятие в банкоматах
+          details:
+            actionType: ALLOW_ONLY
+            type: BY_MCC
+            mccCodes:
+            - '6011'
+            - '6012'
+        offset: 0
+        limit: 30
+        totalCount: 2
+    CreatedRestrictionResponseExample:
+      summary: Результат создания категории трат
+      value:
+        id: 9fa85f64-5717-4562-b3fc-2c963f66afac
+    ExpenseCategoriesExample:
+      summary: Список категорий (withMcc=true)
+      value:
+        data:
+        - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          category: Авиабилеты
+          items:
+          - id: 4fa85f64-5717-4562-b3fc-2c963f66afa7
+            mcc: '3000'
+            title: Авиакомпании
+          - id: 5fa85f64-5717-4562-b3fc-2c963f66afa8
+            mcc: '3001'
+            title: Авиакомпании
+        - id: 6fa85f64-5717-4562-b3fc-2c963f66afa9
+          category: Автомобили
+          items:
+          - id: 7fa85f64-5717-4562-b3fc-2c963f66afaa
+            mcc: '5013'
+            title: Торговля автозапчастями
+          - id: 8fa85f64-5717-4562-b3fc-2c963f66afab
+            mcc: '5511'
+            title: Аренда автомобилей
+        offset: 0
+        limit: 30
+        totalCount: 2
+    CreateExpenseCategoryRestrictionRequestExample:
+      summary: Запрос на создание категории трат по категориям
+      value:
+        type: BY_CATEGORY
+        actionType: DENY
+        name: Запрет для командировок
+        categories:
+        - 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        - 6fa85f64-5717-4562-b3fc-2c963f66afa9
+    ClientRestrictionsExample:
+      summary: Список установленных категорий трат
+      value:
+        data:
+        - id: 9fa85f64-5717-4562-b3fc-2c963f66afac
+          name: Запрет для командировок
+          startDateTime: '2026-09-01T10:00:00Z'
+          details:
+            restrictionId: 5fa85f64-5717-4562-b3fc-2c963f66afa7
+            actionType: DENY
+            type: BY_CATEGORY
+            categories:
+            - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+              name: Авиабилеты
+            mccCodes:
+            - '3000'
+            - '3001'
+        offset: 0
+        limit: 30
+        totalCount: 1
+    CreateExpenseCategoryRestrictionByMccRequestExample:
+      summary: Запрос на создание категории трат по MCC
+      value:
+        type: BY_MCC
+        actionType: DENY
+        name: Запрет снятия в банкоматах
+        mccCodes:
+        - '6011'
+        - '6012'
+    ExpenseCategoryWithoutMccExample:
+      summary: Категория без MCC (withMcc=false)
+      value:
+        id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        category: Авиабилеты
+    ExpenseCategoryExample:
+      summary: Информация о категории
+      value:
+        id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        category: Авиабилеты
+        items:
+        - id: 4fa85f64-5717-4562-b3fc-2c963f66afa7
+          mcc: '3000'
+          title: Авиакомпании
+        - id: 5fa85f64-5717-4562-b3fc-2c963f66afa8
+          mcc: '3001'
+          title: Авиакомпании
+    ExpenseCategoriesWithoutMccExample:
+      summary: Список категорий (withMcc=false)
+      value:
+        data:
+        - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          category: Авиабилеты
+        - id: 6fa85f64-5717-4562-b3fc-2c963f66afa9
+          category: Автомобили
+        offset: 0
+        limit: 30
+        totalCount: 2
+  schemas:
+    RestrictionNamesPage:
+      allOf:
+      - $ref: '#/components/schemas/PageResponse'
+      - type: object
+        description: Сохраненный список категорий трат
+        properties:
+          data:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/RestrictionName'
+            description: Наименования на текущей выборке
+        required:
+        - data
+    PageResponse:
+      type: object
+      description: Пагинация
+      properties:
+        offset:
+          type: integer
+          format: int32
+          description: Смещение текущей выборки
+        limit:
+          type: integer
+          format: int32
+          description: Размер выборки
+        totalCount:
+          type: integer
+          format: int64
+          description: Всего записей
+      required:
+      - offset
+      - limit
+      - totalCount
+    CreateExpenseCategoryRestrictionRequest:
+      discriminator:
+        propertyName: type
+        mapping:
+          BY_CATEGORY: '#/components/schemas/CreateExpenseCategoryRestrictionByCategoryRequest'
+          BY_MCC: '#/components/schemas/CreateExpenseCategoryRestrictionByMccRequest'
+      oneOf:
+      - $ref: '#/components/schemas/CreateExpenseCategoryRestrictionByCategoryRequest'
+      - $ref: '#/components/schemas/CreateExpenseCategoryRestrictionByMccRequest'
+    CreateExpenseCategoryRestrictionByCategoryRequest:
+      type: object
+      description: Запрос на создание категории трат по категориям
+      required:
+      - type
+      - actionType
+      - categories
+      properties:
+        type:
+          type: string
+          description: Тип категории трат
+        actionType:
+          type: string
+          enum:
+          - DENY
+          description: Режим категории трат (DENY - запретить операции)
+        name:
+          type: string
+          description: Клиентское наименование категории трат
+        categories:
+          type: array
+          items:
+            type: string
+          description: Список ID категорий
+    ClientRestrictionsPage:
+      allOf:
+      - $ref: '#/components/schemas/PageResponse'
+      - type: object
+        description: Пагинированный список установленных категорий трат
+        properties:
+          data:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/ClientRestriction'
+            description: Категории на текущей выборке
+        required:
+        - data
+    RestrictionDetail:
+      type: object
+      description: Подробности установки категории трат
+      properties:
+        actionType:
+          type: string
+          enum:
+          - DENY
+          - ALLOW_ONLY
+          description: Режим установки
+        type:
+          type: string
+          enum:
+          - BY_CATEGORY
+          - BY_MCC
+          description: Чем задана категория трат
+        categories:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/RestrictionCategory'
+          description: Категории (обязательно при создании by_category)
+        mccCodes:
+          type: array
+          items:
+            type: string
+          description: Cписок установленных MCC
+      required:
+      - actionType
+      - type
+      - mccCodes
+    CreateExpenseCategoryRestrictionByMccRequest:
+      type: object
+      description: Запрос на создание категории трат по конкретным MCC
+      required:
+      - type
+      - actionType
+      - mccCodes
+      properties:
+        type:
+          type: string
+          description: Тип категории трат
+        actionType:
+          type: string
+          enum:
+          - DENY
+          description: Режим категории трат (DENY - запретить операции)
+        name:
+          type: string
+          description: Клиентское наименование категории трат
+        mccCodes:
+          type: array
+          items:
+            type: string
+          description: Список кодов MCC (4 цифры, строки)
+    Uuid:
+      type: string
+      description: Уникальный идентификатор
+      x-description-i18n:
+        eng: Unique identifier
+      format: uuid
+      example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+    ExpenseCategoriesPage:
+      allOf:
+      - $ref: '#/components/schemas/PageResponse'
+      - type: object
+        description: Пагинированный список категорий трат
+        properties:
+          data:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/ExpenseCategory'
+            description: Категории на текущей выборке
+        required:
+        - data
+    ExpenseCategory:
+      type: object
+      description: Категория
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/Uuid'
+          description: Идентификатор категории
+        category:
+          type: string
+          description: Название категории
+        items:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/ExpenseCategoryItem'
+          description: MCC в категории. Присутствует только при withMcc=true, иначе поле опускается
+      required:
+      - id
+      - category
+    ApplyExpenseCategoryRestrictionRequest:
+      type: object
+      description: Запрос на установку категории трат
+      required:
+      - entityType
+      properties:
+        entityType:
+          type: string
+          enum:
+          - CARD
+          - ACCOUNT
+          - CLIENT
+          description: Тип сущности
+        entityId:
+          type: string
+          description: Идентификатор сущности (cardId / account)
+    ClientRestrictionDetail:
+      description: Подробности установленного ограничения категории трат
+      allOf:
+      - type: object
+        properties:
+          restrictionId:
+            allOf:
+            - $ref: '#/components/schemas/Uuid'
+            description: Идентификатор установленного ограничения
+        required:
+        - restrictionId
+      - $ref: '#/components/schemas/RestrictionDetail'
+    ClientRestriction:
+      type: object
+      description: Категория трат сущности
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/Uuid'
+          description: Идентификатор категории трат
+        name:
+          type: string
+          description: Клиентское наименование категории трат
+        startDateTime:
+          type: string
+          format: date-time
+          description: Дата и время начала действия
+        details:
+          allOf:
+          - $ref: '#/components/schemas/ClientRestrictionDetail'
+          description: Детали категории трат
+      required:
+      - id
+    RestrictionCategory:
+      type: object
+      description: Категория трат
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/Uuid'
+          description: Идентификатор категории
+        name:
+          type: string
+          description: Банковское наименование категории трат
+      required:
+      - id
+      - name
+    ExpenseCategoryItem:
+      type: object
+      description: MCC внутри категории
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/Uuid'
+          description: Идентификатор MCC
+        mcc:
+          type: string
+          description: Код MCC (4 цифры, строка)
+        title:
+          type: string
+          description: Название MCC
+      required:
+      - id
+      - mcc
+    CreatedExpenseCategoryResponse:
+      type: object
+      description: Результат создания категории трат
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/Uuid'
+          description: Идентификатор категории трат
+      required:
+      - id
+    RestrictionName:
+      type: object
+      description: Клиентское наименование категории трат клиента
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/Uuid'
+          description: Идентификатор сохраненной категории трат
+        name:
+          type: string
+          description: Клиентское наименование категории трат
+        details:
+          allOf:
+          - $ref: '#/components/schemas/RestrictionDetail'
+          description: Подробности установок категории трат
+      required:
+      - id
+      - name
+      - details
+    CreatedRestrictionResponse:
+      type: object
+      description: Результат создания категории трат
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/Uuid'
+          description: Идентификатор ограничения категории трат
+      required:
+      - id
+  parameters:
+    Offset:
+      name: offset
+      in: query
+      example: 60
+      description: Количество записей для смещения
+      required: false
+      schema:
+        type: integer
+        default: 0
+    WithMccQuery:
+      name: withMcc
+      in: query
+      required: false
+      description: Показывать ли MCC в категориях
+      schema:
+        type: boolean
+        default: false
+    Limit:
+      name: limit
+      in: query
+      example: 30
+      description: Количество записей для запроса
+      required: false
+      schema:
+        type: integer
+        default: 30
+    EntityIdQuery:
+      name: entityId
+      in: query
+      required: false
+      description: Идентификатор сущности (cardId / account)
+      schema:
+        type: string
+    EntityTypeQuery:
+      name: entityType
+      in: query
+      required: true
+      description: Тип сущности
+      schema:
+        type: string
+        enum:
+        - CARD
+        - ACCOUNT
+        - CLIENT
+  securitySchemes:
+    Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer secret key
+      x-internal: false
+x-refined-from:
+- raiffeisen-ru-raif-pay-corporate-cards-openapi.json
+- raiffeisen-ru-raif-pay-corporate-cards-openapi.yml
