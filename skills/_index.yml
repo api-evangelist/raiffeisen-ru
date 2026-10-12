@@ -7,20 +7,56 @@ skills:
 - name: raiffeisen-ru-authorization
   file: skills/raiffeisen-ru-authorization.md
   api: openapi/raiffeisen-ru-authorization-openapi.yml
-  operations: 5
+  operations:
+  - authorize
+  - token
+  - tokenLiveness
+  - revokeToken
+  - getJwks
 - name: raiffeisen-ru-bank-statements
   file: skills/raiffeisen-ru-bank-statements.md
   api: openapi/raiffeisen-ru-bank-statements-openapi.yml
-  operations: 7
+  operations:
+  - camt053Request
+  - mt940Request
+  - oneCRequestV2
+  - pdfRequest
+  - reportStatus
+  - downloadReportFile
+  - mt940SyncRequest
 - name: raiffeisen-ru-domestic-payments-import
   file: skills/raiffeisen-ru-domestic-payments-import.md
   api: openapi/raiffeisen-ru-domestic-payments-import-openapi.yml
-  operations: 7
+  operations:
+  - import1CDomesticPayment
+  - importCsvDomesticPayment
+  - importXmlDomesticPayment
+  - importMT103DomesticPayment
+  - import1CMassPayment
+  - getImportStatus
+  - getImportStatusFull
 - name: raiffeisen-ru-raif-pay-sbp-qr
   file: skills/raiffeisen-ru-raif-pay-sbp-qr.md
   api: openapi/raiffeisen-ru-raif-pay-sbp-openapi.yml
-  operations: 9
+  operations:
+  - createQrV2
+  - getQrV2
+  - getPaymentInfo
+  - deleteQrV2
+  - createRefund
+  - getRefund
+  - getBanksForRefunds
+  - postApiSettingsV1Callback
+  - get-report-v1-transactions-summary
 - name: raiffeisen-ru-raif-pay-payouts
   file: skills/raiffeisen-ru-raif-pay-payouts.md
   api: openapi/raiffeisen-ru-raif-pay-payouts-openapi.yml
-  operations: 8
+  operations:
+  - get-payout-v3-sbp-banks
+  - post-payout-v1-payouts-draft
+  - put-payout-v1-payouts-id
+  - post-v2-payouts
+  - get-payout-v2-payouts-id
+  - post-payout-v3-payout-bundles
+  - get-v3-bundle-payouts
+  - post-settings-v1-callback

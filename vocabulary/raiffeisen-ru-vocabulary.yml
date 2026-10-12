@@ -1,431 +1,434 @@
-generated: '2026-10-09'
+generated: '2026-10-12'
 method: derived
 generator: derive-vocabulary.py
 source:
-- openapi/raiffeisen-ru-adm-deposit-codes-openapi.yml
-- openapi/raiffeisen-ru-agency-factoring-openapi.yml
-- openapi/raiffeisen-ru-audit-reports-openapi.yml
-- openapi/raiffeisen-ru-authorization-openapi.yml
-- openapi/raiffeisen-ru-bank-statements-openapi.yml
+- openapi/raiffeisen-ru-accounts-operation-api-api-openapi.yml
+- openapi/raiffeisen-ru-agreement-api-openapi.yml
+- openapi/raiffeisen-ru-agreements-api-openapi.yml
+- openapi/raiffeisen-ru-agreementsum-api-openapi.yml
+- openapi/raiffeisen-ru-api-client-api-openapi.yml
 vocabulary:
   name: Raiffeisenbank (Russia) Domain Vocabulary
   description: 'Terms declared by Raiffeisenbank (Russia)''s own API contract: its resource groups, objects and enumerations, with the contract''s
     definitions. Derived, not authored.'
-  version: '2026-10-09'
+  version: '2026-10-12'
   terms:
-  - term: Agreement
-    definition: Агентский договора
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-agency-factoring-openapi.yml
-  - term: Creditor
-    definition: Кредитор
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-agency-factoring-openapi.yml
-  - term: Day
-    definition: Рабочий день
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-agency-factoring-openapi.yml
-  - term: FeeInvoice
-    definition: Счета на оплату комиссий
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-agency-factoring-openapi.yml
-  - term: Limit
-    definition: Лимит
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-agency-factoring-openapi.yml
-  - term: Order
-    definition: Поручение
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-agency-factoring-openapi.yml
-  - term: Packet
-    definition: Пакет поручений
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-agency-factoring-openapi.yml
-  - term: Parser
-    definition: Парсер файлов реестров
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-agency-factoring-openapi.yml
-  - term: Proposition
-    definition: Заявление на досрочное погашение основного долга
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-agency-factoring-openapi.yml
-  - term: AuditsController
-    definition: Работа с аудиторскими запросами
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-audit-reports-openapi.yml
-  - term: Аутентификация
-    definition: Аутентификация пользователя и управление токенами OAuth2.
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-authorization-openapi.yml
-  - term: Формы входа
-    definition: Браузерные страницы и настройки текущего процесса входа.
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-authorization-openapi.yml
-  - term: Rates API
-    definition: API курса валют ЦБ
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-cbr-exchange-rates-openapi.yml
-  - term: Tariff plan documents
-    definition: Операции с документами тарифных планов
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-client-tariffs-openapi.yml
-  - term: corpcards-operation-api
-    definition: 'API для просмотра операций по корпоративным картам: * Получение списка операций по карте'
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-corporate-cards-openapi.yml
-  - term: Contract Details
-    definition: Сведения о контракте
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-currency-control-documents-openapi.yml
-  - term: Files
-    definition: Загрузка, проверка и скачивание вложений
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-currency-control-documents-openapi.yml
-  - term: currency-transaction-certificate
-    definition: Сведения о валютных операциях
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-currency-operations-information-openapi.yml
-  - term: funds-distribution-order
-    definition: Операции с распоряжениями о распределении валютной выручки
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-currency-proceeds-distribution-openapi.yml
-  - term: documents
-    definition: documents recognition
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-doc-reader-openapi.yml
-  - term: AgreementSum
-    definition: Сумма договора Факторинга
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-factoring-openapi.yml
-  - term: Contract
-    definition: Контракт
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-factoring-openapi.yml
-  - term: DealConditions
-    definition: Основные условия обслуживания поставщик-дебитор
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-factoring-openapi.yml
-  - term: Debtor
-    definition: Дебитор
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-factoring-openapi.yml
-  - term: FinancingRequest
-    definition: Запрос на финансирование
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-factoring-openapi.yml
-  - term: Offer
-    definition: Контекст факторингового предложения и доступности
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-factoring-openapi.yml
-  - term: Registry
-    definition: Реестр поставок
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-factoring-openapi.yml
-  - term: Report
-    definition: Отчет
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-factoring-openapi.yml
-  - term: Sublimit
-    definition: Сублимит - лимит на дебитора в рамках конкретного договора Факторинга
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-factoring-openapi.yml
-  - term: Supplier
-    definition: Поставщик
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-factoring-openapi.yml
-  - term: Supply
-    definition: Поставка
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-factoring-openapi.yml
-  - term: TariffPlan
-    definition: Тарифный план
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-factoring-openapi.yml
-  - term: currency-transfer
-    definition: Операции с валютными переводами
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-foreign-currency-transfers-iso20022-openapi.yml
-  - term: bills
-    definition: Управление выставлением счетов на оплату
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-invoices-openapi.yml
-  - term: closingDocuments
-    definition: Управление закрывающими документами
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-invoices-openapi.yml
-  - term: Correspondences
-    definition: Переписка
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-letters-openapi.yml
-  - term: Mails
-    definition: Письма
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-letters-openapi.yml
-  - term: Topics
-    definition: Темы переписок
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-letters-openapi.yml
-  - term: ClientInfo
-    definition: Информация о клиенте
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-loans-openapi.yml
-  - term: EarlyRepayment
-    definition: Досрочное погашение
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-loans-openapi.yml
-  - term: Loan
-    definition: Транш
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-loans-openapi.yml
-  - term: Справочник БИК ЦБ РФ
-    definition: Справочник БИК ЦБ РФ
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-loro-openapi.yml
-  - term: Валидация pacs сообщений
-    definition: Валидация PACS.009.01 и PACS.008.01 сообщений mx формата
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-loro-openapi.yml
-  - term: Конвертация MX и MT сообщений
-    definition: Конвертация MX и MT сообщений
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-loro-openapi.yml
-  - term: Отслеживание платежа
-    definition: Отслеживание платежа
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-loro-openapi.yml
-  - term: Отчёты Лоро-клиентов
-    definition: Отчёты для Лоро-клиентов в json-формате
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-loro-openapi.yml
-  - term: Buyer
-    definition: Покупатели
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-payment-control-openapi.yml
-  - term: Client
-    definition: Клиенты
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-payment-control-openapi.yml
-  - term: Condition
-    definition: Условия
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-payment-control-openapi.yml
-  - term: Notice
-    definition: Уведомление
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-payment-control-openapi.yml
-  - term: code-blocking
-    definition: ''
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-adm-openapi.yml
-  - term: payer-email-change
-    definition: ''
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-adm-openapi.yml
-  - term: corpcards-api
-    definition: 'Для реализации взаимодействия Райффайзенбанк предоставляет API: * запрос на создание карт с использованием HTTP; * получение
-      информации о статусе запроса на создание карт'
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-corporate-cards-openapi.yml
-  - term: delivery
-    definition: 'Для получения информации о доставке карты Райффайзенбанк предоставляет API: * Информация о доставке карты'
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-corporate-cards-openapi.yml
-  - term: expenses-categories-api
-    definition: 'API для управления категориями трат: * Получение категорий MCC * Создание и применение категорий трат по категориям и MCC * Получение
-      сохраненных категорий трат'
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-corporate-cards-openapi.yml
   - term: accounts-operation-api
     definition: 'API для просмотра информации и управления счетами: * Получение баланса счёта, к которому привязаны карты * Получение списка счетов
       по номеру карты'
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-corporate-cards-openapi.yml
+    source: openapi/raiffeisen-ru-accounts-operation-api-api-openapi.yml
+  - term: Agreement
+    definition: Агентский договора
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-agreement-api-openapi.yml
+  - term: Agreements
+    definition: Соглашения
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-agreements-api-openapi.yml
+  - term: AgreementSum
+    definition: Сумма договора Факторинга
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-agreementsum-api-openapi.yml
+  - term: API - Client
+    definition: Информация о клиенте
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-api-client-api-openapi.yml
+  - term: AuditsController
+    definition: Работа с аудиторскими запросами
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-auditscontroller-api-openapi.yml
+  - term: Bills
+    definition: Управление выставлением счетов на оплату
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-bills-api-openapi.yml
+  - term: Buyer
+    definition: Покупатели
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-buyer-api-openapi.yml
+  - term: callback-api
+    definition: Для информирования Компании о проведенных операциях по картам могут использоваться уведомления на адрес, указанный в настройках.
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-callback-api-api-openapi.yml
+  - term: Callback
+    definition: Для информирования ТСП о проведенных платежах и возвратах могут использоваться HTTP-уведомления на адрес, указанный в его настройках.
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-callback-api-openapi.yml
+  - term: cashReconciliation
+    definition: Методы позволяют получить список операций и итоговые суммы за определенный промежуток времени. Возможно использование методов
+      для закрытия кассового периода.
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-cashreconciliation-api-openapi.yml
+  - term: Client
+    definition: Клиенты
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-client-api-openapi.yml
+  - term: Client Info
+    definition: Информация о клиенте
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-client-info-api-openapi.yml
+  - term: closingDocuments
+    definition: Управление закрывающими документами
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-closingdocuments-api-openapi.yml
+  - term: Condition
+    definition: Условия
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-condition-api-openapi.yml
+  - term: Contract
+    definition: Контракт
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-contract-api-openapi.yml
+  - term: Contract Details
+    definition: Сведения о контракте
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-contract-details-api-openapi.yml
+  - term: corpcards-api
+    definition: 'Для реализации взаимодействия Райффайзенбанк предоставляет API: * запрос на создание карт с использованием HTTP; * получение
+      информации о статусе запроса на создание карт'
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-corpcards-api-api-openapi.yml
   - term: corpcards-info-api
     definition: Дополнительная информация для выпуска карт
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-corporate-cards-openapi.yml
-  - term: callback-api
-    definition: 'Для информирования Компании о проведенных операциях по картам могут использоваться уведомления на адрес, указанный в настройках.
-      В составе API имеется следующий функционал: * уведомление о блокировке средств на карте (статус HOLD); * уведомление о списании средств
-      по счету (статус CAPTURE); * запрос на отправку уведомления в тестовом контуре с использованием HTTP; Взаимодействия осуществляются чер'
+    source: openapi/raiffeisen-ru-corpcards-info-api-api-openapi.yml
+  - term: corpcards-operation-api
+    definition: 'Для просмотра информации и управления картой Райффайзенбанк предоставляет API: * Просмотр списка карт * Подробная информация
+      по карте * История действий * Список операций * Реквизиты карты * Установка лимитов * Блокировка, разблокировка и закрытие карты'
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-corporate-cards-openapi.yml
-  - term: authorization
-    definition: 'Для успешной авторизации необходимо использовать: * secretKey - секретный ключ, который используется для межсервисного взаимодействия.
-      Данный ключ мерчант получает при регистрации. ВАЖНО: Секретный ключ необходимо хранить в защищенном месте, нельзя публиковать на сторонних
-      ресурсах или передавать третьим лицам. Межсервисные запросы авторизуются посредством секретного ключа API (SECRET_KEY). Параме'
+    source: openapi/raiffeisen-ru-corpcards-operation-api-api-openapi.yml
+  - term: Correspondences
+    definition: Переписка
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
+    source: openapi/raiffeisen-ru-correspondences-api-openapi.yml
+  - term: Creditor
+    definition: Кредитор
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-creditor-api-openapi.yml
+  - term: currency-transaction-certificate
+    definition: Сведения о валютных операциях
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-currency-transaction-certificate-api-openapi.yml
+  - term: currency-transfer
+    definition: Операции с валютными переводами
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-currency-transfer-api-openapi.yml
+  - term: Day
+    definition: Рабочий день
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-day-api-openapi.yml
+  - term: DealConditions
+    definition: Основные условия обслуживания поставщик-дебитор
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-dealconditions-api-openapi.yml
+  - term: Debtor
+    definition: Дебитор
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-debtor-api-openapi.yml
+  - term: Аутентификация
+    definition: Аутентификация пользователя и управление токенами OAuth2.
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-default-api-openapi.yml
+  - term: Delivery
+    definition: 'Для получения информации о доставке карты Райффайзенбанк предоставляет API: * Информация о доставке карты'
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-delivery-api-openapi.yml
+  - term: Documents
+    definition: documents recognition
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-documents-api-openapi.yml
+  - term: EarlyRepayment
+    definition: Досрочное погашение
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-earlyrepayment-api-openapi.yml
+  - term: expenses-categories-api
+    definition: 'API для управления категориями трат: * Получение категорий MCC * Создание и применение категорий трат по категориям и MCC * Получение
+      сохраненных категорий трат'
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-expenses-categories-api-api-openapi.yml
+  - term: FeeInvoice
+    definition: Счета на оплату комиссий
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-feeinvoice-api-openapi.yml
+  - term: Files
+    definition: Загрузка, проверка и скачивание вложений
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-files-api-openapi.yml
+  - term: FinancingRequest
+    definition: Запрос на финансирование
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-financingrequest-api-openapi.yml
   - term: fiscal-controller
     definition: 'Для фискализации чеков через партнёра Райффайзенбанк предоставляет API из следующих запросов: * Сохранение чека * Регистрация
-      чека * Получение статуса чека Взаимодействие осуществляется по протоколу HTTP с использованием методов POST, PUT, GET. В описании каждого
-      запроса явно указаны требуемые метод, адрес и параметры. POST-запросы используют JSON-структуру, PUT- и GET-запросы работают со строками'
+      чека * Получение статуса чека Взаимодействие осуществляется по протоколу HTTP с использованием методов POST, PUT, GET.'
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: errors
-    definition: 'Стандартный ответ сервиса содержит код сообщения (code). Если в процессе обработки запроса произойдет логическая ошибка, API
-      вернет описание ошибки (message). Описание основных ошибок: code | message ------------|------ FISCAL_CLIENT_NOT_FOUND | Фискальный клиент
-      {value} не найден MERCHANT_NOT_FOUND | Мерчант с publicId = {value} не зарегистрирован в сервисе CREDENTIALS_NOT_FOUND | Учетные данные '
+    source: openapi/raiffeisen-ru-fiscal-controller-api-openapi.yml
+  - term: funds-distribution-order
+    definition: Операции с распоряжениями о распределении валютной выручки
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: 06.10.2021
-    definition: '* Первоначальная версия документа 1.0'
+    source: openapi/raiffeisen-ru-funds-distribution-order-api-openapi.yml
+  - term: Guarantee Beneficiary
+    definition: Выпущенные гарантии в кабинете бенефициара
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: 08.12.2021
-    definition: 'Версия документации 1.1: * Обновление файла до версии OpenAPI 3.0 * Перенос документации на новый URL https://pay.raif.ru/ *
-      Внесение небольших правок'
+    source: openapi/raiffeisen-ru-guarantee-beneficiary-api-openapi.yml
+  - term: Guarantee Renunciation
+    definition: Отказы от прав
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: 18.01.2022
-    definition: '* В чеки прихода и расхода добавлены новые параметры для агентских операций: agentType, supplierInfo. Дополнена структура запроса
-      на создание чека и ответ на него'
+    source: openapi/raiffeisen-ru-guarantee-renunciation-api-openapi.yml
+  - term: Guarantee Renunciation Forms
+    definition: Печатные формы для отказов от прав
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: 25.03.2022
-    definition: '* В модель чека добавлен параметр paymentMode для передачи способа расчёта (100% предоплата, полный расчет)'
+    source: openapi/raiffeisen-ru-guarantee-renunciation-forms-api-openapi.yml
+  - term: Invoice
+    definition: Схема сценария работы с выставлением счета со стороны Получателя. Применяется в тех случаях, когда нужно выставить счета с использование
+      СБП B2B или Платежного поручения
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: 15.04.2022
-    definition: '* В документацию добавлен партнер "БИФИТ", приведена инструкция по подключению онлайн-кассы сервиса БИФИТ * Добавлены примеры
-      запроса на сохранение чека (по агентским операциям и без них) * Дополнено правило заполнения номенклатурного кода для партнера "БИФИТ" *
-      Небольшие правки по тексту'
+    source: openapi/raiffeisen-ru-invoice-api-openapi.yml
+  - term: Issued guarantees
+    definition: Выпущенные гарантии
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: 26.08.2022
-    definition: '* Добавлен ФФД 1.2 для сервиса "АТОЛ Онлайн"'
+    source: openapi/raiffeisen-ru-issued-guarantees-api-openapi.yml
+  - term: Limit
+    definition: Лимит
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: 30.09.2022
-    definition: '* Реализована поддержка авансовых чеков и чеков частичной предоплаты'
+    source: openapi/raiffeisen-ru-limit-api-openapi.yml
+  - term: Loan
+    definition: Транш
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: 13.02.2023
-    definition: '* Добавлен ФФД 1.2 для сервиса "OFD.ru"'
+    source: openapi/raiffeisen-ru-loan-api-openapi.yml
+  - term: Mails
+    definition: Письма
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: 22.07.2024
-    definition: '* В документации объединены форматы фискальных документов (ФФД 1.05 и 1.2)'
+    source: openapi/raiffeisen-ru-mails-api-openapi.yml
+  - term: Конвертация MX и MT сообщений
+    definition: Конвертация MX и MT сообщений
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: 10.02.2025
-    definition: '* Добавлены новые значения параметра vatType (НДС чека по ставке 5%, НДС чека по расчетной ставке 5/105, НДС чека по ставке 7%,
-      НДС чека по расчетной ставке 7/107)'
+    source: openapi/raiffeisen-ru-mx-mt-api-openapi.yml
+  - term: Notice
+    definition: Уведомление
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: 14.02.2025
-    definition: '* Добавлен ФФД 1.2 для сервиса "Orange Data" и обновлена инструкция по подключению'
+    source: openapi/raiffeisen-ru-notice-api-openapi.yml
+  - term: Offer
+    definition: Контекст факторингового предложения и доступности
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: 05.03.2025
-    definition: '* Добавлены теги ФФД'
+    source: openapi/raiffeisen-ru-offer-api-openapi.yml
+  - term: Order
+    definition: Поручение
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: 20.05.2025
-    definition: '* Добавлен ФФД 1.2 для сервиса "Модулькасса" и обновлена инструкция по подключению'
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: 07.07.2025
-    definition: '* Добавлено поле "sectoralProperties" (тег 1260) для фискализации в разрешительном режиме'
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: 01.09.2025
-    definition: '* Добавлены поля "timezone" (тег 1011, для ФФД 1.2), "onlinePayment" (тег 1125) и "plannedStatus" (тег 2003)'
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: 13.05.2026
-    definition: '* Добавлен ФФД 1.05 для сервиса "Модулькасса"'
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: 18.05.2026
-    definition: '* Добавлено поле "orderNumber" (номер заказа мерчанта)'
-    tags:
-    - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-fiscal-openapi.yml
-  - term: orders
+    source: openapi/raiffeisen-ru-order-api-openapi.yml
+  - term: Orders
     definition: 'Методы для работы с заказами: создание, получение списка, получение информации о заказе.'
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-payment-form-openapi.yml
+    source: openapi/raiffeisen-ru-orders-api-openapi.yml
+  - term: Packet
+    definition: Пакет поручений
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-packet-api-openapi.yml
+  - term: Валидация pacs сообщений
+    definition: Валидация PACS.009.01 и PACS.008.01 сообщений mx формата
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-pacs-api-openapi.yml
+  - term: Parser
+    definition: Парсер файлов реестров
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-parser-api-openapi.yml
+  - term: pay-controller
+    definition: 'Для реализации взаимодействия с партнёром Райффайзенбанк предоставляет API для: * открытия платежной формы с использованием HTTP
+      запросов; * получения информации о статусе заказа.'
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-pay-controller-api-openapi.yml
   - term: payform
     definition: Простой способ для интеграции. Клиента необходимо перенаправить на платежную форму, передав параметры заказа. [[Схема взаимодействия]](#section/Shema-raboty/Platezhnaya-forma-banka).
     tags:
     - Resource Group
-    source: openapi/raiffeisen-ru-raif-pay-payment-form-openapi.yml
+    source: openapi/raiffeisen-ru-payform-api-openapi.yml
+  - term: payout-controller
+    definition: 'Для реализации взаимодействия с партнёром Райффайзенбанк предоставляет API из следующих запросов: * получение списка банков,
+      принимающих выплаты по СБП, * запрос на проведение выплаты, * запрос на создание заявки на выплату, * запрос на подтверждение заявки на
+      выплату, * получение статуса выплаты.'
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-payout-controller-api-openapi.yml
+  - term: Proposition
+    definition: Заявление на досрочное погашение основного долга
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-proposition-api-openapi.yml
+  - term: QR
+    definition: 'Для реализации взаимодействия с партнёром Райффайзенбанк предоставляет API из следующих запросов: * отмена QR-кода, * получение
+      данных по зарегистрированному QR-коду, * получение данных по платежу, * получение информации о заказе, * возврат денежных средств - может
+      быть выполнен в любое время после проведения оплаты на полную сумму платежа или частичную. Однако сумма частичных запросов на возврат '
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-qr-api-openapi.yml
+  - term: QRVariable
+    definition: 'Для реализации взаимодействия с кассовой ссылкой СБП (QRVariable) Райффайзенбанк предоставляет API из следующих запросов: * создание
+      заказа * проведение возврата * получение статуса возврата * получение данных о заказе * отмена заказа * получение данных по QR-коду * отмена
+      QR-кода Данный тип QR позволяет сгенерировать статическое изображение QR под каждую кассу и далее под каждую продажу создавать'
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-qrvariable-api-openapi.yml
+  - term: Rates API
+    definition: API курса валют ЦБ
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-rates-api-api-openapi.yml
+  - term: Registry
+    definition: Реестр поставок
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-registry-api-openapi.yml
+  - term: Report
+    definition: Отчет
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-report-api-openapi.yml
+  - term: reusable-payment-link
+    definition: Схема сценария работы с многоразовым Qr со стороны Получателя. Он удобен, когда транзакции носят повторяющийся характер или требуется
+      обеспечить удобство для плательщика, позволяя использовать одну и ту же ссылку для оплаты раз за разом.
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-reusable-payment-link-api-openapi.yml
+  - term: scenario-expansion
+    definition: В данном разделе описаны методы, расширяющие сценарий проведения платежа.
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-scenario-expansion-api-openapi.yml
+  - term: Splits
+    definition: Этот раздел позволяет вам удобно управлять распределением денег при получении денежных средств через СБП B2B.
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-splits-api-openapi.yml
+  - term: Sublimit
+    definition: Сублимит - лимит на дебитора в рамках конкретного договора Факторинга
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-sublimit-api-openapi.yml
+  - term: Subscription
+    definition: Для включения подписок необходима дополнительная настройка.
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-subscription-api-openapi.yml
+  - term: Subscriptions
+    definition: В данном разделе описаны методы, с помощью которых можно провести списание по оформленной подписке, а также получить статус платежа.
+      **API для данного сценария может быть расширяемым**.
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-subscriptions-api-openapi.yml
+  - term: Supplier
+    definition: Поставщик
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-supplier-api-openapi.yml
+  - term: Supply
+    definition: Поставка
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-supply-api-openapi.yml
+  - term: Tariff plan documents
+    definition: Операции с документами тарифных планов
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-tariff-plan-documents-api-openapi.yml
+  - term: TariffPlan
+    definition: Тарифный план
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-tariffplan-api-openapi.yml
+  - term: Testing
+    definition: Для получения тестовых данных для интеграции напишите на ecom@raiffeisen.ru.
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-testing-api-openapi.yml
+  - term: Topics
+    definition: Темы переписок
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-topics-api-openapi.yml
+  - term: transfers-v2
+    definition: '**Методы в разработке** Методы позволяют создавать и проводить B2B-платежи двумя способами: - по QR-коду или платежной ссылке,
+      - по банковским реквизитам получателя.'
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-transfers-v2-api-openapi.yml
+  - term: white-label
+    definition: Для работы с карточными платежами с вашей формой, потребуется PCI DSS сертификация вашей организации.
+    tags:
+    - Resource Group
+    source: openapi/raiffeisen-ru-white-label-api-openapi.yml
+  - term: AvailableBalance
+    definition: Доступный баланс
+    tags:
+    - Object
+    source: openapi/raiffeisen-ru-accounts-operation-api-api-openapi.yml#/components/schemas/AvailableBalance
+  - term: AccountBalanceDto
+    definition: 'Object declared by the contract with fields: availableBalance.'
+    tags:
+    - Object
+    source: openapi/raiffeisen-ru-accounts-operation-api-api-openapi.yml#/components/schemas/AccountBalanceDto
+  - term: RestErrorCodes
+    definition: '| code | description | |-----------------|--------------------------------------------| | REST_ERR_5001 | General service error
+      | | REST_ERR_5040 | Tax is not available | | REST_ERR_5041 | Incorrect format of taxpayer status | | REST_ERR_5042 | Incorrect format of
+      KPP payer''s | | REST_ERR_5043 | Incorrect format of UIN | | REST_ERR_5044 | Incorrect format of CBC | | REST_ERR_5045 | Incorrect forma'
+    tags:
+    - Enumeration
+    source: openapi/raiffeisen-ru-agreement-api-openapi.yml#/components/schemas/RestErrorCodes
+  - term: ErrorMessage
+    definition: 'Object declared by the contract with fields: code, message, traceId.'
+    tags:
+    - Object
+    source: openapi/raiffeisen-ru-agreement-api-openapi.yml#/components/schemas/ErrorMessage

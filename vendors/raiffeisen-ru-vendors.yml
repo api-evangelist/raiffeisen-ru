@@ -1,4 +1,4 @@
-generated: '2026-10-09'
+generated: '2026-10-12'
 method: none
 source: pre-flight dossier (docs platform, portal detections) + CNAME chains and response headers of the hosts apis.yml names
 registry: all/0-working/vendors.yml
@@ -34,7 +34,4 @@ checked:
 - www.rbo.raiffeisen.ru (SignUp)
 - online.raiffeisen.ru (Login)
 - api.raiffeisen.ru (baseURL)
-- id.business.raiffeisen.ru (baseURL)
-- pay.raif.ru (baseURL)
-- ecom-prev-int-balancer.raiffeisen.ru (baseURL)
 note: no vendor fingerprint on any host the record names; a hand-built surface, or hosts the pipeline has not yet found

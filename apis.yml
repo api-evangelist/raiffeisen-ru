@@ -28,6 +28,10 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Webhooks
+  url: asyncapi/raiffeisen-ru-webhooks.yml
+- type: IntegrationEdges
+  url: integrations/raiffeisen-ru-integration-edges.yml
 - type: AgenticAccess
   url: agentic-access/raiffeisen-ru-agentic-access.yml
 - type: Spectral
@@ -41062,8 +41066,7 @@ apis:
   - type: Documentation
     url: https://pay.raif.ru/doc/transfers.html
 x-enrichment:
-  date: '2026-10-09'
+  date: '2026-10-12'
   status: enriched
-  artifacts_added: 257
-  pass: modular-v1
-  engine: identity=anthropic,contract=anthropic,surfaces=anthropic,docs=anthropic,regulatory=anthropic
+  artifacts_added: 1
+  pass: local-v5

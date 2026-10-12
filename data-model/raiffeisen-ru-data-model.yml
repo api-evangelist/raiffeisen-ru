@@ -1,31 +1,29 @@
-generated: '2026-10-09'
+generated: '2026-10-12'
 method: derived
 generator: derive-data-model.py
 source:
-- openapi/raiffeisen-ru-adm-deposit-codes-openapi.yml
-- openapi/raiffeisen-ru-agency-factoring-openapi.yml
-- openapi/raiffeisen-ru-audit-reports-openapi.yml
-- openapi/raiffeisen-ru-authorization-openapi.yml
-- openapi/raiffeisen-ru-bank-statements-openapi.yml
-- openapi/raiffeisen-ru-brokerage-payment-orders-openapi.yml
-- openapi/raiffeisen-ru-brokerage-reports-openapi.yml
-- openapi/raiffeisen-ru-cbr-exchange-rates-openapi.yml
-- openapi/raiffeisen-ru-client-tariffs-openapi.yml
-- openapi/raiffeisen-ru-content-dictionaries-openapi.yml
-- openapi/raiffeisen-ru-content-interactions-openapi.yml
-- openapi/raiffeisen-ru-content-macroeconomic-reviews-openapi.yml
+- openapi/raiffeisen-ru-accounts-operation-api-api-openapi.yml
+- openapi/raiffeisen-ru-agreement-api-openapi.yml
+- openapi/raiffeisen-ru-agreements-api-openapi.yml
+- openapi/raiffeisen-ru-agreementsum-api-openapi.yml
+- openapi/raiffeisen-ru-api-client-api-openapi.yml
+- openapi/raiffeisen-ru-api-fund-api-openapi.yml
+- openapi/raiffeisen-ru-applications-api-openapi.yml
+- openapi/raiffeisen-ru-auditscontroller-api-openapi.yml
+- openapi/raiffeisen-ru-bills-api-openapi.yml
+- openapi/raiffeisen-ru-brokerage-payment-orders-api-openapi.yml
+- openapi/raiffeisen-ru-brokerage-reports-api-openapi.yml
+- openapi/raiffeisen-ru-buyer-api-openapi.yml
 notation: has_one = property $ref; has_many = array of $ref; belongs_to = <entity>_id field
 summary:
   entities: 400
-  entities_in_spec: 899
-  relationships: 540
+  entities_in_spec: 853
+  relationships: 517
 entities:
 - name: AccEmployeePermissionDTO
   fields: 3
 - name: Account
   fields: 6
-- name: AccountDTO
-  fields: 2
 - name: AccountForWithdrawalResponse
   fields: 1
 - name: AccountOwnerResponseDtoV1
@@ -41,6 +39,18 @@ entities:
 - name: AccountState
   fields: 0
   description: Состояние счета
+- name: AccountState_2
+  fields: 0
+  description: Состояние счета
+- name: AccountState_3
+  fields: 0
+  description: Состояние счета
+- name: Account_2
+  fields: 6
+  description: Счет
+- name: Account_3
+  fields: 6
+  description: Счет
 - name: AcquiringPaymentTransactionV2
   fields: 8
 - name: AcquiringTransaction
@@ -50,15 +60,9 @@ entities:
   description: Действие над поставками
 - name: ActionDto
   fields: 2
-- name: ActionResponseDto
-  fields: 3
-  description: Результат выполнения действия над заявкой
 - name: ActionState
   fields: 0
   description: Состояние действия
-- name: ActiveCertificate
-  fields: 5
-  description: Активный сертификат
 - name: AdditionalInfo
   fields: 7
   description: Дополнительная информация УПД
@@ -73,13 +77,25 @@ entities:
   description: Информация об адресе держателя карты
 - name: Agreement
   fields: 18
-- name: AgreementBaseDto
-  fields: 5
-- name: AgreementDto
-  fields: 3
+- name: AgreementListResponse_2
+  fields: 0
+- name: AgreementListResponse_3
+  fields: 0
 - name: AgreementResponse
   fields: 11
 - name: AgreementState
+  fields: 0
+  description: Состояние договора
+- name: AgreementState_2
+  fields: 0
+  description: Состояние договора Факторинга
+- name: AgreementState_3
+  fields: 0
+  description: Состояние договора
+- name: AgreementState_4
+  fields: 0
+  description: Состояние договора Факторинга
+- name: AgreementState_5
   fields: 0
   description: Состояние договора
 - name: AgreementSum
@@ -90,6 +106,24 @@ entities:
 - name: AgreementSumState
   fields: 0
   description: Состояние суммы договора Факторинга
+- name: Agreement_2
+  fields: 9
+  description: Договор Факторинга
+- name: Agreement_3
+  fields: 6
+  description: Данные по соглашению
+- name: Agreement_4
+  fields: 9
+  description: Договор
+- name: Agreement_5
+  fields: 9
+  description: Договор Факторинга
+- name: Agreement_6
+  fields: 6
+  description: Данные по соглашению
+- name: Agreement_7
+  fields: 9
+  description: Договор
 - name: AgreementsFilter
   fields: 1
 - name: AgreementsFilterRequest
@@ -102,48 +136,13 @@ entities:
 - name: ApiProcessImportFullDto
   fields: 8
   description: Подробная информация о задаче импорта
-- name: ApplicationActionRequestDto
-  fields: 2
-  description: Запрос на выполнение действия над заявкой
-- name: ApplicationActionResultDto
-  fields: 3
-- name: ApplicationCardInfoV2
-  fields: 7
-  description: Информация о карте
-- name: ApplicationCardLimitV2
-  fields: 2
-  description: Лимиты по карте
-- name: ApplicationCreatorDto
-  fields: 2
-  description: Создатель заявки на карту
-- name: ApplicationDeliveryRecipientV2
-  fields: 4
-  description: Данные получателя карты
-- name: ApplicationDeliveryV2
-  fields: 4
-  description: Данные доставки карты
-- name: ApplicationHolderV2
-  fields: 13
-  description: Держатель карты
 - name: ApplicationInfoResponse
   fields: 4
-- name: ApplicationMetaV2
-  fields: 4
-  description: Мета-информация заявки
-- name: ApplicationPassportV2
-  fields: 8
-  description: Паспортные данные держателя карты
-- name: ApplicationReissueV2
-  fields: 3
-  description: Данные перевыпуска карты
 - name: ApplicationRequest
   fields: 0
-- name: ApplicationResponseV2
-  fields: 11
-  description: Универсальный ответ заявки на выпуск/привязку/перевыпуск карты (объединяет batch и simple-card)
-- name: ApplicationStatusV2
-  fields: 6
-  description: Статус заявки
+- name: Attachment
+  fields: 3
+  description: Вложение к документу; поля переносятся из ответа загрузки.
 - name: AuthorizationDto
   fields: 2
   description: Данные о предварительной авторизации операции
@@ -172,9 +171,6 @@ entities:
 - name: BaseEarlyRepaymentDto
   fields: 9
   description: Основная информация по досрочному погашению
-- name: BaseLimitProfileDto
-  fields: 2
-  description: Базовый лимитный профиль
 - name: BaseLoan
   fields: 21
   description: Основная информация по траншу
@@ -209,17 +205,12 @@ entities:
   fields: 2
 - name: BlotterSortItem
   fields: 2
-- name: BranchDto
-  fields: 4
-- name: BranchListGroupedByCityDto
-  fields: 2
-  description: DTO, представляющий список отделений, сгруппированный по городам
 - name: BundleStatus
   fields: 2
 - name: ButtonResource
   fields: 2
 - name: Buyer
-  fields: 9
+  fields: 0
   description: Покупатель
 - name: BuyerRequest
   fields: 11
@@ -227,8 +218,9 @@ entities:
 - name: BuyerRequisites
   fields: 5
   description: Реквизиты покупателя
-- name: CAPTURE
-  fields: 3
+- name: BuyerState
+  fields: 0
+  description: Состояние покупателя
 - name: CDDetailsLinkedDocumentResponse
   fields: 8
   description: Связанный документ в детальной информации о закрывающем документе
@@ -268,8 +260,6 @@ entities:
 - name: CardInstantFieldsDto
   fields: 2
   description: Данные моментальной карты
-- name: CardInternalRequestDto
-  fields: 13
 - name: CardLimitResponseDto
   fields: 6
   description: DTO, представляющий лимит по карте
@@ -279,13 +269,16 @@ entities:
   fields: 0
 - name: CardPaymentNotificationV3
   fields: 0
+- name: CardPaymentNotificationV3_2
+  fields: 0
+- name: CardPaymentNotificationV3_3
+  fields: 0
+- name: CardPaymentNotificationV3_4
+  fields: 0
+- name: CardPaymentNotificationV3_5
+  fields: 0
 - name: CardProduct
   fields: 4
-- name: CardProductDto-2
-  fields: 5
-- name: CardRestrictionDtoV1
-  fields: 10
-  description: DTO с информацией об ограничениях карты
 - name: CardStatusState
   fields: 2
 - name: CardStatusValue
@@ -293,27 +286,14 @@ entities:
   description: Объект, описывающий текущий статус карты и время последнего его обновления
 - name: CardSubscriptionNotificationV2
   fields: 0
-- name: CardTariffCategoryDto
-  fields: 2
-  description: Категория тарифа
-- name: CardTariffFeeDto
-  fields: 2
-  description: Параметры комиссии
-- name: CardTariffFormulaDto
-  fields: 2
-  description: Формула расчёта комиссии
-- name: CardTariffOperationDto
-  fields: 2
-  description: Операция тарифа
-- name: CardTariffOperationGroupDto
-  fields: 2
-  description: Группа операций с общими параметрами комиссии
-- name: CardTariffRangeDto
-  fields: 4
-  description: Диапазон тарифа
-- name: CardTariffResponseDto
-  fields: 2
-  description: Тариф по карте
+- name: CardSubscriptionNotificationV2_2
+  fields: 0
+- name: CardSubscriptionNotificationV2_3
+  fields: 0
+- name: CardSubscriptionNotificationV2_4
+  fields: 0
+- name: CardSubscriptionNotificationV2_5
+  fields: 0
 - name: ChangeSubscription
   fields: 3
 - name: Clearing
@@ -357,6 +337,8 @@ entities:
   description: Сведения о товаре с кодом Товарной номенклатуры внешнеэкономической деятельности (ТН ВЭД).
 - name: Code
   fields: 6
+- name: Code_2
+  fields: 6
 - name: ColorStyleOpenApi
   fields: 3
 - name: CommissionDto
@@ -366,20 +348,7 @@ entities:
   fields: 0
   description: Информация по комиссии досрочного погашения с идентификатором комиссии
 - name: Company
-  fields: 1
-- name: CompanyAccountLimit
-  fields: 2
-- name: CompanyAccountLimitsResponseDto
-  fields: 1
-  description: Лимиты по счетам компании
-- name: CompanyAccountLimitsUpdateRequestDto
-  fields: 2
-- name: CompanyLimit
-  fields: 5
-- name: CompanySettingsResponseDto
-  fields: 2
-- name: CompanySettingsUpdateRequestDto
-  fields: 1
+  fields: 4
 - name: Condition
   fields: 13
   description: Условия обслуживания
@@ -445,8 +414,25 @@ entities:
   description: Запрос на создание покупателя
 - name: CreateExternalCorrespondenceRequest
   fields: 4
+- name: CreateMt940ReportRequest
+  fields: 13
+- name: CreateMt942DeltaReportRequest
+  fields: 10
+- name: CreateMt942ReportRequest
+  fields: 12
+- name: CreateNotificationRequest
+  fields: 3
+  description: Запрос на создание уведомления
 - name: CreateOrderPayform
   fields: 0
+- name: CreateOrderQrDynamicRequest
+  fields: 6
+- name: CreateOrderQrDynamicRequest_2
+  fields: 6
+- name: CreateOrderQrResponse
+  fields: 9
+- name: CreateOrderQrResponse_2
+  fields: 9
 - name: CreateOrderQrSubscriptionRequest
   fields: 4
   description: Используется для оплаты с последующей подпиской
@@ -461,6 +447,9 @@ entities:
   fields: 11
 - name: CreateOrderSplitsResponseDto
   fields: 13
+- name: CreatePacketRequest
+  fields: 2
+  description: Запрос создания пакета поручений
 - name: CreatePaymentBundleRequest
   fields: 3
   description: Запрос на создание пакета платежей
@@ -470,6 +459,9 @@ entities:
 - name: CreatePaymentBundleV2ReqRequest
   fields: 8
   description: Запрос на создание платежа по реквизитам в составе пакета
+- name: CreatePaymentBundleV2Request
+  fields: 3
+  description: Запрос на создание пакета платежей
 - name: CreatePaymentRequest
   fields: 9
   description: Запрос на создание платежа
@@ -482,26 +474,35 @@ entities:
 - name: CreatePaymentV2ReqRequest
   fields: 9
   description: Запрос на создание платежа по реквизитам
+- name: CreatePdfReportRequest
+  fields: 13
+- name: CreatePropositionRequest
+  fields: 5
+  description: Создание заявления на досрочное погашение
+- name: CreateRefundRequestV2
+  fields: 6
+- name: CreateStatementRequest
+  fields: 3
+- name: CreateSupplyListRequest
+  fields: 2
+  description: Запрос на создание поставок
 - name: CreatedOrderPayform
   fields: 0
 - name: CreatedQr
   fields: 7
 - name: CreatedSubscriptionPayment
-  fields: 0
+  fields: 9
 - name: CreditorRequisites
   fields: 4
   description: Реквизиты кредитора
 - name: CreditorResponse
   fields: 0
   description: Кредитор
-- name: CryptoProfile
-  fields: 6
 - name: CurrencyContractRequest
   fields: 0
 - name: Customer
-  fields: 3
-- name: DaDataAddressSuggestion
-  fields: 3
+  fields: 5
+  description: Заказчик
 - name: DateTimeRange
   fields: 2
   description: Диапазон дат. Граница from включается в выборку, граница to — исключается
@@ -545,9 +546,14 @@ entities:
   description: Информация о досрочном погашении
 - name: Error
   fields: 3
+- name: ErrorResponseItemDto
+  fields: 5
 - name: ExpenseCategory
   fields: 3
   description: Категория
+- name: ExternalAccount
+  fields: 5
+  description: Клиентский счет во внешнем банке
 - name: ExternalCorrespondenceCard
   fields: 10
   description: Краткая карточка переписки без писем и вложений
@@ -561,7 +567,7 @@ entities:
   description: Названия составляющих тематики переписки; null, если тематические данные не заполнены
 - name: Extra
   fields: 0
-  description: Дополнительные поля в формате key-value. Отображаются в реестрах.
+  description: Дополнительные поля
 - name: FeeShortDto
   fields: 5
 - name: Field25
@@ -584,18 +590,12 @@ entities:
   fields: 4
   description: Данные чека<br>Объект передается в ответе, только если подключена фискализация и чек был передан
     в запросе на возврат
-- name: GeneralOrder
-  fields: 5
-  description: Заказ
 - name: GeneralPayment
   fields: 4
 - name: GetExternalCorrespondenceV2Response
   fields: 11
 - name: GetOrderRequest
   fields: 9
-- name: GetOrderResponseSchema
-  fields: 9
-  description: Схема ответа информации о заказе
 - name: GetQrResponse
   fields: 15
   description: Ответ по платежной ссылке
@@ -632,26 +632,9 @@ entities:
 - name: IncomingPaymentOrderHandlingTariff
   fields: 5
   description: Тариф за обработанное входящее платежное поручение
-- name: InternalCardApplicationDto
-  fields: 18
-  description: DTO, представляющий информацию о заявке на карту
-- name: InternalCardDeliveryDto
-  fields: 3
-- name: InternalCardStatusDto
-  fields: 5
-  description: DTO для статуса внутренней карты
-- name: InternalCardsDTO
-  fields: 2
-  description: DTO для ответа со списком внутренних карт с пагинацией и метаинформацией.
-- name: InternalDeliveryRecipientRequestDto
+- name: InternalAccount
   fields: 4
-- name: InternalDeliveryRecipientResponseDto
-  fields: 4
-- name: InternalPersonDto
-  fields: 17
-  description: Данные держателя карты
-- name: InternalRboCardApplicationDto
-  fields: 21
+  description: Клиентский счет в Райффайзенбанке
 - name: IntervalDateFilterDTO
   fields: 2
   description: Дата окончания действия гарантии
@@ -682,13 +665,11 @@ entities:
   fields: 0
   description: Информация по траншу
 - name: MccCodeDto
-  fields: 3
-  description: DTO, представляющий информацию о MCC-коде
+  fields: 2
+  description: Данные mcc-кода получателя
 - name: MeasurementResponse
   fields: 2
   description: Модель списка единиц измерения
-- name: Meta
-  fields: 4
 - name: Name
   fields: 3
   description: ФИО
@@ -701,16 +682,15 @@ entities:
 - name: OperationDto
   fields: 8
 - name: Order
-  fields: 2
-  description: Заказ
+  fields: 3
 - name: OrderInfoResponseDto
+  fields: 14
+- name: OrderInfoResponseDto_2
   fields: 14
 - name: OrderInfoSplitsResponseDto
   fields: 14
 - name: OrderResponse
   fields: 0
-- name: OrderWithPayformSettings
-  fields: 7
 - name: OrganizationDTO
   fields: 16
   description: Информация по организации
@@ -724,11 +704,6 @@ entities:
 - name: PageBillMiniResponse
   fields: 12
   description: Страница со списком счетов на оплату
-- name: PageResponseInternalBatchDto
-  fields: 2
-  description: Страница с данными о пакетах
-- name: PageResponseRegisterQrInternalResponseDto
-  fields: 2
 - name: PageResponseTariffPlanPublicDataView
   fields: 5
   description: Список тарифных планов
@@ -745,9 +720,6 @@ entities:
 - name: Participant
   fields: 6
   description: Участник УПД
-- name: PassportRequestDto
-  fields: 7
-  description: Информация о паспорте РФ держателя карты
 - name: PayeeRequest
   fields: 6
   description: Модель получателя платежа.
@@ -761,9 +733,13 @@ entities:
   fields: 5
   description: Модель плательщика
 - name: Payment
-  fields: 2
-  description: Исходящий платеж
+  fields: 6
+  description: Информация об успешном платеже. Поле заполняется только в случае, если по заказу была проведена успешная
+    оплата
 - name: Payment-2
+  fields: 9
+  description: Информация об успешном платеже
+- name: Payment-2_2
   fields: 9
   description: Информация об успешном платеже
 - name: PaymentBundleInfoResponse
@@ -780,7 +756,17 @@ entities:
 - name: PaymentBundleV2Response
   fields: 4
   description: Информация о пакете платежей
+- name: PaymentInfo
+  fields: 15
 - name: PaymentNotificationV3
+  fields: 2
+- name: PaymentNotificationV3_2
+  fields: 2
+- name: PaymentNotificationV3_3
+  fields: 2
+- name: PaymentNotificationV3_4
+  fields: 2
+- name: PaymentNotificationV3_5
   fields: 2
 - name: PaymentRequisites
   fields: 5
@@ -797,6 +783,12 @@ entities:
 - name: PaymentSlip
   fields: 1
   description: '`В РАЗРАБОТКЕ` <br>'
+- name: PaymentStatus_2
+  fields: 2
+  description: Статус входящего платежа
+- name: PaymentStatus_3
+  fields: 2
+  description: Статус входящего платежа
 - name: PaymentV2QrResponse
   fields: 14
   description: Ответ на создание платежа по QR-коду
@@ -806,15 +798,20 @@ entities:
 - name: PaymentV2Status
   fields: 3
   description: Статус платежа
+- name: Payment_2
+  fields: 6
+  description: Информация об успешном платеже. Поле заполняется только в случае, если по заказу была проведена успешная
+    оплата
+- name: Payment_3
+  fields: 6
+  description: Информация об успешном платеже. Поле заполняется только в случае, если по заказу была проведена успешная
+    оплата
 - name: PayoutBundleMetadata
   fields: 8
 - name: PersonDto
   fields: 4
   description: Информация по держателю карты
 - name: PersonExternalRequestDto
-  fields: 13
-  description: Данные держателя карты
-- name: PersonInternalRequestDto
   fields: 13
   description: Данные держателя карты
 - name: PersonResultDto
@@ -844,14 +841,12 @@ entities:
 - name: QrReceiverDto
   fields: 6
   description: Данные получателя для платежа по QR-коду
-- name: QrStatusResponse
-  fields: 6
 - name: RangeDtoLocalDate
   fields: 2
   description: Дата окончания действия гарантии
 - name: Receiver
-  fields: 8
-  description: Получатель груза
+  fields: 5
+  description: Данные получателя средств
 - name: ReceiverDto
   fields: 6
   description: Данные получателя
@@ -860,8 +855,6 @@ entities:
   description: Получатель груза
 - name: Refund
   fields: 2
-- name: RegisterQrInternalResponseDto
-  fields: 14
 - name: ReportFile
   fields: 6
 - name: ReportFileType
@@ -942,16 +935,9 @@ entities:
 - name: SignatoryRequest
   fields: 2
   description: Подписант/ответственный
-- name: SignatureInfoDto
-  fields: 4
-  description: Информация о подписании
 - name: SignedDocumentsRequest
   fields: 2
   description: Запрос с готовыми УКЭП
-- name: SimpleCardApplicationRequestDto
-  fields: 16
-- name: SimpleCardApplicationResponseDto
-  fields: 23
 - name: Sort
   fields: 3
   description: Информация о сортировке
@@ -962,9 +948,6 @@ entities:
   fields: 5
 - name: StatementTransfersResponse
   fields: 5
-- name: Status-2
-  fields: 4
-  description: Статус по карте
 - name: Sublimit
   fields: 5
   description: Сублимит - лимит на дебитора в рамках конкретного договора Факторинга
@@ -982,13 +965,40 @@ entities:
 - name: SubscriptionNotificationV2
   fields: 2
   description: Уведомление о подписке (v2)
+- name: SubscriptionNotificationV2_2
+  fields: 2
+  description: Уведомление о подписке (v2)
+- name: SubscriptionNotificationV2_3
+  fields: 2
+  description: Уведомление о подписке (v2)
+- name: SubscriptionNotificationV2_4
+  fields: 2
+  description: Уведомление о подписке (v2)
+- name: SubscriptionNotificationV2_5
+  fields: 2
+  description: Уведомление о подписке (v2)
 - name: SubscriptionPayment
   fields: 0
+- name: Supplier
+  fields: 3
+  description: Поставщик
 - name: Supply
   fields: 9
   description: Поставка
+- name: SupplyRegistryDigest
+  fields: 2
+  description: Дайджест реестра поставок
 - name: SupplySearchRequest
   fields: 12
+- name: SupplySorting
+  fields: 2
+  description: Параметры сортировки поставок
+- name: Supply_2
+  fields: 16
+  description: Поставка
+- name: Supply_3
+  fields: 16
+  description: Поставка
 - name: SupportDrawerByLocaleDTO
   fields: 2
   description: Мапа локалей на конфигурацию дровера поддержки.
@@ -1031,17 +1041,12 @@ entities:
 - name: Unit
   fields: 3
   description: Модель единицы измерения
-- name: UpdateDraftRequestData
-  fields: 1
-  description: Данные действия UPDATE_DRAFT
-- name: UserSignAuthoritiesDTO
-  fields: 3
-- name: UserSignAuthority
-  fields: 9
 - name: Warning
   fields: 2
 - name: WebinarV2Resource
   fields: 14
+- name: WithAttachments
+  fields: 1
 - name: WorkAct
   fields: 0
   description: Модель акта выполненных работ
@@ -1059,8 +1064,6 @@ entities:
   description: Ответ сервиса с информацией о выплате (версия 4). В данной версии возвращаются поля по выплате нерезидентам
 - name: receiptItem
   fields: 13
-- name: receiptPayform
-  fields: 8
 - name: receiptWhiteLabel
   fields: 9
 - name: reportPaymentCardResponse
@@ -1078,62 +1081,10 @@ entities:
 - name: schemas-Subscription
   fields: 6
 relationships:
-- from: Code
-  to: Customer
-  type: has_one
-  via: customer
-- from: GetOrderRequest
-  to: PaginationRequest
-  type: has_one
-  via: paging
-- from: OrderResponse
-  to: CreditorRequisites
-  type: has_one
-  via: creditorRequisites
-- from: OrderResponse
-  to: PaymentRequisites
-  type: has_one
-  via: paymentRequisites
-- from: OrderResponse
-  to: TaxRequisites
-  type: has_one
-  via: taxRequisites
-- from: OrderResponse
-  to: CreditorResponse
-  type: has_one
-  via: creditor
-- from: OrderResponse
-  to: Payment
-  type: has_one
-  via: payment
-- from: OrderResponse
-  to: PacketResponse
-  type: has_one
-  via: packet
 - from: AccountForWithdrawalResponse
   to: Account
   type: has_many
   via: accounts
-- from: SearchPropositionRequest
-  to: Proposition
-  type: belongs_to
-  via: propositionIds
-- from: SearchPropositionRequest
-  to: PaginationRequest
-  type: has_one
-  via: paging
-- from: SearchPropositionRequest
-  to: PropositionSortingRequest
-  type: has_many
-  via: sorting
-- from: PropositionsDigestRequest
-  to: PaginationRequest
-  type: has_one
-  via: paging
-- from: PropositionsDigestRequest
-  to: PropositionSortingRequest
-  type: has_many
-  via: sorting
 - from: Agreement
   to: Principal
   type: has_one
@@ -1142,22 +1093,6 @@ relationships:
   to: AgreementState
   type: has_one
   via: state
-- from: Limit
-  to: Principal
-  type: has_one
-  via: principal
-- from: ParsedOrderResponse
-  to: CreditorRequisites
-  type: has_one
-  via: creditorRequisite
-- from: ParsedOrderResponse
-  to: PaymentRequisites
-  type: has_one
-  via: paymentRequisite
-- from: ParsedOrderResponse
-  to: TaxRequisites
-  type: has_one
-  via: taxRequisite
 - from: Account
   to: Agreement
   type: belongs_to
@@ -1166,30 +1101,242 @@ relationships:
   to: AccountState
   type: has_one
   via: state
-- from: Proposition
+- from: Agreement_2
+  to: Supplier
+  type: belongs_to
+  via: supplierId
+- from: Agreement_2
+  to: InternalAccount
+  type: has_many
+  via: internalAccounts
+- from: Agreement_2
+  to: ExternalAccount
+  type: has_many
+  via: externalAccounts
+- from: Agreement_2
+  to: AgreementState_2
+  type: has_one
+  via: state
+- from: AgreementListResponse_2
+  to: Agreement_2
+  type: has_many
+  via: agreements
+- from: Client
+  to: Contact
+  type: has_many
+  via: contacts
+- from: Client
+  to: ClientState
+  type: has_one
+  via: state
+- from: Contact
+  to: ContactState
+  type: has_one
+  via: state
+- from: Agreement_4
+  to: Client
+  type: has_one
+  via: client
+- from: Agreement_4
+  to: Account_2
+  type: has_many
+  via: accounts
+- from: Agreement_4
+  to: AgreementState_3
+  type: has_one
+  via: state
+- from: Account_2
+  to: AccountState_2
+  type: has_one
+  via: state
+- from: Agreement_5
+  to: Supplier
+  type: belongs_to
+  via: supplierId
+- from: Agreement_5
+  to: InternalAccount
+  type: has_many
+  via: internalAccounts
+- from: Agreement_5
+  to: ExternalAccount
+  type: has_many
+  via: externalAccounts
+- from: Agreement_5
+  to: AgreementState_4
+  type: has_one
+  via: state
+- from: AgreementListResponse_3
+  to: Agreement_5
+  type: has_many
+  via: agreements
+- from: Agreement_7
+  to: Client
+  type: has_one
+  via: client
+- from: Agreement_7
+  to: Account_3
+  type: has_many
+  via: accounts
+- from: Agreement_7
+  to: AgreementState_5
+  type: has_one
+  via: state
+- from: Account_3
+  to: AccountState_3
+  type: has_one
+  via: state
+- from: AgreementsResponse
+  to: AgreementResponse
+  type: has_many
+  via: data
+- from: AgreementsFilterRequest
+  to: AgreementsFilter
+  type: has_one
+  via: filter
+- from: AgreementsFilterRequest
+  to: Paging
+  type: has_one
+  via: paging
+- from: AgreementsFilterRequest
   to: Order
-  type: belongs_to
-  via: orderId
-- from: Proposition
-  to: Account
-  type: belongs_to
-  via: accountId
-- from: SupportDrawerByLocaleDTO
-  to: SupportDrawerDTO
-  type: has_one
-  via: ru
-- from: SupportDrawerByLocaleDTO
-  to: SupportDrawerDTO
-  type: has_one
-  via: en
-- from: SystemMessagesByLocaleDTO
-  to: SystemMessageDTO
   type: has_many
-  via: ru
-- from: SystemMessagesByLocaleDTO
-  to: SystemMessageDTO
+  via: order
+- from: AgreementSum
+  to: Agreement
+  type: belongs_to
+  via: agreementId
+- from: AgreementSum
+  to: AgreementSumState
+  type: has_one
+  via: state
+- from: AgreementSumListResponse
+  to: AgreementSum
   type: has_many
-  via: en
+  via: agreementSums
+- from: ApplicationInfoResponse
+  to: ApplicationRequest
+  type: has_one
+  via: request
+- from: GoodsRequest
+  to: ItemRequest
+  type: has_many
+  via: items
+- from: ItemMiniResponse
+  to: Unit
+  type: has_one
+  via: vat
+- from: ItemMiniResponse
+  to: Unit
+  type: has_one
+  via: unit
+- from: GoodsResponse
+  to: ItemMiniResponse
+  type: has_many
+  via: items
+- from: BillResponse
+  to: Document
+  type: belongs_to
+  via: documentId
+- from: BillRequest
+  to: GoodsRequest
+  type: has_one
+  via: goods
+- from: BillRequest
+  to: Invoice
+  type: has_one
+  via: invoice
+- from: BillRequest
+  to: PayerRequest
+  type: has_one
+  via: payer
+- from: BillRequest
+  to: PayeeRequest
+  type: has_one
+  via: payee
+- from: MeasurementResponse
+  to: Unit
+  type: has_many
+  via: vat
+- from: MeasurementResponse
+  to: Unit
+  type: has_many
+  via: units
+- from: PageBillMiniResponse
+  to: Pageable
+  type: has_one
+  via: pageable
+- from: PageBillMiniResponse
+  to: BillMiniResponse
+  type: has_many
+  via: content
+- from: PageBillMiniResponse
+  to: Sort
+  type: has_one
+  via: sort
+- from: BillMiniResponse
+  to: ItemMiniResponse
+  type: has_many
+  via: items
+- from: BillMiniResponse
+  to: CDListLinkedDocumentResponse
+  type: has_many
+  via: linkedDocuments
+- from: Pageable
+  to: Sort
+  type: has_one
+  via: sort
+- from: PayeeRequest
+  to: AccountRequest
+  type: has_one
+  via: account
+- from: BillDetailsResponse
+  to: GoodsResponse
+  type: has_one
+  via: goods
+- from: BillDetailsResponse
+  to: Invoice
+  type: has_one
+  via: invoice
+- from: BillDetailsResponse
+  to: Payer
+  type: has_one
+  via: payer
+- from: BillDetailsResponse
+  to: PayeeResponse
+  type: has_one
+  via: payee
+- from: BillDetailsResponse
+  to: BillDetailsLinkedDocumentResponse
+  type: has_many
+  via: linkedDocuments
+- from: BillDetailsResponse
+  to: BillPaymentResponse
+  type: has_many
+  via: payments
+- from: BillUpdateRequest
+  to: GoodsUpdateRequest
+  type: has_one
+  via: goods
+- from: BillUpdateRequest
+  to: Invoice
+  type: has_one
+  via: invoice
+- from: BillUpdateRequest
+  to: PayerRequest
+  type: has_one
+  via: payer
+- from: BillUpdateRequest
+  to: PayeeRequest
+  type: has_one
+  via: payee
+- from: PayeeResponse
+  to: AccountResponse
+  type: has_one
+  via: account
+- from: BillDetailsLinkedDocumentResponse
+  to: Payer
+  type: has_one
+  via: payer
 - from: ReportTask
   to: ReportFile
   type: has_many
@@ -1202,190 +1349,350 @@ relationships:
   to: ReportFileType
   type: has_many
   via: defaultFileTypes
-- from: AvailableTariffPlansView
-  to: PageResponseTariffPlanPublicDataView
+- from: CreateBuyerRequest
+  to: BuyerRequisites
   type: has_one
-  via: tariffPlans
-- from: PageResponseTariffPlanPublicDataView
-  to: TariffPlanPublicDataView
+  via: buyerRequisites
+- from: Buyer
+  to: Client
   type: has_many
-  via: content
-- from: TariffPlanPublicDataView
-  to: Document
-  type: belongs_to
-  via: documentId
-- from: DigestResource
-  to: DigestTopicResource
-  type: has_many
-  via: topics
-- from: ProductNewsV2Resource
-  to: ColorStyleOpenApi
-  type: has_one
-  via: style
-- from: ProductNewsV2Resource
-  to: ProductNewsSlideResource
-  type: has_many
-  via: slides
-- from: ProductNewsSlideResource
-  to: ButtonResource
-  type: has_one
-  via: button
-- from: ProductNewsSlideResource
-  to: ContactFormResource
-  type: has_one
-  via: contactForm
-- from: WebinarV2Resource
-  to: ButtonResource
-  type: has_one
-  via: button
-- from: WebinarV2Resource
-  to: ColorStyleOpenApi
-  type: has_one
-  via: style
-- from: DocumentRequestBase
-  to: Resident
-  type: has_one
-  via: resident
-- from: DocumentRequestBase
-  to: ContactPerson
-  type: has_one
-  via: contactPerson
-- from: DealSubject
-  to: CnFeaItem
-  type: has_many
-  via: cnFea
-- from: CurrencyContractRequest
-  to: DealSubject
-  type: has_one
-  via: dealSubject
-- from: CurrencyContractRequest
-  to: Counterparty
-  type: has_many
-  via: counterparties
-- from: CurrencyContractRequest
-  to: RightsTransfer
-  type: has_one
-  via: rightsTransfer
-- from: ApiProcessImportDto
-  to: ImportDocumentInfoDto
-  type: has_many
-  via: documentsInfo
-- from: ApiProcessImportFullDto
-  to: ImportDocumentFullInfoDto
-  type: has_many
-  via: documentsInfo
-- from: ImportDocumentInfoDto
-  to: Payment
-  type: belongs_to
-  via: paymentId
-- from: ImportDocumentFullInfoDto
-  to: Payment
-  type: belongs_to
-  via: paymentId
-- from: AgreementSumListResponse
-  to: AgreementSum
-  type: has_many
-  via: agreementSums
-- from: ContractListResponse
-  to: Contract
-  type: has_many
-  via: contracts
-- from: FinancingRequest
-  to: DebtorFullNameRusProjection
-  type: has_one
-  via: debtor
-- from: OfferResponse
-  to: LeadSummary
-  type: has_one
-  via: latestLead
-- from: Supply
-  to: DebtorFullNameRusProjection
-  type: has_one
-  via: debtor
-- from: SupplySearchRequest
-  to: Agreement
-  type: belongs_to
-  via: agreementId
-- from: SupplySearchRequest
-  to: DealConditions
-  type: belongs_to
-  via: dealConditionsId
-- from: SupplySearchRequest
-  to: FinancingRequest
-  type: belongs_to
-  via: financingRequestId
-- from: SupplySearchRequest
-  to: Supply
-  type: belongs_to
-  via: supplyIds
-- from: AgreementSum
-  to: Agreement
-  type: belongs_to
-  via: agreementId
-- from: AgreementSum
-  to: AgreementSumState
+  via: clients
+- from: Buyer
+  to: BuyerState
   type: has_one
   via: state
-- from: Sublimit
-  to: DealConditions
-  type: belongs_to
-  via: dealConditionsId
-- from: Contract
-  to: ContractState
+- from: SubscriptionNotificationV2
+  to: CardSubscriptionNotificationV2
   type: has_one
-  via: state
-- from: DealConditions
-  to: Agreement
-  type: belongs_to
-  via: agreementId
-- from: DealConditions
-  to: Debtor
-  type: belongs_to
-  via: debtorId
-- from: TariffPlan
-  to: Contract
-  type: belongs_to
-  via: contractId
-- from: TariffPlan
-  to: FinancingTariff
-  type: has_many
-  via: financingTariffs
-- from: TariffPlan
-  to: FinancedSupplyTariff
-  type: has_many
-  via: financedSupplyTariffs
-- from: TariffPlan
-  to: IncomingPaymentOrderHandlingTariff
-  type: has_many
-  via: incomingPaymentOrderHandlingTariffs
-- from: SignedDocumentsRequest
-  to: OrganizationInfo
+  via: data
+- from: PaymentNotificationV3
+  to: CardPaymentNotificationV3
   type: has_one
-  via: organizationInfo
-- from: DeliverableConversionBlotterRequest
-  to: BlotterFilterItem
+  via: data
+- from: Sender
+  to: Account
+  type: has_one
+  via: account
+- from: Sender
+  to: BankInfo-2
+  type: has_one
+  via: bank
+- from: PaymentSender
+  to: Account
+  type: has_one
+  via: account
+- from: PaymentSender
+  to: BankInfo
+  type: has_one
+  via: bank
+- from: Payment-2
+  to: SbpTransaction
+  type: belongs_to
+  via: sbpTransactionId
+- from: Payment-2
+  to: PaymentStatus_2
+  type: has_one
+  via: status
+- from: Payment-2
+  to: Extra
+  type: has_one
+  via: extra
+- from: Payment-2
+  to: PaymentSender
+  type: has_one
+  via: sender
+- from: InvoiceResponse
+  to: Account
+  type: has_one
+  via: account
+- from: InvoiceResponse
+  to: Extra
+  type: has_one
+  via: extra
+- from: InvoiceResponse
+  to: Payer
+  type: has_one
+  via: payer
+- from: InvoiceResponse
+  to: Receiver
+  type: has_one
+  via: receiver
+- from: InvoiceResponse
+  to: Qr
+  type: has_one
+  via: qr
+- from: InvoiceResponse
+  to: DeliveryInfo
+  type: has_one
+  via: delivery
+- from: Receiver
+  to: BankInfo-2
+  type: has_one
+  via: bank
+- from: Payment
+  to: SbpTransaction
+  type: belongs_to
+  via: sbpTransactionId
+- from: Payment
+  to: PaymentStatus_2
+  type: has_one
+  via: status
+- from: Payment
+  to: PaymentSender
+  type: has_one
+  via: sender
+- from: SubscriptionNotificationV2_2
+  to: CardSubscriptionNotificationV2_2
+  type: has_one
+  via: data
+- from: PaymentNotificationV3_2
+  to: CardPaymentNotificationV3_2
+  type: has_one
+  via: data
+- from: AcquiringPaymentTransactionV2
+  to: Order
+  type: belongs_to
+  via: orderId
+- from: SubscriptionNotificationV2_3
+  to: CardSubscriptionNotificationV2_3
+  type: has_one
+  via: data
+- from: PaymentNotificationV3_3
+  to: CardPaymentNotificationV3_3
+  type: has_one
+  via: data
+- from: Payment-2_2
+  to: SbpTransaction
+  type: belongs_to
+  via: sbpTransactionId
+- from: Payment-2_2
+  to: PaymentStatus_3
+  type: has_one
+  via: status
+- from: Payment-2_2
+  to: Extra
+  type: has_one
+  via: extra
+- from: Payment-2_2
+  to: PaymentSender
+  type: has_one
+  via: sender
+- from: Payment_2
+  to: SbpTransaction
+  type: belongs_to
+  via: sbpTransactionId
+- from: Payment_2
+  to: PaymentStatus_3
+  type: has_one
+  via: status
+- from: Payment_2
+  to: PaymentSender
+  type: has_one
+  via: sender
+- from: SubscriptionNotificationV2_4
+  to: CardSubscriptionNotificationV2_4
+  type: has_one
+  via: data
+- from: PaymentNotificationV3_4
+  to: CardPaymentNotificationV3_4
+  type: has_one
+  via: data
+- from: SubscriptionNotificationV2_5
+  to: CardSubscriptionNotificationV2_5
+  type: has_one
+  via: data
+- from: PaymentNotificationV3_5
+  to: CardPaymentNotificationV3_5
+  type: has_one
+  via: data
+- from: ReportRefundSbp
+  to: Order
+  type: belongs_to
+  via: orderId
+- from: ReportRefundSbp
+  to: Client
+  type: belongs_to
+  via: clientId
+- from: ReportRefundSbp
+  to: Qr
+  type: belongs_to
+  via: qrId
+- from: ReportRefundSbp
+  to: SbpTransaction
+  type: belongs_to
+  via: sbpTransactionId
+- from: ReportRefundSbp
+  to: Refund
+  type: belongs_to
+  via: refundId
+- from: ReportPaymentSbp
+  to: Order
+  type: belongs_to
+  via: orderId
+- from: ReportPaymentSbp
+  to: Client
+  type: belongs_to
+  via: clientId
+- from: ReportPaymentSbp
+  to: Qr
+  type: belongs_to
+  via: qrId
+- from: ReportPaymentSbp
+  to: SbpTransaction
+  type: belongs_to
+  via: sbpTransactionId
+- from: ReportPaymentDr
+  to: Order
+  type: belongs_to
+  via: orderId
+- from: ReportPaymentDr
+  to: Qr
+  type: belongs_to
+  via: qrId
+- from: ReportRefundDr
+  to: Order
+  type: belongs_to
+  via: orderId
+- from: ReportRefundDr
+  to: Qr
+  type: belongs_to
+  via: qrId
+- from: ReportRefundDr
+  to: Refund
+  type: belongs_to
+  via: refundId
+- from: ReportRefundCard
+  to: Order
+  type: belongs_to
+  via: orderId
+- from: ReportRefundCard
+  to: Client
+  type: belongs_to
+  via: clientId
+- from: ReportRefundCard
+  to: Refund
+  type: belongs_to
+  via: refundId
+- from: ReportPaymentCard
+  to: Order
+  type: belongs_to
+  via: orderId
+- from: ReportPaymentCard
+  to: Client
+  type: belongs_to
+  via: clientId
+- from: reportRefundCardResponse
+  to: Order
+  type: belongs_to
+  via: orderId
+- from: reportRefundCardResponse
+  to: Client
+  type: belongs_to
+  via: clientId
+- from: reportRefundCardResponse
+  to: Refund
+  type: belongs_to
+  via: refundId
+- from: reportPaymentSbpResponse
+  to: Order
+  type: belongs_to
+  via: orderId
+- from: reportPaymentSbpResponse
+  to: Client
+  type: belongs_to
+  via: clientId
+- from: reportPaymentSbpResponse
+  to: Qr
+  type: belongs_to
+  via: qrId
+- from: reportPaymentSbpResponse
+  to: SbpTransaction
+  type: belongs_to
+  via: sbpTransactionId
+- from: reportRefundSbpResponse
+  to: Order
+  type: belongs_to
+  via: orderId
+- from: reportRefundSbpResponse
+  to: Client
+  type: belongs_to
+  via: clientId
+- from: reportRefundSbpResponse
+  to: Qr
+  type: belongs_to
+  via: qrId
+- from: reportRefundSbpResponse
+  to: SbpTransaction
+  type: belongs_to
+  via: sbpTransactionId
+- from: reportRefundSbpResponse
+  to: Refund
+  type: belongs_to
+  via: refundId
+- from: reportPaymentCardResponse
+  to: Order
+  type: belongs_to
+  via: orderId
+- from: reportPaymentCardResponse
+  to: Client
+  type: belongs_to
+  via: clientId
+- from: ClientTariffPlanChangeRequestStateHistoryView
+  to: ClientTariffPlanChangeRequestStateView
   type: has_many
-  via: filter
-- from: DeliverableConversionBlotterRequest
-  to: BlotterSortItem
-  type: has_many
-  via: sort
-- from: ClosingDocumentDetailsResponse
-  to: ConsignmentNote
+  via: states
+- from: TransferInfo
+  to: DocumentBase
   type: has_one
   via: document
-- from: ClosingDocumentDetailsResponse
-  to: UPD
+- from: TransferInfo
+  to: Signatory
   type: has_one
-  via: document
-- from: ClosingDocumentDetailsResponse
-  to: WorkAct
+  via: sellerTransferEmployee
+- from: TransferInfo
+  to: Signatory
   type: has_one
-  via: document
-- from: ClosingDocumentDetailsResponse
-  to: CDDetailsLinkedDocumentResponse
+  via: sellerResponsiblePerson
+- from: TransferInfo
+  to: Signatory
+  type: has_one
+  via: buyerReceiptEmployee
+- from: TransferInfo
+  to: Signatory
+  type: has_one
+  via: buyerResponsiblePerson
+- from: SellerRequest
+  to: BankRequisitesRequest
+  type: has_one
+  via: bankRequisites
+- from: UPDRequest
+  to: ItemRequest
   type: has_many
-  via: linkedDocuments
+  via: items
+- from: UPDRequest
+  to: TransferInfoRequest
+  type: has_one
+  via: transferInfo
+- from: UPDRequest
+  to: Participant
+  type: has_one
+  via: buyer
+- from: UPDRequest
+  to: Participant
+  type: has_one
+  via: shipper
+- from: UPDRequest
+  to: Participant
+  type: has_one
+  via: receiver
+- from: SignatoryRequest
+  to: Name
+  type: has_one
+  via: fio
+- from: ConsignmentNoteAdditionalInfo
+  to: DocumentBase
+  type: has_one
+  via: documentBase
 - from: ConsignmentNote
   to: Goods
   type: has_one
@@ -1410,54 +1717,34 @@ relationships:
   to: Receiver
   type: has_one
   via: receiver
-- from: Goods
-  to: Item
-  type: has_many
-  via: items
-- from: Item
-  to: Unit
+- from: Participant
+  to: Name
   type: has_one
-  via: vat
-- from: Item
-  to: Unit
+  via: fio
+- from: ConsignmentNoteRequest
+  to: GoodsRequest
   type: has_one
-  via: unit
-- from: ConsignmentNoteAdditionalInfo
-  to: DocumentBase
+  via: goods
+- from: ConsignmentNoteRequest
+  to: AdditionalInfoRequest
   type: has_one
-  via: documentBase
-- from: Seller
-  to: BankRequisites
+  via: additionalInfo
+- from: ConsignmentNoteRequest
+  to: SellerRequest
   type: has_one
-  via: bankRequisites
-- from: Consignor
-  to: BankRequisites
+  via: seller
+- from: ConsignmentNoteRequest
+  to: ConsignorRequest
   type: has_one
-  via: bankRequisites
-- from: Buyer
-  to: BankRequisites
+  via: consignor
+- from: ConsignmentNoteRequest
+  to: BuyerRequest
   type: has_one
-  via: bankRequisites
-- from: Receiver
-  to: BankRequisites
+  via: buyer
+- from: ConsignmentNoteRequest
+  to: ReceiverRequest
   type: has_one
-  via: bankRequisites
-- from: CDDetailsLinkedDocumentResponse
-  to: Payer
-  type: has_one
-  via: payer
-- from: CDDetailsLinkedDocumentResponse
-  to: ItemMiniResponse
-  type: has_many
-  via: items
-- from: ItemMiniResponse
-  to: Unit
-  type: has_one
-  via: vat
-- from: ItemMiniResponse
-  to: Unit
-  type: has_one
-  via: unit
+  via: receiver
 - from: UPD
   to: Goods
   type: has_one
@@ -1486,30 +1773,6 @@ relationships:
   to: Participant
   type: has_one
   via: receiver
-- from: TransferInfo
-  to: DocumentBase
-  type: has_one
-  via: document
-- from: TransferInfo
-  to: Signatory
-  type: has_one
-  via: sellerTransferEmployee
-- from: TransferInfo
-  to: Signatory
-  type: has_one
-  via: sellerResponsiblePerson
-- from: TransferInfo
-  to: Signatory
-  type: has_one
-  via: buyerReceiptEmployee
-- from: TransferInfo
-  to: Signatory
-  type: has_one
-  via: buyerResponsiblePerson
-- from: Participant
-  to: Name
-  type: has_one
-  via: fio
 - from: WorkAct
   to: ServiceList
   type: has_one
@@ -1518,182 +1781,78 @@ relationships:
   to: Customer
   type: has_one
   via: customer
-- from: ServiceList
-  to: ItemMiniResponse
-  type: has_many
-  via: items
-- from: MeasurementResponse
-  to: Unit
-  type: has_many
-  via: vat
-- from: MeasurementResponse
-  to: Unit
-  type: has_many
-  via: units
-- from: BillResponse
-  to: Document
-  type: belongs_to
-  via: documentId
-- from: BillRequest
-  to: GoodsRequest
-  type: has_one
-  via: goods
-- from: BillRequest
-  to: Invoice
-  type: has_one
-  via: invoice
-- from: BillRequest
-  to: PayerRequest
-  type: has_one
-  via: payer
-- from: BillRequest
-  to: PayeeRequest
-  type: has_one
-  via: payee
-- from: GoodsRequest
-  to: ItemRequest
-  type: has_many
-  via: items
-- from: PayeeRequest
-  to: AccountRequest
-  type: has_one
-  via: account
-- from: PageBillMiniResponse
-  to: Pageable
-  type: has_one
-  via: pageable
-- from: PageBillMiniResponse
-  to: BillMiniResponse
-  type: has_many
-  via: content
-- from: PageBillMiniResponse
-  to: Sort
-  type: has_one
-  via: sort
-- from: Pageable
-  to: Sort
-  type: has_one
-  via: sort
-- from: BillMiniResponse
-  to: ItemMiniResponse
-  type: has_many
-  via: items
-- from: BillMiniResponse
+- from: ClosingDocumentListItemResponse
   to: CDListLinkedDocumentResponse
   type: has_many
   via: linkedDocuments
-- from: BillUpdateRequest
-  to: GoodsUpdateRequest
-  type: has_one
-  via: goods
-- from: BillUpdateRequest
-  to: Invoice
-  type: has_one
-  via: invoice
-- from: BillUpdateRequest
-  to: PayerRequest
-  type: has_one
-  via: payer
-- from: BillUpdateRequest
-  to: PayeeRequest
-  type: has_one
-  via: payee
-- from: BillDetailsResponse
-  to: GoodsResponse
-  type: has_one
-  via: goods
-- from: BillDetailsResponse
-  to: Invoice
-  type: has_one
-  via: invoice
-- from: BillDetailsResponse
-  to: Payer
-  type: has_one
-  via: payer
-- from: BillDetailsResponse
-  to: PayeeResponse
-  type: has_one
-  via: payee
-- from: BillDetailsResponse
-  to: BillDetailsLinkedDocumentResponse
-  type: has_many
-  via: linkedDocuments
-- from: BillDetailsResponse
-  to: BillPaymentResponse
-  type: has_many
-  via: payments
-- from: GoodsResponse
-  to: ItemMiniResponse
-  type: has_many
-  via: items
-- from: PayeeResponse
-  to: AccountResponse
-  type: has_one
-  via: account
-- from: BillDetailsLinkedDocumentResponse
-  to: Payer
-  type: has_one
-  via: payer
-- from: ConsignmentNoteRequest
-  to: GoodsRequest
-  type: has_one
-  via: goods
-- from: ConsignmentNoteRequest
-  to: AdditionalInfoRequest
-  type: has_one
-  via: additionalInfo
-- from: ConsignmentNoteRequest
-  to: SellerRequest
-  type: has_one
-  via: seller
-- from: ConsignmentNoteRequest
-  to: ConsignorRequest
-  type: has_one
-  via: consignor
-- from: ConsignmentNoteRequest
-  to: BuyerRequest
-  type: has_one
-  via: buyer
-- from: ConsignmentNoteRequest
-  to: ReceiverRequest
-  type: has_one
-  via: receiver
-- from: SellerRequest
-  to: BankRequisitesRequest
-  type: has_one
-  via: bankRequisites
 - from: ConsignorRequest
   to: BankRequisitesRequest
   type: has_one
   via: bankRequisites
+- from: Item
+  to: Unit
+  type: has_one
+  via: vat
+- from: Item
+  to: Unit
+  type: has_one
+  via: unit
 - from: BuyerRequest
   to: BankRequisitesRequest
+  type: has_one
+  via: bankRequisites
+- from: Consignor
+  to: BankRequisites
   type: has_one
   via: bankRequisites
 - from: ReceiverRequest
   to: BankRequisitesRequest
   type: has_one
   via: bankRequisites
-- from: UPDRequest
+- from: ClosingDocumentListResponse
+  to: ClosingDocumentListItemResponse
+  type: has_many
+  via: documents
+- from: Seller
+  to: BankRequisites
+  type: has_one
+  via: bankRequisites
+- from: ClosingDocumentDetailsResponse
+  to: ConsignmentNote
+  type: has_one
+  via: document
+- from: ClosingDocumentDetailsResponse
+  to: UPD
+  type: has_one
+  via: document
+- from: ClosingDocumentDetailsResponse
+  to: WorkAct
+  type: has_one
+  via: document
+- from: ClosingDocumentDetailsResponse
+  to: CDDetailsLinkedDocumentResponse
+  type: has_many
+  via: linkedDocuments
+- from: WorkActRequest
   to: ItemRequest
   type: has_many
+  via: services
+- from: WorkActRequest
+  to: AdditionalInfoRequest
+  type: has_one
+  via: additionalInfo
+- from: Goods
+  to: Item
+  type: has_many
   via: items
-- from: UPDRequest
-  to: TransferInfoRequest
+- from: CDDetailsLinkedDocumentResponse
+  to: Payer
   type: has_one
-  via: transferInfo
-- from: UPDRequest
-  to: Participant
-  type: has_one
-  via: buyer
-- from: UPDRequest
-  to: Participant
-  type: has_one
-  via: shipper
-- from: UPDRequest
-  to: Participant
-  type: has_one
-  via: receiver
+  via: payer
+- from: CDDetailsLinkedDocumentResponse
+  to: ItemMiniResponse
+  type: has_many
+  via: items
 - from: TransferInfoRequest
   to: SignatoryRequest
   type: has_one
@@ -1710,78 +1869,14 @@ relationships:
   to: SignatoryRequest
   type: has_one
   via: buyerResponsiblePerson
-- from: SignatoryRequest
-  to: Name
-  type: has_one
-  via: fio
-- from: WorkActRequest
-  to: ItemRequest
-  type: has_many
-  via: services
-- from: WorkActRequest
-  to: AdditionalInfoRequest
-  type: has_one
-  via: additionalInfo
-- from: ClosingDocumentListResponse
-  to: ClosingDocumentListItemResponse
-  type: has_many
-  via: documents
-- from: ClosingDocumentListItemResponse
-  to: CDListLinkedDocumentResponse
-  type: has_many
-  via: linkedDocuments
-- from: GetExternalCorrespondenceV2Response
-  to: ExternalCorrespondenceTopic
-  type: has_one
-  via: topic
-- from: GetExternalCorrespondenceV2Response
-  to: ExternalCorrespondenceMail
-  type: has_many
-  via: correspondenceMails
-- from: SearchCorrespondencesRequest
-  to: ExternalCorrespondenceFilter
-  type: has_one
-  via: filter
-- from: ExternalCorrespondenceFilter
-  to: DateTimeRange
-  type: has_one
-  via: createdAt
-- from: ExternalCorrespondenceFilter
-  to: DateTimeRange
-  type: has_one
-  via: updatedAt
-- from: SearchCorrespondencesResponse
-  to: ExternalCorrespondenceCard
+- from: ServiceList
+  to: ItemMiniResponse
   type: has_many
   via: items
-- from: ExternalCorrespondenceCard
-  to: ExternalCorrespondenceTopic
+- from: Code
+  to: Customer
   type: has_one
-  via: topic
-- from: BaseLoan
-  to: Loan
-  type: belongs_to
-  via: loanId
-- from: EarlyRepaymentStateDto
-  to: CancelRepaymentInfoDto
-  type: has_one
-  via: cancelRepaymentInfo
-- from: BaseEarlyRepaymentDto
-  to: Loan
-  type: belongs_to
-  via: loanId
-- from: Client
-  to: Contact
-  type: has_many
-  via: contacts
-- from: Client
-  to: ClientState
-  type: has_one
-  via: state
-- from: CreateBuyerRequest
-  to: BuyerRequisites
-  type: has_one
-  via: buyerRequisites
+  via: customer
 - from: ConditionRequest
   to: Client
   type: belongs_to
@@ -1814,342 +1909,66 @@ relationships:
   to: ConditionState
   type: has_one
   via: state
-- from: Notice
-  to: Condition
-  type: has_one
-  via: condition
-- from: Contact
-  to: ContactState
-  type: has_one
-  via: state
 - from: ConditionContact
   to: ConditionContactState
   type: has_one
   via: state
-- from: Action
-  to: ActionState
+- from: ContractListResponse
+  to: Contract
+  type: has_many
+  via: contracts
+- from: Contract
+  to: ContractState
   type: has_one
   via: state
-- from: StatementPayload
-  to: ConversionRate
-  type: has_many
-  via: conversionRates
-- from: StatementPayload
-  to: Transfer
-  type: has_many
-  via: transfers
-- from: Transfer
-  to: ConversionPercent
-  type: has_many
-  via: conversion
-- from: StatementStatusResponse
-  to: Error
-  type: has_many
-  via: errors
-- from: StatementStatusResponse
-  to: Warning
-  type: has_many
-  via: warnings
-- from: StatementTransfersResponse
-  to: TransferStatusDetails
-  type: has_many
-  via: transfers
-- from: StatementTransfersResponse
-  to: Limit
-  type: has_one
-  via: limit
-- from: TransferStatusDetails
-  to: Error
-  type: has_many
-  via: errors
-- from: TransferStatusDetails
-  to: Warning
-  type: has_many
-  via: warnings
-- from: CAPTURE
-  to: Client
-  type: belongs_to
-  via: clientId
-- from: CryptoProfile
-  to: ActiveCertificate
-  type: has_one
-  via: activeCertificate
-- from: UserSignAuthority
-  to: CryptoProfile
-  type: has_many
-  via: cryptoProfile
-- from: UserSignAuthoritiesDTO
-  to: Code
-  type: has_one
-  via: code
-- from: UserSignAuthoritiesDTO
-  to: UserSignAuthority
-  type: has_many
-  via: data
-- from: AccountDTO
-  to: Account
-  type: has_one
-  via: cbNumber
-- from: AgreementBaseDto
-  to: Account
-  type: has_one
-  via: account
-- from: InternalDeliveryRecipientRequestDto
-  to: Name
-  type: has_one
-  via: name
-- from: SimpleCardApplicationRequestDto
-  to: Account
-  type: has_one
-  via: account
-- from: SimpleCardApplicationRequestDto
-  to: InternalDeliveryRecipientRequestDto
-  type: has_one
-  via: deliveryRecipient
-- from: SimpleCardApplicationRequestDto
-  to: CardInstantFieldsDto
-  type: has_one
-  via: card
-- from: InternalDeliveryRecipientResponseDto
-  to: Name
-  type: has_one
-  via: name
-- from: SimpleCardApplicationResponseDto
-  to: Account
-  type: has_one
-  via: account
-- from: SimpleCardApplicationResponseDto
-  to: InternalDeliveryRecipientResponseDto
-  type: has_one
-  via: deliveryRecipient
-- from: SimpleCardApplicationResponseDto
-  to: CardInstantFieldsDto
-  type: has_one
-  via: card
-- from: PersonInternalRequestDto
-  to: Name
-  type: has_one
-  via: name
-- from: PersonInternalRequestDto
-  to: PassportRequestDto
-  type: has_one
-  via: passport
-- from: CardInternalRequestDto
-  to: Account
-  type: has_one
-  via: account
-- from: CardInternalRequestDto
-  to: PersonInternalRequestDto
-  type: has_one
-  via: person
-- from: CardInternalRequestDto
-  to: CardInstantFieldsDto
-  type: has_one
-  via: card
-- from: CardInternalRequestDto
-  to: InternalDeliveryRecipientRequestDto
-  type: has_one
-  via: deliveryRecipient
-- from: InternalPersonDto
-  to: Name
-  type: has_one
-  via: name
-- from: InternalPersonDto
+- from: DocumentRequestBase
   to: Resident
   type: has_one
   via: resident
-- from: InternalPersonDto
-  to: PassportRequestDto
+- from: DocumentRequestBase
+  to: ContactPerson
   type: has_one
-  via: passport
-- from: InternalPersonDto
-  to: AddressRequestDto
+  via: contactPerson
+- from: CurrencyContractRequest
+  to: DealSubject
   type: has_one
-  via: address
-- from: InternalCardDeliveryDto
-  to: InternalDeliveryRecipientResponseDto
+  via: dealSubject
+- from: CurrencyContractRequest
+  to: Counterparty
+  type: has_many
+  via: counterparties
+- from: CurrencyContractRequest
+  to: RightsTransfer
   type: has_one
-  via: recipient
-- from: InternalRboCardApplicationDto
-  to: InternalCardStatusDto
-  type: has_one
-  via: status
-- from: InternalRboCardApplicationDto
-  to: ApplicationActionResultDto
-  type: has_one
-  via: statusAction
-- from: InternalRboCardApplicationDto
+  via: rightsTransfer
+- from: DealSubject
+  to: CnFeaItem
+  type: has_many
+  via: cnFea
+- from: WithAttachments
+  to: Attachment
+  type: has_many
+  via: attachments
+- from: CardExternalRequestDto
   to: Account
   type: has_one
   via: account
-- from: InternalRboCardApplicationDto
-  to: InternalPersonDto
-  type: has_one
-  via: person
-- from: InternalRboCardApplicationDto
-  to: InternalCardDeliveryDto
-  type: has_one
-  via: delivery
-- from: InternalRboCardApplicationDto
-  to: AddressResultDto
-  type: has_one
-  via: deliveryAddress
-- from: InternalRboCardApplicationDto
-  to: CardInstantFieldsDto
-  type: has_one
-  via: card
-- from: InternalRboCardApplicationDto
-  to: Document
-  type: belongs_to
-  via: documentId
-- from: UpdateDraftRequestData
-  to: CardInternalRequestDto
-  type: has_one
-  via: application
-- from: ApplicationActionRequestDto
-  to: UpdateDraftRequestData
-  type: has_one
-  via: data
-- from: ActionResponseDto
-  to: InternalRboCardApplicationDto
-  type: has_one
-  via: application
-- from: PageResponseInternalBatchDto
-  to: Meta
-  type: has_one
-  via: meta
-- from: InternalCardApplicationDto
-  to: InternalCardStatusDto
-  type: has_one
-  via: status
-- from: InternalCardApplicationDto
-  to: ApplicationActionResultDto
-  type: has_one
-  via: statusAction
-- from: InternalCardApplicationDto
-  to: Account
-  type: has_one
-  via: account
-- from: InternalCardApplicationDto
-  to: InternalPersonDto
-  type: has_one
-  via: person
-- from: InternalCardApplicationDto
-  to: AddressResultDto
-  type: has_one
-  via: deliveryAddress
-- from: InternalCardApplicationDto
-  to: ApplicationCreatorDto
-  type: has_many
-  via: creators
-- from: BranchListGroupedByCityDto
-  to: BranchDto
-  type: has_many
-  via: branchList
-- from: CardProductDto-2
-  to: BaseLimitProfileDto
-  type: has_one
-  via: baseLimitProfile
-- from: CompanySettingsResponseDto
-  to: Company
-  type: has_one
-  via: company
-- from: CompanySettingsResponseDto
-  to: CardProductDto-2
-  type: has_many
-  via: cardProducts
-- from: CompanySettingsUpdateRequestDto
-  to: Company
-  type: has_one
-  via: company
-- from: PersonDto
-  to: Name
-  type: has_one
-  via: name
-- from: CardDto
-  to: CardStatusState
-  type: has_one
-  via: cardStatusState
-- from: CardDto
-  to: Account
-  type: has_one
-  via: account
-- from: CardDto
-  to: PersonDto
-  type: has_one
-  via: person
-- from: CardActionLimitDto
-  to: CardActionStatusDto
-  type: has_one
-  via: status
-- from: CardActionLimitDto
-  to: CardActionPhone3dsDto
-  type: has_one
-  via: phone3ds
-- from: CardActionDto
-  to: Name
-  type: has_one
-  via: author
-- from: CardActionDto
-  to: CardActionLimitDto
-  type: has_one
-  via: action
-- from: CompanyAccountLimit
-  to: CompanyLimit
-  type: has_many
-  via: limits
-- from: CompanyAccountLimitsResponseDto
-  to: CompanyAccountLimit
-  type: has_many
-  via: accountLimits
-- from: InternalCardsDTO
-  to: Meta
-  type: has_one
-  via: meta
-- from: OperationDto
-  to: AuthorizationDto
-  type: has_one
-  via: authorization
-- from: PersonExternalRequestDto
-  to: Name
-  type: has_one
-  via: name
-- from: PersonExternalRequestDto
-  to: PassportRequestDto
-  type: has_one
-  via: passport
-- from: PersonExternalRequestDto
-  to: AddressRequestDto
-  type: has_one
-  via: address
-- from: CardExternalRequestDtoWithoutCard
-  to: Account
-  type: has_one
-  via: account
-- from: CardExternalRequestDtoWithoutCard
+- from: CardExternalRequestDto
   to: PersonExternalRequestDto
   type: has_one
   via: person
-- from: CardExternalRequestDtoWithoutCard
-  to: AddressRequestDto
+- from: CardExternalRequestDto
+  to: CardInstantFieldsDto
   type: has_one
-  via: deliveryAddress
+  via: card
 - from: BatchExternalDtoWithoutCard
   to: CardExternalRequestDtoWithoutCard
   type: has_many
   via: cards
-- from: PersonResultDto
-  to: Company
-  type: belongs_to
-  via: companyId
 - from: CardApplicationDto
   to: Account
   type: has_one
   via: account
-- from: CardApplicationDto
-  to: Status-2
-  type: has_one
-  via: status
 - from: CardApplicationDto
   to: PersonResultDto
   type: has_one
@@ -2158,86 +1977,58 @@ relationships:
   to: AddressResultDto
   type: has_one
   via: deliveryAddress
-- from: CardExternalRequestDto
-  to: Account
+- from: PersonExternalRequestDto
+  to: Name
   type: has_one
-  via: account
-- from: CardExternalRequestDto
-  to: PersonExternalRequestDto
+  via: name
+- from: PersonExternalRequestDto
+  to: AddressRequestDto
   type: has_one
-  via: person
-- from: CardExternalRequestDto
-  to: CardInstantFieldsDto
-  type: has_one
-  via: card
+  via: address
 - from: BatchExternalDto
   to: CardExternalRequestDto
   type: has_many
   via: cards
-- from: ApplicationCardInfoV2
-  to: ApplicationCardLimitV2
-  type: has_one
-  via: limits
-- from: ApplicationHolderV2
-  to: Name
-  type: has_one
-  via: name
-- from: ApplicationHolderV2
-  to: Resident
-  type: has_one
-  via: resident
-- from: ApplicationHolderV2
-  to: ApplicationPassportV2
-  type: has_one
-  via: passport
-- from: ApplicationDeliveryRecipientV2
-  to: Name
-  type: has_one
-  via: name
-- from: ApplicationDeliveryV2
-  to: ApplicationDeliveryRecipientV2
-  type: has_one
-  via: recipient
-- from: SignatureInfoDto
-  to: Name
-  type: has_one
-  via: name
-- from: ApplicationResponseV2
+- from: PersonResultDto
+  to: Company
+  type: belongs_to
+  via: companyId
+- from: CardExternalRequestDtoWithoutCard
   to: Account
   type: has_one
   via: account
-- from: ApplicationResponseV2
-  to: ApplicationStatusV2
+- from: CardExternalRequestDtoWithoutCard
+  to: PersonExternalRequestDto
   type: has_one
-  via: status
-- from: ApplicationResponseV2
-  to: ApplicationMetaV2
+  via: person
+- from: CardExternalRequestDtoWithoutCard
+  to: AddressRequestDto
   type: has_one
-  via: meta
-- from: ApplicationResponseV2
-  to: ApplicationCardInfoV2
-  type: has_one
-  via: card
-- from: ApplicationResponseV2
-  to: ApplicationHolderV2
-  type: has_one
-  via: holder
-- from: ApplicationResponseV2
-  to: ApplicationDeliveryV2
-  type: has_one
-  via: delivery
-- from: ApplicationResponseV2
-  to: ApplicationReissueV2
-  type: has_one
-  via: reissue
-- from: ApplicationResponseV2
-  to: SignatureInfoDto
+  via: deliveryAddress
+- from: CardInfoPageableBff
+  to: CardInfoDtoBff
   type: has_many
-  via: signatures
+  via: data
 - from: AccountOwnerResponseDtoV1
   to: Account
   type: has_one
   via: account
+- from: PersonDto
+  to: Name
+  type: has_one
+  via: name
+- from: OperationDto
+  to: AuthorizationDto
+  type: has_one
+  via: authorization
+- from: CardActionDto
+  to: Name
+  type: has_one
+  via: author
+- from: CardActionDto
+  to: CardActionLimitDto
+  type: has_one
+  via: action
 - from: CardInfoDtoBff
   to: CardStatusValue
   type: has_one
@@ -2262,894 +2053,214 @@ relationships:
   to: CardLimitResponseDto
   type: has_many
   via: limits
-- from: CardInfoPageableBff
-  to: CardInfoDtoBff
-  type: has_many
-  via: data
-- from: CardTariffRangeDto
-  to: CardTariffFormulaDto
+- from: CardDto
+  to: CardStatusState
   type: has_one
-  via: formula
-- from: CardTariffFeeDto
-  to: CardTariffRangeDto
-  type: has_many
-  via: ranges
-- from: CardTariffOperationGroupDto
-  to: CardTariffOperationDto
-  type: has_many
-  via: operations
-- from: CardTariffOperationGroupDto
-  to: CardTariffFeeDto
+  via: cardStatusState
+- from: CardDto
+  to: Account
   type: has_one
-  via: fee
-- from: CardTariffCategoryDto
-  to: CardTariffOperationGroupDto
-  type: has_many
-  via: operationGroups
-- from: CardTariffResponseDto
-  to: CardTariffCategoryDto
-  type: has_many
-  via: categories
-- from: ClientRestriction
-  to: ClientRestrictionDetail
+  via: account
+- from: CardDto
+  to: PersonDto
   type: has_one
-  via: details
-- from: ClientRestrictionsPage
-  to: ClientRestriction
-  type: has_many
-  via: data
-- from: RestrictionName
-  to: RestrictionDetail
+  via: person
+- from: CardActionLimitDto
+  to: CardActionStatusDto
   type: has_one
-  via: details
-- from: receiptWhiteLabel
-  to: receiptItem
+  via: status
+- from: CardActionLimitDto
+  to: CardActionPhone3dsDto
+  type: has_one
+  via: phone3ds
+- from: SearchCorrespondencesResponse
+  to: ExternalCorrespondenceCard
   type: has_many
   via: items
-- from: receiptWhiteLabel
-  to: payments
-  type: has_many
-  via: payments
-- from: receiptWhiteLabel
-  to: additionalUserProperty
+- from: SearchCorrespondencesRequest
+  to: ExternalCorrespondenceFilter
   type: has_one
-  via: additionalUserProperty
-- from: receiptPayform
-  to: receiptItem
-  type: has_many
-  via: items
-- from: receiptPayform
-  to: payments
-  type: has_many
-  via: payments
-- from: receiptPayform
-  to: additionalUserProperty
+  via: filter
+- from: GetExternalCorrespondenceV2Response
+  to: ExternalCorrespondenceTopic
   type: has_one
-  via: additionalUserProperty
-- from: response
-  to: receiptItem
+  via: topic
+- from: GetExternalCorrespondenceV2Response
+  to: ExternalCorrespondenceMail
   type: has_many
-  via: items
-- from: response
-  to: payments
-  type: has_many
-  via: payments
-- from: response
-  to: additionalUserProperty
+  via: correspondenceMails
+- from: ExternalCorrespondenceFilter
+  to: DateTimeRange
   type: has_one
-  via: additionalUserProperty
-- from: JsSdk
-  to: Order
+  via: createdAt
+- from: ExternalCorrespondenceFilter
+  to: DateTimeRange
+  type: has_one
+  via: updatedAt
+- from: ExternalCorrespondenceCard
+  to: ExternalCorrespondenceTopic
+  type: has_one
+  via: topic
+- from: DealConditions
+  to: Agreement
   type: belongs_to
-  via: orderId
-- from: JsSdk
-  to: Extra
-  type: has_one
-  via: extra
-- from: FiscalReceiptBasic
-  to: receiptItem
-  type: has_many
-  via: items
-- from: FiscalReceiptBasic
-  to: payments
-  type: has_many
-  via: payments
-- from: FiscalReceiptBasic
-  to: additionalUserProperty
-  type: has_one
-  via: additionalUserProperty
-- from: FiscalReceiptBasicWoRequiredParams
-  to: receiptItem
-  type: has_many
-  via: items
-- from: FiscalReceiptBasicWoRequiredParams
-  to: payments
-  type: has_many
-  via: payments
-- from: FiscalReceiptBasicWoRequiredParams
-  to: additionalUserProperty
-  type: has_one
-  via: additionalUserProperty
-- from: SbpTransaction
-  to: Order
+  via: agreementId
+- from: DealConditions
+  to: Debtor
   type: belongs_to
-  via: orderId
+  via: debtorId
+- from: DeliverableConversionBlotterRequest
+  to: BlotterFilterItem
+  type: has_many
+  via: filter
+- from: DeliverableConversionBlotterRequest
+  to: BlotterSortItem
+  type: has_many
+  via: sort
+- from: SupportDrawerByLocaleDTO
+  to: SupportDrawerDTO
+  type: has_one
+  via: ru
+- from: SupportDrawerByLocaleDTO
+  to: SupportDrawerDTO
+  type: has_one
+  via: en
+- from: SystemMessagesByLocaleDTO
+  to: SystemMessageDTO
+  type: has_many
+  via: ru
+- from: SystemMessagesByLocaleDTO
+  to: SystemMessageDTO
+  type: has_many
+  via: en
+- from: DigestResource
+  to: DigestTopicResource
+  type: has_many
+  via: topics
+- from: ProductNewsSlideResource
+  to: ButtonResource
+  type: has_one
+  via: button
+- from: ProductNewsSlideResource
+  to: ContactFormResource
+  type: has_one
+  via: contactForm
+- from: ProductNewsV2Resource
+  to: ColorStyleOpenApi
+  type: has_one
+  via: style
+- from: ProductNewsV2Resource
+  to: ProductNewsSlideResource
+  type: has_many
+  via: slides
+- from: WebinarV2Resource
+  to: ButtonResource
+  type: has_one
+  via: button
+- from: WebinarV2Resource
+  to: ColorStyleOpenApi
+  type: has_one
+  via: style
+- from: AccEmployeePermissionDTO
+  to: Name
+  type: has_one
+  via: name
+- from: FiscalReceiptBasic
+  to: receiptItem
+  type: has_many
+  via: items
+- from: FiscalReceiptBasic
+  to: payments
+  type: has_many
+  via: payments
+- from: FiscalReceiptBasic
+  to: additionalUserProperty
+  type: has_one
+  via: additionalUserProperty
+- from: FiscalReceiptBasicWoRequiredParams
+  to: receiptItem
+  type: has_many
+  via: items
+- from: FiscalReceiptBasicWoRequiredParams
+  to: payments
+  type: has_many
+  via: payments
+- from: FiscalReceiptBasicWoRequiredParams
+  to: additionalUserProperty
+  type: has_one
+  via: additionalUserProperty
 - from: AcquiringTransaction
   to: Order
   type: belongs_to
   via: orderId
-- from: ReportPaymentSbp
+- from: SbpTransaction
   to: Order
   type: belongs_to
   via: orderId
-- from: ReportPaymentSbp
-  to: Client
-  type: belongs_to
-  via: clientId
-- from: ReportPaymentSbp
-  to: Qr
-  type: belongs_to
-  via: qrId
-- from: ReportPaymentSbp
-  to: SbpTransaction
-  type: belongs_to
-  via: sbpTransactionId
-- from: ReportPaymentDr
-  to: Order
-  type: belongs_to
-  via: orderId
-- from: ReportPaymentDr
-  to: Qr
-  type: belongs_to
-  via: qrId
-- from: ReportRefundSbp
-  to: Order
-  type: belongs_to
-  via: orderId
-- from: ReportRefundSbp
-  to: Client
-  type: belongs_to
-  via: clientId
-- from: ReportRefundSbp
-  to: Qr
-  type: belongs_to
-  via: qrId
-- from: ReportRefundSbp
-  to: SbpTransaction
-  type: belongs_to
-  via: sbpTransactionId
-- from: ReportRefundSbp
-  to: Refund
-  type: belongs_to
-  via: refundId
-- from: ReportRefundDr
-  to: Order
-  type: belongs_to
-  via: orderId
-- from: ReportRefundDr
-  to: Qr
-  type: belongs_to
-  via: qrId
-- from: ReportRefundDr
-  to: Refund
-  type: belongs_to
-  via: refundId
-- from: ReportPaymentCard
-  to: Order
-  type: belongs_to
-  via: orderId
-- from: ReportPaymentCard
-  to: Client
-  type: belongs_to
-  via: clientId
-- from: ReportRefundCard
-  to: Order
-  type: belongs_to
-  via: orderId
-- from: ReportRefundCard
-  to: Client
-  type: belongs_to
-  via: clientId
-- from: ReportRefundCard
-  to: Refund
-  type: belongs_to
-  via: refundId
-- from: GeneralOrder
-  to: Extra
-  type: has_one
-  via: extra
-- from: CreatedOrderPayform
-  to: FiscalReceiptBasic
-  type: has_one
-  via: receipt
-- from: CreatedOrderPayform
-  to: Subscription
-  type: has_one
-  via: subscription
-- from: CreatedOrderPayform
-  to: PaymentSlip
-  type: has_one
-  via: paymentSlip
-- from: CreateOrderPayform
-  to: FiscalReceiptBasic
-  type: has_one
-  via: receipt
-- from: CreateOrderPayform
-  to: PaymentSlip
-  type: has_one
-  via: paymentSlip
-- from: CreateOrderPayform
-  to: Subscription
-  type: has_one
-  via: subscription
-- from: OrderWithPayformSettings
-  to: GeneralOrder
-  type: has_one
-  via: order
-- from: OrderWithPayformSettings
-  to: Subscription
-  type: belongs_to
-  via: subscriptionId
-- from: GeneralPayment
-  to: Order
-  type: has_one
-  via: order
-- from: GeneralPayment
-  to: Extra
-  type: has_one
-  via: extra
-- from: SubscriptionPayment
-  to: Subscription
-  type: belongs_to
-  via: subscriptionId
-- from: SubscriptionPayment
-  to: FiscalReceiptBasic
-  type: has_one
-  via: receipt
-- from: CardPayment
-  to: Subscription
-  type: has_one
-  via: subscription
-- from: CardBinding
-  to: Subscription
-  type: has_one
-  via: subscription
-- from: CreatedSubscriptionPayment
-  to: Subscription
-  type: belongs_to
-  via: subscriptionId
-- from: CreatedSubscriptionPayment
-  to: Clearing
-  type: has_one
-  via: clearing
-- from: GetOrderResponseSchema
-  to: Extra
-  type: has_one
-  via: extra
-- from: Subscription
-  to: SubscriptionAutoCharge
-  type: has_one
-  via: autoCharge
-- from: Subscription
-  to: SubscriptionCustomer
-  type: has_one
-  via: customer
-- from: schemas-Subscription
-  to: AutoCharge
-  type: has_one
-  via: autoCharge
-- from: schemas-Subscription
-  to: SubscriptionCustomer
-  type: has_one
-  via: customer
-- from: ChangeSubscription
-  to: AutoCharge
-  type: has_one
-  via: autoCharge
-- from: ChangeSubscription
-  to: SubscriptionCustomer
-  type: has_one
-  via: customer
-- from: PaymentNotificationV3
-  to: CardPaymentNotificationV3
-  type: has_one
-  via: data
-- from: SubscriptionNotificationV2
-  to: CardSubscriptionNotificationV2
-  type: has_one
-  via: data
-- from: PayoutBundleMetadata
-  to: BundleStatus
-  type: has_one
-  via: status
-- from: reportPaymentSbpResponse
-  to: Order
-  type: belongs_to
-  via: orderId
-- from: reportPaymentSbpResponse
-  to: Client
-  type: belongs_to
-  via: clientId
-- from: reportPaymentSbpResponse
-  to: Qr
-  type: belongs_to
-  via: qrId
-- from: reportPaymentSbpResponse
-  to: SbpTransaction
-  type: belongs_to
-  via: sbpTransactionId
-- from: reportRefundSbpResponse
-  to: Order
-  type: belongs_to
-  via: orderId
-- from: reportRefundSbpResponse
-  to: Client
-  type: belongs_to
-  via: clientId
-- from: reportRefundSbpResponse
-  to: Qr
-  type: belongs_to
-  via: qrId
-- from: reportRefundSbpResponse
-  to: SbpTransaction
-  type: belongs_to
-  via: sbpTransactionId
-- from: reportRefundSbpResponse
-  to: Refund
-  type: belongs_to
-  via: refundId
-- from: reportPaymentCardResponse
-  to: Order
-  type: belongs_to
-  via: orderId
-- from: reportPaymentCardResponse
-  to: Client
-  type: belongs_to
-  via: clientId
-- from: reportRefundCardResponse
-  to: Order
-  type: belongs_to
-  via: orderId
-- from: reportRefundCardResponse
-  to: Client
-  type: belongs_to
-  via: clientId
-- from: reportRefundCardResponse
-  to: Refund
-  type: belongs_to
-  via: refundId
-- from: CreateOrderRequestDto
-  to: Account
-  type: has_one
-  via: account
-- from: CreateOrderRequestDto
-  to: Extra
-  type: has_one
-  via: extra
-- from: CreateOrderRequestDto
-  to: Restrictions
-  type: has_one
-  via: restrictions
-- from: CreateOrderResponseDto
-  to: Account
-  type: has_one
-  via: account
-- from: CreateOrderResponseDto
-  to: Extra
-  type: has_one
-  via: extra
-- from: CreateOrderResponseDto
-  to: Restrictions
-  type: has_one
-  via: restrictions
-- from: CreateOrderResponseDto
-  to: Qr
-  type: has_one
-  via: qr
-- from: CreateOrderSplitsRequestDto
-  to: Extra
-  type: has_one
-  via: extra
-- from: CreateOrderSplitsRequestDto
-  to: Restrictions
-  type: has_one
-  via: restrictions
-- from: CreateOrderSplitsResponseDto
-  to: Extra
-  type: has_one
-  via: extra
-- from: CreateOrderSplitsResponseDto
-  to: Restrictions
-  type: has_one
-  via: restrictions
-- from: CreateOrderSplitsResponseDto
-  to: Qr
-  type: has_one
-  via: qr
-- from: PaymentSender
-  to: Account
-  type: has_one
-  via: account
-- from: PaymentSender
-  to: BankInfo
-  type: has_one
-  via: bank
-- from: OrderInfoSplitsResponseDto
-  to: Extra
-  type: has_one
-  via: extra
-- from: OrderInfoSplitsResponseDto
-  to: Restrictions
-  type: has_one
-  via: restrictions
-- from: OrderInfoSplitsResponseDto
-  to: Qr
-  type: has_one
-  via: qr
-- from: OrderInfoSplitsResponseDto
+- from: ImportDocumentFullInfoDto
   to: Payment
-  type: has_one
-  via: payment
-- from: OrderInfoResponseDto
-  to: Account
-  type: has_one
-  via: account
-- from: OrderInfoResponseDto
-  to: Extra
-  type: has_one
-  via: extra
-- from: OrderInfoResponseDto
-  to: Restrictions
-  type: has_one
-  via: restrictions
-- from: OrderInfoResponseDto
-  to: Qr
-  type: has_one
-  via: qr
-- from: OrderInfoResponseDto
+  type: belongs_to
+  via: paymentId
+- from: ImportDocumentInfoDto
   to: Payment
+  type: belongs_to
+  via: paymentId
+- from: ApiProcessImportFullDto
+  to: ImportDocumentFullInfoDto
+  type: has_many
+  via: documentsInfo
+- from: ApiProcessImportDto
+  to: ImportDocumentInfoDto
+  type: has_many
+  via: documentsInfo
+- from: EarlyRepaymentStateDto
+  to: CancelRepaymentInfoDto
   type: has_one
-  via: payment
-- from: RegisterQrInternalResponseDto
-  to: Account
-  type: has_one
-  via: account
-- from: RegisterQrInternalResponseDto
-  to: Extra
-  type: has_one
-  via: extra
-- from: RegisterQrInternalResponseDto
-  to: Restrictions
-  type: has_one
-  via: restrictions
-- from: RegisterQrInternalResponseDto
-  to: Qr
-  type: has_one
-  via: qr
-- from: PageResponseRegisterQrInternalResponseDto
-  to: RegisterQrInternalResponseDto
+  via: cancelRepaymentInfo
+- from: BaseEarlyRepaymentDto
+  to: Loan
+  type: belongs_to
+  via: loanId
+- from: ClientRestrictionsPage
+  to: ClientRestriction
   type: has_many
   via: data
-- from: PageResponseRegisterQrInternalResponseDto
-  to: Meta
+- from: ClientRestriction
+  to: ClientRestrictionDetail
   type: has_one
-  via: meta
-- from: ReusablePaymentLinkRequest
-  to: Account
+  via: details
+- from: RestrictionName
+  to: RestrictionDetail
   type: has_one
-  via: account
-- from: ReusablePaymentLinkRequest
-  to: Restrictions
+  via: details
+- from: FinancingRequest
+  to: DebtorFullNameRusProjection
   type: has_one
-  via: restrictions
-- from: ReusablePaymentLinkRequest
-  to: Extra
-  type: has_one
-  via: extra
-- from: ReusablePaymentLinkResponse
-  to: Account
-  type: has_one
-  via: account
-- from: ReusablePaymentLinkResponse
-  to: Qr
-  type: has_one
-  via: qr
-- from: ReusablePaymentLinkResponse
-  to: Restrictions
-  type: has_one
-  via: restrictions
-- from: ReusablePaymentLinkResponse
-  to: Extra
-  type: has_one
-  via: extra
-- from: Payment-2
-  to: SbpTransaction
-  type: belongs_to
-  via: sbpTransactionId
-- from: Payment-2
-  to: Extra
-  type: has_one
-  via: extra
-- from: Payment-2
-  to: PaymentSender
-  type: has_one
-  via: sender
-- from: ApplicationInfoResponse
-  to: ApplicationRequest
-  type: has_one
-  via: request
-- from: AccountResponseArray
-  to: AccountResponse
+  via: debtor
+- from: receiptWhiteLabel
+  to: receiptItem
   type: has_many
-  via: data
-- from: InvoiceRequest
-  to: Account
-  type: has_one
-  via: account
-- from: InvoiceRequest
-  to: Extra
-  type: has_one
-  via: extra
-- from: InvoiceRequest
-  to: Payer
-  type: has_one
-  via: payer
-- from: InvoiceRequest
-  to: DeliveryInfo
-  type: has_one
-  via: delivery
-- from: Sender
-  to: Account
-  type: has_one
-  via: account
-- from: Sender
-  to: BankInfo-2
-  type: has_one
-  via: bank
-- from: InvoiceResponse
-  to: Account
-  type: has_one
-  via: account
-- from: InvoiceResponse
-  to: Status-2
-  type: has_one
-  via: status
-- from: InvoiceResponse
-  to: Extra
-  type: has_one
-  via: extra
-- from: InvoiceResponse
-  to: Payer
-  type: has_one
-  via: payer
-- from: InvoiceResponse
-  to: Receiver
-  type: has_one
-  via: receiver
-- from: InvoiceResponse
-  to: Qr
-  type: has_one
-  via: qr
-- from: InvoiceResponse
-  to: DeliveryInfo
-  type: has_one
-  via: delivery
-- from: ReceiverDto
-  to: MccCodeDto
-  type: has_one
-  via: mcc
-- from: ReceiverDto
-  to: BankDto
-  type: has_one
-  via: bank
-- from: PaymentResponse
-  to: Qr
-  type: belongs_to
-  via: qrId
-- from: PaymentResponse
-  to: Account
-  type: has_one
-  via: account
-- from: PaymentResponse
-  to: Extra
-  type: has_one
-  via: extra
-- from: PaymentResponse
-  to: ReceiverDto
-  type: has_one
-  via: receiver
-- from: PaymentResponse
-  to: Document
-  type: belongs_to
-  via: documentId
-- from: PaymentResponse
-  to: SbpTransaction
-  type: belongs_to
-  via: sbpTransactionId
-- from: GetQrResponse
-  to: BankDto
-  type: has_one
-  via: bank
-- from: GetQrResponse
-  to: MccCodeDto
-  type: has_one
-  via: mcc
-- from: CreatePaymentRequest
-  to: Account
-  type: has_one
-  via: account
-- from: CreatePaymentRequest
-  to: Qr
-  type: belongs_to
-  via: qrId
-- from: CreatePaymentRequest
-  to: Extra
-  type: has_one
-  via: extra
-- from: CreatePaymentRequestWithQr
-  to: Qr
-  type: belongs_to
-  via: qrId
-- from: CreatePaymentRequestWithQr
-  to: Extra
-  type: has_one
-  via: extra
-- from: CreatePaymentBundleRequest
-  to: Account
-  type: has_one
-  via: account
-- from: CreatePaymentBundleRequest
-  to: CreatePaymentRequestWithQr
+  via: items
+- from: receiptWhiteLabel
+  to: payments
   type: has_many
-  via: transfers
-- from: PaymentResponseWithoutAccount
-  to: Qr
-  type: belongs_to
-  via: qrId
-- from: PaymentResponseWithoutAccount
-  to: Extra
+  via: payments
+- from: receiptWhiteLabel
+  to: additionalUserProperty
   type: has_one
-  via: extra
-- from: PaymentResponseWithoutAccount
-  to: ReceiverDto
-  type: has_one
-  via: receiver
-- from: PaymentBundleInfoResponse
-  to: Account
-  type: has_one
-  via: account
-- from: PaymentBundleInfoResponse
-  to: PaymentBundleStatus
-  type: has_one
-  via: status
-- from: PaymentBundleInfoResponse
-  to: PaymentResponseWithoutAccount
+  via: additionalUserProperty
+- from: response
+  to: receiptItem
   type: has_many
-  via: transfers
-- from: QrReceiverDto
-  to: MccCodeDto
-  type: has_one
-  via: mcc
-- from: PaymentV2QrResponse
-  to: Qr
-  type: belongs_to
-  via: qrId
-- from: PaymentV2QrResponse
-  to: Account
-  type: has_one
-  via: account
-- from: PaymentV2QrResponse
-  to: QrReceiverDto
-  type: has_one
-  via: receiver
-- from: PaymentV2QrResponse
-  to: SenderDto-2
-  type: has_one
-  via: sender
-- from: PaymentV2QrResponse
-  to: SbpTransaction
-  type: belongs_to
-  via: sbpTransactionId
-- from: PaymentV2QrResponse
-  to: Extra
-  type: has_one
-  via: extra
-- from: ReqReceiverDto
-  to: Account
-  type: has_one
-  via: account
-- from: PaymentV2ReqResponse
-  to: Account
-  type: has_one
-  via: account
-- from: PaymentV2ReqResponse
-  to: PaymentV2Status
-  type: has_one
-  via: status
-- from: PaymentV2ReqResponse
-  to: ReqReceiverDto
-  type: has_one
-  via: receiver
-- from: PaymentV2ReqResponse
-  to: SenderDto-2
-  type: has_one
-  via: sender
-- from: PaymentV2ReqResponse
-  to: SbpTransaction
-  type: belongs_to
-  via: sbpTransactionId
-- from: PaymentV2ReqResponse
-  to: Extra
-  type: has_one
-  via: extra
-- from: CreatePaymentV2QrRequest
-  to: Account
-  type: has_one
-  via: account
-- from: CreatePaymentV2QrRequest
-  to: Qr
-  type: belongs_to
-  via: qrId
-- from: CreatePaymentV2QrRequest
-  to: Extra
-  type: has_one
-  via: extra
-- from: ReqReceiverRequestDto
-  to: Account
-  type: has_one
-  via: account
-- from: CreatePaymentV2ReqRequest
-  to: Account
-  type: has_one
-  via: account
-- from: CreatePaymentV2ReqRequest
-  to: ReqReceiverRequestDto
-  type: has_one
-  via: receiver
-- from: CreatePaymentV2ReqRequest
-  to: Extra
-  type: has_one
-  via: extra
-- from: CreatePaymentBundleV2QrRequest
-  to: Qr
-  type: belongs_to
-  via: qrId
-- from: CreatePaymentBundleV2QrRequest
-  to: Extra
-  type: has_one
-  via: extra
-- from: CreatePaymentBundleV2ReqRequest
-  to: ReqReceiverRequestDto
-  type: has_one
-  via: receiver
-- from: CreatePaymentBundleV2ReqRequest
-  to: Extra
-  type: has_one
-  via: extra
-- from: PaymentBundleV2QrResponse
-  to: Qr
-  type: belongs_to
-  via: qrId
-- from: PaymentBundleV2QrResponse
-  to: QrReceiverDto
-  type: has_one
-  via: receiver
-- from: PaymentBundleV2QrResponse
-  to: SenderDto-2
-  type: has_one
-  via: sender
-- from: PaymentBundleV2QrResponse
-  to: SbpTransaction
-  type: belongs_to
-  via: sbpTransactionId
-- from: PaymentBundleV2QrResponse
-  to: Extra
-  type: has_one
-  via: extra
-- from: PaymentBundleV2ReqResponse
-  to: PaymentV2Status
-  type: has_one
-  via: status
-- from: PaymentBundleV2ReqResponse
-  to: ReqReceiverDto
-  type: has_one
-  via: receiver
-- from: PaymentBundleV2ReqResponse
-  to: SenderDto-2
-  type: has_one
-  via: sender
-- from: PaymentBundleV2ReqResponse
-  to: SbpTransaction
-  type: belongs_to
-  via: sbpTransactionId
-- from: PaymentBundleV2ReqResponse
-  to: Extra
-  type: has_one
-  via: extra
-- from: PaymentBundleV2Response
-  to: Account
-  type: has_one
-  via: account
-- from: PaymentBundleV2Response
-  to: PaymentBundleStatus
-  type: has_one
-  via: status
-- from: QRDynamic
-  to: Account
-  type: has_one
-  via: account
-- from: QRDynamic
-  to: AdditionalInfo
-  type: has_one
-  via: additionalInfo
-- from: QRDynamic
-  to: Subscription
-  type: has_one
-  via: subscription
-- from: QRDynamic
-  to: Extra
-  type: has_one
-  via: extra
-- from: QRStatic
-  to: Account
-  type: has_one
-  via: account
-- from: QRStatic
-  to: AdditionalInfo
-  type: has_one
-  via: additionalInfo
-- from: QRStatic
-  to: Extra
-  type: has_one
-  via: extra
-- from: CreateOrderQrSubscriptionRequest
-  to: SubscriptionAutoCharge
-  type: has_one
-  via: autoCharge
-- from: CreateOrderQrSubscriptionResponse
-  to: SubscriptionAutoCharge
-  type: has_one
-  via: autoCharge
-- from: QrStatusResponse
-  to: Qr
-  type: belongs_to
-  via: qrId
-- from: QrStatusResponse
-  to: Subscription
-  type: belongs_to
-  via: subscriptionId
-- from: CreatedQr
-  to: Qr
-  type: belongs_to
-  via: qrId
-- from: CreatedQr
-  to: Subscription
-  type: belongs_to
-  via: subscriptionId
-- from: AcquiringPaymentTransactionV2
-  to: Order
-  type: belongs_to
-  via: orderId
-- from: ClientTariffPlanChangeRequestStateHistoryView
-  to: ClientTariffPlanChangeRequestStateView
+  via: items
+- from: response
+  to: payments
   type: has_many
-  via: states
-- from: AgreementsFilterRequest
-  to: AgreementsFilter
+  via: payments
+- from: response
+  to: additionalUserProperty
   type: has_one
-  via: filter
-- from: AgreementsFilterRequest
-  to: Paging
-  type: has_one
-  via: paging
-- from: AgreementsFilterRequest
-  to: Order
-  type: has_many
-  via: order
-- from: AgreementsResponse
-  to: AgreementResponse
-  type: has_many
-  via: data
+  via: additionalUserProperty
 - from: GuaranteeBeneficiaryFilterRequest
   to: GuaranteeFilterDto
   type: has_one
@@ -3182,38 +2293,22 @@ relationships:
   to: Beneficiary
   type: has_one
   via: beneficiary
-- from: GuaranteeFilterDTO
-  to: IntervalDateFilterDTO
+- from: InvoiceRequest
+  to: Account
   type: has_one
-  via: issueDate
-- from: GuaranteeFilterDTO
-  to: IntervalDateFilterDTO
+  via: account
+- from: InvoiceRequest
+  to: Extra
   type: has_one
-  via: agreementDate
-- from: GuaranteeFilterDTO
-  to: IntervalDateFilterDTO
+  via: extra
+- from: InvoiceRequest
+  to: Payer
   type: has_one
-  via: startDate
-- from: GuaranteeFilterDTO
-  to: IntervalDateFilterDTO
+  via: payer
+- from: InvoiceRequest
+  to: DeliveryInfo
   type: has_one
-  via: endDate
-- from: GuaranteeFilterRequest
-  to: GuaranteeFilterDTO
-  type: has_one
-  via: filter
-- from: GuaranteeFilterRequest
-  to: Paging
-  type: has_one
-  via: paging
-- from: GuaranteeFilterRequest
-  to: Order
-  type: has_many
-  via: order
-- from: CommissionDto
-  to: FeeShortDto
-  type: has_many
-  via: commissions
+  via: delivery
 - from: GuaranteeResponse
   to: AgreementResponse
   type: has_one
@@ -3234,7 +2329,823 @@ relationships:
   to: CommissionDto
   type: has_one
   via: fees
-- from: AccEmployeePermissionDTO
-  to: Name
+- from: GuaranteeFilterDTO
+  to: IntervalDateFilterDTO
   type: has_one
-  via: name
+  via: issueDate
+- from: GuaranteeFilterDTO
+  to: IntervalDateFilterDTO
+  type: has_one
+  via: agreementDate
+- from: GuaranteeFilterDTO
+  to: IntervalDateFilterDTO
+  type: has_one
+  via: startDate
+- from: GuaranteeFilterDTO
+  to: IntervalDateFilterDTO
+  type: has_one
+  via: endDate
+- from: CommissionDto
+  to: FeeShortDto
+  type: has_many
+  via: commissions
+- from: GuaranteeFilterRequest
+  to: GuaranteeFilterDTO
+  type: has_one
+  via: filter
+- from: GuaranteeFilterRequest
+  to: Paging
+  type: has_one
+  via: paging
+- from: GuaranteeFilterRequest
+  to: Order
+  type: has_many
+  via: order
+- from: Limit
+  to: Principal
+  type: has_one
+  via: principal
+- from: BaseLoan
+  to: Loan
+  type: belongs_to
+  via: loanId
+- from: Notice
+  to: Condition
+  type: has_one
+  via: condition
+- from: CreateNotificationRequest
+  to: Customer
+  type: has_one
+  via: customer
+- from: OfferResponse
+  to: LeadSummary
+  type: has_one
+  via: latestLead
+- from: GetOrderRequest
+  to: PaginationRequest
+  type: has_one
+  via: paging
+- from: OrderResponse
+  to: CreditorRequisites
+  type: has_one
+  via: creditorRequisites
+- from: OrderResponse
+  to: PaymentRequisites
+  type: has_one
+  via: paymentRequisites
+- from: OrderResponse
+  to: TaxRequisites
+  type: has_one
+  via: taxRequisites
+- from: OrderResponse
+  to: CreditorResponse
+  type: has_one
+  via: creditor
+- from: OrderResponse
+  to: Payment
+  type: has_one
+  via: payment
+- from: OrderResponse
+  to: PacketResponse
+  type: has_one
+  via: packet
+- from: CreateOrderRequestDto
+  to: Account
+  type: has_one
+  via: account
+- from: CreateOrderRequestDto
+  to: Extra
+  type: has_one
+  via: extra
+- from: CreateOrderRequestDto
+  to: Restrictions
+  type: has_one
+  via: restrictions
+- from: OrderInfoResponseDto
+  to: Account
+  type: has_one
+  via: account
+- from: OrderInfoResponseDto
+  to: Extra
+  type: has_one
+  via: extra
+- from: OrderInfoResponseDto
+  to: Restrictions
+  type: has_one
+  via: restrictions
+- from: OrderInfoResponseDto
+  to: Qr
+  type: has_one
+  via: qr
+- from: OrderInfoResponseDto
+  to: Payment_2
+  type: has_one
+  via: payment
+- from: CreateOrderResponseDto
+  to: Account
+  type: has_one
+  via: account
+- from: CreateOrderResponseDto
+  to: Extra
+  type: has_one
+  via: extra
+- from: CreateOrderResponseDto
+  to: Restrictions
+  type: has_one
+  via: restrictions
+- from: CreateOrderResponseDto
+  to: Qr
+  type: has_one
+  via: qr
+- from: OrderInfoResponseDto_2
+  to: Account
+  type: has_one
+  via: account
+- from: OrderInfoResponseDto_2
+  to: Extra
+  type: has_one
+  via: extra
+- from: OrderInfoResponseDto_2
+  to: Restrictions
+  type: has_one
+  via: restrictions
+- from: OrderInfoResponseDto_2
+  to: Qr
+  type: has_one
+  via: qr
+- from: OrderInfoResponseDto_2
+  to: Payment_3
+  type: has_one
+  via: payment
+- from: Payment_3
+  to: SbpTransaction
+  type: belongs_to
+  via: sbpTransactionId
+- from: Payment_3
+  to: PaymentSender
+  type: has_one
+  via: sender
+- from: ParsedOrderResponse
+  to: CreditorRequisites
+  type: has_one
+  via: creditorRequisite
+- from: ParsedOrderResponse
+  to: PaymentRequisites
+  type: has_one
+  via: paymentRequisite
+- from: ParsedOrderResponse
+  to: TaxRequisites
+  type: has_one
+  via: taxRequisite
+- from: CreatePacketRequest
+  to: ParsedOrderResponse
+  type: has_many
+  via: orders
+- from: CreateRefundRequestV2
+  to: FiscalReceiptBasic
+  type: has_one
+  via: receipt
+- from: CreatedOrderPayform
+  to: FiscalReceiptBasic
+  type: has_one
+  via: receipt
+- from: CreatedOrderPayform
+  to: Subscription
+  type: has_one
+  via: subscription
+- from: CreatedOrderPayform
+  to: PaymentSlip
+  type: has_one
+  via: paymentSlip
+- from: JsSdk
+  to: Order
+  type: belongs_to
+  via: orderId
+- from: JsSdk
+  to: Extra
+  type: has_one
+  via: extra
+- from: CreateOrderPayform
+  to: FiscalReceiptBasic
+  type: has_one
+  via: receipt
+- from: CreateOrderPayform
+  to: PaymentSlip
+  type: has_one
+  via: paymentSlip
+- from: CreateOrderPayform
+  to: Subscription
+  type: has_one
+  via: subscription
+- from: Subscription
+  to: SubscriptionAutoCharge
+  type: has_one
+  via: autoCharge
+- from: Subscription
+  to: SubscriptionCustomer
+  type: has_one
+  via: customer
+- from: PayoutBundleMetadata
+  to: BundleStatus
+  type: has_one
+  via: status
+- from: TransferStatusDetails
+  to: Error
+  type: has_many
+  via: errors
+- from: TransferStatusDetails
+  to: Warning
+  type: has_many
+  via: warnings
+- from: StatementPayload
+  to: ConversionRate
+  type: has_many
+  via: conversionRates
+- from: StatementPayload
+  to: Transfer
+  type: has_many
+  via: transfers
+- from: StatementStatusResponse
+  to: Error
+  type: has_many
+  via: errors
+- from: StatementStatusResponse
+  to: Warning
+  type: has_many
+  via: warnings
+- from: StatementTransfersResponse
+  to: TransferStatusDetails
+  type: has_many
+  via: transfers
+- from: StatementTransfersResponse
+  to: Limit
+  type: has_one
+  via: limit
+- from: Transfer
+  to: ConversionPercent
+  type: has_many
+  via: conversion
+- from: CreateStatementRequest
+  to: StatementPayload
+  type: has_one
+  via: payload
+- from: SearchPropositionRequest
+  to: Proposition
+  type: belongs_to
+  via: propositionIds
+- from: SearchPropositionRequest
+  to: PaginationRequest
+  type: has_one
+  via: paging
+- from: SearchPropositionRequest
+  to: PropositionSortingRequest
+  type: has_many
+  via: sorting
+- from: PropositionsDigestRequest
+  to: PaginationRequest
+  type: has_one
+  via: paging
+- from: PropositionsDigestRequest
+  to: PropositionSortingRequest
+  type: has_many
+  via: sorting
+- from: Proposition
+  to: Order
+  type: belongs_to
+  via: orderId
+- from: Proposition
+  to: Account
+  type: belongs_to
+  via: accountId
+- from: QRStatic
+  to: Account
+  type: has_one
+  via: account
+- from: QRStatic
+  to: AdditionalInfo
+  type: has_one
+  via: additionalInfo
+- from: QRStatic
+  to: Extra
+  type: has_one
+  via: extra
+- from: PaymentInfo
+  to: Qr
+  type: belongs_to
+  via: qrId
+- from: PaymentInfo
+  to: AdditionalInfo
+  type: has_one
+  via: additionalInfo
+- from: PaymentInfo
+  to: Extra
+  type: has_one
+  via: extra
+- from: CreatedQr
+  to: Qr
+  type: belongs_to
+  via: qrId
+- from: CreatedQr
+  to: Subscription
+  type: belongs_to
+  via: subscriptionId
+- from: QRDynamic
+  to: Account
+  type: has_one
+  via: account
+- from: QRDynamic
+  to: AdditionalInfo
+  type: has_one
+  via: additionalInfo
+- from: QRDynamic
+  to: Subscription
+  type: has_one
+  via: subscription
+- from: QRDynamic
+  to: Extra
+  type: has_one
+  via: extra
+- from: PaymentBundleInfoResponse
+  to: Account
+  type: has_one
+  via: account
+- from: PaymentBundleInfoResponse
+  to: PaymentBundleStatus
+  type: has_one
+  via: status
+- from: PaymentBundleInfoResponse
+  to: PaymentResponseWithoutAccount
+  type: has_many
+  via: transfers
+- from: PaymentResponseWithoutAccount
+  to: Qr
+  type: belongs_to
+  via: qrId
+- from: PaymentResponseWithoutAccount
+  to: Extra
+  type: has_one
+  via: extra
+- from: PaymentResponseWithoutAccount
+  to: ReceiverDto
+  type: has_one
+  via: receiver
+- from: PaymentResponse
+  to: Qr
+  type: belongs_to
+  via: qrId
+- from: PaymentResponse
+  to: Account
+  type: has_one
+  via: account
+- from: PaymentResponse
+  to: Extra
+  type: has_one
+  via: extra
+- from: PaymentResponse
+  to: ReceiverDto
+  type: has_one
+  via: receiver
+- from: PaymentResponse
+  to: Document
+  type: belongs_to
+  via: documentId
+- from: PaymentResponse
+  to: SbpTransaction
+  type: belongs_to
+  via: sbpTransactionId
+- from: ReceiverDto
+  to: MccCodeDto
+  type: has_one
+  via: mcc
+- from: ReceiverDto
+  to: BankDto
+  type: has_one
+  via: bank
+- from: CreatePaymentRequestWithQr
+  to: Qr
+  type: belongs_to
+  via: qrId
+- from: CreatePaymentRequestWithQr
+  to: Extra
+  type: has_one
+  via: extra
+- from: CreatePaymentRequest
+  to: Account
+  type: has_one
+  via: account
+- from: CreatePaymentRequest
+  to: Qr
+  type: belongs_to
+  via: qrId
+- from: CreatePaymentRequest
+  to: Extra
+  type: has_one
+  via: extra
+- from: GetQrResponse
+  to: BankDto
+  type: has_one
+  via: bank
+- from: GetQrResponse
+  to: MccCodeDto
+  type: has_one
+  via: mcc
+- from: CreatePaymentBundleRequest
+  to: Account
+  type: has_one
+  via: account
+- from: CreatePaymentBundleRequest
+  to: CreatePaymentRequestWithQr
+  type: has_many
+  via: transfers
+- from: CreateMt942ReportRequest
+  to: Field25
+  type: has_one
+  via: field25
+- from: CreateMt942DeltaReportRequest
+  to: Field25
+  type: has_one
+  via: field25
+- from: CreatePdfReportRequest
+  to: WithAttachments
+  type: has_one
+  via: withAttachments
+- from: CreateMt940ReportRequest
+  to: Field25
+  type: has_one
+  via: field25
+- from: ReusablePaymentLinkResponse
+  to: Account
+  type: has_one
+  via: account
+- from: ReusablePaymentLinkResponse
+  to: Qr
+  type: has_one
+  via: qr
+- from: ReusablePaymentLinkResponse
+  to: Restrictions
+  type: has_one
+  via: restrictions
+- from: ReusablePaymentLinkResponse
+  to: Extra
+  type: has_one
+  via: extra
+- from: ReusablePaymentLinkRequest
+  to: Account
+  type: has_one
+  via: account
+- from: ReusablePaymentLinkRequest
+  to: Restrictions
+  type: has_one
+  via: restrictions
+- from: ReusablePaymentLinkRequest
+  to: Extra
+  type: has_one
+  via: extra
+- from: AccountResponseArray
+  to: AccountResponse
+  type: has_many
+  via: data
+- from: schemas-Subscription
+  to: AutoCharge
+  type: has_one
+  via: autoCharge
+- from: schemas-Subscription
+  to: SubscriptionCustomer
+  type: has_one
+  via: customer
+- from: OrderInfoSplitsResponseDto
+  to: Extra
+  type: has_one
+  via: extra
+- from: OrderInfoSplitsResponseDto
+  to: Restrictions
+  type: has_one
+  via: restrictions
+- from: OrderInfoSplitsResponseDto
+  to: Qr
+  type: has_one
+  via: qr
+- from: OrderInfoSplitsResponseDto
+  to: Payment
+  type: has_one
+  via: payment
+- from: CreateOrderSplitsResponseDto
+  to: Extra
+  type: has_one
+  via: extra
+- from: CreateOrderSplitsResponseDto
+  to: Restrictions
+  type: has_one
+  via: restrictions
+- from: CreateOrderSplitsResponseDto
+  to: Qr
+  type: has_one
+  via: qr
+- from: CreateOrderSplitsRequestDto
+  to: Extra
+  type: has_one
+  via: extra
+- from: CreateOrderSplitsRequestDto
+  to: Restrictions
+  type: has_one
+  via: restrictions
+- from: CreateOrderQrResponse
+  to: CreateOrderQrSubscriptionResponse
+  type: has_one
+  via: subscription
+- from: CreateOrderQrSubscriptionRequest
+  to: SubscriptionAutoCharge
+  type: has_one
+  via: autoCharge
+- from: CreateOrderQrSubscriptionResponse
+  to: SubscriptionAutoCharge
+  type: has_one
+  via: autoCharge
+- from: CreateOrderQrDynamicRequest
+  to: CreateOrderQrSubscriptionRequest
+  type: has_one
+  via: subscription
+- from: CreateOrderQrResponse_2
+  to: CreateOrderQrSubscriptionResponse
+  type: has_one
+  via: subscription
+- from: CreateOrderQrDynamicRequest_2
+  to: CreateOrderQrSubscriptionRequest
+  type: has_one
+  via: subscription
+- from: Sublimit
+  to: DealConditions
+  type: belongs_to
+  via: dealConditionsId
+- from: CreatedSubscriptionPayment
+  to: AdditionalInfo
+  type: has_one
+  via: additionalInfo
+- from: CreatedSubscriptionPayment
+  to: Qr
+  type: belongs_to
+  via: qrId
+- from: SubscriptionPayment
+  to: Subscription
+  type: belongs_to
+  via: subscriptionId
+- from: SubscriptionPayment
+  to: FiscalReceiptBasic
+  type: has_one
+  via: receipt
+- from: CardPayment
+  to: Subscription
+  type: has_one
+  via: subscription
+- from: ChangeSubscription
+  to: AutoCharge
+  type: has_one
+  via: autoCharge
+- from: ChangeSubscription
+  to: SubscriptionCustomer
+  type: has_one
+  via: customer
+- from: GeneralPayment
+  to: Order
+  type: has_one
+  via: order
+- from: GeneralPayment
+  to: Extra
+  type: has_one
+  via: extra
+- from: CardBinding
+  to: Subscription
+  type: has_one
+  via: subscription
+- from: Supply
+  to: DebtorFullNameRusProjection
+  type: has_one
+  via: debtor
+- from: SupplySearchRequest
+  to: Agreement
+  type: belongs_to
+  via: agreementId
+- from: SupplySearchRequest
+  to: DealConditions
+  type: belongs_to
+  via: dealConditionsId
+- from: SupplySearchRequest
+  to: FinancingRequest
+  type: belongs_to
+  via: financingRequestId
+- from: SupplySearchRequest
+  to: Supply
+  type: belongs_to
+  via: supplyIds
+- from: Supply_2
+  to: Condition
+  type: has_one
+  via: condition
+- from: Supply_2
+  to: Action
+  type: has_many
+  via: actions
+- from: Supply_2
+  to: SupplyRegistryDigest
+  type: has_one
+  via: registry
+- from: Action
+  to: ActionState
+  type: has_one
+  via: state
+- from: Supply_3
+  to: Condition
+  type: has_one
+  via: condition
+- from: Supply_3
+  to: Action
+  type: has_many
+  via: actions
+- from: Supply_3
+  to: SupplyRegistryDigest
+  type: has_one
+  via: registry
+- from: AvailableTariffPlansView
+  to: PageResponseTariffPlanPublicDataView
+  type: has_one
+  via: tariffPlans
+- from: PageResponseTariffPlanPublicDataView
+  to: TariffPlanPublicDataView
+  type: has_many
+  via: content
+- from: TariffPlanPublicDataView
+  to: Document
+  type: belongs_to
+  via: documentId
+- from: TariffPlan
+  to: Contract
+  type: belongs_to
+  via: contractId
+- from: TariffPlan
+  to: FinancingTariff
+  type: has_many
+  via: financingTariffs
+- from: TariffPlan
+  to: FinancedSupplyTariff
+  type: has_many
+  via: financedSupplyTariffs
+- from: TariffPlan
+  to: IncomingPaymentOrderHandlingTariff
+  type: has_many
+  via: incomingPaymentOrderHandlingTariffs
+- from: ReqReceiverDto
+  to: Account
+  type: has_one
+  via: account
+- from: CreatePaymentV2QrRequest
+  to: Account
+  type: has_one
+  via: account
+- from: CreatePaymentV2QrRequest
+  to: Qr
+  type: belongs_to
+  via: qrId
+- from: CreatePaymentV2QrRequest
+  to: Extra
+  type: has_one
+  via: extra
+- from: PaymentBundleV2QrResponse
+  to: Qr
+  type: belongs_to
+  via: qrId
+- from: PaymentBundleV2QrResponse
+  to: QrReceiverDto
+  type: has_one
+  via: receiver
+- from: PaymentBundleV2QrResponse
+  to: SenderDto-2
+  type: has_one
+  via: sender
+- from: PaymentBundleV2QrResponse
+  to: SbpTransaction
+  type: belongs_to
+  via: sbpTransactionId
+- from: PaymentBundleV2QrResponse
+  to: Extra
+  type: has_one
+  via: extra
+- from: ReqReceiverRequestDto
+  to: Account
+  type: has_one
+  via: account
+- from: PaymentBundleV2ReqResponse
+  to: PaymentV2Status
+  type: has_one
+  via: status
+- from: PaymentBundleV2ReqResponse
+  to: ReqReceiverDto
+  type: has_one
+  via: receiver
+- from: PaymentBundleV2ReqResponse
+  to: SenderDto-2
+  type: has_one
+  via: sender
+- from: PaymentBundleV2ReqResponse
+  to: SbpTransaction
+  type: belongs_to
+  via: sbpTransactionId
+- from: PaymentBundleV2ReqResponse
+  to: Extra
+  type: has_one
+  via: extra
+- from: PaymentV2ReqResponse
+  to: Account
+  type: has_one
+  via: account
+- from: PaymentV2ReqResponse
+  to: PaymentV2Status
+  type: has_one
+  via: status
+- from: PaymentV2ReqResponse
+  to: ReqReceiverDto
+  type: has_one
+  via: receiver
+- from: PaymentV2ReqResponse
+  to: SenderDto-2
+  type: has_one
+  via: sender
+- from: PaymentV2ReqResponse
+  to: SbpTransaction
+  type: belongs_to
+  via: sbpTransactionId
+- from: PaymentV2ReqResponse
+  to: Extra
+  type: has_one
+  via: extra
+- from: CreatePaymentV2ReqRequest
+  to: Account
+  type: has_one
+  via: account
+- from: CreatePaymentV2ReqRequest
+  to: ReqReceiverRequestDto
+  type: has_one
+  via: receiver
+- from: CreatePaymentV2ReqRequest
+  to: Extra
+  type: has_one
+  via: extra
+- from: PaymentBundleV2Response
+  to: Account
+  type: has_one
+  via: account
+- from: PaymentBundleV2Response
+  to: PaymentBundleStatus
+  type: has_one
+  via: status
+- from: PaymentV2QrResponse
+  to: Qr
+  type: belongs_to
+  via: qrId
+- from: PaymentV2QrResponse
+  to: Account
+  type: has_one
+  via: account
+- from: PaymentV2QrResponse
+  to: QrReceiverDto
+  type: has_one
+  via: receiver
+- from: PaymentV2QrResponse
+  to: SenderDto-2
+  type: has_one
+  via: sender
+- from: PaymentV2QrResponse
+  to: SbpTransaction
+  type: belongs_to
+  via: sbpTransactionId
+- from: PaymentV2QrResponse
+  to: Extra
+  type: has_one
+  via: extra
+- from: QrReceiverDto
+  to: MccCodeDto
+  type: has_one
+  via: mcc
+- from: CreatePaymentBundleV2ReqRequest
+  to: ReqReceiverRequestDto
+  type: has_one
+  via: receiver
+- from: CreatePaymentBundleV2ReqRequest
+  to: Extra
+  type: has_one
+  via: extra
+- from: CreatePaymentBundleV2Request
+  to: Account
+  type: has_one
+  via: account
+- from: CreatePaymentBundleV2QrRequest
+  to: Qr
+  type: belongs_to
+  via: qrId
+- from: CreatePaymentBundleV2QrRequest
+  to: Extra
+  type: has_one
+  via: extra
+- from: SignedDocumentsRequest
+  to: OrganizationInfo
+  type: has_one
+  via: organizationInfo

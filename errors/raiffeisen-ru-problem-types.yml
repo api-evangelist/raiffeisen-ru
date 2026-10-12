@@ -1,31 +1,31 @@
-generated: '2026-10-09'
+generated: '2026-10-12'
 method: derived
 generator: derive-problem-types.py
 source:
-- openapi/raiffeisen-ru-adm-deposit-codes-openapi.yml
-- openapi/raiffeisen-ru-agency-factoring-openapi.yml
-- openapi/raiffeisen-ru-audit-reports-openapi.yml
-- openapi/raiffeisen-ru-authorization-openapi.yml
-- openapi/raiffeisen-ru-bank-statements-openapi.yml
-- openapi/raiffeisen-ru-brokerage-payment-orders-openapi.yml
-- openapi/raiffeisen-ru-brokerage-reports-openapi.yml
-- openapi/raiffeisen-ru-cbr-exchange-rates-openapi.yml
-- openapi/raiffeisen-ru-client-tariffs-openapi.yml
-- openapi/raiffeisen-ru-content-dictionaries-openapi.yml
-- openapi/raiffeisen-ru-content-interactions-openapi.yml
-- openapi/raiffeisen-ru-content-macroeconomic-reviews-openapi.yml
+- openapi/raiffeisen-ru-accounts-operation-api-api-openapi.yml
+- openapi/raiffeisen-ru-agreement-api-openapi.yml
+- openapi/raiffeisen-ru-agreements-api-openapi.yml
+- openapi/raiffeisen-ru-agreementsum-api-openapi.yml
+- openapi/raiffeisen-ru-api-client-api-openapi.yml
+- openapi/raiffeisen-ru-api-fund-api-openapi.yml
+- openapi/raiffeisen-ru-applications-api-openapi.yml
+- openapi/raiffeisen-ru-auditscontroller-api-openapi.yml
+- openapi/raiffeisen-ru-bills-api-openapi.yml
+- openapi/raiffeisen-ru-brokerage-payment-orders-api-openapi.yml
+- openapi/raiffeisen-ru-brokerage-reports-api-openapi.yml
+- openapi/raiffeisen-ru-buyer-api-openapi.yml
 format: custom
 envelope:
   media_type: application/json
   schema: ErrorResponse
 coverage:
-  operations: 449
+  operations: 439
   statuses_declared: 12
 problems:
 - status: 400
   title: Bad Request
   description: Bad Request
-  operations: 344
+  operations: 329
   media_types:
   - application/json
   - application/xml
@@ -34,7 +34,7 @@ problems:
 - status: 401
   title: Unauthorized
   description: Аутентификация не пройдена
-  operations: 329
+  operations: 322
   media_types:
   - application/json
   schema: Error401Response
@@ -49,7 +49,7 @@ problems:
 - status: 404
   title: Not Found
   description: Not Found
-  operations: 143
+  operations: 142
   media_types:
   - application/json
   - text/plain
@@ -81,7 +81,7 @@ problems:
 - status: 415
   title: Unsupported Media Type
   description: Unsupported Media Type.
-  operations: 14
+  operations: 12
   media_types:
   - application/json
   schema: 415response
@@ -102,7 +102,7 @@ problems:
 - status: 500
   title: Internal Server Error
   description: Внутренняя ошибка
-  operations: 366
+  operations: 357
   media_types:
   - application/json
   - application/json;charset=UTF-8

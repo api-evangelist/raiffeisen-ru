@@ -1,0 +1,72 @@
+generated: '2026-10-12'
+method: derived
+generator: derive-webhooks.py
+source:
+- openapi/raiffeisen-ru-callback-api-api-openapi.yml
+- openapi/raiffeisen-ru-callback-api-openapi.yml
+- openapi/raiffeisen-ru-invoice-api-openapi.yml
+- openapi/raiffeisen-ru-order-api-openapi.yml
+- openapi/raiffeisen-ru-reusable-payment-link-api-openapi.yml
+- openapi/raiffeisen-ru-splits-api-openapi.yml
+description: 'Event surface derived from the provider''s own OpenAPI: webhooks. No AsyncAPI document is published by the provider; this catalog
+  lists the events the contract names.'
+management_operations:
+- postsettingsUrl
+- sendTestCallback
+- post-settings-v1-callback
+- postApiSettingsV1Callback
+- postV1Notifications
+- deleteV1Notification
+- postV1NotificationSettings
+- getV1NotificationSettings
+- deleteV1NotificationSettings
+- post-v1-merchants-publicId-forms
+- get-v1-merchants-publicId-subscriptions-id
+- delete-v1-merchants-publicId-subscriptions-id
+- createSubscription
+- getSubscription
+- cancelSubscription
+- createSubscriptionPayment
+- getSubscriptionPaymentStatus
+- patch-v1-merchants-publicId-subscriptions-id
+- delete-v2-merchants-publicId-subscriptions-id
+events:
+- event: newPay
+  description: Уведомление об операциях по картам
+  declared_in: webhooks
+- event: paymentCallback
+  description: Уведомление об оплате (v3)
+  declared_in: webhooks
+- event: refundCallback
+  description: Уведомление о возврате (v1)
+  declared_in: webhooks
+- event: subscriptionCallback
+  description: Уведомление о подписке (v2)
+  declared_in: webhooks
+- event: IncomingPayment
+  description: Уведомление о входящем платеже заказа
+  declared_in: webhooks
+- event: IncomingReusablePaymentLinkPayment
+  description: Уведомление о входящем платеже по многоразовой платежной ссылке
+  declared_in: webhooks
+- event: IncomingInvoicePayment
+  description: Уведомление о входящем платеже по выставленному счету
+  declared_in: webhooks
+- event: CallbackPaymentV3
+  description: Уведомление об оплате (v3)
+  declared_in: webhooks
+- event: CallbackPaymentGeneral
+  description: Уведомление об оплате (v2)
+  declared_in: webhooks
+- event: CallbackPaymentOld
+  description: Уведомление об оплате (v1)
+  declared_in: webhooks
+- event: CallbackRefund
+  description: Уведомление о возврате (v1)
+  declared_in: webhooks
+- event: CallbackSubscription
+  description: Уведомление о подписке (v2)
+  declared_in: webhooks
+- event: CallbackSubscriptionOld
+  description: Уведомление о подписке (v1)
+  declared_in: webhooks

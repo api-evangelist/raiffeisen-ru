@@ -1,0 +1,35 @@
+generated: '2026-10-12'
+method: searched
+source:
+- https://zapier.com/apps/raiffeisen-ru/integrations
+- https://zapier.com/apps/raiffeisenbank-russia/integrations
+- https://n8n.io/integrations/raiffeisen-ru/
+- https://composio.dev/toolkits/raiffeisen-ru
+- https://monid.ai/tools/raiffeisen-ru
+checked:
+- https://composio.dev/toolkits/raiffeisen-ru
+- https://developer.raiffeisen.ru/
+- https://monid.ai/tools/raiffeisen-ru
+- https://n8n.io/integrations/raiffeisen-ru/
+- https://pay.raif.ru/dev/
+- https://www.raiffeisen.ru/partners/
+- https://zapier.com/apps/raiffeisen-ru/integrations
+- https://zapier.com/apps/raiffeisen/integrations
+- https://zapier.com/apps/raiffeisenbank-russia/integrations
+summary: null
+marketplace_apps: []
+edges:
+- partner_name: 1C:DirectBank (1С:ДиректБанк)
+  partner: null
+  type: claimed
+  evidence: https://developer.raiffeisen.ru/
+  direction: unknown
+- partner_name: Smartegra
+  partner: null
+  type: claimed
+  evidence: https://developer.raiffeisen.ru/
+  direction: unknown
+templates: []
+note: The developer portal names two ready-made 1C integrations ("Для 1С есть готовые интеграции 1С:ДиректБанк и
+  Smartegra"); SAP, MS Dynamics, Oracle and IBM are named only as accounting systems the API can work with, not
+  as built integrations, so they are not recorded as edges. No Zapier listing (404).
