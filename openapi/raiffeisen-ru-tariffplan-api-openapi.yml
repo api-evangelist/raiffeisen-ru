@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Tariff Plan API
+  description: API Факторинга
+  title: Финансирование. Факторинг Tariff Plan API
   version: 1.0.0
-  description: 'Operations tagged TariffPlan across 2 of this provider''s published API definitions: raiffeisen-ru-factoring-openapi.yml, raiffeisen-ru-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/factoring
 tags:
@@ -267,71 +267,68 @@ paths:
       summary: Получение тарифных планов
       tags:
       - TariffPlan
-    servers:
-    - url: https://api.raiffeisen.ru/factoring
 components:
+  parameters:
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
   schemas:
-    RestErrorCodes:
-      description: '| code            | description                                          |
-
-        |-----------------|------------------------------------------------------|
-
-        | REST_ERROR_5001 | General service error                                |
-
-        | REST_ERROR_5004 | Agreement does not exist                             |
-
-        | REST_ERROR_5017 | DealConditions does not exist                        |
-
-        | REST_ERROR_5024 | Action is available at working hour                  |
-
-        | REST_ERROR_5025 | Supplies are not found                               |
-
-        | REST_ERROR_5026 | Approved contract does not exist                     |
-
-        | REST_ERROR_5027 | Supplies must be selected on only one deal condition |
-
-        | REST_ERROR_5028 | Approved deal conditions do not exist                |
-
-        | REST_ERROR_5029 | Approved agreement does not exist                    |
-
-        | REST_ERROR_5031 | Account for financing cannot be empty                |
-
-        | REST_ERROR_5032 | Data validation failed                               |
-
-        | REST_ERROR_5033 | File is infected                                     |
-
-        | REST_ERROR_5034 | Invalid type of file                                 |
-
-        | REST_ERROR_5035 | File is empty                                        |
-
-        | REST_ERROR_5036 | Failed to read file                                  |
-
-        | REST_ERROR_5037 | Supplier are not found                               |
-
-        | SELECTED_ORGANIZATION_REQUIRED | selectedCnum is required when several organizations are available |
-
-        | SELECTED_ORGANIZATION_NOT_ALLOWED | selectedCnum is not included in allowed organizations |
-
-        '
+    FinancedSupplyTariffStatus:
+      description: Статус тарифа за профинансированную поставку
       enum:
-      - REST_ERROR_5001
-      - REST_ERROR_5004
-      - REST_ERROR_5017
-      - REST_ERROR_5024
-      - REST_ERROR_5025
-      - REST_ERROR_5026
-      - REST_ERROR_5027
-      - REST_ERROR_5028
-      - REST_ERROR_5029
-      - REST_ERROR_5031
-      - REST_ERROR_5032
-      - REST_ERROR_5033
-      - REST_ERROR_5034
-      - REST_ERROR_5035
-      - REST_ERROR_5036
-      - SELECTED_ORGANIZATION_REQUIRED
-      - SELECTED_ORGANIZATION_NOT_ALLOWED
-      example: REST_ERROR_5001
+      - APPROVED
+      example: APPROVED
+      type: string
+    IncomingPaymentOrderHandlingTariffState:
+      allOf:
+      - $ref: '#/components/schemas/State'
+      - properties:
+          status:
+            $ref: '#/components/schemas/IncomingPaymentOrderHandlingTariffStatus'
+        required:
+        - status
+        type: object
+      description: Состояние тарифа за обработанное входящее платежное поручение
+      example:
+        status: APPROVED
+        statusDate: '2025-10-16T12:00:01.024991'
+        errors: []
+        cqrsVersion: 1742767789
+      type: object
+    FinancingTariffStatus:
+      description: Статус тарифа за финансирование
+      enum:
+      - APPROVED
+      example: APPROVED
+      type: string
+    ErrorResponse:
+      example:
+      - code: REST_ERROR_5001
+        message: General service error
+      items:
+        $ref: '#/components/schemas/ErrorMessage'
+      type: array
+    IncomingPaymentOrderHandlingTariffType:
+      description: Тип тарифа за обработанное входящее платежное поручение
+      enum:
+      - FOR_PAYMENT_FIX
+      - FOR_PAYMENT_PERCENT
+      example: FOR_PAYMENT_PERCENT
       type: string
     ErrorMessage:
       properties:
@@ -345,65 +342,8 @@ components:
       - code
       - message
       type: object
-    FinancedSupplyTariffStatus:
-      description: Статус тарифа за профинансированную поставку
-      enum:
-      - APPROVED
-      example: APPROVED
-      type: string
-    FinancingTariffState:
-      allOf:
-      - $ref: '#/components/schemas/State'
-      - properties:
-          status:
-            $ref: '#/components/schemas/FinancingTariffStatus'
-        required:
-        - status
-        type: object
-      description: Состояние тарифа за финансирование
-      example:
-        status: APPROVED
-        statusDate: '2025-10-16T12:00:01.024991'
-        errors: []
-        cqrsVersion: 1742767789
-      type: object
-    State:
-      description: Состояние объекта
-      properties:
-        statusDate:
-          description: Дата последнего изменения состояния объекта yyyy-MM-dd'T'HH:mm:ss.SSSSSS
-          format: date-time
-          pattern: ([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})
-          type: string
-        errors:
-          description: Список ошибок в объекте. Может быть пустым списком или null
-          items:
-            $ref: '#/components/schemas/ErrorMessage'
-          type: array
-        cqrsVersion:
-          description: hashCode от statusDate, status и errors
-          example: -1628796591
-          type: integer
-      required:
-      - cqrsVersion
-      - statusDate
-      type: object
-    ErrorResponse:
-      example:
-      - code: REST_ERROR_5001
-        message: General service error
-      items:
-        $ref: '#/components/schemas/ErrorMessage'
-      type: array
-    FinancingTariffType:
-      description: Тип тарифа за финансирование
-      enum:
-      - FOR_FINANCE_PERCENT
-      - FOR_FINANCE_FLOAT_CBR
-      example: FOR_FINANCE_PERCENT
-      type: string
-    TariffPlanStatus:
-      description: Статус тарифного плана
+    IncomingPaymentOrderHandlingTariffStatus:
+      description: Статус тарифа за обработанное входящее платежное поручение
       enum:
       - APPROVED
       example: APPROVED
@@ -418,210 +358,6 @@ components:
         - status
         type: object
       description: Состояние тарифного плана
-      example:
-        status: APPROVED
-        statusDate: '2025-10-16T12:00:01.024991'
-        errors: []
-        cqrsVersion: 1742767789
-      type: object
-    PaginationResponse:
-      example:
-        offset: 0
-        limit: 10
-        totalCount: 100
-      properties:
-        offset:
-          description: Число записей для смещения для формирования страницы ответа
-          example: 1
-          type: integer
-        limit:
-          description: Итоговое количество элементов на странице ответа
-          example: 10
-          type: integer
-        totalCount:
-          description: Общее количество элементов
-          example: 100
-          type: integer
-      required:
-      - limit
-      - offset
-      - totalCount
-      type: object
-    IncomingPaymentOrderHandlingTariffStatus:
-      description: Статус тарифа за обработанное входящее платежное поручение
-      enum:
-      - APPROVED
-      example: APPROVED
-      type: string
-    TariffPlanPageResponse:
-      allOf:
-      - properties:
-          tariffPlans:
-            description: Тарифные планы
-            items:
-              $ref: '#/components/schemas/TariffPlan'
-            type: array
-        type: object
-      - $ref: '#/components/schemas/PaginationResponse'
-      example:
-        tariffPlans:
-        - id: 87c4b6c5-4340-4b01-b910-8736420178d2
-          contractId: 4f7d974a-dd63-421b-ba2b-712da215b86b
-          financingTariffs:
-          - id: 7591a148-5ccb-4b53-984d-1a6cb0f3c72c
-            type: FOR_FINANCE_PERCENT
-            deferralFeeValue: 0.123
-            additionalPeriodFeeValue: 0.234
-            waitingPeriodFeeValue: 0.345
-            startDate: '2025-05-01'
-            state:
-              status: APPROVED
-              statusDate: '2025-10-16T12:00:01.024991'
-              errors: []
-              cqrsVersion: 1742767789
-          - id: aae70d79-6912-41d6-81db-b74a0fd5f1e2
-            type: FOR_FINANCE_FLOAT_CBR
-            deferralFeeValue: 0.234
-            additionalPeriodFeeValue: 0.345
-            waitingPeriodFeeValue: 0.567
-            startDate: '2026-01-12'
-            state:
-              status: APPROVED
-              statusDate: '2025-10-16T12:00:01.024991'
-              errors: []
-              cqrsVersion: 1742767789
-          financedSupplyTariffs:
-          - id: 0cc43258-7c89-48c1-94ab-7c3885f97576
-            type: FOR_FINANCED_SUPPLY_PERCENT
-            value: 0.123
-            startDate: '2025-05-01'
-            state:
-              status: APPROVED
-              statusDate: '2025-10-16T12:00:01.024991'
-              errors: []
-              cqrsVersion: 1742767789
-          - id: 0cc43258-7c89-48c1-94ab-7c3885f97576
-            type: FOR_FINANCED_SUPPLY_FIX
-            value: 500
-            startDate: '2026-01-12'
-            state:
-              status: APPROVED
-              statusDate: '2025-10-16T12:00:01.024991'
-              errors: []
-              cqrsVersion: 1742767789
-          incomingPaymentOrderHandlingTariffs:
-          - id: 01516372-4465-4b9e-9aa3-19f421849592
-            type: FOR_PAYMENT_PERCENT
-            value: 0.123
-            startDate: '2025-05-01'
-            state:
-              status: APPROVED
-              statusDate: '2025-10-16T12:00:01.024991'
-              errors: []
-              cqrsVersion: 1742767789
-          - id: 01516372-4465-4b9e-9aa3-19f421849592
-            type: FOR_PAYMENT_FIX
-            value: 100
-            startDate: '2026-01-13'
-            state:
-              status: APPROVED
-              statusDate: '2025-10-16T12:00:01.024991'
-              errors: []
-              cqrsVersion: 1742767789
-          state:
-            status: APPROVED
-            statusDate: '2025-10-16T12:00:01.024991'
-            errors: []
-            cqrsVersion: 1742767789
-        - id: e2430cd0-6a91-4fd7-92fa-191a0857cb72
-          contractId: 4d8c17f5-c954-499d-bb6c-15bd9518c457
-          financingTariffs:
-          - id: afc37b8f-f166-497c-a967-da7da7278c01
-            type: FOR_FINANCE_PERCENT
-            deferralFeeValue: 0.9876
-            additionalPeriodFeeValue: 0.8765
-            waitingPeriodFeeValue: 0.7654
-            startDate: '2025-10-12'
-            state:
-              status: APPROVED
-              statusDate: '2025-11-23T15:13:21.156123'
-              errors: []
-              cqrsVersion: 5432102345
-          financedSupplyTariffs: []
-          incomingPaymentOrderHandlingTariffs: []
-          state:
-            status: APPROVED
-            statusDate: '2025-11-23T15:13:21.156123'
-            errors: []
-            cqrsVersion: 5432102345
-        offset: 0
-        limit: 2
-        totalCount: 3
-      type: object
-    FinancedSupplyTariffType:
-      description: Тип тарифа за профинансированную поставку
-      enum:
-      - FOR_FINANCED_SUPPLY_FIX
-      - FOR_FINANCED_SUPPLY_PERCENT
-      example: FOR_FINANCED_SUPPLY_PERCENT
-      type: string
-    IncomingPaymentOrderHandlingTariff:
-      description: Тариф за обработанное входящее платежное поручение
-      example:
-        id: 01516372-4465-4b9e-9aa3-19f421849592
-        type: FOR_PAYMENT_PERCENT
-        value: 0.1234
-        startDate: '2025-05-01'
-        state:
-          status: APPROVED
-          statusDate: '2025-10-16T12:00:01.024991'
-          errors: []
-          cqrsVersion: 1742767789
-      properties:
-        id:
-          description: Идентификатор тарифа за обработанное входящее платежное поручение
-          example: 01516372-4465-4b9e-9aa3-19f421849592
-          format: uuid
-          type: string
-        type:
-          $ref: '#/components/schemas/IncomingPaymentOrderHandlingTariffType'
-        value:
-          description: Ставка
-          example: 0.1234
-          type: number
-        startDate:
-          description: Дата начала действия тарифа
-          example: '2025-05-01'
-          format: date
-          type: string
-        state:
-          allOf:
-          - $ref: '#/components/schemas/IncomingPaymentOrderHandlingTariffState'
-          description: Состояние тарифа за обработанное входящее платежное поручение
-          type: object
-      required:
-      - id
-      - startDate
-      - state
-      - type
-      - value
-      type: object
-    FinancingTariffStatus:
-      description: Статус тарифа за финансирование
-      enum:
-      - APPROVED
-      example: APPROVED
-      type: string
-    FinancedSupplyTariffState:
-      allOf:
-      - $ref: '#/components/schemas/State'
-      - properties:
-          status:
-            $ref: '#/components/schemas/FinancedSupplyTariffStatus'
-        required:
-        - status
-        type: object
-      description: Состояние тарифа за профинансированную поставку
       example:
         status: APPROVED
         statusDate: '2025-10-16T12:00:01.024991'
@@ -741,11 +477,258 @@ components:
       - incomingPaymentOrderHandlingTariffs
       - state
       type: object
-    FinancedSupplyTariff:
-      description: Тариф за профинансированную поставку
+    PaginationResponse:
       example:
-        id: 0cc43258-7c89-48c1-94ab-7c3885f97576
-        type: FOR_FINANCED_SUPPLY_PERCENT
+        offset: 0
+        limit: 10
+        totalCount: 100
+      properties:
+        offset:
+          description: Число записей для смещения для формирования страницы ответа
+          example: 1
+          type: integer
+        limit:
+          description: Итоговое количество элементов на странице ответа
+          example: 10
+          type: integer
+        totalCount:
+          description: Общее количество элементов
+          example: 100
+          type: integer
+      required:
+      - limit
+      - offset
+      - totalCount
+      type: object
+    State:
+      description: Состояние объекта
+      properties:
+        statusDate:
+          description: Дата последнего изменения состояния объекта yyyy-MM-dd'T'HH:mm:ss.SSSSSS
+          format: date-time
+          pattern: ([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{6})
+          type: string
+        errors:
+          description: Список ошибок в объекте. Может быть пустым списком или null
+          items:
+            $ref: '#/components/schemas/ErrorMessage'
+          type: array
+        cqrsVersion:
+          description: hashCode от statusDate, status и errors
+          example: -1628796591
+          type: integer
+      required:
+      - cqrsVersion
+      - statusDate
+      type: object
+    TariffPlanStatus:
+      description: Статус тарифного плана
+      enum:
+      - APPROVED
+      example: APPROVED
+      type: string
+    FinancingTariffType:
+      description: Тип тарифа за финансирование
+      enum:
+      - FOR_FINANCE_PERCENT
+      - FOR_FINANCE_FLOAT_CBR
+      example: FOR_FINANCE_PERCENT
+      type: string
+    FinancedSupplyTariffState:
+      allOf:
+      - $ref: '#/components/schemas/State'
+      - properties:
+          status:
+            $ref: '#/components/schemas/FinancedSupplyTariffStatus'
+        required:
+        - status
+        type: object
+      description: Состояние тарифа за профинансированную поставку
+      example:
+        status: APPROVED
+        statusDate: '2025-10-16T12:00:01.024991'
+        errors: []
+        cqrsVersion: 1742767789
+      type: object
+    FinancedSupplyTariffType:
+      description: Тип тарифа за профинансированную поставку
+      enum:
+      - FOR_FINANCED_SUPPLY_FIX
+      - FOR_FINANCED_SUPPLY_PERCENT
+      example: FOR_FINANCED_SUPPLY_PERCENT
+      type: string
+    RestErrorCodes:
+      description: '| code            | description                                          |
+
+        |-----------------|------------------------------------------------------|
+
+        | REST_ERROR_5001 | General service error                                |
+
+        | REST_ERROR_5004 | Agreement does not exist                             |
+
+        | REST_ERROR_5017 | DealConditions does not exist                        |
+
+        | REST_ERROR_5024 | Action is available at working hour                  |
+
+        | REST_ERROR_5025 | Supplies are not found                               |
+
+        | REST_ERROR_5026 | Approved contract does not exist                     |
+
+        | REST_ERROR_5027 | Supplies must be selected on only one deal condition |
+
+        | REST_ERROR_5028 | Approved deal conditions do not exist                |
+
+        | REST_ERROR_5029 | Approved agreement does not exist                    |
+
+        | REST_ERROR_5031 | Account for financing cannot be empty                |
+
+        | REST_ERROR_5032 | Data validation failed                               |
+
+        | REST_ERROR_5033 | File is infected                                     |
+
+        | REST_ERROR_5034 | Invalid type of file                                 |
+
+        | REST_ERROR_5035 | File is empty                                        |
+
+        | REST_ERROR_5036 | Failed to read file                                  |
+
+        | REST_ERROR_5037 | Supplier are not found                               |
+
+        | SELECTED_ORGANIZATION_REQUIRED | selectedCnum is required when several organizations are available |
+
+        | SELECTED_ORGANIZATION_NOT_ALLOWED | selectedCnum is not included in allowed organizations |
+
+        '
+      enum:
+      - REST_ERROR_5001
+      - REST_ERROR_5004
+      - REST_ERROR_5017
+      - REST_ERROR_5024
+      - REST_ERROR_5025
+      - REST_ERROR_5026
+      - REST_ERROR_5027
+      - REST_ERROR_5028
+      - REST_ERROR_5029
+      - REST_ERROR_5031
+      - REST_ERROR_5032
+      - REST_ERROR_5033
+      - REST_ERROR_5034
+      - REST_ERROR_5035
+      - REST_ERROR_5036
+      - SELECTED_ORGANIZATION_REQUIRED
+      - SELECTED_ORGANIZATION_NOT_ALLOWED
+      example: REST_ERROR_5001
+      type: string
+    TariffPlanPageResponse:
+      allOf:
+      - properties:
+          tariffPlans:
+            description: Тарифные планы
+            items:
+              $ref: '#/components/schemas/TariffPlan'
+            type: array
+        type: object
+      - $ref: '#/components/schemas/PaginationResponse'
+      example:
+        tariffPlans:
+        - id: 87c4b6c5-4340-4b01-b910-8736420178d2
+          contractId: 4f7d974a-dd63-421b-ba2b-712da215b86b
+          financingTariffs:
+          - id: 7591a148-5ccb-4b53-984d-1a6cb0f3c72c
+            type: FOR_FINANCE_PERCENT
+            deferralFeeValue: 0.123
+            additionalPeriodFeeValue: 0.234
+            waitingPeriodFeeValue: 0.345
+            startDate: '2025-05-01'
+            state:
+              status: APPROVED
+              statusDate: '2025-10-16T12:00:01.024991'
+              errors: []
+              cqrsVersion: 1742767789
+          - id: aae70d79-6912-41d6-81db-b74a0fd5f1e2
+            type: FOR_FINANCE_FLOAT_CBR
+            deferralFeeValue: 0.234
+            additionalPeriodFeeValue: 0.345
+            waitingPeriodFeeValue: 0.567
+            startDate: '2026-01-12'
+            state:
+              status: APPROVED
+              statusDate: '2025-10-16T12:00:01.024991'
+              errors: []
+              cqrsVersion: 1742767789
+          financedSupplyTariffs:
+          - id: 0cc43258-7c89-48c1-94ab-7c3885f97576
+            type: FOR_FINANCED_SUPPLY_PERCENT
+            value: 0.123
+            startDate: '2025-05-01'
+            state:
+              status: APPROVED
+              statusDate: '2025-10-16T12:00:01.024991'
+              errors: []
+              cqrsVersion: 1742767789
+          - id: 0cc43258-7c89-48c1-94ab-7c3885f97576
+            type: FOR_FINANCED_SUPPLY_FIX
+            value: 500
+            startDate: '2026-01-12'
+            state:
+              status: APPROVED
+              statusDate: '2025-10-16T12:00:01.024991'
+              errors: []
+              cqrsVersion: 1742767789
+          incomingPaymentOrderHandlingTariffs:
+          - id: 01516372-4465-4b9e-9aa3-19f421849592
+            type: FOR_PAYMENT_PERCENT
+            value: 0.123
+            startDate: '2025-05-01'
+            state:
+              status: APPROVED
+              statusDate: '2025-10-16T12:00:01.024991'
+              errors: []
+              cqrsVersion: 1742767789
+          - id: 01516372-4465-4b9e-9aa3-19f421849592
+            type: FOR_PAYMENT_FIX
+            value: 100
+            startDate: '2026-01-13'
+            state:
+              status: APPROVED
+              statusDate: '2025-10-16T12:00:01.024991'
+              errors: []
+              cqrsVersion: 1742767789
+          state:
+            status: APPROVED
+            statusDate: '2025-10-16T12:00:01.024991'
+            errors: []
+            cqrsVersion: 1742767789
+        - id: e2430cd0-6a91-4fd7-92fa-191a0857cb72
+          contractId: 4d8c17f5-c954-499d-bb6c-15bd9518c457
+          financingTariffs:
+          - id: afc37b8f-f166-497c-a967-da7da7278c01
+            type: FOR_FINANCE_PERCENT
+            deferralFeeValue: 0.9876
+            additionalPeriodFeeValue: 0.8765
+            waitingPeriodFeeValue: 0.7654
+            startDate: '2025-10-12'
+            state:
+              status: APPROVED
+              statusDate: '2025-11-23T15:13:21.156123'
+              errors: []
+              cqrsVersion: 5432102345
+          financedSupplyTariffs: []
+          incomingPaymentOrderHandlingTariffs: []
+          state:
+            status: APPROVED
+            statusDate: '2025-11-23T15:13:21.156123'
+            errors: []
+            cqrsVersion: 5432102345
+        offset: 0
+        limit: 2
+        totalCount: 3
+      type: object
+    IncomingPaymentOrderHandlingTariff:
+      description: Тариф за обработанное входящее платежное поручение
+      example:
+        id: 01516372-4465-4b9e-9aa3-19f421849592
+        type: FOR_PAYMENT_PERCENT
         value: 0.1234
         startDate: '2025-05-01'
         state:
@@ -755,12 +738,12 @@ components:
           cqrsVersion: 1742767789
       properties:
         id:
-          description: Идентификатор тарифа за профинансированную поставку
-          example: 0cc43258-7c89-48c1-94ab-7c3885f97576
+          description: Идентификатор тарифа за обработанное входящее платежное поручение
+          example: 01516372-4465-4b9e-9aa3-19f421849592
           format: uuid
           type: string
         type:
-          $ref: '#/components/schemas/FinancedSupplyTariffType'
+          $ref: '#/components/schemas/IncomingPaymentOrderHandlingTariffType'
         value:
           description: Ставка
           example: 0.1234
@@ -772,8 +755,8 @@ components:
           type: string
         state:
           allOf:
-          - $ref: '#/components/schemas/FinancedSupplyTariffState'
-          description: Состояние тарифа за профинансированную поставку
+          - $ref: '#/components/schemas/IncomingPaymentOrderHandlingTariffState'
+          description: Состояние тарифа за обработанное входящее платежное поручение
           type: object
       required:
       - id
@@ -782,13 +765,6 @@ components:
       - type
       - value
       type: object
-    IncomingPaymentOrderHandlingTariffType:
-      description: Тип тарифа за обработанное входящее платежное поручение
-      enum:
-      - FOR_PAYMENT_FIX
-      - FOR_PAYMENT_PERCENT
-      example: FOR_PAYMENT_PERCENT
-      type: string
     FinancingTariff:
       description: Тариф за финансирование
       example:
@@ -842,46 +818,65 @@ components:
       - type
       - waitingPeriodFeeValue
       type: object
-    IncomingPaymentOrderHandlingTariffState:
+    FinancedSupplyTariff:
+      description: Тариф за профинансированную поставку
+      example:
+        id: 0cc43258-7c89-48c1-94ab-7c3885f97576
+        type: FOR_FINANCED_SUPPLY_PERCENT
+        value: 0.1234
+        startDate: '2025-05-01'
+        state:
+          status: APPROVED
+          statusDate: '2025-10-16T12:00:01.024991'
+          errors: []
+          cqrsVersion: 1742767789
+      properties:
+        id:
+          description: Идентификатор тарифа за профинансированную поставку
+          example: 0cc43258-7c89-48c1-94ab-7c3885f97576
+          format: uuid
+          type: string
+        type:
+          $ref: '#/components/schemas/FinancedSupplyTariffType'
+        value:
+          description: Ставка
+          example: 0.1234
+          type: number
+        startDate:
+          description: Дата начала действия тарифа
+          example: '2025-05-01'
+          format: date
+          type: string
+        state:
+          allOf:
+          - $ref: '#/components/schemas/FinancedSupplyTariffState'
+          description: Состояние тарифа за профинансированную поставку
+          type: object
+      required:
+      - id
+      - startDate
+      - state
+      - type
+      - value
+      type: object
+    FinancingTariffState:
       allOf:
       - $ref: '#/components/schemas/State'
       - properties:
           status:
-            $ref: '#/components/schemas/IncomingPaymentOrderHandlingTariffStatus'
+            $ref: '#/components/schemas/FinancingTariffStatus'
         required:
         - status
         type: object
-      description: Состояние тарифа за обработанное входящее платежное поручение
+      description: Состояние тарифа за финансирование
       example:
         status: APPROVED
         statusDate: '2025-10-16T12:00:01.024991'
         errors: []
         cqrsVersion: 1742767789
       type: object
-  parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
-    IdTokenHeader:
-      name: Id-Token
-      in: header
-      description: Идентификационный токен пользователя
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
   responses:
-    InternalError:
-      description: Внутренняя ошибка
     Unauthorized:
       description: Аутентификация не пройдена
-x-refined-from:
-- raiffeisen-ru-factoring-openapi.yml
-- raiffeisen-ru-factoring-openapi.yml
+    InternalError:
+      description: Внутренняя ошибка

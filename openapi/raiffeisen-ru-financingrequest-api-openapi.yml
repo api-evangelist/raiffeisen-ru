@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Financing Request API
+  description: API Факторинга
+  title: Финансирование. Факторинг Financing Request API
   version: 1.0.0
-  description: 'Operations tagged FinancingRequest across 2 of this provider''s published API definitions: raiffeisen-ru-factoring-openapi.yml, raiffeisen-ru-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/factoring
 tags:
@@ -200,8 +200,6 @@ paths:
       parameters:
       - $ref: '#/components/parameters/AuthorizationHeader'
       - $ref: '#/components/parameters/IdTokenHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/factoring
   /v1/financing-requests/{id}:
     delete:
       description: Перевод запроса на финансирование в архив (удаление запроса на финансирование)
@@ -304,10 +302,50 @@ paths:
       summary: Получение запроса на финансирование по идентификатору
       tags:
       - FinancingRequest
-    servers:
-    - url: https://api.raiffeisen.ru/factoring
 components:
   schemas:
+    SupplierFinancingRequestProjection:
+      description: Проекция поставщика для запроса на финансирование
+      example:
+        cnum: CACJEW
+        fullNameRus: АО Ромашка
+      properties:
+        cnum:
+          description: Клиентский номер
+          example: CACJEW
+          type: string
+        fullNameRus:
+          description: Полное наименование поставщика на русском языке
+          example: АО Ромашка
+          type: string
+      required:
+      - cnum
+      - fullNameRus
+      type: object
+    ErrorMessage:
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    DebtorFullNameRusProjection:
+      description: 'Проекция дебитора с полным наименованием '
+      example:
+        fullNameRus: АО Ромашка
+      properties:
+        fullNameRus:
+          description: Полное наименование дебитора на русском языке
+          example: АО Ромашка
+          type: string
+      required:
+      - fullNameRus
+      type: object
     RestErrorCodes:
       description: '| code            | description                                          |
 
@@ -370,57 +408,24 @@ components:
       - SELECTED_ORGANIZATION_NOT_ALLOWED
       example: REST_ERROR_5001
       type: string
-    ErrorMessage:
-      properties:
-        code:
-          $ref: '#/components/schemas/RestErrorCodes'
-        message:
-          description: Сообщение
-          example: General service error
-          type: string
-      required:
-      - code
-      - message
-      type: object
-    FinancingRequestCreationRequest:
-      description: Запрос на создание запроса на финансирование
+    SupplyToIncludeInFinancingRequest:
+      description: Информация о поставке для включения в запрос на финансирование
       example:
-        suppliesToInclude:
-        - id: 5675c400-9835-491d-8489-d42ea7ed551c
-          cqrsVersion: -1628796591
-        - id: 5d5417d0-edd5-4910-8ae4-43706287a203
-          cqrsVersion: 513571264
-        isPartiallyFinanceable: true
-        financingAccountId: 0a587aa4-bad9-47ea-beee-6e7775c879f0
+        id: 5675c400-9835-491d-8489-d42ea7ed551c
+        cqrsVersion: -1628796591
       properties:
-        suppliesToInclude:
-          description: Список идентификаторов поставок для включения в запрос на финансирование
-          example:
-          - id: 5675c400-9835-491d-8489-d42ea7ed551c
-            cqrsVersion: -1628796591
-          - id: 5d5417d0-edd5-4910-8ae4-43706287a203
-            cqrsVersion: 513571264
-          items:
-            $ref: '#/components/schemas/SupplyToIncludeInFinancingRequest'
-          minItems: 1
-          type: array
-        isPartiallyFinanceable:
-          description: 'Допустимость частичного финансирования для создаваемого запроса - может ли финансирование быть выполнено не в полном объеме суммы переданных поставок
-
-            '
-          example: true
-          type: boolean
-        financingAccountId:
-          description: 'Идентификатор счета, на который необходимо зачислить денежные средства. Могут быть указаны как счета в Райффайзенбанке, так и счета во внешних банках  с признаком isForFinancing = true
-
-            '
-          example: 0a587aa4-bad9-47ea-beee-6e7775c879f0
+        id:
+          description: Идентификатор поставки
+          example: 5675c400-9835-491d-8489-d42ea7ed551c
           format: uuid
           type: string
+        cqrsVersion:
+          description: cqrsVersion поставки
+          example: -1628796591
+          type: integer
       required:
-      - financingAccountId
-      - isPartiallyFinanceable
-      - suppliesToInclude
+      - cqrsVersion
+      - id
       type: object
     FinancingRequest:
       description: Запрос на финансирование
@@ -512,76 +517,28 @@ components:
       - supplier
       - suppliesQuantity
       type: object
-    DebtorFullNameRusProjection:
-      description: 'Проекция дебитора с полным наименованием '
+    PaginationResponse:
       example:
-        fullNameRus: АО Ромашка
+        offset: 0
+        limit: 10
+        totalCount: 100
       properties:
-        fullNameRus:
-          description: Полное наименование дебитора на русском языке
-          example: АО Ромашка
-          type: string
+        offset:
+          description: Число записей для смещения для формирования страницы ответа
+          example: 1
+          type: integer
+        limit:
+          description: Итоговое количество элементов на странице ответа
+          example: 10
+          type: integer
+        totalCount:
+          description: Общее количество элементов
+          example: 100
+          type: integer
       required:
-      - fullNameRus
-      type: object
-    SupplierFinancingRequestProjection:
-      description: Проекция поставщика для запроса на финансирование
-      example:
-        cnum: CACJEW
-        fullNameRus: АО Ромашка
-      properties:
-        cnum:
-          description: Клиентский номер
-          example: CACJEW
-          type: string
-        fullNameRus:
-          description: Полное наименование поставщика на русском языке
-          example: АО Ромашка
-          type: string
-      required:
-      - cnum
-      - fullNameRus
-      type: object
-    FinancingRequestStatus:
-      description: Статус запроса на финансирование
-      enum:
-      - SENT_TO_CDC_SIGN
-      - PARTIALLY_SIGNED
-      - REJECTED
-      - SIGNED
-      - IN_PROGRESS
-      - FINANCED
-      example: IN_PROGRESS
-      type: string
-    FinancingRequestState:
-      allOf:
-      - $ref: '#/components/schemas/State'
-      - properties:
-          status:
-            $ref: '#/components/schemas/FinancingRequestStatus'
-        required:
-        - status
-        type: object
-      description: Состояние запроса на финансирование
-      example:
-        status: SENT_TO_CDC_SIGN
-        statusDate: '2025-05-05T12:13:40.433531'
-        errors: []
-        cqrsVersion: 5911126589
-      type: object
-    FinancingRequestAccountProjection:
-      description: Проекция счета с номером ЦБ
-      example:
-        cbaNumber: '40702810400000053038'
-      properties:
-        cbaNumber:
-          description: ЦБ номер счета
-          example: '40702810400000053038'
-          maxLength: 20
-          minLength: 20
-          type: string
-      required:
-      - cbaNumber
+      - limit
+      - offset
+      - totalCount
       type: object
     State:
       description: Состояние объекта
@@ -603,6 +560,20 @@ components:
       required:
       - cqrsVersion
       - statusDate
+      type: object
+    FinancingRequestAccountProjection:
+      description: Проекция счета с номером ЦБ
+      example:
+        cbaNumber: '40702810400000053038'
+      properties:
+        cbaNumber:
+          description: ЦБ номер счета
+          example: '40702810400000053038'
+          maxLength: 20
+          minLength: 20
+          type: string
+      required:
+      - cbaNumber
       type: object
     FinancingRequestPageResponse:
       allOf:
@@ -662,47 +633,72 @@ components:
         limit: 2
         totalCount: 100
       type: object
-    SupplyToIncludeInFinancingRequest:
-      description: Информация о поставке для включения в запрос на финансирование
+    FinancingRequestStatus:
+      description: Статус запроса на финансирование
+      enum:
+      - SENT_TO_CDC_SIGN
+      - PARTIALLY_SIGNED
+      - REJECTED
+      - SIGNED
+      - IN_PROGRESS
+      - FINANCED
+      example: IN_PROGRESS
+      type: string
+    FinancingRequestCreationRequest:
+      description: Запрос на создание запроса на финансирование
       example:
-        id: 5675c400-9835-491d-8489-d42ea7ed551c
-        cqrsVersion: -1628796591
+        suppliesToInclude:
+        - id: 5675c400-9835-491d-8489-d42ea7ed551c
+          cqrsVersion: -1628796591
+        - id: 5d5417d0-edd5-4910-8ae4-43706287a203
+          cqrsVersion: 513571264
+        isPartiallyFinanceable: true
+        financingAccountId: 0a587aa4-bad9-47ea-beee-6e7775c879f0
       properties:
-        id:
-          description: Идентификатор поставки
-          example: 5675c400-9835-491d-8489-d42ea7ed551c
+        suppliesToInclude:
+          description: Список идентификаторов поставок для включения в запрос на финансирование
+          example:
+          - id: 5675c400-9835-491d-8489-d42ea7ed551c
+            cqrsVersion: -1628796591
+          - id: 5d5417d0-edd5-4910-8ae4-43706287a203
+            cqrsVersion: 513571264
+          items:
+            $ref: '#/components/schemas/SupplyToIncludeInFinancingRequest'
+          minItems: 1
+          type: array
+        isPartiallyFinanceable:
+          description: 'Допустимость частичного финансирования для создаваемого запроса - может ли финансирование быть выполнено не в полном объеме суммы переданных поставок
+
+            '
+          example: true
+          type: boolean
+        financingAccountId:
+          description: 'Идентификатор счета, на который необходимо зачислить денежные средства. Могут быть указаны как счета в Райффайзенбанке, так и счета во внешних банках  с признаком isForFinancing = true
+
+            '
+          example: 0a587aa4-bad9-47ea-beee-6e7775c879f0
           format: uuid
           type: string
-        cqrsVersion:
-          description: cqrsVersion поставки
-          example: -1628796591
-          type: integer
       required:
-      - cqrsVersion
-      - id
+      - financingAccountId
+      - isPartiallyFinanceable
+      - suppliesToInclude
       type: object
-    PaginationResponse:
+    FinancingRequestState:
+      allOf:
+      - $ref: '#/components/schemas/State'
+      - properties:
+          status:
+            $ref: '#/components/schemas/FinancingRequestStatus'
+        required:
+        - status
+        type: object
+      description: Состояние запроса на финансирование
       example:
-        offset: 0
-        limit: 10
-        totalCount: 100
-      properties:
-        offset:
-          description: Число записей для смещения для формирования страницы ответа
-          example: 1
-          type: integer
-        limit:
-          description: Итоговое количество элементов на странице ответа
-          example: 10
-          type: integer
-        totalCount:
-          description: Общее количество элементов
-          example: 100
-          type: integer
-      required:
-      - limit
-      - offset
-      - totalCount
+        status: SENT_TO_CDC_SIGN
+        statusDate: '2025-05-05T12:13:40.433531'
+        errors: []
+        cqrsVersion: 5911126589
       type: object
     ErrorResponse:
       example:
@@ -717,15 +713,6 @@ components:
     InternalError:
       description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -735,6 +722,12 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-factoring-openapi.yml
-- raiffeisen-ru-factoring-openapi.yml
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=

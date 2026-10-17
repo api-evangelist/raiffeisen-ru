@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Deal Conditions API
+  description: API Факторинга
+  title: Финансирование. Факторинг Deal Conditions API
   version: 1.0.0
-  description: 'Operations tagged DealConditions across 2 of this provider''s published API definitions: raiffeisen-ru-factoring-openapi.yml, raiffeisen-ru-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/factoring
 tags:
@@ -101,10 +101,58 @@ paths:
       summary: Получение основных условий обслуживания поставщик-дебитор
       tags:
       - DealConditions
-    servers:
-    - url: https://api.raiffeisen.ru/factoring
 components:
   schemas:
+    DealConditions:
+      description: Основные условия обслуживания поставщик-дебитор
+      example:
+        id: b5c1e36d-bde1-42bf-8d72-9d0aa4504f73
+        agreementId: ba705955-3e0f-4956-84e0-e12616e84e2b
+        debtorId: 8867503f-10a5-4591-b739-78d75f3607c1
+        state:
+          status: APPROVED
+          statusDate: '2025-11-05T06:13:15.115212'
+          errors: []
+          cqrsVersion: 3456120025
+      properties:
+        id:
+          description: Идентификатор основных условий обслуживания поставщик-дебитор
+          example: b5c1e36d-bde1-42bf-8d72-9d0aa4504f73
+          format: uuid
+          type: string
+        agreementId:
+          description: Идентификатор договора Факторинга
+          example: ba705955-3e0f-4956-84e0-e12616e84e2b
+          format: uuid
+          type: string
+        debtorId:
+          description: Идентификатор дебитора
+          example: 8867503f-10a5-4591-b739-78d75f3607c1
+          format: uuid
+          type: string
+        state:
+          allOf:
+          - $ref: '#/components/schemas/DealConditionsState'
+          description: Состояние основных условий обслуживания поставщик-дебитор
+          type: object
+      required:
+      - agreementId
+      - debtorId
+      - id
+      - state
+      type: object
+    ErrorMessage:
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+      required:
+      - code
+      - message
+      type: object
     RestErrorCodes:
       description: '| code            | description                                          |
 
@@ -167,34 +215,6 @@ components:
       - SELECTED_ORGANIZATION_NOT_ALLOWED
       example: REST_ERROR_5001
       type: string
-    ErrorMessage:
-      properties:
-        code:
-          $ref: '#/components/schemas/RestErrorCodes'
-        message:
-          description: Сообщение
-          example: General service error
-          type: string
-      required:
-      - code
-      - message
-      type: object
-    DealConditionsState:
-      allOf:
-      - $ref: '#/components/schemas/State'
-      - properties:
-          status:
-            $ref: '#/components/schemas/DealConditionsStatus'
-        required:
-        - status
-        type: object
-      description: Состояние основных условий обслуживания поставщик-дебитор
-      example:
-        status: APPROVED
-        statusDate: '2025-11-05T06:13:15.115212'
-        errors: []
-        cqrsVersion: 3456120025
-      type: object
     DealConditionsListResponse:
       allOf:
       - properties:
@@ -244,6 +264,22 @@ components:
       - cqrsVersion
       - statusDate
       type: object
+    DealConditionsState:
+      allOf:
+      - $ref: '#/components/schemas/State'
+      - properties:
+          status:
+            $ref: '#/components/schemas/DealConditionsStatus'
+        required:
+        - status
+        type: object
+      description: Состояние основных условий обслуживания поставщик-дебитор
+      example:
+        status: APPROVED
+        statusDate: '2025-11-05T06:13:15.115212'
+        errors: []
+        cqrsVersion: 3456120025
+      type: object
     DealConditionsStatus:
       description: Статус основных условий обслуживания поставщик-дебитор
       enum:
@@ -251,44 +287,6 @@ components:
       - APPROVED
       example: APPROVED
       type: string
-    DealConditions:
-      description: Основные условия обслуживания поставщик-дебитор
-      example:
-        id: b5c1e36d-bde1-42bf-8d72-9d0aa4504f73
-        agreementId: ba705955-3e0f-4956-84e0-e12616e84e2b
-        debtorId: 8867503f-10a5-4591-b739-78d75f3607c1
-        state:
-          status: APPROVED
-          statusDate: '2025-11-05T06:13:15.115212'
-          errors: []
-          cqrsVersion: 3456120025
-      properties:
-        id:
-          description: Идентификатор основных условий обслуживания поставщик-дебитор
-          example: b5c1e36d-bde1-42bf-8d72-9d0aa4504f73
-          format: uuid
-          type: string
-        agreementId:
-          description: Идентификатор договора Факторинга
-          example: ba705955-3e0f-4956-84e0-e12616e84e2b
-          format: uuid
-          type: string
-        debtorId:
-          description: Идентификатор дебитора
-          example: 8867503f-10a5-4591-b739-78d75f3607c1
-          format: uuid
-          type: string
-        state:
-          allOf:
-          - $ref: '#/components/schemas/DealConditionsState'
-          description: Состояние основных условий обслуживания поставщик-дебитор
-          type: object
-      required:
-      - agreementId
-      - debtorId
-      - id
-      - state
-      type: object
     ErrorResponse:
       example:
       - code: REST_ERROR_5001
@@ -302,15 +300,6 @@ components:
     InternalError:
       description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -320,6 +309,12 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-factoring-openapi.yml
-- raiffeisen-ru-factoring-openapi.yml
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=

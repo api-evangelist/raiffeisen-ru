@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Parser API
+  description: API Агентского факторинга
+  title: Финансирование. Агентский факторинг Parser API
   version: 1.0.0
-  description: 'Operations tagged Parser across 2 of this provider''s published API definitions: raiffeisen-ru-agency-factoring-openapi.yml, raiffeisen-ru-agency-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/payables-financing
 tags:
@@ -44,8 +44,6 @@ paths:
       parameters:
       - $ref: '#/components/parameters/AuthorizationHeader'
       - $ref: '#/components/parameters/IdTokenHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/payables-financing
   /v1/parser/tax-packet:
     post:
       description: Метод парсинга файла Пакет поручений для налогов
@@ -81,8 +79,6 @@ paths:
       parameters:
       - $ref: '#/components/parameters/AuthorizationHeader'
       - $ref: '#/components/parameters/IdTokenHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/payables-financing
   /v1/tax-packets:
     post:
       description: Метод загрузки поручений для выплаты налогов
@@ -112,162 +108,27 @@ paths:
       parameters:
       - $ref: '#/components/parameters/AuthorizationHeader'
       - $ref: '#/components/parameters/IdTokenHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/payables-financing
 components:
+  parameters:
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
   schemas:
-    ParserError:
-      example:
-        code: REST_ERR_5001
-        message: General service error
-        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
-        lineNumber: 5
-      properties:
-        code:
-          $ref: '#/components/schemas/RestErrorCodes'
-        message:
-          description: Сообщение
-          example: General service error
-          type: string
-        traceId:
-          description: traceId
-          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
-          type: string
-        lineNumber:
-          description: Номер строки в файле, где произошла ошибка
-          example: 5
-          type: integer
-      required:
-      - code
-      - lineNumber
-      - message
-      - traceId
-      type: object
-    RestErrorCodes:
-      description: '| code            | description                                |
-
-        |-----------------|--------------------------------------------|
-
-        | REST_ERR_5001   | General service error                       |
-
-        | REST_ERR_5040   | Tax is not available                        |
-
-        | REST_ERR_5041   | Incorrect format of taxpayer status         |
-
-        | REST_ERR_5042   | Incorrect format of KPP payer''s             |
-
-        | REST_ERR_5043   | Incorrect format of UIN                     |
-
-        | REST_ERR_5044   | Incorrect format of CBC                     |
-
-        | REST_ERR_5045   | Incorrect format of OKTMO                   |
-
-        | REST_ERR_5046   | Incorrect format of payment reason          |
-
-        | REST_ERR_5047   | Incorrect format of tax period              |
-
-        | REST_ERR_5048   | Incorrect format of the payment reason document number |
-
-        | REST_ERR_5049   | Incorrect format of the payment reason document date   |
-
-        | REST_ERR_5050   | Incorrect format of receiver name           |
-
-        | REST_ERR_5051   | Incorrect format of purpose                 |
-
-        '
-      enum:
-      - REST_ERR_5001
-      - REST_ERR_5040
-      - REST_ERR_5041
-      - REST_ERR_5042
-      - REST_ERR_5043
-      - REST_ERR_5044
-      - REST_ERR_5045
-      - REST_ERR_5046
-      - REST_ERR_5047
-      - REST_ERR_5048
-      - REST_ERR_5049
-      - REST_ERR_5050
-      - REST_ERR_5051
-      example: REST_ERR_5001
-      type: string
-    PaymentRequisites:
-      description: Платежные реквизиты
-      example:
-        account: '40702810200001430012'
-        correspondentAccount: '30101810200000000700'
-        bic: '044525700'
-        recipientBankName: АО «Райффайзенбанк»
-        purpose: Оплата по контракту 111111 от 31.12.2021
-      properties:
-        account:
-          description: Расчетный счет получателя
-          example: '40702810200001430012'
-          type: string
-        correspondentAccount:
-          description: Корреспондентский счет получателя
-          example: '30101810200000000700'
-          type: string
-        bic:
-          description: БИК банка получателя
-          example: '044525700'
-          type: string
-        recipientBankName:
-          description: Наименование банка получателя
-          example: АО «Райффайзенбанк»
-          type: string
-        purpose:
-          description: Назначение платежа
-          example: Оплата по контракту 111111 от 31.12.2021
-          type: string
-      required:
-      - account
-      - bic
-      - correspondentAccount
-      - purpose
-      - recipientBankName
-      type: object
-    ParserErrorListResponse:
-      description: Список ошибок парсера
-      example:
-      - code: REST_ERR_5001
-        message: General service error
-        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
-        lineNumber: 5
-      items:
-        $ref: '#/components/schemas/ParserError'
-      type: array
-    ParsedOrderListResponse:
-      description: Список распарсенных поручений
-      example:
-      - creditorRequisite:
-          fullNameRus: АО Ромашка
-          inn: '1234567890'
-          ogrn: '123456789012345'
-          kpp: '123456789'
-        paymentRequisite:
-          account: '40702810200001430012'
-          correspondentAccount: '30101810200000000700'
-          bic: '044525700'
-          recipientBankName: АО «Райффайзенбанк»
-          purpose: Оплата по контракту 111111 от 31.12.2021
-        taxRequisite:
-          taxPayerStatus: '01'
-          kppPayer: '770801001'
-          uin: '1820996623340000000000000'
-          cbc: '18200000000000000000'
-          oktmo: '63701000'
-          paymentReason: '0'
-          taxPeriod: '0'
-          docNumberPaymentReason: '0'
-          docDatePaymentReason: '0'
-          receiverName: Казначейство России (ФНС России)
-        maturityDate: '2025-12-31'
-        orderSum: '123.40'
-        currencyCode: RUB
-      items:
-        $ref: '#/components/schemas/ParsedOrderResponse'
-      type: array
     ParsedOrderResponse:
       example:
         creditorRequisite:
@@ -323,41 +184,54 @@ components:
       - orderSum
       - paymentRequisite
       type: object
-    CreditorRequisites:
-      description: Реквизиты кредитора
-      example:
-        fullNameRus: АО Ромашка
-        inn: '1234567890'
-        ogrn: '123456789012345'
-        kpp: '123456789'
-      properties:
-        fullNameRus:
-          description: Полное наименование кредитора
-          example: АО Ромашка
-          type: string
-        inn:
-          description: ИНН кредитора
-          example: '1234567890'
-          maxLength: 12
-          minLength: 10
-          type: string
-        ogrn:
-          description: ОГРН кредитора
-          example: '123456789012345'
-          maxLength: 15
-          minLength: 13
-          type: string
-        kpp:
-          description: КПП кредитора
-          example: '123456789'
-          maxLength: 9
-          minLength: 9
-          type: string
-      required:
-      - fullNameRus
-      - inn
-      - ogrn
-      type: object
+    RestErrorCodes:
+      description: '| code            | description                                |
+
+        |-----------------|--------------------------------------------|
+
+        | REST_ERR_5001   | General service error                       |
+
+        | REST_ERR_5040   | Tax is not available                        |
+
+        | REST_ERR_5041   | Incorrect format of taxpayer status         |
+
+        | REST_ERR_5042   | Incorrect format of KPP payer''s             |
+
+        | REST_ERR_5043   | Incorrect format of UIN                     |
+
+        | REST_ERR_5044   | Incorrect format of CBC                     |
+
+        | REST_ERR_5045   | Incorrect format of OKTMO                   |
+
+        | REST_ERR_5046   | Incorrect format of payment reason          |
+
+        | REST_ERR_5047   | Incorrect format of tax period              |
+
+        | REST_ERR_5048   | Incorrect format of the payment reason document number |
+
+        | REST_ERR_5049   | Incorrect format of the payment reason document date   |
+
+        | REST_ERR_5050   | Incorrect format of receiver name           |
+
+        | REST_ERR_5051   | Incorrect format of purpose                 |
+
+        '
+      enum:
+      - REST_ERR_5001
+      - REST_ERR_5040
+      - REST_ERR_5041
+      - REST_ERR_5042
+      - REST_ERR_5043
+      - REST_ERR_5044
+      - REST_ERR_5045
+      - REST_ERR_5046
+      - REST_ERR_5047
+      - REST_ERR_5048
+      - REST_ERR_5049
+      - REST_ERR_5050
+      - REST_ERR_5051
+      example: REST_ERR_5001
+      type: string
     CreatePacketRequest:
       description: Запрос создания пакета поручений
       example:
@@ -428,6 +302,100 @@ components:
       - agreementNumber
       - orders
       type: object
+    PaymentRequisites:
+      description: Платежные реквизиты
+      example:
+        account: '40702810200001430012'
+        correspondentAccount: '30101810200000000700'
+        bic: '044525700'
+        recipientBankName: АО «Райффайзенбанк»
+        purpose: Оплата по контракту 111111 от 31.12.2021
+      properties:
+        account:
+          description: Расчетный счет получателя
+          example: '40702810200001430012'
+          type: string
+        correspondentAccount:
+          description: Корреспондентский счет получателя
+          example: '30101810200000000700'
+          type: string
+        bic:
+          description: БИК банка получателя
+          example: '044525700'
+          type: string
+        recipientBankName:
+          description: Наименование банка получателя
+          example: АО «Райффайзенбанк»
+          type: string
+        purpose:
+          description: Назначение платежа
+          example: Оплата по контракту 111111 от 31.12.2021
+          type: string
+      required:
+      - account
+      - bic
+      - correspondentAccount
+      - purpose
+      - recipientBankName
+      type: object
+    ParserError:
+      example:
+        code: REST_ERR_5001
+        message: General service error
+        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+        lineNumber: 5
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+        traceId:
+          description: traceId
+          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
+          type: string
+        lineNumber:
+          description: Номер строки в файле, где произошла ошибка
+          example: 5
+          type: integer
+      required:
+      - code
+      - lineNumber
+      - message
+      - traceId
+      type: object
+    ParsedOrderListResponse:
+      description: Список распарсенных поручений
+      example:
+      - creditorRequisite:
+          fullNameRus: АО Ромашка
+          inn: '1234567890'
+          ogrn: '123456789012345'
+          kpp: '123456789'
+        paymentRequisite:
+          account: '40702810200001430012'
+          correspondentAccount: '30101810200000000700'
+          bic: '044525700'
+          recipientBankName: АО «Райффайзенбанк»
+          purpose: Оплата по контракту 111111 от 31.12.2021
+        taxRequisite:
+          taxPayerStatus: '01'
+          kppPayer: '770801001'
+          uin: '1820996623340000000000000'
+          cbc: '18200000000000000000'
+          oktmo: '63701000'
+          paymentReason: '0'
+          taxPeriod: '0'
+          docNumberPaymentReason: '0'
+          docDatePaymentReason: '0'
+          receiverName: Казначейство России (ФНС России)
+        maturityDate: '2025-12-31'
+        orderSum: '123.40'
+        currencyCode: RUB
+      items:
+        $ref: '#/components/schemas/ParsedOrderResponse'
+      type: array
     TaxRequisites:
       description: Налоговые реквизиты
       example:
@@ -483,30 +451,53 @@ components:
           example: Казначейство России (ФНС России)
           type: string
       type: object
+    ParserErrorListResponse:
+      description: Список ошибок парсера
+      example:
+      - code: REST_ERR_5001
+        message: General service error
+        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+        lineNumber: 5
+      items:
+        $ref: '#/components/schemas/ParserError'
+      type: array
+    CreditorRequisites:
+      description: Реквизиты кредитора
+      example:
+        fullNameRus: АО Ромашка
+        inn: '1234567890'
+        ogrn: '123456789012345'
+        kpp: '123456789'
+      properties:
+        fullNameRus:
+          description: Полное наименование кредитора
+          example: АО Ромашка
+          type: string
+        inn:
+          description: ИНН кредитора
+          example: '1234567890'
+          maxLength: 12
+          minLength: 10
+          type: string
+        ogrn:
+          description: ОГРН кредитора
+          example: '123456789012345'
+          maxLength: 15
+          minLength: 13
+          type: string
+        kpp:
+          description: КПП кредитора
+          example: '123456789'
+          maxLength: 9
+          minLength: 9
+          type: string
+      required:
+      - fullNameRus
+      - inn
+      - ogrn
+      type: object
   responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
     InternalError:
       description: Внутренняя ошибка
-  parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
-    IdTokenHeader:
-      name: Id-Token
-      in: header
-      description: Идентификационный токен пользователя
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-agency-factoring-openapi.yml
-- raiffeisen-ru-agency-factoring-openapi.yml
+    Unauthorized:
+      description: Аутентификация не пройдена

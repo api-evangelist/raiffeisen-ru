@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Registry API
+  description: API Факторинга
+  title: Финансирование. Факторинг Registry API
   version: 1.0.0
-  description: 'Operations tagged Registry across 2 of this provider''s published API definitions: raiffeisen-ru-factoring-openapi.yml, raiffeisen-ru-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/factoring
 tags:
@@ -81,10 +81,57 @@ paths:
       parameters:
       - $ref: '#/components/parameters/AuthorizationHeader'
       - $ref: '#/components/parameters/IdTokenHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/factoring
 components:
   schemas:
+    ParsedPrimarySupplyListResponse:
+      allOf:
+      - properties:
+          parsedPrimarySupplies:
+            description: Строки реестра поставок после парсинга
+            items:
+              $ref: '#/components/schemas/ParsedPrimarySupplyResponse'
+            type: array
+        type: object
+      description: Строки реестра поставок после парсинга
+      example:
+        parsedPrimarySupplies:
+        - rowNumber: 1
+          supplyNumber: 26052021-51
+          signDate: '2021-05-26'
+          amount: 100.0
+          contractNumber: 11122019-1
+          deferralStartDate: '2021-05-26'
+          debtorInn: '1121003135'
+      type: object
+    ValidationErrorResponse:
+      description: Тело расширенной ошибки
+      example:
+        code: REST_ERROR_5032
+        message: Data validation failed
+        details:
+        - param: array[2].debtorInn
+          code: VALIDATION_ERROR_1201
+          message: Invalid INN format
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Общее сообщение об ошибке
+          example: Переданы некорректные данные
+          type: string
+        details:
+          description: Список деталей ошибки
+          example:
+          - param: array[2].debtorInn
+            code: VALIDATION_ERROR_1201
+            message: Invalid INN format
+          items:
+            $ref: '#/components/schemas/ValidationErrorDetail'
+          type: array
+      required:
+      - code
+      - message
+      type: object
     RestErrorCodes:
       description: '| code            | description                                          |
 
@@ -297,70 +344,7 @@ components:
       - signDate
       - supplyNumber
       type: object
-    ParsedPrimarySupplyListResponse:
-      allOf:
-      - properties:
-          parsedPrimarySupplies:
-            description: Строки реестра поставок после парсинга
-            items:
-              $ref: '#/components/schemas/ParsedPrimarySupplyResponse'
-            type: array
-        type: object
-      description: Строки реестра поставок после парсинга
-      example:
-        parsedPrimarySupplies:
-        - rowNumber: 1
-          supplyNumber: 26052021-51
-          signDate: '2021-05-26'
-          amount: 100.0
-          contractNumber: 11122019-1
-          deferralStartDate: '2021-05-26'
-          debtorInn: '1121003135'
-      type: object
-    ValidationErrorResponse:
-      description: Тело расширенной ошибки
-      example:
-        code: REST_ERROR_5032
-        message: Data validation failed
-        details:
-        - param: array[2].debtorInn
-          code: VALIDATION_ERROR_1201
-          message: Invalid INN format
-      properties:
-        code:
-          $ref: '#/components/schemas/RestErrorCodes'
-        message:
-          description: Общее сообщение об ошибке
-          example: Переданы некорректные данные
-          type: string
-        details:
-          description: Список деталей ошибки
-          example:
-          - param: array[2].debtorInn
-            code: VALIDATION_ERROR_1201
-            message: Invalid INN format
-          items:
-            $ref: '#/components/schemas/ValidationErrorDetail'
-          type: array
-      required:
-      - code
-      - message
-      type: object
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -370,6 +354,17 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-factoring-openapi.yml
-- raiffeisen-ru-factoring-openapi.yml
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена

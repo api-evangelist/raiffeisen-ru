@@ -5,7 +5,7 @@ info:
   - x-description-i18n differs across the merged source definitions and was not carried
   - x-logo differs across the merged source definitions and was not carried
   version: '1.0'
-  description: 'Operations tagged cashReconciliation across 6 of this provider''s published API definitions: raiffeisen-ru-raif-pay-payment-form-openapi.json, raiffeisen-ru-raif-pay-reports-openapi.yml, raiffeisen-ru-raif-pay-sbp-openapi.json, raiffeisen-ru-raif-pay-payment-form-openapi.yml, raiffeisen-ru-raif-pay-reports-openapi.yml, raiffeisen-ru-raif-pay-sbp-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged cashReconciliation across 3 of this provider''s published API definitions: raiffeisen-ru-raif-pay-payment-form-openapi.json, raiffeisen-ru-raif-pay-reports-openapi.yml, raiffeisen-ru-raif-pay-sbp-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://pay-test.raif.ru/api
   description: Sandbox
@@ -381,6 +381,32 @@ components:
         eng: 'Start date and time of the selection. This parameter is optional.
 
           '
+    SummaryToParameter:
+      name: to
+      in: query
+      schema:
+        type: string
+        example: '2026-01-15T15:00:00+03:00'
+        format: date-time
+      description: Дата и время окончания выборки. <br> Параметр должен передаваться в формате URL-encoded. К примеру, значение `2026-01-15T15:00:00+03:00` необходимо привести к формату `2026-01-15T15%3A00%3A00%2B03%3A00`.
+      x-description-i18n:
+        eng: End date and time of the selection. <br> The parameter must be passed in URL-encoded format. For example, the value `2026-01-15T15:00:00+03:00` must be converted to the format `2026-01-15T15%3A00%3A00%2B03%3A00`.
+      required: true
+    QueryOrderIdParameter:
+      name: orderId
+      in: query
+      required: false
+      schema:
+        type: string
+        maxLength: 40
+        example: order-test
+      description: 'Идентификатор заказа в системе мерчанта. При использовании этого параметра параметры `from` и `to` становятся необязательными.
+
+        '
+      x-description-i18n:
+        eng: 'Order ID in the merchant system. When using this parameter, `from` and `to` parameters become optional.
+
+          '
     SummaryTypesParameter:
       name: types
       in: query
@@ -406,40 +432,6 @@ components:
       - sbp
       - card
       - digital_ruble
-    SummaryToParameter:
-      name: to
-      in: query
-      schema:
-        type: string
-        example: '2026-01-15T15:00:00+03:00'
-        format: date-time
-      description: Дата и время окончания выборки. <br> Параметр должен передаваться в формате URL-encoded. К примеру, значение `2026-01-15T15:00:00+03:00` необходимо привести к формату `2026-01-15T15%3A00%3A00%2B03%3A00`.
-      x-description-i18n:
-        eng: End date and time of the selection. <br> The parameter must be passed in URL-encoded format. For example, the value `2026-01-15T15:00:00+03:00` must be converted to the format `2026-01-15T15%3A00%3A00%2B03%3A00`.
-      required: true
-    SummaryOperationType:
-      name: operationTypes
-      in: query
-      required: false
-      schema:
-        type: string
-        enum:
-        - Payment
-        - Refund
-      description: Тип операции. Если значение не передано - выгружаются все типы операции
-      x-description-i18n:
-        eng: Transaction type. If not provided, all transaction types are exported
-    SummaryFromParameter:
-      name: from
-      in: query
-      schema:
-        type: string
-        example: '2026-01-15T12:00:00+03:00'
-        format: date-time
-      description: Дата и время начала выборки. <br> Параметр должен передаваться в формате URL-encoded. К примеру, значение `2026-01-15T12:00:00+03:00` необходимо привести к формату `2026-01-15T12%3A00%3A00%2B03%3A00`.
-      x-description-i18n:
-        eng: Start date and time of the selection. <br> The parameter must be passed in URL-encoded format. For example, the value `2026-01-15T12:00:00+03:00` must be converted to the format `2026-01-15T12%3A00%3A00%2B03%3A00`.
-      required: true
     SummaryQrIdParameter:
       name: qrId
       in: query
@@ -465,30 +457,29 @@ components:
         eng: 'End date and time of the selection. This parameter is optional.
 
           '
-    QueryOrderIdParameter:
-      name: orderId
+    SummaryOperationType:
+      name: operationTypes
       in: query
       required: false
       schema:
         type: string
-        maxLength: 40
-        example: order-test
-      description: 'Идентификатор заказа в системе мерчанта. При использовании этого параметра параметры `from` и `to` становятся необязательными.
-
-        '
+        enum:
+        - Payment
+        - Refund
+      description: Тип операции. Если значение не передано - выгружаются все типы операции
       x-description-i18n:
-        eng: 'Order ID in the merchant system. When using this parameter, `from` and `to` parameters become optional.
-
-          '
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
+        eng: Transaction type. If not provided, all transaction types are exported
+    SummaryFromParameter:
+      name: from
+      in: query
       schema:
         type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+        example: '2026-01-15T12:00:00+03:00'
+        format: date-time
+      description: Дата и время начала выборки. <br> Параметр должен передаваться в формате URL-encoded. К примеру, значение `2026-01-15T12:00:00+03:00` необходимо привести к формату `2026-01-15T12%3A00%3A00%2B03%3A00`.
+      x-description-i18n:
+        eng: Start date and time of the selection. <br> The parameter must be passed in URL-encoded format. For example, the value `2026-01-15T12:00:00+03:00` must be converted to the format `2026-01-15T12%3A00%3A00%2B03%3A00`.
+      required: true
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -498,7 +489,205 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
   schemas:
+    ReportPaymentCard:
+      title: ReportPaymentCard
+      type: object
+      description: Платеж по ECOM
+      x-description-i18n:
+        eng: Payment by ECOM
+      properties:
+        orderId:
+          type: string
+          description: Уникальный идентификатор заказа в системе мерчанта
+          x-description-i18n:
+            eng: Unique order ID in the merchant system
+        amount:
+          type: number
+          description: Сумма операции
+          x-description-i18n:
+            eng: Transaction amount
+        transactionDate:
+          type: string
+          description: Дата операции
+          x-description-i18n:
+            eng: Transaction date
+        paymentSystem:
+          type: string
+          description: Платежная система
+          x-description-i18n:
+            eng: Payment system
+        paymentDetails:
+          type: string
+          description: Назначение платежа
+          x-description-i18n:
+            eng: Purpose of payment
+        transactionId:
+          type: integer
+          description: Идентификатор операции в системе Банка
+          x-description-i18n:
+            eng: Operation identifier in the Bank system
+        clientId:
+          type: string
+          description: Маскированный номер карты плательщика
+          x-description-i18n:
+            eng: Masked payer card number
+        authCode:
+          type: string
+          description: Код авторизации, полученный от Банка-эмитента
+          x-description-i18n:
+            eng: Authorization code received from the Issuing Bank
+        rrn:
+          type: string
+          description: Идентификатор транзакции в системе Банка
+          x-description-i18n:
+            eng: Transaction ID in the Bank system
+        orderComment:
+          type: string
+          description: Комментарий к заказу
+          x-description-i18n:
+            eng: Comment to order
+        fee:
+          type: number
+          format: float
+          description: Комиссия по операции
+          x-description-i18n:
+            eng: Transaction fee
+    ReportRefundSbp:
+      title: ReportRefundSbp
+      type: object
+      description: Возврат СБП
+      x-description-i18n:
+        eng: SBP refund
+      properties:
+        orderId:
+          type: string
+          description: Уникальный идентификатор заказа в системе мерчанта
+          x-description-i18n:
+            eng: Unique order ID in the merchant system
+        amount:
+          type: number
+          description: Сумма операции
+          x-description-i18n:
+            eng: Transaction amount
+        transactionDate:
+          type: string
+          description: Дата операции
+          x-description-i18n:
+            eng: Transaction date
+        paymentSystem:
+          type: string
+          description: Платежная система
+          x-description-i18n:
+            eng: Payment system
+        paymentDetails:
+          type: string
+          description: Назначение платежа
+          x-description-i18n:
+            eng: Purpose of payment
+        transactionId:
+          type: integer
+          description: Идентификатор транзакции СБП в системе Банка
+          x-description-i18n:
+            eng: SBP transaction identifier in the Bank system
+        clientId:
+          type: string
+          description: Идентификатор плательщика в системе НСПК
+          x-description-i18n:
+            eng: Payer identifier in the NSPK system
+        qrId:
+          type: string
+          description: Идентификатор QR-кода
+          x-description-i18n:
+            eng: QR code identifier
+        sbpTransactionId:
+          type: string
+          description: Идентификатор операции в системе НСПК
+          x-description-i18n:
+            eng: Operation identifier in the NSPK system
+        refundId:
+          type: string
+          description: Идентификатор запроса на возврат в системе мерчанта
+          x-description-i18n:
+            eng: Return request ID in the merchant system
+        fee:
+          type: number
+          format: float
+          description: Комиссия по операции
+          x-description-i18n:
+            eng: Transaction fee
+    ReportRefundCard:
+      title: ReportRefundCard
+      type: object
+      description: Возврат по ECOM
+      x-description-i18n:
+        eng: ECOM refund
+      properties:
+        orderId:
+          type: string
+          description: Уникальный идентификатор заказа в системе мерчанта
+          x-description-i18n:
+            eng: Unique order ID in the merchant system
+        amount:
+          type: number
+          description: Сумма операции
+          x-description-i18n:
+            eng: Transaction amount
+        transactionDate:
+          type: string
+          description: Дата операции
+          x-description-i18n:
+            eng: Transaction date
+        paymentSystem:
+          type: string
+          description: Платежная система
+          x-description-i18n:
+            eng: Payment system
+        paymentDetails:
+          type: string
+          description: Назначение платежа
+          x-description-i18n:
+            eng: Purpose of payment
+        transactionId:
+          type: integer
+          description: Идентификатор операции в системе Банка
+          x-description-i18n:
+            eng: Operation identifier in the Bank system
+        clientId:
+          type: string
+          description: Маскированный номер карты плательщика
+          x-description-i18n:
+            eng: Masked payer card number
+        authCode:
+          type: string
+          description: Код авторизации, полученный от Банка-эмитента
+          x-description-i18n:
+            eng: Authorization code received from the Issuing Bank
+        rrn:
+          type: string
+          description: Идентификатор транзакции в системе Банка
+          x-description-i18n:
+            eng: Transaction ID in the Bank system
+        refundId:
+          type: string
+          description: Идентификатор запроса на возврат в системе мерчанта
+          x-description-i18n:
+            eng: Return request ID in the merchant system
+        fee:
+          type: number
+          format: float
+          description: Комиссия по операции
+          x-description-i18n:
+            eng: Transaction fee
     ComparisonSummaryReport:
       title: ComparisonSummaryReport
       type: object
@@ -674,12 +863,12 @@ components:
                   description: Общее количество операций по цифровому рублю
                   x-description-i18n:
                     eng: Total count of transactions on the digital ruble
-    ReportRefundSbp:
-      title: ReportRefundSbp
+    ReportPaymentDr:
+      title: ReportPaymentDr
       type: object
-      description: Возврат СБП
+      description: Платеж цифровым рублем
       x-description-i18n:
-        eng: SBP refund
+        eng: Digital ruble payment
       properties:
         orderId:
           type: string
@@ -706,37 +895,27 @@ components:
           description: Назначение платежа
           x-description-i18n:
             eng: Purpose of payment
-        transactionId:
-          type: integer
-          description: Идентификатор транзакции СБП в системе Банка
-          x-description-i18n:
-            eng: SBP transaction identifier in the Bank system
-        clientId:
+        drTransactionId:
           type: string
-          description: Идентификатор плательщика в системе НСПК
+          description: Идентификатор операции в системе цифрового рубля
           x-description-i18n:
-            eng: Payer identifier in the NSPK system
+            eng: Digital ruble transaction identifier
         qrId:
           type: string
           description: Идентификатор QR-кода
           x-description-i18n:
             eng: QR code identifier
-        sbpTransactionId:
+        orderComment:
           type: string
-          description: Идентификатор операции в системе НСПК
+          description: Комментарий к заказу
           x-description-i18n:
-            eng: Operation identifier in the NSPK system
-        refundId:
-          type: string
-          description: Идентификатор запроса на возврат в системе мерчанта
-          x-description-i18n:
-            eng: Return request ID in the merchant system
+            eng: Comment to order
         fee:
           type: number
-          format: float
           description: Комиссия по операции
           x-description-i18n:
             eng: Transaction fee
+          format: float
     ReportPaymentSbp:
       title: ReportPaymentSbp
       type: object
@@ -800,12 +979,12 @@ components:
           x-description-i18n:
             eng: Transaction fee
           format: float
-    ReportPaymentDr:
-      title: ReportPaymentDr
+    ReportRefundDr:
+      title: ReportRefundDr
       type: object
-      description: Платеж цифровым рублем
+      description: Возврат цифровым рублем
       x-description-i18n:
-        eng: Digital ruble payment
+        eng: Digital ruble refund
       properties:
         orderId:
           type: string
@@ -842,17 +1021,17 @@ components:
           description: Идентификатор QR-кода
           x-description-i18n:
             eng: QR code identifier
-        orderComment:
+        refundId:
           type: string
-          description: Комментарий к заказу
+          description: Идентификатор запроса на возврат в системе мерчанта
           x-description-i18n:
-            eng: Comment to order
+            eng: Return request ID in the merchant system
         fee:
           type: number
+          format: float
           description: Комиссия по операции
           x-description-i18n:
             eng: Transaction fee
-          format: float
     SummaryReport:
       title: SummaryReport
       type: object
@@ -917,185 +1096,144 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/ReportRefundDr'
-    ReportRefundDr:
-      title: ReportRefundDr
+    reportRefundCardResponse:
+      title: reportRefundCardResponse
       type: object
-      description: Возврат цифровым рублем
-      x-description-i18n:
-        eng: Digital ruble refund
       properties:
         orderId:
           type: string
-          description: Уникальный идентификатор заказа в системе мерчанта
-          x-description-i18n:
-            eng: Unique order ID in the merchant system
+          description: 'Идентификатор операции '
         amount:
           type: number
           description: Сумма операции
-          x-description-i18n:
-            eng: Transaction amount
         transactionDate:
           type: string
           description: Дата операции
-          x-description-i18n:
-            eng: Transaction date
         paymentSystem:
           type: string
           description: Платежная система
-          x-description-i18n:
-            eng: Payment system
         paymentDetails:
           type: string
           description: Назначение платежа
-          x-description-i18n:
-            eng: Purpose of payment
-        drTransactionId:
+        transactionId:
+          type: integer
+          description: Идентификатор транзакции в системе Банка
+        clientId:
           type: string
-          description: Идентификатор операции в системе цифрового рубля
-          x-description-i18n:
-            eng: Digital ruble transaction identifier
+          description: Маскированный номер карты клиента
+        authCode:
+          type: string
+          description: Код авторизации платежа, полученный от Банка-эмитента
+        rrn:
+          type: string
+          description: Номер для идентификации
+        refundId:
+          type: string
+          description: Идентификатор запроса на возврат в системе партнера
+    reportPaymentSbpResponse:
+      title: reportPaymentSbpResponse
+      type: object
+      description: Платеж СБП
+      properties:
+        orderId:
+          type: string
+          description: Уникальный идентификатор заказа в системе партнёра
+        amount:
+          type: number
+          description: Сумма операции
+        transactionDate:
+          type: string
+          description: Дата операции
+        paymentSystem:
+          type: string
+          description: Платежная система
+        paymentDetails:
+          type: string
+          description: Назначение платежа
+        transactionId:
+          type: integer
+          description: Идентификатор транзакции СБП в системе Банка
+        clientId:
+          type: string
+          description: Идентификатор клиента в системе НСПК
         qrId:
           type: string
           description: Идентификатор QR-кода
-          x-description-i18n:
-            eng: QR code identifier
-        refundId:
+        sbpTransactionId:
           type: string
-          description: Идентификатор запроса на возврат в системе мерчанта
-          x-description-i18n:
-            eng: Return request ID in the merchant system
-        fee:
-          type: number
-          format: float
-          description: Комиссия по операции
-          x-description-i18n:
-            eng: Transaction fee
-    ReportRefundCard:
-      title: ReportRefundCard
-      type: object
-      description: Возврат по ECOM
-      x-description-i18n:
-        eng: ECOM refund
-      properties:
-        orderId:
-          type: string
-          description: Уникальный идентификатор заказа в системе мерчанта
-          x-description-i18n:
-            eng: Unique order ID in the merchant system
-        amount:
-          type: number
-          description: Сумма операции
-          x-description-i18n:
-            eng: Transaction amount
-        transactionDate:
-          type: string
-          description: Дата операции
-          x-description-i18n:
-            eng: Transaction date
-        paymentSystem:
-          type: string
-          description: Платежная система
-          x-description-i18n:
-            eng: Payment system
-        paymentDetails:
-          type: string
-          description: Назначение платежа
-          x-description-i18n:
-            eng: Purpose of payment
-        transactionId:
-          type: integer
-          description: Идентификатор операции в системе Банка
-          x-description-i18n:
-            eng: Operation identifier in the Bank system
-        clientId:
-          type: string
-          description: Маскированный номер карты плательщика
-          x-description-i18n:
-            eng: Masked payer card number
-        authCode:
-          type: string
-          description: Код авторизации, полученный от Банка-эмитента
-          x-description-i18n:
-            eng: Authorization code received from the Issuing Bank
-        rrn:
-          type: string
-          description: Идентификатор транзакции в системе Банка
-          x-description-i18n:
-            eng: Transaction ID in the Bank system
-        refundId:
-          type: string
-          description: Идентификатор запроса на возврат в системе мерчанта
-          x-description-i18n:
-            eng: Return request ID in the merchant system
-        fee:
-          type: number
-          format: float
-          description: Комиссия по операции
-          x-description-i18n:
-            eng: Transaction fee
-    ReportPaymentCard:
-      title: ReportPaymentCard
-      type: object
-      description: Платеж по ECOM
-      x-description-i18n:
-        eng: Payment by ECOM
-      properties:
-        orderId:
-          type: string
-          description: Уникальный идентификатор заказа в системе мерчанта
-          x-description-i18n:
-            eng: Unique order ID in the merchant system
-        amount:
-          type: number
-          description: Сумма операции
-          x-description-i18n:
-            eng: Transaction amount
-        transactionDate:
-          type: string
-          description: Дата операции
-          x-description-i18n:
-            eng: Transaction date
-        paymentSystem:
-          type: string
-          description: Платежная система
-          x-description-i18n:
-            eng: Payment system
-        paymentDetails:
-          type: string
-          description: Назначение платежа
-          x-description-i18n:
-            eng: Purpose of payment
-        transactionId:
-          type: integer
-          description: Идентификатор операции в системе Банка
-          x-description-i18n:
-            eng: Operation identifier in the Bank system
-        clientId:
-          type: string
-          description: Маскированный номер карты плательщика
-          x-description-i18n:
-            eng: Masked payer card number
-        authCode:
-          type: string
-          description: Код авторизации, полученный от Банка-эмитента
-          x-description-i18n:
-            eng: Authorization code received from the Issuing Bank
-        rrn:
-          type: string
-          description: Идентификатор транзакции в системе Банка
-          x-description-i18n:
-            eng: Transaction ID in the Bank system
+          description: Идентификатор операции в системе НСПК
         orderComment:
           type: string
-          description: Комментарий к заказу
-          x-description-i18n:
-            eng: Comment to order
-        fee:
+          description: Комментарий
+    reportPaymentCardResponse:
+      title: reportPaymentCardResponse
+      type: object
+      properties:
+        orderId:
+          type: string
+          description: Уникальный идентификатор заказа в системе партнёра
+        amount:
           type: number
-          format: float
-          description: Комиссия по операции
-          x-description-i18n:
-            eng: Transaction fee
+          description: Сумма операции
+        transactionDate:
+          type: string
+          description: Дата операции
+        paymentSystem:
+          type: string
+          description: Платежная система
+        paymentDetails:
+          type: string
+          description: Назначение платежа
+        transactionId:
+          type: integer
+          description: Идентификатор операции в системе Банка
+        clientId:
+          type: string
+          description: Маскированный номер карты клиента
+        authCode:
+          type: string
+          description: Код авторизации платежа, полученный от Банка-эмитента
+        rrn:
+          type: string
+          description: Номер для идентификации
+        orderComment:
+          type: string
+          description: Комментарий
+    reportRefundSbpResponse:
+      title: reportRefundSbpResponse
+      type: object
+      description: Возврат СБП
+      properties:
+        orderId:
+          type: string
+          description: Уникальный идентификатор заказа в системе партнёра
+        amount:
+          type: number
+          description: Сумма операции
+        transactionDate:
+          type: string
+          description: Дата операции
+        paymentSystem:
+          type: string
+          description: Платежная система
+        paymentDetails:
+          type: string
+          description: Назначение платежа
+        transactionId:
+          type: integer
+          description: Идентификатор транзакции СБП в системе Банка
+        clientId:
+          type: string
+          description: Идентификатор клиента в системе НСПК
+        qrId:
+          type: string
+          description: Идентификатор QR-кода
+        sbpTransactionId:
+          type: string
+          description: Идентификатор операции в системе НСПК
+        refundId:
+          type: string
+          description: Идентификатор запроса на возврат в системе партнера
     comparisonSummaryRep:
       title: comparisonSummaryRep
       type: object
@@ -1174,110 +1312,6 @@ components:
                 count:
                   type: integer
                   description: Общее количество операций по интернет-эквайрингу
-    reportRefundCardResponse:
-      title: reportRefundCardResponse
-      type: object
-      properties:
-        orderId:
-          type: string
-          description: 'Идентификатор операции '
-        amount:
-          type: number
-          description: Сумма операции
-        transactionDate:
-          type: string
-          description: Дата операции
-        paymentSystem:
-          type: string
-          description: Платежная система
-        paymentDetails:
-          type: string
-          description: Назначение платежа
-        transactionId:
-          type: integer
-          description: Идентификатор транзакции в системе Банка
-        clientId:
-          type: string
-          description: Маскированный номер карты клиента
-        authCode:
-          type: string
-          description: Код авторизации платежа, полученный от Банка-эмитента
-        rrn:
-          type: string
-          description: Номер для идентификации
-        refundId:
-          type: string
-          description: Идентификатор запроса на возврат в системе партнера
-    reportPaymentSbpResponse:
-      title: reportPaymentSbpResponse
-      type: object
-      description: Платеж СБП
-      properties:
-        orderId:
-          type: string
-          description: Уникальный идентификатор заказа в системе партнёра
-        amount:
-          type: number
-          description: Сумма операции
-        transactionDate:
-          type: string
-          description: Дата операции
-        paymentSystem:
-          type: string
-          description: Платежная система
-        paymentDetails:
-          type: string
-          description: Назначение платежа
-        transactionId:
-          type: integer
-          description: Идентификатор транзакции СБП в системе Банка
-        clientId:
-          type: string
-          description: Идентификатор клиента в системе НСПК
-        qrId:
-          type: string
-          description: Идентификатор QR-кода
-        sbpTransactionId:
-          type: string
-          description: Идентификатор операции в системе НСПК
-        orderComment:
-          type: string
-          description: Комментарий
-    reportRefundSbpResponse:
-      title: reportRefundSbpResponse
-      type: object
-      description: Возврат СБП
-      properties:
-        orderId:
-          type: string
-          description: Уникальный идентификатор заказа в системе партнёра
-        amount:
-          type: number
-          description: Сумма операции
-        transactionDate:
-          type: string
-          description: Дата операции
-        paymentSystem:
-          type: string
-          description: Платежная система
-        paymentDetails:
-          type: string
-          description: Назначение платежа
-        transactionId:
-          type: integer
-          description: Идентификатор транзакции СБП в системе Банка
-        clientId:
-          type: string
-          description: Идентификатор клиента в системе НСПК
-        qrId:
-          type: string
-          description: Идентификатор QR-кода
-        sbpTransactionId:
-          type: string
-          description: Идентификатор операции в системе НСПК
-        refundId:
-          type: string
-          description: Идентификатор запроса на возврат в системе партнера
     error:
       type: object
       properties:
@@ -1287,40 +1321,29 @@ components:
         message:
           type: string
           description: Описание ошибки
-    reportPaymentCardResponse:
-      title: reportPaymentCardResponse
-      type: object
-      properties:
-        orderId:
-          type: string
-          description: Уникальный идентификатор заказа в системе партнёра
-        amount:
-          type: number
-          description: Сумма операции
-        transactionDate:
-          type: string
-          description: Дата операции
-        paymentSystem:
-          type: string
-          description: Платежная система
-        paymentDetails:
-          type: string
-          description: Назначение платежа
-        transactionId:
-          type: integer
-          description: Идентификатор операции в системе Банка
-        clientId:
-          type: string
-          description: Маскированный номер карты клиента
-        authCode:
-          type: string
-          description: Код авторизации платежа, полученный от Банка-эмитента
-        rrn:
-          type: string
-          description: Номер для идентификации
-        orderComment:
-          type: string
-          description: Комментарий
+  responses:
+    GetDetailTransactionsReportResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SummaryReport'
+          examples:
+            Example 1:
+              $ref: '#/components/examples/SUMMARY_REPORT_TRANSACTION'
+    GetSummaryReportTransactionsResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ComparisonSummaryReport'
+          examples:
+            Example 1:
+              $ref: '#/components/examples/SUMMARY_REPORT_TRANSACTION_COMPARISON'
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена
   examples:
     SUMMARY_REPORT_TRANSACTION_COMPARISON:
       value:
@@ -1431,29 +1454,6 @@ components:
             qrId: AS1A007L7B8IPA1F8CBQ8RK2D27FHST9
             refundId: refund-dr-1
             fee: 0
-  responses:
-    GetDetailTransactionsReportResponse:
-      description: OK
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/SummaryReport'
-          examples:
-            Example 1:
-              $ref: '#/components/examples/SUMMARY_REPORT_TRANSACTION'
-    GetSummaryReportTransactionsResponse:
-      description: OK
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ComparisonSummaryReport'
-          examples:
-            Example 1:
-              $ref: '#/components/examples/SUMMARY_REPORT_TRANSACTION_COMPARISON'
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
   securitySchemes:
     secretKey:
       type: http
@@ -1474,6 +1474,3 @@ x-refined-from:
 - raiffeisen-ru-raif-pay-payment-form-openapi.json
 - raiffeisen-ru-raif-pay-reports-openapi.yml
 - raiffeisen-ru-raif-pay-sbp-openapi.json
-- raiffeisen-ru-raif-pay-payment-form-openapi.yml
-- raiffeisen-ru-raif-pay-reports-openapi.yml
-- raiffeisen-ru-raif-pay-sbp-openapi.yml

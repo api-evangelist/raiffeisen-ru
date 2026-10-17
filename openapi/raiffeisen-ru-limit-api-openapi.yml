@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Limit API
+  description: API Агентского факторинга
+  title: Финансирование. Агентский факторинг Limit API
   version: 1.0.0
-  description: 'Operations tagged Limit across 2 of this provider''s published API definitions: raiffeisen-ru-agency-factoring-openapi.yml, raiffeisen-ru-agency-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/payables-financing
 tags:
@@ -77,58 +77,8 @@ paths:
       summary: Получения лимита
       tags:
       - Limit
-    servers:
-    - url: https://api.raiffeisen.ru/payables-financing
 components:
   schemas:
-    RestErrorCodes:
-      description: '| code            | description                                |
-
-        |-----------------|--------------------------------------------|
-
-        | REST_ERR_5001   | General service error                       |
-
-        | REST_ERR_5040   | Tax is not available                        |
-
-        | REST_ERR_5041   | Incorrect format of taxpayer status         |
-
-        | REST_ERR_5042   | Incorrect format of KPP payer''s             |
-
-        | REST_ERR_5043   | Incorrect format of UIN                     |
-
-        | REST_ERR_5044   | Incorrect format of CBC                     |
-
-        | REST_ERR_5045   | Incorrect format of OKTMO                   |
-
-        | REST_ERR_5046   | Incorrect format of payment reason          |
-
-        | REST_ERR_5047   | Incorrect format of tax period              |
-
-        | REST_ERR_5048   | Incorrect format of the payment reason document number |
-
-        | REST_ERR_5049   | Incorrect format of the payment reason document date   |
-
-        | REST_ERR_5050   | Incorrect format of receiver name           |
-
-        | REST_ERR_5051   | Incorrect format of purpose                 |
-
-        '
-      enum:
-      - REST_ERR_5001
-      - REST_ERR_5040
-      - REST_ERR_5041
-      - REST_ERR_5042
-      - REST_ERR_5043
-      - REST_ERR_5044
-      - REST_ERR_5045
-      - REST_ERR_5046
-      - REST_ERR_5047
-      - REST_ERR_5048
-      - REST_ERR_5049
-      - REST_ERR_5050
-      - REST_ERR_5051
-      example: REST_ERR_5001
-      type: string
     ErrorCodes:
       description: '| code       | description                        |
 
@@ -271,113 +221,6 @@ components:
       - code
       - message
       type: object
-    LimitState:
-      allOf:
-      - $ref: '#/components/schemas/State'
-      - properties:
-          status:
-            $ref: '#/components/schemas/LimitStatus'
-        type: object
-      description: Состояние лимита
-      example:
-        statusDate: '2025-07-10T06:53:37.433211'
-        errors: []
-        status: APPROVED
-      type: object
-    Limit:
-      example:
-        id: 2c44306f-fc96-4780-9b37-6447273b190e
-        principal:
-          id: 2c44306f-fc96-4780-9b37-6447273b190e
-          cnum: AA10AA
-          shortNameRus: АО Ромашка
-          fullNameRus: Акционерное общество Ромашка
-          fullNameEng: Joint Stock Chamomile
-          inn: '7744000302'
-          ogrn: '1027739326449'
-          kpp: '770401001'
-          state:
-            statusDate: '2025-07-10T06:53:37.433211'
-            errors: []
-            status: APPROVED
-          cqrsVersion: -1628796591
-        amount: 100.01
-        used: 10.01
-        rest: 90.0
-        currencyCode: RUB
-        state:
-          statusDate: '2025-07-10T06:53:37.433211'
-          errors: []
-          status: APPROVED
-        cqrsVersion: -1628796591
-      properties:
-        id:
-          description: Идентификатор лимита
-          example: 2c44306f-fc96-4780-9b37-6447273b190e
-          format: uuid
-          type: string
-        principal:
-          $ref: '#/components/schemas/Principal'
-        amount:
-          description: Сумма лимита
-          example: 100.01
-          type: number
-        used:
-          description: Сумма использование лимита
-          example: 10.01
-          type: number
-        rest:
-          description: Остаток лимита
-          example: 90.0
-          type: number
-        currencyCode:
-          $ref: '#/components/schemas/CurrencyCode'
-        state:
-          allOf:
-          - $ref: '#/components/schemas/LimitState'
-          description: Состояние лимита
-          type: object
-        cqrsVersion:
-          description: hashCode от state - состояния реестра
-          example: -1628796591
-          type: integer
-      type: object
-    CurrencyCode:
-      description: Валюта платежа
-      enum:
-      - RUB
-      example: RUB
-      type: string
-    LimitListResponse:
-      description: Список лимитов
-      example:
-      - principal:
-          ogrn: '1027739326449'
-          shortNameRus: АО Ромашка
-          cqrsVersion: -1628796591
-          inn: '7744000302'
-          kpp: '770401001'
-          id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
-          state:
-            statusDate: '2021-07-10T06:53:37.433111Z'
-            errors: []
-            status: APPROVED
-          fullNameEng: Joint Stock Chamomile
-          cnum: AA10AA
-          fullNameRus: Акционерное общество Ромашка
-        rest: 90.0
-        amount: 100.01
-        cqrsVersion: -1628796591
-        id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
-        used: 10.01
-        state:
-          statusDate: '2021-07-10T06:53:37.433111Z'
-          errors: []
-          status: APPROVED
-        currencyCode: RUB
-      items:
-        $ref: '#/components/schemas/Limit'
-      type: array
     PrincipalState:
       allOf:
       - $ref: '#/components/schemas/State'
@@ -391,6 +234,54 @@ components:
         errors: []
         status: APPROVED
       type: object
+    RestErrorCodes:
+      description: '| code            | description                                |
+
+        |-----------------|--------------------------------------------|
+
+        | REST_ERR_5001   | General service error                       |
+
+        | REST_ERR_5040   | Tax is not available                        |
+
+        | REST_ERR_5041   | Incorrect format of taxpayer status         |
+
+        | REST_ERR_5042   | Incorrect format of KPP payer''s             |
+
+        | REST_ERR_5043   | Incorrect format of UIN                     |
+
+        | REST_ERR_5044   | Incorrect format of CBC                     |
+
+        | REST_ERR_5045   | Incorrect format of OKTMO                   |
+
+        | REST_ERR_5046   | Incorrect format of payment reason          |
+
+        | REST_ERR_5047   | Incorrect format of tax period              |
+
+        | REST_ERR_5048   | Incorrect format of the payment reason document number |
+
+        | REST_ERR_5049   | Incorrect format of the payment reason document date   |
+
+        | REST_ERR_5050   | Incorrect format of receiver name           |
+
+        | REST_ERR_5051   | Incorrect format of purpose                 |
+
+        '
+      enum:
+      - REST_ERR_5001
+      - REST_ERR_5040
+      - REST_ERR_5041
+      - REST_ERR_5042
+      - REST_ERR_5043
+      - REST_ERR_5044
+      - REST_ERR_5045
+      - REST_ERR_5046
+      - REST_ERR_5047
+      - REST_ERR_5048
+      - REST_ERR_5049
+      - REST_ERR_5050
+      - REST_ERR_5051
+      example: REST_ERR_5001
+      type: string
     Principal:
       description: Принципал
       example:
@@ -462,11 +353,100 @@ components:
       - shortNameRus
       - state
       type: object
-    LimitStatus:
-      description: Статус лимита
+    Limit:
+      example:
+        id: 2c44306f-fc96-4780-9b37-6447273b190e
+        principal:
+          id: 2c44306f-fc96-4780-9b37-6447273b190e
+          cnum: AA10AA
+          shortNameRus: АО Ромашка
+          fullNameRus: Акционерное общество Ромашка
+          fullNameEng: Joint Stock Chamomile
+          inn: '7744000302'
+          ogrn: '1027739326449'
+          kpp: '770401001'
+          state:
+            statusDate: '2025-07-10T06:53:37.433211'
+            errors: []
+            status: APPROVED
+          cqrsVersion: -1628796591
+        amount: 100.01
+        used: 10.01
+        rest: 90.0
+        currencyCode: RUB
+        state:
+          statusDate: '2025-07-10T06:53:37.433211'
+          errors: []
+          status: APPROVED
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: Идентификатор лимита
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        principal:
+          $ref: '#/components/schemas/Principal'
+        amount:
+          description: Сумма лимита
+          example: 100.01
+          type: number
+        used:
+          description: Сумма использование лимита
+          example: 10.01
+          type: number
+        rest:
+          description: Остаток лимита
+          example: 90.0
+          type: number
+        currencyCode:
+          $ref: '#/components/schemas/CurrencyCode'
+        state:
+          allOf:
+          - $ref: '#/components/schemas/LimitState'
+          description: Состояние лимита
+          type: object
+        cqrsVersion:
+          description: hashCode от state - состояния реестра
+          example: -1628796591
+          type: integer
+      type: object
+    LimitListResponse:
+      description: Список лимитов
+      example:
+      - principal:
+          ogrn: '1027739326449'
+          shortNameRus: АО Ромашка
+          cqrsVersion: -1628796591
+          inn: '7744000302'
+          kpp: '770401001'
+          id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+          state:
+            statusDate: '2021-07-10T06:53:37.433111Z'
+            errors: []
+            status: APPROVED
+          fullNameEng: Joint Stock Chamomile
+          cnum: AA10AA
+          fullNameRus: Акционерное общество Ромашка
+        rest: 90.0
+        amount: 100.01
+        cqrsVersion: -1628796591
+        id: bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+        used: 10.01
+        state:
+          statusDate: '2021-07-10T06:53:37.433111Z'
+          errors: []
+          status: APPROVED
+        currencyCode: RUB
+      items:
+        $ref: '#/components/schemas/Limit'
+      type: array
+    PrincipalStatus:
+      description: Статус принципала
       enum:
+      - FETCHED
       - APPROVED
-      - INVALID
+      - REJECTED
       example: APPROVED
       type: string
     State:
@@ -488,13 +468,31 @@ components:
       required:
       - statusDate
       type: object
-    PrincipalStatus:
-      description: Статус принципала
+    LimitStatus:
+      description: Статус лимита
       enum:
-      - FETCHED
       - APPROVED
-      - REJECTED
+      - INVALID
       example: APPROVED
+      type: string
+    LimitState:
+      allOf:
+      - $ref: '#/components/schemas/State'
+      - properties:
+          status:
+            $ref: '#/components/schemas/LimitStatus'
+        type: object
+      description: Состояние лимита
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: APPROVED
+      type: object
+    CurrencyCode:
+      description: Валюта платежа
+      enum:
+      - RUB
+      example: RUB
       type: string
     ErrorResponse:
       description: Список ошибок
@@ -511,15 +509,6 @@ components:
     InternalError:
       description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -529,6 +518,12 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-agency-factoring-openapi.yml
-- raiffeisen-ru-agency-factoring-openapi.yml
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=

@@ -4,7 +4,7 @@ info:
   x-refined-note:
   - x-logo differs across the merged source definitions and was not carried
   version: '1.0'
-  description: 'Operations tagged Order across 4 of this provider''s published API definitions: raiffeisen-ru-agency-factoring-openapi.yml, raiffeisen-ru-raif-pay-sbp-b2b-openapi.json, raiffeisen-ru-agency-factoring-openapi.yml, raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged Order across 2 of this provider''s published API definitions: raiffeisen-ru-agency-factoring-openapi.yml, raiffeisen-ru-raif-pay-sbp-b2b-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/payables-financing
 - url: https://pay-test.raif.ru
@@ -781,75 +781,6 @@ webhooks:
       description: Production
 components:
   schemas:
-    RestErrorCodes:
-      description: '| code            | description                                |
-
-        |-----------------|--------------------------------------------|
-
-        | REST_ERR_5001   | General service error                       |
-
-        | REST_ERR_5040   | Tax is not available                        |
-
-        | REST_ERR_5041   | Incorrect format of taxpayer status         |
-
-        | REST_ERR_5042   | Incorrect format of KPP payer''s             |
-
-        | REST_ERR_5043   | Incorrect format of UIN                     |
-
-        | REST_ERR_5044   | Incorrect format of CBC                     |
-
-        | REST_ERR_5045   | Incorrect format of OKTMO                   |
-
-        | REST_ERR_5046   | Incorrect format of payment reason          |
-
-        | REST_ERR_5047   | Incorrect format of tax period              |
-
-        | REST_ERR_5048   | Incorrect format of the payment reason document number |
-
-        | REST_ERR_5049   | Incorrect format of the payment reason document date   |
-
-        | REST_ERR_5050   | Incorrect format of receiver name           |
-
-        | REST_ERR_5051   | Incorrect format of purpose                 |
-
-        '
-      enum:
-      - REST_ERR_5001
-      - REST_ERR_5040
-      - REST_ERR_5041
-      - REST_ERR_5042
-      - REST_ERR_5043
-      - REST_ERR_5044
-      - REST_ERR_5045
-      - REST_ERR_5046
-      - REST_ERR_5047
-      - REST_ERR_5048
-      - REST_ERR_5049
-      - REST_ERR_5050
-      - REST_ERR_5051
-      example: REST_ERR_5001
-      type: string
-    ErrorMessage:
-      example:
-        code: REST_ERR_5001
-        message: General service error
-        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
-      properties:
-        code:
-          $ref: '#/components/schemas/RestErrorCodes'
-        message:
-          description: Сообщение
-          example: General service error
-          type: string
-        traceId:
-          description: traceId
-          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
-          type: string
-      required:
-      - code
-      - message
-      - traceId
-      type: object
     CreditorStatus:
       description: Статус кредитора
       enum:
@@ -858,21 +789,6 @@ components:
       - APPROVED
       - REJECTED
       example: APPROVED
-      type: string
-    OrderStatus:
-      description: Статус поручения
-      enum:
-      - AWAITING_FUNDING
-      - REJECTED
-      - FINANCED
-      - REPAID
-      - PARTIALLY_REPAID
-      - FINANCED_OVERDUE
-      - REPAID_OVERDUE
-      - PARTIAL_REPAID_OVERDUE
-      - AWAITING_REPAY
-      - RETURNED
-      example: FINANCED
       type: string
     GetOrderRequest:
       example:
@@ -953,104 +869,86 @@ components:
             $ref: '#/components/schemas/SortingOrder'
           type: array
       type: object
-    PacketResponse:
-      description: Реестр поручений
+    OrderSortFields:
+      description: Поле для сортировки Поручения
+      enum:
+      - MATURITY_DATE
+      - ORDER_DATE
+      - DEBT_SUM
+      example: MATURITY_DATE
+      type: string
+    OrderTotalDebtResponse:
       example:
-        id: 2c44306f-fc96-4780-9b37-6447273b190e
-        referenceId: 2c44306f-fc96-4780-9b37-6447273b190e
-        number: 2025-04-01-111
-        packetDate: '2025-01-01'
-        financedDate: '2025-01-01'
-        packetSum: 100.11
-        ordersCount: 2
-        financedSum: '100.11'
-        state:
-          statusDate: '2025-07-10T06:53:37.433211'
-          errors: []
-          status: ACCEPTED_BY_BANK
-        cqrsVersion: -1628796591
+        totalDebt: '100.11'
+        overDebt: '100.11'
+        maturityTodayDebt: '100.11'
       properties:
-        id:
-          description: Идентификатор пакета
-          example: 2c44306f-fc96-4780-9b37-6447273b190e
-          format: uuid
-          type: string
-        referenceId:
-          description: Идентификатор реестра поручений клиента, если реестр загружен через API
-          example: 2c44306f-fc96-4780-9b37-6447273b190e
-          type: string
-        number:
-          description: Номер реестра поручений
-          example: 2025-04-01-111
-          type: string
-        packetDate:
-          description: Дата реестра поручений
-          example: '2025-01-01'
-          format: date
-          type: string
-        financedDate:
-          description: Максимальный executionDate из исполненных поручений
-          example: '2025-01-01'
-          format: date
-          type: string
-        packetSum:
-          description: Сумма реестра
-          example: 100.11
-          type: number
-        ordersCount:
-          description: Количество поручений
-          example: 2
-          type: integer
-        financedSum:
-          description: Сумма финансирования
+        totalDebt:
+          description: Сумма задолженности на момент запроса
           example: '100.11'
           type: string
-        state:
-          allOf:
-          - $ref: '#/components/schemas/PacketState'
-          description: Состояние пакета
-          example:
-            statusDate: '2025-07-10T06:53:37.433211'
-            errors: []
-            status: ACCEPTED_BY_BANK
-          type: object
-        cqrsVersion:
-          description: hashCode от state - состояния реестра
-          example: -1628796591
-          type: integer
+        overDebt:
+          description: Сумма просроченной задолженности
+          example: '100.11'
+          type: string
+        maturityTodayDebt:
+          description: Сумма задолженности поручений с плановой датой погашения на сегодня
+          example: '100.11'
+          type: string
       required:
-      - cqrsVersion
-      - id
-      - number
-      - packetDate
-      - referenceId
-      - state
+      - maturityTodayDebt
+      - overDebt
+      - totalDebt
       type: object
-    ErrorResponse:
-      description: Список ошибок
+    PaymentRequisites:
+      description: Платежные реквизиты
       example:
-      - code: REST_ERR_5001
-        message: General service error
-        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
-      items:
-        $ref: '#/components/schemas/ErrorMessage'
-      type: array
-    GetPaymentOrdersReportArchiveRequest:
-      example:
-        ids:
-        - 2c44306f-fc96-4780-9b37-6447273b190e
-        - bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+        account: '40702810200001430012'
+        correspondentAccount: '30101810200000000700'
+        bic: '044525700'
+        recipientBankName: АО «Райффайзенбанк»
+        purpose: Оплата по контракту 111111 от 31.12.2021
       properties:
-        ids:
-          description: Индентфиикаторы поручений
-          example:
-          - 2c44306f-fc96-4780-9b37-6447273b190e
-          - bf1d1868-a98e-4ae5-976f-0c4e21e0d510
-          items:
-            example: 2c44306f-fc96-4780-9b37-6447273b190e
-            format: uuid
-            type: string
-          type: array
+        account:
+          description: Расчетный счет получателя
+          example: '40702810200001430012'
+          type: string
+        correspondentAccount:
+          description: Корреспондентский счет получателя
+          example: '30101810200000000700'
+          type: string
+        bic:
+          description: БИК банка получателя
+          example: '044525700'
+          type: string
+        recipientBankName:
+          description: Наименование банка получателя
+          example: АО «Райффайзенбанк»
+          type: string
+        purpose:
+          description: Назначение платежа
+          example: Оплата по контракту 111111 от 31.12.2021
+          type: string
+      required:
+      - account
+      - bic
+      - correspondentAccount
+      - purpose
+      - recipientBankName
+      type: object
+    SortingOrder:
+      description: Направление сортировки по полю
+      example:
+        sortBy: MATURITY_DATE
+        orderBy: DESC
+      properties:
+        sortBy:
+          $ref: '#/components/schemas/OrderSortFields'
+        orderBy:
+          $ref: '#/components/schemas/Direction'
+      required:
+      - orderBy
+      - sortBy
       type: object
     OrderType:
       description: Тип поручения. TAX - в налоговую, COMMON - контрагенту
@@ -1059,25 +957,13 @@ components:
       - COMMON
       example: COMMON
       type: string
-    Error:
-      example:
-        code: ERR_1001
-        message: General service error
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCodes'
-        message:
-          description: Сообщение
-          example: General service error
-          type: string
-        traceId:
-          description: traceId
-          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
-          type: string
-      required:
-      - code
-      - message
-      type: object
+    Direction:
+      description: Направление сортировки
+      enum:
+      - DESC
+      - ASC
+      example: DESC
+      type: string
     OrderPageResponse:
       allOf:
       - properties:
@@ -1119,335 +1005,49 @@ components:
         limit: 10
         totalCount: 100
       type: object
-    CreditorRequisites:
-      description: Реквизиты кредитора
-      example:
-        fullNameRus: АО Ромашка
-        inn: '1234567890'
-        ogrn: '123456789012345'
-        kpp: '123456789'
-      properties:
-        fullNameRus:
-          description: Полное наименование кредитора
-          example: АО Ромашка
-          type: string
-        inn:
-          description: ИНН кредитора
-          example: '1234567890'
-          maxLength: 12
-          minLength: 10
-          type: string
-        ogrn:
-          description: ОГРН кредитора
-          example: '123456789012345'
-          maxLength: 15
-          minLength: 13
-          type: string
-        kpp:
-          description: КПП кредитора
-          example: '123456789'
-          maxLength: 9
-          minLength: 9
-          type: string
-      required:
-      - fullNameRus
-      - inn
-      - ogrn
-      type: object
-    PaginationRequest:
-      description: Параметры пагинации
-      example:
-        offset: 0
-        limit: 10
-      properties:
-        offset:
-          description: Количество элементов для сдвига
-          example: 1
-          type: integer
-        limit:
-          description: Ограничение элементов
-          example: 10
-          type: integer
-      required:
-      - limit
-      - offset
-      type: object
-    TaxRequisites:
-      description: Налоговые реквизиты
-      example:
-        taxPayerStatus: '01'
-        kppPayer: '770801001'
-        uin: '1820996623340000000000000'
-        cbc: '18200000000000000000'
-        oktmo: '63701000'
-        paymentReason: '0'
-        taxPeriod: '0'
-        docNumberPaymentReason: '0'
-        docDatePaymentReason: '0'
-        receiverName: Казначейство России (ФНС России)
-      properties:
-        taxPayerStatus:
-          description: Статус налогоплательщика
-          example: '01'
-          type: string
-        kppPayer:
-          description: КПП плательщика
-          example: '770801001'
-          type: string
-        uin:
-          description: УИН (уникальный идентификатор начислений)
-          example: '1820996623340000000000000'
-          type: string
-        cbc:
-          description: КБК (код бюджетной классификации)
-          example: '18200000000000000000'
-          type: string
-        oktmo:
-          description: ОКТМО (Общероссийский классификатор территорий муниципальных образований)
-          example: '63701000'
-          type: string
-        paymentReason:
-          description: Основание платежа
-          example: '0'
-          type: string
-        taxPeriod:
-          description: Налоговый период
-          example: '0'
-          type: string
-        docNumberPaymentReason:
-          description: Номер документа основания платежа
-          example: '0'
-          type: string
-        docDatePaymentReason:
-          description: Дата документа основания платежа
-          example: '0'
-          type: string
-        receiverName:
-          description: Наименование получателя
-          example: Казначейство России (ФНС России)
-          type: string
-      type: object
-    PaginationResponse:
-      example:
-        offset: 0
-        limit: 10
-        totalCount: 100
-      properties:
-        offset:
-          description: Количество элементов для сдвига
-          example: 1
-          type: integer
-        limit:
-          description: Итоговое количество элементов
-          example: 10
-          type: integer
-        totalCount:
-          description: Общее количество элементов
-          example: 100
-          type: integer
-      required:
-      - limit
-      - offset
-      - totalCount
-      type: object
-    OrderResponse:
-      allOf:
-      - properties:
-          id:
-            description: Идентификатор поручения
-            example: 2c44306f-fc96-4780-9b37-6447273b190e
-            format: uuid
-            type: string
-          referenceId:
-            description: Идентификатор поручения клиента, если поручение загружено через API
-            example: 1111-2222-3333
-            type: string
-          creditorRequisites:
-            $ref: '#/components/schemas/CreditorRequisites'
-          paymentRequisites:
-            $ref: '#/components/schemas/PaymentRequisites'
-          taxRequisites:
-            $ref: '#/components/schemas/TaxRequisites'
-          creditor:
-            $ref: '#/components/schemas/CreditorResponse'
-          payment:
-            $ref: '#/components/schemas/Payment'
-          packet:
-            $ref: '#/components/schemas/PacketResponse'
-          orderType:
-            $ref: '#/components/schemas/OrderType'
-          orderDate:
-            description: Дата поручения
-            example: '2025-01-01'
-            format: date
-            type: string
-          maturityDate:
-            description: Дата погашения
-            example: '2025-01-01'
-            format: date
-            type: string
-          executionDate:
-            description: Дата исполнения
-            example: '2025-01-01'
-            format: date
-            type: string
-          orderSum:
-            description: Сумма поручения
-            example: 1111.11
-            type: number
-          debtSum:
-            description: Сумма задолженности по поручению
-            example: 55.55
-            type: number
-          currencyCode:
-            $ref: '#/components/schemas/CurrencyCode'
-          state:
-            $ref: '#/components/schemas/OrderState'
-          cqrsVersion:
-            $ref: '#/components/schemas/CqrsVersion'
-        required:
-        - cqrsVersion
-        - creditorRequisites
-        - currencyCode
-        - debtSum
-        - id
-        - maturityDate
-        - orderDate
-        - orderSum
-        - orderType
-        - paymentRequisites
-        - referenceId
-        - state
-        type: object
-      example:
-        id: 2c44306f-fc96-4780-9b37-6447273b190e
-        referenceId: 1111-2222-3333
-        creditorRequisites:
-          ogrn: '123456789012345'
-          inn: '1234567890'
-          kpp: '123456789'
-          fullNameRus: АО Ромашка
-        paymentRequisites:
-          purpose: Оплата по контракту 111111 от 31.12.2021
-          correspondentAccount: '30101810200000000700'
-          recipientBankName: АО «Райффайзенбанк»
-          bic: '044525700'
-          account: '40702810200001430012'
-        orderType: COMMON
-        orderDate: '2025-01-01'
-        maturityDate: '2025-01-01'
-        executionDate: '2025-01-01'
-        orderSum: 1111.11
-        debtSum: 55.55
-        currencyCode: RUB
-        state:
-          statusDate: '2025-07-10T06:53:37.433211'
-          errors: []
-          status: FINANCED
-        cqrsVersion: -1628796591
-    Direction:
-      description: Направление сортировки
+    OrderStatus:
+      description: Статус поручения
       enum:
-      - DESC
-      - ASC
-      example: DESC
+      - AWAITING_FUNDING
+      - REJECTED
+      - FINANCED
+      - REPAID
+      - PARTIALLY_REPAID
+      - FINANCED_OVERDUE
+      - REPAID_OVERDUE
+      - PARTIAL_REPAID_OVERDUE
+      - AWAITING_REPAY
+      - RETURNED
+      example: FINANCED
       type: string
-    PacketStatus:
-      description: Статус реестра поручений
-      enum:
-      - SIGN_AWAITING
-      - SIGN_REJECTED
-      - DOCUMENT_IN_PROGRESS
-      - ACCEPTED_BY_BANK
-      example: ACCEPTED_BY_BANK
-      type: string
-    PacketState:
-      allOf:
-      - $ref: '#/components/schemas/State'
-      - properties:
-          status:
-            $ref: '#/components/schemas/PacketStatus'
-        type: object
-      description: Состояние пакета
+    Error:
       example:
-        statusDate: '2025-07-10T06:53:37.433211'
-        errors: []
-        status: ACCEPTED_BY_BANK
-      type: object
-    OrderSortFields:
-      description: Поле для сортировки Поручения
-      enum:
-      - MATURITY_DATE
-      - ORDER_DATE
-      - DEBT_SUM
-      example: MATURITY_DATE
-      type: string
-    OrderTotalDebtResponse:
-      example:
-        totalDebt: '100.11'
-        overDebt: '100.11'
-        maturityTodayDebt: '100.11'
+        code: ERR_1001
+        message: General service error
       properties:
-        totalDebt:
-          description: Сумма задолженности на момент запроса
-          example: '100.11'
+        code:
+          $ref: '#/components/schemas/ErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
           type: string
-        overDebt:
-          description: Сумма просроченной задолженности
-          example: '100.11'
-          type: string
-        maturityTodayDebt:
-          description: Сумма задолженности поручений с плановой датой погашения на сегодня
-          example: '100.11'
+        traceId:
+          description: traceId
+          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
           type: string
       required:
-      - maturityTodayDebt
-      - overDebt
-      - totalDebt
+      - code
+      - message
       type: object
-    CreditorResponse:
-      allOf:
-      - $ref: '#/components/schemas/CreditorRequisites'
-      - properties:
-          id:
-            description: Идентификатор кредитора
-            example: 2c44306f-fc96-4780-9b37-6447273b190e
-            format: uuid
-            type: string
-          state:
-            $ref: '#/components/schemas/CreditorState'
-          cqrsVersion:
-            $ref: '#/components/schemas/CqrsVersion'
-        required:
-        - cqrsVersion
-        - id
-        - state
-        type: object
-      description: Кредитор
+    ErrorResponse:
+      description: Список ошибок
       example:
-        ogrn: '123456789012345'
-        inn: '1234567890'
-        kpp: '123456789'
-        fullNameRus: АО Ромашка
-        id: 2c44306f-fc96-4780-9b37-6447273b190e
-        state:
-          statusDate: '2025-07-10T06:53:37.433211'
-          errors: []
-          status: APPROVED
-        cqrsVersion: -1628796591
-    CreditorState:
-      allOf:
-      - $ref: '#/components/schemas/State'
-      - properties:
-          status:
-            $ref: '#/components/schemas/CreditorStatus'
-        type: object
-      description: Состояние кредитора
-      example:
-        statusDate: '2025-07-10T06:53:37.433211'
-        errors: []
-        status: APPROVED
-      type: object
+      - code: REST_ERR_5001
+        message: General service error
+        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+      items:
+        $ref: '#/components/schemas/ErrorMessage'
+      type: array
     ErrorCodes:
       description: '| code       | description                        |
 
@@ -1550,55 +1150,39 @@ components:
       - ERR_12001
       example: ERR_2000
       type: string
-    PaymentRequisites:
-      description: Платежные реквизиты
+    ErrorMessage:
       example:
-        account: '40702810200001430012'
-        correspondentAccount: '30101810200000000700'
-        bic: '044525700'
-        recipientBankName: АО «Райффайзенбанк»
-        purpose: Оплата по контракту 111111 от 31.12.2021
+        code: REST_ERR_5001
+        message: General service error
+        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
       properties:
-        account:
-          description: Расчетный счет получателя
-          example: '40702810200001430012'
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
           type: string
-        correspondentAccount:
-          description: Корреспондентский счет получателя
-          example: '30101810200000000700'
-          type: string
-        bic:
-          description: БИК банка получателя
-          example: '044525700'
-          type: string
-        recipientBankName:
-          description: Наименование банка получателя
-          example: АО «Райффайзенбанк»
-          type: string
-        purpose:
-          description: Назначение платежа
-          example: Оплата по контракту 111111 от 31.12.2021
+        traceId:
+          description: traceId
+          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
           type: string
       required:
-      - account
-      - bic
-      - correspondentAccount
-      - purpose
-      - recipientBankName
+      - code
+      - message
+      - traceId
       type: object
-    SortingOrder:
-      description: Направление сортировки по полю
+    OrderState:
+      allOf:
+      - $ref: '#/components/schemas/State'
+      - properties:
+          status:
+            $ref: '#/components/schemas/OrderStatus'
+        type: object
+      description: Состояние поручения
       example:
-        sortBy: MATURITY_DATE
-        orderBy: DESC
-      properties:
-        sortBy:
-          $ref: '#/components/schemas/OrderSortFields'
-        orderBy:
-          $ref: '#/components/schemas/Direction'
-      required:
-      - orderBy
-      - sortBy
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: FINANCED
       type: object
     Payment:
       description: Исходящий платеж
@@ -1615,29 +1199,102 @@ components:
           example: '2025-04-01'
           type: string
       type: object
-    OrderState:
-      allOf:
-      - $ref: '#/components/schemas/State'
-      - properties:
-          status:
-            $ref: '#/components/schemas/OrderStatus'
-        type: object
-      description: Состояние поручения
+    PacketResponse:
+      description: Реестр поручений
       example:
-        statusDate: '2025-07-10T06:53:37.433211'
-        errors: []
-        status: FINANCED
+        id: 2c44306f-fc96-4780-9b37-6447273b190e
+        referenceId: 2c44306f-fc96-4780-9b37-6447273b190e
+        number: 2025-04-01-111
+        packetDate: '2025-01-01'
+        financedDate: '2025-01-01'
+        packetSum: 100.11
+        ordersCount: 2
+        financedSum: '100.11'
+        state:
+          statusDate: '2025-07-10T06:53:37.433211'
+          errors: []
+          status: ACCEPTED_BY_BANK
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: Идентификатор пакета
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        referenceId:
+          description: Идентификатор реестра поручений клиента, если реестр загружен через API
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          type: string
+        number:
+          description: Номер реестра поручений
+          example: 2025-04-01-111
+          type: string
+        packetDate:
+          description: Дата реестра поручений
+          example: '2025-01-01'
+          format: date
+          type: string
+        financedDate:
+          description: Максимальный executionDate из исполненных поручений
+          example: '2025-01-01'
+          format: date
+          type: string
+        packetSum:
+          description: Сумма реестра
+          example: 100.11
+          type: number
+        ordersCount:
+          description: Количество поручений
+          example: 2
+          type: integer
+        financedSum:
+          description: Сумма финансирования
+          example: '100.11'
+          type: string
+        state:
+          allOf:
+          - $ref: '#/components/schemas/PacketState'
+          description: Состояние пакета
+          example:
+            statusDate: '2025-07-10T06:53:37.433211'
+            errors: []
+            status: ACCEPTED_BY_BANK
+          type: object
+        cqrsVersion:
+          description: hashCode от state - состояния реестра
+          example: -1628796591
+          type: integer
+      required:
+      - cqrsVersion
+      - id
+      - number
+      - packetDate
+      - referenceId
+      - state
       type: object
-    CqrsVersion:
-      description: hashCode от state - состояния реестра
-      example: -1628796591
-      type: integer
-    CurrencyCode:
-      description: Валюта платежа
-      enum:
-      - RUB
-      example: RUB
-      type: string
+    PaginationResponse:
+      example:
+        offset: 0
+        limit: 10
+        totalCount: 100
+      properties:
+        offset:
+          description: Количество элементов для сдвига
+          example: 1
+          type: integer
+        limit:
+          description: Итоговое количество элементов
+          example: 10
+          type: integer
+        totalCount:
+          description: Общее количество элементов
+          example: 100
+          type: integer
+      required:
+      - limit
+      - offset
+      - totalCount
+      type: object
     State:
       description: Состояние объекта
       example:
@@ -1657,10 +1314,390 @@ components:
       required:
       - statusDate
       type: object
-    ImageUrl:
+    OrderResponse:
+      allOf:
+      - properties:
+          id:
+            description: Идентификатор поручения
+            example: 2c44306f-fc96-4780-9b37-6447273b190e
+            format: uuid
+            type: string
+          referenceId:
+            description: Идентификатор поручения клиента, если поручение загружено через API
+            example: 1111-2222-3333
+            type: string
+          creditorRequisites:
+            $ref: '#/components/schemas/CreditorRequisites'
+          paymentRequisites:
+            $ref: '#/components/schemas/PaymentRequisites'
+          taxRequisites:
+            $ref: '#/components/schemas/TaxRequisites'
+          creditor:
+            $ref: '#/components/schemas/CreditorResponse'
+          payment:
+            $ref: '#/components/schemas/Payment'
+          packet:
+            $ref: '#/components/schemas/PacketResponse'
+          orderType:
+            $ref: '#/components/schemas/OrderType'
+          orderDate:
+            description: Дата поручения
+            example: '2025-01-01'
+            format: date
+            type: string
+          maturityDate:
+            description: Дата погашения
+            example: '2025-01-01'
+            format: date
+            type: string
+          executionDate:
+            description: Дата исполнения
+            example: '2025-01-01'
+            format: date
+            type: string
+          orderSum:
+            description: Сумма поручения
+            example: 1111.11
+            type: number
+          debtSum:
+            description: Сумма задолженности по поручению
+            example: 55.55
+            type: number
+          currencyCode:
+            $ref: '#/components/schemas/CurrencyCode'
+          state:
+            $ref: '#/components/schemas/OrderState'
+          cqrsVersion:
+            $ref: '#/components/schemas/CqrsVersion'
+        required:
+        - cqrsVersion
+        - creditorRequisites
+        - currencyCode
+        - debtSum
+        - id
+        - maturityDate
+        - orderDate
+        - orderSum
+        - orderType
+        - paymentRequisites
+        - referenceId
+        - state
+        type: object
+      example:
+        id: 2c44306f-fc96-4780-9b37-6447273b190e
+        referenceId: 1111-2222-3333
+        creditorRequisites:
+          ogrn: '123456789012345'
+          inn: '1234567890'
+          kpp: '123456789'
+          fullNameRus: АО Ромашка
+        paymentRequisites:
+          purpose: Оплата по контракту 111111 от 31.12.2021
+          correspondentAccount: '30101810200000000700'
+          recipientBankName: АО «Райффайзенбанк»
+          bic: '044525700'
+          account: '40702810200001430012'
+        orderType: COMMON
+        orderDate: '2025-01-01'
+        maturityDate: '2025-01-01'
+        executionDate: '2025-01-01'
+        orderSum: 1111.11
+        debtSum: 55.55
+        currencyCode: RUB
+        state:
+          statusDate: '2025-07-10T06:53:37.433211'
+          errors: []
+          status: FINANCED
+        cqrsVersion: -1628796591
+    PacketState:
+      allOf:
+      - $ref: '#/components/schemas/State'
+      - properties:
+          status:
+            $ref: '#/components/schemas/PacketStatus'
+        type: object
+      description: Состояние пакета
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: ACCEPTED_BY_BANK
+      type: object
+    CreditorResponse:
+      allOf:
+      - $ref: '#/components/schemas/CreditorRequisites'
+      - properties:
+          id:
+            description: Идентификатор кредитора
+            example: 2c44306f-fc96-4780-9b37-6447273b190e
+            format: uuid
+            type: string
+          state:
+            $ref: '#/components/schemas/CreditorState'
+          cqrsVersion:
+            $ref: '#/components/schemas/CqrsVersion'
+        required:
+        - cqrsVersion
+        - id
+        - state
+        type: object
+      description: Кредитор
+      example:
+        ogrn: '123456789012345'
+        inn: '1234567890'
+        kpp: '123456789'
+        fullNameRus: АО Ромашка
+        id: 2c44306f-fc96-4780-9b37-6447273b190e
+        state:
+          statusDate: '2025-07-10T06:53:37.433211'
+          errors: []
+          status: APPROVED
+        cqrsVersion: -1628796591
+    PaginationRequest:
+      description: Параметры пагинации
+      example:
+        offset: 0
+        limit: 10
+      properties:
+        offset:
+          description: Количество элементов для сдвига
+          example: 1
+          type: integer
+        limit:
+          description: Ограничение элементов
+          example: 10
+          type: integer
+      required:
+      - limit
+      - offset
+      type: object
+    CreditorState:
+      allOf:
+      - $ref: '#/components/schemas/State'
+      - properties:
+          status:
+            $ref: '#/components/schemas/CreditorStatus'
+        type: object
+      description: Состояние кредитора
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: APPROVED
+      type: object
+    CreditorRequisites:
+      description: Реквизиты кредитора
+      example:
+        fullNameRus: АО Ромашка
+        inn: '1234567890'
+        ogrn: '123456789012345'
+        kpp: '123456789'
+      properties:
+        fullNameRus:
+          description: Полное наименование кредитора
+          example: АО Ромашка
+          type: string
+        inn:
+          description: ИНН кредитора
+          example: '1234567890'
+          maxLength: 12
+          minLength: 10
+          type: string
+        ogrn:
+          description: ОГРН кредитора
+          example: '123456789012345'
+          maxLength: 15
+          minLength: 13
+          type: string
+        kpp:
+          description: КПП кредитора
+          example: '123456789'
+          maxLength: 9
+          minLength: 9
+          type: string
+      required:
+      - fullNameRus
+      - inn
+      - ogrn
+      type: object
+    CurrencyCode:
+      description: Валюта платежа
+      enum:
+      - RUB
+      example: RUB
       type: string
-      description: URL с изображением зарегистрированного QR-кода в СБП
-      example: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
+    RestErrorCodes:
+      description: '| code            | description                                |
+
+        |-----------------|--------------------------------------------|
+
+        | REST_ERR_5001   | General service error                       |
+
+        | REST_ERR_5040   | Tax is not available                        |
+
+        | REST_ERR_5041   | Incorrect format of taxpayer status         |
+
+        | REST_ERR_5042   | Incorrect format of KPP payer''s             |
+
+        | REST_ERR_5043   | Incorrect format of UIN                     |
+
+        | REST_ERR_5044   | Incorrect format of CBC                     |
+
+        | REST_ERR_5045   | Incorrect format of OKTMO                   |
+
+        | REST_ERR_5046   | Incorrect format of payment reason          |
+
+        | REST_ERR_5047   | Incorrect format of tax period              |
+
+        | REST_ERR_5048   | Incorrect format of the payment reason document number |
+
+        | REST_ERR_5049   | Incorrect format of the payment reason document date   |
+
+        | REST_ERR_5050   | Incorrect format of receiver name           |
+
+        | REST_ERR_5051   | Incorrect format of purpose                 |
+
+        '
+      enum:
+      - REST_ERR_5001
+      - REST_ERR_5040
+      - REST_ERR_5041
+      - REST_ERR_5042
+      - REST_ERR_5043
+      - REST_ERR_5044
+      - REST_ERR_5045
+      - REST_ERR_5046
+      - REST_ERR_5047
+      - REST_ERR_5048
+      - REST_ERR_5049
+      - REST_ERR_5050
+      - REST_ERR_5051
+      example: REST_ERR_5001
+      type: string
+    PacketStatus:
+      description: Статус реестра поручений
+      enum:
+      - SIGN_AWAITING
+      - SIGN_REJECTED
+      - DOCUMENT_IN_PROGRESS
+      - ACCEPTED_BY_BANK
+      example: ACCEPTED_BY_BANK
+      type: string
+    CqrsVersion:
+      description: hashCode от state - состояния реестра
+      example: -1628796591
+      type: integer
+    TaxRequisites:
+      description: Налоговые реквизиты
+      example:
+        taxPayerStatus: '01'
+        kppPayer: '770801001'
+        uin: '1820996623340000000000000'
+        cbc: '18200000000000000000'
+        oktmo: '63701000'
+        paymentReason: '0'
+        taxPeriod: '0'
+        docNumberPaymentReason: '0'
+        docDatePaymentReason: '0'
+        receiverName: Казначейство России (ФНС России)
+      properties:
+        taxPayerStatus:
+          description: Статус налогоплательщика
+          example: '01'
+          type: string
+        kppPayer:
+          description: КПП плательщика
+          example: '770801001'
+          type: string
+        uin:
+          description: УИН (уникальный идентификатор начислений)
+          example: '1820996623340000000000000'
+          type: string
+        cbc:
+          description: КБК (код бюджетной классификации)
+          example: '18200000000000000000'
+          type: string
+        oktmo:
+          description: ОКТМО (Общероссийский классификатор территорий муниципальных образований)
+          example: '63701000'
+          type: string
+        paymentReason:
+          description: Основание платежа
+          example: '0'
+          type: string
+        taxPeriod:
+          description: Налоговый период
+          example: '0'
+          type: string
+        docNumberPaymentReason:
+          description: Номер документа основания платежа
+          example: '0'
+          type: string
+        docDatePaymentReason:
+          description: Дата документа основания платежа
+          example: '0'
+          type: string
+        receiverName:
+          description: Наименование получателя
+          example: Казначейство России (ФНС России)
+          type: string
+      type: object
+    GetPaymentOrdersReportArchiveRequest:
+      example:
+        ids:
+        - 2c44306f-fc96-4780-9b37-6447273b190e
+        - bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+      properties:
+        ids:
+          description: Индентфиикаторы поручений
+          example:
+          - 2c44306f-fc96-4780-9b37-6447273b190e
+          - bf1d1868-a98e-4ae5-976f-0c4e21e0d510
+          items:
+            example: 2c44306f-fc96-4780-9b37-6447273b190e
+            format: uuid
+            type: string
+          type: array
+      type: object
+    Extra:
+      type: object
+      description: Дополнительные поля
+      additionalProperties:
+        type: string
+      example:
+        additionalInfo: testing operation
+    RedirectUrl:
+      type: string
+      maxLength: 1024
+      description: Ссылка для автоматического возврата плательщика из приложения банка в приложение или на сайт ТСП
+      example: https://exampletsp.io/qwertyui
+    SenderPaymentPurpose:
+      type: string
+      maxLength: 210
+      description: 'Назначение платежа, которое увидит плательщик при оплате. Поле обязательное.
+
+        <br>Может содержать:
+
+        <br>• Символы латиницы (A–Z и a–z)
+
+        <br>• Символы кириллицы (А-Я и а-я)
+
+        <br>• Цифры 0-9
+
+        <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
+
+        '
+      example: Какое-то назначение платежа
+    Account:
+      type: string
+      minLength: 20
+      maxLength: 20
+      description: Банковский счёт ЮЛ или ИП для зачисления средств
+      example: '40817810601002630020'
+    SbpTransactionId:
+      type: string
+      minLength: 32
+      maxLength: 32
+      description: Уникальный идентификатор операции на уровне всей системы СБП
+      example: PMSHT0BYVSYE7LDXMCXJSGIUHJLQWZXY
     Qr:
       type: object
       description: Информация о платёжной ссылке по заказу
@@ -1686,6 +1723,66 @@ components:
         imageUrl:
           allOf:
           - $ref: '#/components/schemas/ImageUrl'
+    Status:
+      type: string
+      description: 'Статус заказа:
+
+        <br>• ACTIVE – активен, можно проводить оплату
+
+        <br>• EXPIRED - срок действия истёк, нельзя провести оплату
+
+        <br>• PAID - оплачен, есть успешный платеж, новые платежи сделать не получится
+
+        <br>• CANCELLED - отменен, нельзя провести оплату
+
+        '
+      enum:
+      - ACTIVE
+      - EXPIRED
+      - PAID
+      - CANCELLED
+      example: ACTIVE
+    ReceiverPaymentPurpose:
+      type: string
+      maxLength: 150
+      description: 'Назначение платежа, которое увидит получатель в выписке в поле «Основание операции» вместе с инн плательщика.
+
+        <br>Например, "ИНН плательщика: 231150869432. Какое-то ваше назначение"
+
+        <br>Если поле не заполнено, то поле «Основание операции» заполнится по шаблону, в который будет передан идентификатор заказа, наименование плательщика и инн плательщика.
+
+        <br>Например, «Перевод по идентификатору nM43NFfqiaAh04QdSmCoI5u4S2YrWU2ikHJ. Плательщик: ООО Ромашка, ИНН: 231150869432. Осуществлен через СБП B2В».
+
+        <br>Может содержать:
+
+        <br>• Символы латиницы (A–Z и a–z)
+
+        <br>• Символы кириллицы (А-Я и а-я)
+
+        <br>• Цифры 0-9
+
+        <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
+
+        '
+      example: Какое-то назначение платежа
+    PaymentStatus:
+      type: object
+      description: Статус входящего платежа
+      required:
+      - value
+      - date
+      properties:
+        value:
+          type: string
+          description: Статус платежа, возможен только "SUCCESS"
+          enum:
+          - SUCCESS
+          example: SUCCESS
+        date:
+          type: string
+          format: date-time
+          description: Время проведения платежа
+          example: '2024-06-12T19:36:55+03:00'
     PaymentSender:
       type: object
       description: Информация о плательщике
@@ -1707,12 +1804,201 @@ components:
           allOf:
           - $ref: '#/components/schemas/BankInfo'
           description: Информация о банке плательщика
+    PaymentLinkId:
+      type: string
+      maxLength: 32
+      description: Уникальный идентификатор платёжной ссылки
+      example: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
     QrType:
       type: string
       enum:
       - DYNAMIC
       - STATIC
       description: Тип платёжной ссылки
+    Payment_2:
+      description: Информация об успешном платеже. Поле заполняется только в случае, если по заказу была проведена успешная оплата
+      type:
+      - object
+      - 'null'
+      required:
+      - id
+      - sbpTransactionId
+      - status
+      - amount
+      - totalTaxAmount
+      - sender
+      properties:
+        id:
+          $ref: '#/components/schemas/PaymentId'
+        sbpTransactionId:
+          $ref: '#/components/schemas/SbpTransactionId'
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        amount:
+          $ref: '#/components/schemas/Amount'
+        totalTaxAmount:
+          $ref: '#/components/schemas/TotalTaxAmount'
+        sender:
+          $ref: '#/components/schemas/PaymentSender'
+    Inn:
+      type: string
+      minLength: 10
+      maxLength: 12
+      description: ИНН ЮЛ или ИП Плательщика
+      example: '123456789012'
+    IncomingPaymentCallbackDto:
+      type: object
+      required:
+      - event
+      - data
+      properties:
+        event:
+          type: string
+          description: Тип операции
+          example: B2B_PAYMENT
+          enum:
+          - B2B_PAYMENT
+        data:
+          type: object
+          required:
+          - id
+          - account
+          - amount
+          - createdDate
+          - expirationDate
+          - status
+          - senderPaymentPurpose
+          - payment
+          - qr
+          properties:
+            id:
+              allOf:
+              - $ref: '#/components/schemas/OrderId'
+            account:
+              allOf:
+              - $ref: '#/components/schemas/Account'
+            amount:
+              allOf:
+              - $ref: '#/components/schemas/Amount'
+            totalTaxAmount:
+              allOf:
+              - $ref: '#/components/schemas/TotalTaxAmount'
+            createdDate:
+              allOf:
+              - $ref: '#/components/schemas/CreationDate'
+            expirationDate:
+              allOf:
+              - $ref: '#/components/schemas/ExpirationDate'
+            status:
+              allOf:
+              - $ref: '#/components/schemas/Status'
+            receiverPaymentPurpose:
+              allOf:
+              - $ref: '#/components/schemas/ReceiverPaymentPurpose'
+              description: 'Назначение платежа, которое увидит получатель в выписке в поле «Основание операции» вместе с инн плательщика.
+
+                <br>Например, "ИНН плательщика: 231150869432. Какое-то ваше назначение"
+
+                <br>Если поле не заполнено, то поле «Основание операции» заполнится по шаблону, в который будет передан идентификатор заказа, наименование плательщика и инн плательщика.
+
+                <br>Например, «Перевод по идентификатору nM43NFfqiaAh04QdSmCoI5u4S2YrWU2ikHJ. Плательщик: ООО Ромашка, ИНН: 231150869432. Осуществлен через СБП B2В».
+
+                <br>Может содержать:
+
+                <br>• Символы латинского алфавита (A–Z и a–z) с десятичными кодами из диапазонов [065-090] и [097-122] в кодировке UTF-8;
+
+                <br>• Символы русского алфавита (А-Я и а-я) с десятичными кодами из диапазона [1040-1103] в кодировке UTF-8;
+
+                <br>• Цифры 0-9 с десятичными кодами из диапазона [048-057] в кодировке UTF-8;
+
+                <br>• Специальные символы с десятичными кодами из диапазонов [032-047], [058-064], [091-096], [123-126] в кодировке UTF-8;
+
+                <br>• Символ «№» под номером 8470 в кодировке UTF-8
+
+                '
+            senderPaymentPurpose:
+              allOf:
+              - $ref: '#/components/schemas/SenderPaymentPurpose'
+            redirectUrl:
+              allOf:
+              - $ref: '#/components/schemas/RedirectUrl'
+            extra:
+              allOf:
+              - $ref: '#/components/schemas/Extra'
+            qr:
+              allOf:
+              - $ref: '#/components/schemas/Qr'
+            payment:
+              allOf:
+              - $ref: '#/components/schemas/Payment_2'
+    PaymentLinkName:
+      type: string
+      description: Наименование платёжной ссылки
+      example: QR на оплату 14.10.2024 в 15:12
+    BankBic:
+      type: string
+      description: БИК банка
+      example: '044525700'
+    OrderInfoResponseDto:
+      type: object
+      title: Контракт информации о заказе
+      required:
+      - id
+      - account
+      - amount
+      - creationDate
+      - expirationDate
+      - status
+      - senderPaymentPurpose
+      - qr
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/OrderIdNoRestrictions'
+        account:
+          allOf:
+          - $ref: '#/components/schemas/Account'
+        amount:
+          allOf:
+          - $ref: '#/components/schemas/Amount'
+        totalTaxAmount:
+          allOf:
+          - $ref: '#/components/schemas/TotalTaxAmount'
+        creationDate:
+          allOf:
+          - $ref: '#/components/schemas/CreationDate'
+        expirationDate:
+          allOf:
+          - $ref: '#/components/schemas/ExpirationDate'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status'
+        receiverPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/ReceiverPaymentPurpose'
+        senderPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/SenderPaymentPurpose'
+        redirectUrl:
+          allOf:
+          - $ref: '#/components/schemas/RedirectUrl'
+        extra:
+          allOf:
+          - $ref: '#/components/schemas/Extra'
+        restrictions:
+          allOf:
+          - $ref: '#/components/schemas/Restrictions'
+        qr:
+          allOf:
+          - $ref: '#/components/schemas/Qr'
+        payment:
+          allOf:
+          - $ref: '#/components/schemas/Payment_2'
+    CreationDate:
+      type: string
+      format: date-time
+      description: Дата создания
+      example: '2024-06-12T19:35:55+03:00'
     Restrictions:
       type: object
       description: Ограничения к заказу
@@ -1723,36 +2009,118 @@ components:
           maxLength: 12
           description: ИНН ЮЛ или ИП, которое может оплатить заказ
           example: '123456789012'
-    Status:
+    BankInfo:
+      type: object
+      description: Информация о банке
+      required:
+      - id
+      - name
+      - bic
+      properties:
+        id:
+          $ref: '#/components/schemas/BankId'
+        name:
+          $ref: '#/components/schemas/BankName'
+        bic:
+          $ref: '#/components/schemas/BankBic'
+    CreateOrderResponseDto:
+      type: object
+      title: Контракт ответа создания заказа
+      required:
+      - id
+      - account
+      - amount
+      - creationDate
+      - expirationDate
+      - status
+      - senderPaymentPurpose
+      - qr
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/OrderId'
+        account:
+          allOf:
+          - $ref: '#/components/schemas/Account'
+        amount:
+          allOf:
+          - $ref: '#/components/schemas/Amount'
+        totalTaxAmount:
+          allOf:
+          - $ref: '#/components/schemas/TotalTaxAmount'
+        creationDate:
+          allOf:
+          - $ref: '#/components/schemas/CreationDate'
+        expirationDate:
+          allOf:
+          - $ref: '#/components/schemas/ExpirationDate'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status'
+        receiverPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/ReceiverPaymentPurpose'
+          description: 'Назначение платежа, которое увидит получатель в выписке в поле «Основание операции» вместе с инн плательщика.
+
+            <br>Например, "ИНН плательщика: 231150869432. Какое-то ваше назначение"
+
+            <br>Если поле не заполнено, то поле «Основание операции» заполнится по шаблону, в который будет передан идентификатор заказа, наименование плательщика и инн плательщика.
+
+            <br>Например, «Перевод по идентификатору nM43NFfqiaAh04QdSmCoI5u4S2YrWU2ikHJ. Плательщик: ООО Ромашка, ИНН: 231150869432. Осуществлен через СБП B2В».
+
+            <br>Может содержать:
+
+            <br>• Символы латиницы (A–Z и a–z)
+
+            <br>• Символы кириллицы (А-Я и а-я)
+
+            <br>• Цифры 0-9
+
+            <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
+
+            '
+        senderPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/SenderPaymentPurpose'
+          description: 'Назначение платежа, которое увидит плательщик при оплате.
+
+            <br>Может содержать:
+
+            <br>• Символы латиницы (A–Z и a–z)
+
+            <br>• Символы кириллицы (А-Я и а-я)
+
+            <br>• Цифры 0-9
+
+            <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
+
+            '
+        redirectUrl:
+          allOf:
+          - $ref: '#/components/schemas/RedirectUrl'
+        extra:
+          allOf:
+          - $ref: '#/components/schemas/Extra'
+        restrictions:
+          allOf:
+          - $ref: '#/components/schemas/Restrictions'
+        qr:
+          allOf:
+          - $ref: '#/components/schemas/Qr'
+    BankId:
       type: string
-      description: 'Статус заказа:
-
-        <br>• ACTIVE – активен, можно проводить оплату
-
-        <br>• EXPIRED - срок действия истёк, нельзя провести оплату
-
-        <br>• PAID - оплачен, есть успешный платеж, новые платежи сделать не получится
-
-        <br>• CANCELLED - отменен, нельзя провести оплату
-
-        '
-      enum:
-      - ACTIVE
-      - EXPIRED
-      - PAID
-      - CANCELLED
-      example: ACTIVE
+      description: Идентификатор банка
+      example: '100000000007'
     ExpirationDate:
       type: string
       format: date-time
       description: Срок жизни
       example: '2024-08-12T20:35:55+03:00'
-    OrderIdNoRestrictions:
+    Payload:
       type: string
-      description: Идентификатор заказа. Если не передан будет сформирован Банком.
-      maxLength: 35
-      pattern: ^[A-z0-9-_.]+$
-      example: order-63853012
+      maxLength: 999
+      description: Функциональная ссылка
+      example: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
     CreateOrderRequestDto:
       required:
       - senderPaymentPurpose
@@ -1849,363 +2217,42 @@ components:
         restrictions:
           allOf:
           - $ref: '#/components/schemas/Restrictions'
-    PaymentLinkName:
+    ImageUrl:
       type: string
-      description: Наименование платёжной ссылки
-      example: QR на оплату 14.10.2024 в 15:12
-    BankName:
+      description: URL с изображением зарегистрированного QR-кода в СБП
+      example: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
+    Amount:
+      type: number
+      format: float
+      maximum: 1000000
+      description: Сумма операции в рублях
+      example: 8573.79
+    OrderIdNoRestrictions:
       type: string
-      description: Наименование банка
-      example: Райффайзенбанк
+      description: Идентификатор заказа. Если не передан будет сформирован Банком.
+      maxLength: 35
+      pattern: ^[A-z0-9-_.]+$
+      example: order-63853012
+    LegalName:
+      type: string
+      maxLength: 512
+      description: Сокращённое наименование ЮЛ или ИП Плательщика
+      example: ООО Ромашка
+    PaymentId:
+      type: string
+      description: Идентификатор платежа
+      example: '123456789012345678'
+    OrderId:
+      type: string
+      description: Идентификатор заказа, переданный клиентом или сгенерированный банком
+      maxLength: 35
+      example: '100001'
     TotalTaxAmount:
       type: number
       format: float
       maximum: 1000000
       description: Сумма НДС в рублях
       example: 2.41
-    OrderInfoResponseDto:
-      type: object
-      title: Контракт информации о заказе
-      required:
-      - id
-      - account
-      - amount
-      - creationDate
-      - expirationDate
-      - status
-      - senderPaymentPurpose
-      - qr
-      properties:
-        id:
-          allOf:
-          - $ref: '#/components/schemas/OrderIdNoRestrictions'
-        account:
-          allOf:
-          - $ref: '#/components/schemas/Account'
-        amount:
-          allOf:
-          - $ref: '#/components/schemas/Amount'
-        totalTaxAmount:
-          allOf:
-          - $ref: '#/components/schemas/TotalTaxAmount'
-        creationDate:
-          allOf:
-          - $ref: '#/components/schemas/CreationDate'
-        expirationDate:
-          allOf:
-          - $ref: '#/components/schemas/ExpirationDate'
-        status:
-          allOf:
-          - $ref: '#/components/schemas/Status'
-        receiverPaymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/ReceiverPaymentPurpose'
-        senderPaymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/SenderPaymentPurpose'
-        redirectUrl:
-          allOf:
-          - $ref: '#/components/schemas/RedirectUrl'
-        extra:
-          allOf:
-          - $ref: '#/components/schemas/Extra'
-        restrictions:
-          allOf:
-          - $ref: '#/components/schemas/Restrictions'
-        qr:
-          allOf:
-          - $ref: '#/components/schemas/Qr'
-        payment:
-          allOf:
-          - $ref: '#/components/schemas/Payment_2'
-    OrderId:
-      type: string
-      description: Идентификатор заказа, переданный клиентом или сгенерированный банком
-      maxLength: 35
-      example: '100001'
-    ReceiverPaymentPurpose:
-      type: string
-      maxLength: 150
-      description: 'Назначение платежа, которое увидит получатель в выписке в поле «Основание операции» вместе с инн плательщика.
-
-        <br>Например, "ИНН плательщика: 231150869432. Какое-то ваше назначение"
-
-        <br>Если поле не заполнено, то поле «Основание операции» заполнится по шаблону, в который будет передан идентификатор заказа, наименование плательщика и инн плательщика.
-
-        <br>Например, «Перевод по идентификатору nM43NFfqiaAh04QdSmCoI5u4S2YrWU2ikHJ. Плательщик: ООО Ромашка, ИНН: 231150869432. Осуществлен через СБП B2В».
-
-        <br>Может содержать:
-
-        <br>• Символы латиницы (A–Z и a–z)
-
-        <br>• Символы кириллицы (А-Я и а-я)
-
-        <br>• Цифры 0-9
-
-        <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
-
-        '
-      example: Какое-то назначение платежа
-    PaymentId:
-      type: string
-      description: Идентификатор платежа
-      example: '123456789012345678'
-    LegalName:
-      type: string
-      maxLength: 512
-      description: Сокращённое наименование ЮЛ или ИП Плательщика
-      example: ООО Ромашка
-    Extra:
-      type: object
-      description: Дополнительные поля
-      additionalProperties:
-        type: string
-      example:
-        additionalInfo: testing operation
-    PaymentStatus:
-      type: object
-      description: Статус входящего платежа
-      required:
-      - value
-      - date
-      properties:
-        value:
-          type: string
-          description: Статус платежа, возможен только "SUCCESS"
-          enum:
-          - SUCCESS
-          example: SUCCESS
-        date:
-          type: string
-          format: date-time
-          description: Время проведения платежа
-          example: '2024-06-12T19:36:55+03:00'
-    CreateOrderResponseDto:
-      type: object
-      title: Контракт ответа создания заказа
-      required:
-      - id
-      - account
-      - amount
-      - creationDate
-      - expirationDate
-      - status
-      - senderPaymentPurpose
-      - qr
-      properties:
-        id:
-          allOf:
-          - $ref: '#/components/schemas/OrderId'
-        account:
-          allOf:
-          - $ref: '#/components/schemas/Account'
-        amount:
-          allOf:
-          - $ref: '#/components/schemas/Amount'
-        totalTaxAmount:
-          allOf:
-          - $ref: '#/components/schemas/TotalTaxAmount'
-        creationDate:
-          allOf:
-          - $ref: '#/components/schemas/CreationDate'
-        expirationDate:
-          allOf:
-          - $ref: '#/components/schemas/ExpirationDate'
-        status:
-          allOf:
-          - $ref: '#/components/schemas/Status'
-        receiverPaymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/ReceiverPaymentPurpose'
-          description: 'Назначение платежа, которое увидит получатель в выписке в поле «Основание операции» вместе с инн плательщика.
-
-            <br>Например, "ИНН плательщика: 231150869432. Какое-то ваше назначение"
-
-            <br>Если поле не заполнено, то поле «Основание операции» заполнится по шаблону, в который будет передан идентификатор заказа, наименование плательщика и инн плательщика.
-
-            <br>Например, «Перевод по идентификатору nM43NFfqiaAh04QdSmCoI5u4S2YrWU2ikHJ. Плательщик: ООО Ромашка, ИНН: 231150869432. Осуществлен через СБП B2В».
-
-            <br>Может содержать:
-
-            <br>• Символы латиницы (A–Z и a–z)
-
-            <br>• Символы кириллицы (А-Я и а-я)
-
-            <br>• Цифры 0-9
-
-            <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
-
-            '
-        senderPaymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/SenderPaymentPurpose'
-          description: 'Назначение платежа, которое увидит плательщик при оплате.
-
-            <br>Может содержать:
-
-            <br>• Символы латиницы (A–Z и a–z)
-
-            <br>• Символы кириллицы (А-Я и а-я)
-
-            <br>• Цифры 0-9
-
-            <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
-
-            '
-        redirectUrl:
-          allOf:
-          - $ref: '#/components/schemas/RedirectUrl'
-        extra:
-          allOf:
-          - $ref: '#/components/schemas/Extra'
-        restrictions:
-          allOf:
-          - $ref: '#/components/schemas/Restrictions'
-        qr:
-          allOf:
-          - $ref: '#/components/schemas/Qr'
-    SenderPaymentPurpose:
-      type: string
-      maxLength: 210
-      description: 'Назначение платежа, которое увидит плательщик при оплате. Поле обязательное.
-
-        <br>Может содержать:
-
-        <br>• Символы латиницы (A–Z и a–z)
-
-        <br>• Символы кириллицы (А-Я и а-я)
-
-        <br>• Цифры 0-9
-
-        <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
-
-        '
-      example: Какое-то назначение платежа
-    Payload:
-      type: string
-      maxLength: 999
-      description: Функциональная ссылка
-      example: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
-    IncomingPaymentCallbackDto:
-      type: object
-      required:
-      - event
-      - data
-      properties:
-        event:
-          type: string
-          description: Тип операции
-          example: B2B_PAYMENT
-          enum:
-          - B2B_PAYMENT
-        data:
-          type: object
-          required:
-          - id
-          - account
-          - amount
-          - createdDate
-          - expirationDate
-          - status
-          - senderPaymentPurpose
-          - payment
-          - qr
-          properties:
-            id:
-              allOf:
-              - $ref: '#/components/schemas/OrderId'
-            account:
-              allOf:
-              - $ref: '#/components/schemas/Account'
-            amount:
-              allOf:
-              - $ref: '#/components/schemas/Amount'
-            totalTaxAmount:
-              allOf:
-              - $ref: '#/components/schemas/TotalTaxAmount'
-            createdDate:
-              allOf:
-              - $ref: '#/components/schemas/CreationDate'
-            expirationDate:
-              allOf:
-              - $ref: '#/components/schemas/ExpirationDate'
-            status:
-              allOf:
-              - $ref: '#/components/schemas/Status'
-            receiverPaymentPurpose:
-              allOf:
-              - $ref: '#/components/schemas/ReceiverPaymentPurpose'
-              description: 'Назначение платежа, которое увидит получатель в выписке в поле «Основание операции» вместе с инн плательщика.
-
-                <br>Например, "ИНН плательщика: 231150869432. Какое-то ваше назначение"
-
-                <br>Если поле не заполнено, то поле «Основание операции» заполнится по шаблону, в который будет передан идентификатор заказа, наименование плательщика и инн плательщика.
-
-                <br>Например, «Перевод по идентификатору nM43NFfqiaAh04QdSmCoI5u4S2YrWU2ikHJ. Плательщик: ООО Ромашка, ИНН: 231150869432. Осуществлен через СБП B2В».
-
-                <br>Может содержать:
-
-                <br>• Символы латинского алфавита (A–Z и a–z) с десятичными кодами из диапазонов [065-090] и [097-122] в кодировке UTF-8;
-
-                <br>• Символы русского алфавита (А-Я и а-я) с десятичными кодами из диапазона [1040-1103] в кодировке UTF-8;
-
-                <br>• Цифры 0-9 с десятичными кодами из диапазона [048-057] в кодировке UTF-8;
-
-                <br>• Специальные символы с десятичными кодами из диапазонов [032-047], [058-064], [091-096], [123-126] в кодировке UTF-8;
-
-                <br>• Символ «№» под номером 8470 в кодировке UTF-8
-
-                '
-            senderPaymentPurpose:
-              allOf:
-              - $ref: '#/components/schemas/SenderPaymentPurpose'
-            redirectUrl:
-              allOf:
-              - $ref: '#/components/schemas/RedirectUrl'
-            extra:
-              allOf:
-              - $ref: '#/components/schemas/Extra'
-            qr:
-              allOf:
-              - $ref: '#/components/schemas/Qr'
-            payment:
-              allOf:
-              - $ref: '#/components/schemas/Payment_2'
-    BankId:
-      type: string
-      description: Идентификатор банка
-      example: '100000000007'
-    Inn:
-      type: string
-      minLength: 10
-      maxLength: 12
-      description: ИНН ЮЛ или ИП Плательщика
-      example: '123456789012'
-    PaymentLinkId:
-      type: string
-      maxLength: 32
-      description: Уникальный идентификатор платёжной ссылки
-      example: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
-    BankInfo:
-      type: object
-      description: Информация о банке
-      required:
-      - id
-      - name
-      - bic
-      properties:
-        id:
-          $ref: '#/components/schemas/BankId'
-        name:
-          $ref: '#/components/schemas/BankName'
-        bic:
-          $ref: '#/components/schemas/BankBic'
-    Account:
-      type: string
-      minLength: 20
-      maxLength: 20
-      description: Банковский счёт ЮЛ или ИП для зачисления средств
-      example: '40817810601002630020'
     ErrorResponseDto:
       type: object
       properties:
@@ -2215,232 +2262,11 @@ components:
         message:
           type: string
           description: Описание ошибки
-    SbpTransactionId:
+    BankName:
       type: string
-      minLength: 32
-      maxLength: 32
-      description: Уникальный идентификатор операции на уровне всей системы СБП
-      example: PMSHT0BYVSYE7LDXMCXJSGIUHJLQWZXY
-    BankBic:
-      type: string
-      description: БИК банка
-      example: '044525700'
-    Amount:
-      type: number
-      format: float
-      maximum: 1000000
-      description: Сумма операции в рублях
-      example: 8573.79
-    Payment_2:
-      description: Информация об успешном платеже. Поле заполняется только в случае, если по заказу была проведена успешная оплата
-      type:
-      - object
-      - 'null'
-      required:
-      - id
-      - sbpTransactionId
-      - status
-      - amount
-      - totalTaxAmount
-      - sender
-      properties:
-        id:
-          $ref: '#/components/schemas/PaymentId'
-        sbpTransactionId:
-          $ref: '#/components/schemas/SbpTransactionId'
-        status:
-          $ref: '#/components/schemas/PaymentStatus'
-        amount:
-          $ref: '#/components/schemas/Amount'
-        totalTaxAmount:
-          $ref: '#/components/schemas/TotalTaxAmount'
-        sender:
-          $ref: '#/components/schemas/PaymentSender'
-    CreationDate:
-      type: string
-      format: date-time
-      description: Дата создания
-      example: '2024-06-12T19:35:55+03:00'
-    RedirectUrl:
-      type: string
-      maxLength: 1024
-      description: Ссылка для автоматического возврата плательщика из приложения банка в приложение или на сайт ТСП
-      example: https://exampletsp.io/qwertyui
-    OrderInfoResponseDto_2:
-      type: object
-      title: Контракт информации о заказе
-      required:
-      - id
-      - account
-      - amount
-      - creationDate
-      - expirationDate
-      - status
-      - senderPaymentPurpose
-      - qr
-      properties:
-        id:
-          allOf:
-          - $ref: '#/components/schemas/OrderIdNoRestrictions'
-        account:
-          allOf:
-          - $ref: '#/components/schemas/Account'
-        amount:
-          allOf:
-          - $ref: '#/components/schemas/Amount'
-        totalTaxAmount:
-          allOf:
-          - $ref: '#/components/schemas/TotalTaxAmount'
-        creationDate:
-          allOf:
-          - $ref: '#/components/schemas/CreationDate'
-        expirationDate:
-          allOf:
-          - $ref: '#/components/schemas/ExpirationDate'
-        status:
-          allOf:
-          - $ref: '#/components/schemas/Status'
-        receiverPaymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/ReceiverPaymentPurpose'
-        senderPaymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/SenderPaymentPurpose'
-        redirectUrl:
-          allOf:
-          - $ref: '#/components/schemas/RedirectUrl'
-        extra:
-          allOf:
-          - $ref: '#/components/schemas/Extra'
-        restrictions:
-          allOf:
-          - $ref: '#/components/schemas/Restrictions'
-        qr:
-          allOf:
-          - $ref: '#/components/schemas/Qr'
-        payment:
-          allOf:
-          - $ref: '#/components/schemas/Payment_3'
-    IncomingPaymentCallbackDto_2:
-      type: object
-      required:
-      - event
-      - data
-      properties:
-        event:
-          type: string
-          description: Тип операции
-          example: B2B_PAYMENT
-          enum:
-          - B2B_PAYMENT
-        data:
-          type: object
-          required:
-          - id
-          - account
-          - amount
-          - createdDate
-          - expirationDate
-          - status
-          - senderPaymentPurpose
-          - payment
-          - qr
-          properties:
-            id:
-              allOf:
-              - $ref: '#/components/schemas/OrderId'
-            account:
-              allOf:
-              - $ref: '#/components/schemas/Account'
-            amount:
-              allOf:
-              - $ref: '#/components/schemas/Amount'
-            totalTaxAmount:
-              allOf:
-              - $ref: '#/components/schemas/TotalTaxAmount'
-            createdDate:
-              allOf:
-              - $ref: '#/components/schemas/CreationDate'
-            expirationDate:
-              allOf:
-              - $ref: '#/components/schemas/ExpirationDate'
-            status:
-              allOf:
-              - $ref: '#/components/schemas/Status'
-            receiverPaymentPurpose:
-              allOf:
-              - $ref: '#/components/schemas/ReceiverPaymentPurpose'
-              description: 'Назначение платежа, которое увидит получатель в выписке в поле «Основание операции» вместе с инн плательщика.
-
-                <br>Например, "ИНН плательщика: 231150869432. Какое-то ваше назначение"
-
-                <br>Если поле не заполнено, то поле «Основание операции» заполнится по шаблону, в который будет передан идентификатор заказа, наименование плательщика и инн плательщика.
-
-                <br>Например, «Перевод по идентификатору nM43NFfqiaAh04QdSmCoI5u4S2YrWU2ikHJ. Плательщик: ООО Ромашка, ИНН: 231150869432. Осуществлен через СБП B2В».
-
-                <br>Может содержать:
-
-                <br>• Символы латинского алфавита (A–Z и a–z) с десятичными кодами из диапазонов [065-090] и [097-122] в кодировке UTF-8;
-
-                <br>• Символы русского алфавита (А-Я и а-я) с десятичными кодами из диапазона [1040-1103] в кодировке UTF-8;
-
-                <br>• Цифры 0-9 с десятичными кодами из диапазона [048-057] в кодировке UTF-8;
-
-                <br>• Специальные символы с десятичными кодами из диапазонов [032-047], [058-064], [091-096], [123-126] в кодировке UTF-8;
-
-                <br>• Символ «№» под номером 8470 в кодировке UTF-8
-
-                '
-            senderPaymentPurpose:
-              allOf:
-              - $ref: '#/components/schemas/SenderPaymentPurpose'
-            redirectUrl:
-              allOf:
-              - $ref: '#/components/schemas/RedirectUrl'
-            extra:
-              allOf:
-              - $ref: '#/components/schemas/Extra'
-            qr:
-              allOf:
-              - $ref: '#/components/schemas/Qr'
-            payment:
-              allOf:
-              - $ref: '#/components/schemas/Payment_3'
-    Payment_3:
-      description: Информация об успешном платеже. Поле заполняется только в случае, если по заказу была проведена успешная оплата
-      type:
-      - object
-      - 'null'
-      required:
-      - id
-      - sbpTransactionId
-      - status
-      - amount
-      - totalTaxAmount
-      - sender
-      properties:
-        id:
-          $ref: '#/components/schemas/PaymentId'
-        sbpTransactionId:
-          $ref: '#/components/schemas/SbpTransactionId'
-        status:
-          $ref: '#/components/schemas/PaymentStatus'
-        amount:
-          $ref: '#/components/schemas/Amount'
-        totalTaxAmount:
-          $ref: '#/components/schemas/TotalTaxAmount'
-        sender:
-          $ref: '#/components/schemas/PaymentSender'
+      description: Наименование банка
+      example: Райффайзенбанк
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -2450,6 +2276,15 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     OrderIdWithoutGenerating:
       in: path
       description: Идентификатор заказа
@@ -2457,14 +2292,6 @@ components:
       name: id
       schema:
         type: string
-    WithLogo:
-      name: withLogo
-      in: query
-      required: false
-      description: Отображение логотипа СБП в QR-коде
-      schema:
-        type: boolean
-        default: true
     Format:
       name: format
       in: query
@@ -2481,33 +2308,19 @@ components:
       description: Уникальный идентификатор платёжной ссылки
       schema:
         type: string
+    WithLogo:
+      name: withLogo
+      in: query
+      required: false
+      description: Отображение логотипа СБП в QR-коде
+      schema:
+        type: boolean
+        default: true
   responses:
-    InternalError:
-      description: Внутренняя ошибка
     Unauthorized:
       description: Аутентификация не пройдена
-    Forbidden:
-      description: Forbidden
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
-          examples:
-            default:
-              value:
-                code: FORBIDDEN
-                message: Доступ запрещен
-    InternalServerError:
-      description: Internal Server Error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
-          examples:
-            default:
-              value:
-                code: SYSTEM_ERROR
-                message: Возникла системная ошибка
+    InternalError:
+      description: Внутренняя ошибка
     BadRequest:
       description: Bad Request
       content:
@@ -2519,6 +2332,28 @@ components:
               value:
                 code: INVALID_DATA
                 message: Некорректные данные
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: SYSTEM_ERROR
+                message: Возникла системная ошибка
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: FORBIDDEN
+                message: Доступ запрещен
     NotFound:
       description: Not Found
       content:
@@ -2571,9 +2406,9 @@ components:
               id: '100000000007'
               name: Райффайзенбанк
               bic: '44525700'
-    CreateOrderResponseDtoWithOutRestrictions:
-      summary: Заказ без ограничений
-      description: Ответ на создание заказа без указания ограничений **Отсутствует блок restrictions**
+    OrderInfoResponseDtoWithoutRestrictions:
+      summary: Активный заказ без ограничений
+      description: Ответ на создание заказа без указаниям ограничений **Отсутствует блок restrictions**
       value:
         id: 281000670LSS7DN18SJQDNP4B05KLJL2
         account: '40817810601002630000'
@@ -2593,60 +2428,6 @@ components:
           type: DYNAMIC
           payload: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
           imageUrl: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
-    CreateOrderRequestDtoCountOfMinutes:
-      summary: Заказ c указанием количества минут жизни
-      description: Запрос на создание заказа c указанием количества минут жизни
-      value:
-        id: 281000670LSS7DN18SJQDNP4B05KLJL2
-        name: QR на оплату 25.09.2024 в 15:12
-        account: '40817810601002630000'
-        amount: 7.45
-        totalTaxAmount: 1.25
-        expirationDate: +60m
-        receiverPaymentPurpose: Какое-то назначение платежа
-        senderPaymentPurpose: Какое-то назначение платежа
-        redirectUrl: https://example.ru
-        extra:
-          additionalInfo: testing operation
-    OrderInfoResponseDtoActive:
-      summary: Активный заказ
-      description: Ответ на запрос статуса, когда платежа по заказу еще не было — **status = ACTIVE**
-      value:
-        id: 281000670LSS7DN18SJQDNP4B05KLJL2
-        account: '40817810601002630000'
-        amount: 8573.79
-        totalTaxAmount: 2.41
-        creationDate: '2024-06-12T19:35:55+03:00'
-        expirationDate: '2024-08-12T20:35:55+03:00'
-        status: ACTIVE
-        receiverPaymentPurpose: Какое-то назначение платежа
-        senderPaymentPurpose: Какое-то назначение платежа
-        redirectUrl: https://exampletsp.io/qwertyui
-        extra:
-          additionalInfo: testing operation
-        restrictions:
-          senderInn: '123456789012'
-        qr:
-          id: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
-          name: QR на оплату 25.09.2024 в 15:12
-          type: DYNAMIC
-          payload: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
-          imageUrl: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
-    CreateOrderRequestDtoWithoutRestriction:
-      summary: Заказ без ограничений
-      description: Запрос на создание заказа без указания ограничений **Отсутствует блок restrictions**
-      value:
-        id: 281000670LSS7DN18SJQDNP4B05KLJL2
-        name: QR на оплату 25.09.2024 в 15:12
-        account: '40817810601002630000'
-        amount: 7.45
-        totalTaxAmount: 1.25
-        expirationDate: '2024-08-12T20:35:55+03:00'
-        receiverPaymentPurpose: Какое-то назначение платежа
-        senderPaymentPurpose: Какое-то назначение платежа
-        redirectUrl: https://example.ru
-        extra:
-          additionalInfo: testing operation
     OrderInfoResponseDtoExpired:
       summary: Просроченный заказ
       description: Ответ на запрос статуса, когда время жизни заказа истекло — **status = EXPIRED**
@@ -2671,26 +2452,24 @@ components:
           type: DYNAMIC
           payload: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
           imageUrl: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
-    CreateOrderRequestDtoWithRestriction:
-      summary: Заказ c ограничениями
-      description: Запрос на создание заказа с указанием ограничений **Присутствует блок restrictions**
+    CreateOrderRequestDtoCountOfMinutes:
+      summary: Заказ c указанием количества минут жизни
+      description: Запрос на создание заказа c указанием количества минут жизни
       value:
         id: 281000670LSS7DN18SJQDNP4B05KLJL2
         name: QR на оплату 25.09.2024 в 15:12
-        account: '12345678901234567890'
+        account: '40817810601002630000'
         amount: 7.45
         totalTaxAmount: 1.25
-        expirationDate: '2024-08-12T20:35:55+03:00'
+        expirationDate: +60m
         receiverPaymentPurpose: Какое-то назначение платежа
         senderPaymentPurpose: Какое-то назначение платежа
         redirectUrl: https://example.ru
         extra:
           additionalInfo: testing operation
-        restrictions:
-          senderInn: '1234567890'
-    OrderInfoResponseDtoWithoutRestrictions:
-      summary: Активный заказ без ограничений
-      description: Ответ на создание заказа без указаниям ограничений **Отсутствует блок restrictions**
+    CreateOrderResponseDtoWithOutRestrictions:
+      summary: Заказ без ограничений
+      description: Ответ на создание заказа без указания ограничений **Отсутствует блок restrictions**
       value:
         id: 281000670LSS7DN18SJQDNP4B05KLJL2
         account: '40817810601002630000'
@@ -2704,6 +2483,45 @@ components:
         redirectUrl: https://exampletsp.io/qwertyui
         extra:
           additionalInfo: testing operation
+        qr:
+          id: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+          name: QR на оплату 25.09.2024 в 15:12
+          type: DYNAMIC
+          payload: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+          imageUrl: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
+    CreateOrderRequestDtoWithoutRestriction:
+      summary: Заказ без ограничений
+      description: Запрос на создание заказа без указания ограничений **Отсутствует блок restrictions**
+      value:
+        id: 281000670LSS7DN18SJQDNP4B05KLJL2
+        name: QR на оплату 25.09.2024 в 15:12
+        account: '40817810601002630000'
+        amount: 7.45
+        totalTaxAmount: 1.25
+        expirationDate: '2024-08-12T20:35:55+03:00'
+        receiverPaymentPurpose: Какое-то назначение платежа
+        senderPaymentPurpose: Какое-то назначение платежа
+        redirectUrl: https://example.ru
+        extra:
+          additionalInfo: testing operation
+    OrderInfoResponseDtoActive:
+      summary: Активный заказ
+      description: Ответ на запрос статуса, когда платежа по заказу еще не было — **status = ACTIVE**
+      value:
+        id: 281000670LSS7DN18SJQDNP4B05KLJL2
+        account: '40817810601002630000'
+        amount: 8573.79
+        totalTaxAmount: 2.41
+        creationDate: '2024-06-12T19:35:55+03:00'
+        expirationDate: '2024-08-12T20:35:55+03:00'
+        status: ACTIVE
+        receiverPaymentPurpose: Какое-то назначение платежа
+        senderPaymentPurpose: Какое-то назначение платежа
+        redirectUrl: https://exampletsp.io/qwertyui
+        extra:
+          additionalInfo: testing operation
+        restrictions:
+          senderInn: '123456789012'
         qr:
           id: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
           name: QR на оплату 25.09.2024 в 15:12
@@ -2734,6 +2552,23 @@ components:
           type: DYNAMIC
           payload: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
           imageUrl: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
+    CreateOrderRequestDtoWithRestriction:
+      summary: Заказ c ограничениями
+      description: Запрос на создание заказа с указанием ограничений **Присутствует блок restrictions**
+      value:
+        id: 281000670LSS7DN18SJQDNP4B05KLJL2
+        name: QR на оплату 25.09.2024 в 15:12
+        account: '12345678901234567890'
+        amount: 7.45
+        totalTaxAmount: 1.25
+        expirationDate: '2024-08-12T20:35:55+03:00'
+        receiverPaymentPurpose: Какое-то назначение платежа
+        senderPaymentPurpose: Какое-то назначение платежа
+        redirectUrl: https://example.ru
+        extra:
+          additionalInfo: testing operation
+        restrictions:
+          senderInn: '1234567890'
   securitySchemes:
     BearerAuth:
       type: http
@@ -2749,5 +2584,3 @@ components:
 x-refined-from:
 - raiffeisen-ru-agency-factoring-openapi.yml
 - raiffeisen-ru-raif-pay-sbp-b2b-openapi.json
-- raiffeisen-ru-agency-factoring-openapi.yml
-- raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml

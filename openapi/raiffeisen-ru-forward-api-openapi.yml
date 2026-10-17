@@ -1,8 +1,18 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Forward API
   version: 1.0.0
-  description: 'Operations tagged Forward across 2 of this provider''s published API definitions: raiffeisen-ru-fx-openapi.yml, raiffeisen-ru-fx-openapi.yml. Each path carries the servers of the definition it was published in.'
+  title: Обмен валюты Forward API
+  description: '### API предоставляет следующие возможности:
+
+    - запрашивать обменные курсы валют
+
+    - запрашивать дайджест (цифровой документ с условиями сделки) для подписания электронно-цифровой подписью
+
+    - инициировать исполнение спотовых сделок
+
+    - запрашивать историю ранее заключенных сделок
+
+    - запрашивать историю по подтверждениям сделок с учетом фильтров и сортировки'
 servers:
 - url: https://api.raiffeisen.ru/fx
 tags:
@@ -235,8 +245,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/fx
   /v1/securities/{product}/ndf/calendar/fixing-references:
     post:
       tags:
@@ -381,8 +389,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/fx
   /v1/rfq/forward:
     get:
       tags:
@@ -760,14 +766,7 @@ paths:
                     requestId: 6a0eed7ca78a443595f7be90b8acac88
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/fx
 components:
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
   parameters:
     AuthorizationHeader:
       name: Authorization
@@ -787,6 +786,8 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-fx-openapi.yml
-- raiffeisen-ru-fx-openapi.yml
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена

@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Report V1 Sync API
+  title: Выписки Report V1 Sync API
+  description: API для генерации и получения выписок в различных форматах.
   version: 1.0.0
-  description: 'Operations tagged Report V1 Sync across 2 of this provider''s published API definitions: raiffeisen-ru-bank-statements-openapi.yml, raiffeisen-ru-bank-statements-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/bank-statements
 tags:
@@ -40,8 +40,6 @@ paths:
       parameters:
       - $ref: '#/components/parameters/AuthorizationHeader'
       - $ref: '#/components/parameters/IdTokenHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/bank-statements
   /v1/reports/mt-942/file:
     post:
       tags:
@@ -74,8 +72,6 @@ paths:
       parameters:
       - $ref: '#/components/parameters/AuthorizationHeader'
       - $ref: '#/components/parameters/IdTokenHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/bank-statements
   /v1/reports/mt-942-delta/file:
     post:
       tags:
@@ -124,153 +120,119 @@ paths:
       parameters:
       - $ref: '#/components/parameters/AuthorizationHeader'
       - $ref: '#/components/parameters/IdTokenHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/bank-statements
 components:
-  schemas:
-    Field86:
-      type: string
-      enum:
-      - SEPA
-      - OLD
-      - DISABLED
-      description: Формат 86 поля. SEPA - формта SEPA, OLD - Старый формат (NZP/[Details of payment]), DISABLED - не добавлять поле 86
-      example: OLD
-      default: SEPA
-    CreateMt942ReportRequest:
-      type: object
-      properties:
+  examples:
+    mt942RequestOnlyRequired:
+      summary: Запрос MT942 только обязательные поля
+      value:
         accountKeys:
-          $ref: '#/components/schemas/AccountKeys'
-        from:
-          $ref: '#/components/schemas/RequestIntervalFrom'
-        to:
-          $ref: '#/components/schemas/RequestIntervalTo'
-        fileName:
-          $ref: '#/components/schemas/FileName'
+        - 40701978200000000001:401867
+        - '40702810500001306832'
+        from: '2023-10-06'
+        to: '2023-10-06'
+    mt942DeltaRequestAllFields:
+      summary: Запрос инкрементальной выписки MT942 все поля
+      value:
+        accountKey: 40701978200000000001:401867
+        lastStatementNumber: 260
+        fileName: file
         sort:
-          $ref: '#/components/schemas/ReportSort'
-        splitBy:
-          $ref: '#/components/schemas/SplitByAccountDateMT'
-        encoding:
-          $ref: '#/components/schemas/EncodingMt'
-        showHeader:
-          $ref: '#/components/schemas/ShowHeader'
+        - sortBy: DEBIT
+          orderBy: ASC
+        - sortBy: CREDIT
+          orderBy: ASC
+        encoding: WINDOWS
+        showHeader: false
         field25:
-          $ref: '#/components/schemas/Field25'
-        field86:
-          $ref: '#/components/schemas/Field86'
-        transliteration:
-          $ref: '#/components/schemas/Transliteration'
-        replacements:
-          $ref: '#/components/schemas/Replacements'
-      required:
-      - accountKeys
-      - from
-      - to
-    ErrorMessage:
-      type: string
-      description: Сообщение об ошибке
-      example: Too many transactions for print
-    RequestIntervalFrom:
-      type: string
-      format: date
-      description: Дата выписки с
-      example: '2023-10-06'
-    ErrorType:
-      type: string
-      enum:
-      - BAD_REQUEST
-      - STATEMENT_KEY_PARSE_ERROR
-      - ACCOUNT_KEY_PARSE_ERROR
-      - TRANSACTION_KEY_PARSE_ERROR
-      - STMT_FILE_NAME_PARSE_ERROR
-      - REPLACEMENTS_PARSE_ERROR
-      - TOO_MANY_TRANSACTIONS_ERROR
-      - NO_STATEMENTS
-      - NO_TRANSACTIONS
-      - STATEMENTS_PERIOD_BEFORE_OPEN_ERROR
-      - STATEMENTS_PERIOD_NOT_READY_ERROR
-      - STATEMENTS_PERIOD_NO_COB_ERROR
-      - STATEMENTS_SIGN_NOT_READY_ERROR
-      - STATEMENTS_SIGN_PERIOD_ERROR
-      - STATEMENTS_SIGN_PARAMS_ERROR
-      - REPORT_FILE_IS_NOT_READY
-    EncodingMt:
-      type: string
-      enum:
-      - WINDOWS
-      - DOS
-      - UTF8
-      description: 'Кодировка файла: WINDOWS - cp1251, DOS - cp866, UTF8 - utf-8'
-      default: WINDOWS
-      example: DOS
+          format: CUSTOM
+          customValue: Счёт [Account Number] с БИКом [RCBIC] вставлен в отчёт
+        field86: SEPA
+        transliteration: true
+        replacements: a:b;c:d;e:empty;f:space
+    accountKeyValidationError:
+      summary: Ошибка валидации AccountKey
+      value:
+        code: account-key-parse-error
+        message: 'Failed to read request JSON parse error: Wrong accountKey format [4070103610000000060867:::321312]'
+    noStatements:
+      summary: Выписок не найдено
+      value:
+        code: no-statements
+        message: No statements were found that match the request parameters
+    tooManyTransactionsError:
+      summary: Превышено допустимое количество операций для генерации
+      value:
+        code: too-many-transactions-error
+        message: Too many transactions for generation
+    mt940RequestAllFields:
+      summary: Запрос MT940 все поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - 40701978200000000001:401867
+        from: '2023-10-06'
+        to: '2023-10-06'
+        fileName: file
+        zero: true
+        sort:
+        - sortBy: DEBIT
+          orderBy: ASC
+        - sortBy: CREDIT
+          orderBy: ASC
+        splitBy: ACCOUNT_DATE
+        encoding: WINDOWS
+        showHeader: false
+        field25:
+          format: CUSTOM
+          customValue: Счёт [Account Number] с БИКом [RCBIC] вставлен в отчёт
+        field86: SEPA
+        transliteration: true
+        replacements: a:b;c:d;e:empty;f:space
+    mt940RequestOnlyRequired:
+      summary: Запрос MT940 только обязательные поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - '40702810500001306832'
+        from: '2023-10-06'
+        to: '2023-10-06'
+    mt942DeltaRequestOnlyRequired:
+      summary: Запрос инкрементальной выписки MT942 только обязательные поля
+      value:
+        accountKey: '40702810500001306832'
+    mt942RequestAllFields:
+      summary: Запрос MT942 все поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - 40701978200000000001:401867
+        from: '2023-10-06'
+        to: '2023-10-06'
+        fileName: file
+        sort:
+        - sortBy: DEBIT
+          orderBy: ASC
+        - sortBy: CREDIT
+          orderBy: ASC
+        splitBy: ACCOUNT_DATE
+        encoding: WINDOWS
+        showHeader: false
+        field25:
+          format: CUSTOM
+          customValue: Счёт [Account Number] с БИКом [RCBIC] вставлен в отчёт
+        field86: SEPA
+        transliteration: true
+        replacements: a:b;c:d;e:empty;f:space
+  schemas:
     AccountKey:
       type: string
       description: 'Бизнес-ключ счета. Формат: `<20-значный номер счета>` или `<20-значный номер счета>:<CNUM>`'
       example: '40702810500001306832'
-    Field25CustomValue:
+    RequestIntervalTo:
       type: string
-      description: Значение 25 поля для формата CUSTOM
-      example: Счёт [Account Number] с БИКом [RCBIC] вставлен в отчёт
-    Transliteration:
-      type: boolean
-      description: Транслитерация в поле 86
-      example: true
-      default: false
-    ErrorResponse:
-      type: object
-      required:
-      - code
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorType'
-        message:
-          $ref: '#/components/schemas/ErrorMessage'
-      example:
-        code: too-many-transactions-error
-        message: Too many transactions for print
-    Replacements:
-      type: string
-      description: Правила корректировки символов SWIFT в поле 86 и 61. В формате "sourceChar1:targetChar1;sourceChar2:targetChar2". В targetChar могут быть символы пустой строки и пробела ('empty', 'space').
-      example: a:b;c:d;e:empty;f:space
-    AccountKeys:
-      type: array
-      description: 'Бизнес-ключ счета. Формат: `<20-значный номер счета>` или `<20-значный номер счета>:<CNUM>`'
-      example:
-      - 40701978200000000001:401867
-      - '40702810500001306832'
-      items:
-        type: string
-    CreateMt942DeltaReportRequest:
-      type: object
-      properties:
-        accountKey:
-          $ref: '#/components/schemas/AccountKey'
-        lastStatementNumber:
-          $ref: '#/components/schemas/LastStatementNumber'
-        fileName:
-          $ref: '#/components/schemas/FileName'
-        sort:
-          $ref: '#/components/schemas/ReportSort'
-        encoding:
-          $ref: '#/components/schemas/EncodingMt'
-        showHeader:
-          $ref: '#/components/schemas/ShowHeader'
-        field25:
-          $ref: '#/components/schemas/Field25'
-        field86:
-          $ref: '#/components/schemas/Field86'
-        transliteration:
-          $ref: '#/components/schemas/Transliteration'
-        replacements:
-          $ref: '#/components/schemas/Replacements'
-      required:
-      - accountKey
-    ReportSort:
-      type: array
-      items:
-        $ref: '#/components/schemas/ServiceSortReportSortFields'
+      format: date
+      description: Дата выписки по
+      example: '2023-10-06'
     SplitByAccountDateMT:
       type: string
       enum:
@@ -278,52 +240,6 @@ components:
       - ACCOUNT_DATE_CHUNKS
       description: "Разделить выписки на отдельные файлы и генерировать zip архив. \nACCOUNT_DATE - разделить по счетам за день (в архиве каждый файл будет содержать выписки за один день по одному счету), \nACCOUNT_DATE_CHUNKS - разделить по счетам за день, разбивая файл на части по 1000 символов (в архиве каждый файл будет содержать часть выписки за один день по одному счету),\nnull - генерируется один файл. По умолчанию генерируется один файл."
       example: ACCOUNT_DATE
-    LastStatementNumber:
-      type: integer
-      description: 'Номер последней полученной инкрементальной выписки MT942 (поле 28С).
-
-        Параметр должен содержать корректный номер ранее полученной инкрементальной выписки за текущую дату
-
-        либо может быть не заполнен для получения первой выписки за текущую дату.'
-      example: 260
-    Field25Format:
-      type: string
-      enum:
-      - SWIFT_ACCOUNT_CURRENCY
-      - SWIFT_ACCOUNT
-      - RCBIC_ACCOUNT
-      - CUSTOM
-      description: "Формат поля 25. SWIFT_ACCOUNT_CURRENCY - строка формата [SWIFT][Счет][Валюта счета], SWIFT_ACCOUNT - строка формата [SWIFT][Счет], RCBIC_ACCOUNT - строка формата [RCBIC][Счет], CUSTOM - кастомизируемый формат. \nДля формата CUSTOM доступны переменные: [Account Number] - счет, [RCBIC] - БИК Банка, [SWIFT] - SWIFT код банка, [Cur] - валюта счета."
-      example: RCBIC_ACCOUNT
-      default: SWIFT_ACCOUNT_CURRENCY
-    Zero:
-      type: boolean
-      description: Включать нулевые выписки, true - все выписки (с движениями по счету и без), false - только выписки с движениями по счету (ненулевые)
-      default: false
-      example: true
-    OrderBy:
-      type: string
-      enum:
-      - ASC
-      - DESC
-      description: Направление сортировки
-      example: ASC
-    FileName:
-      type: string
-      description: Имя сгенерированного файла
-      example: qwerty
-    SortBy:
-      type: string
-      enum:
-      - DEBIT
-      - CREDIT
-      description: Поле сортировки
-      example: CREDIT
-    RequestIntervalTo:
-      type: string
-      format: date
-      description: Дата выписки по
-      example: '2023-10-06'
     CreateMt940ReportRequest:
       type: object
       properties:
@@ -357,6 +273,185 @@ components:
       - accountKeys
       - from
       - to
+    ErrorResponse:
+      type: object
+      required:
+      - code
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorType'
+        message:
+          $ref: '#/components/schemas/ErrorMessage'
+      example:
+        code: too-many-transactions-error
+        message: Too many transactions for print
+    Field86:
+      type: string
+      enum:
+      - SEPA
+      - OLD
+      - DISABLED
+      description: Формат 86 поля. SEPA - формта SEPA, OLD - Старый формат (NZP/[Details of payment]), DISABLED - не добавлять поле 86
+      example: OLD
+      default: SEPA
+    ErrorMessage:
+      type: string
+      description: Сообщение об ошибке
+      example: Too many transactions for print
+    CreateMt942DeltaReportRequest:
+      type: object
+      properties:
+        accountKey:
+          $ref: '#/components/schemas/AccountKey'
+        lastStatementNumber:
+          $ref: '#/components/schemas/LastStatementNumber'
+        fileName:
+          $ref: '#/components/schemas/FileName'
+        sort:
+          $ref: '#/components/schemas/ReportSort'
+        encoding:
+          $ref: '#/components/schemas/EncodingMt'
+        showHeader:
+          $ref: '#/components/schemas/ShowHeader'
+        field25:
+          $ref: '#/components/schemas/Field25'
+        field86:
+          $ref: '#/components/schemas/Field86'
+        transliteration:
+          $ref: '#/components/schemas/Transliteration'
+        replacements:
+          $ref: '#/components/schemas/Replacements'
+      required:
+      - accountKey
+    ReportSort:
+      type: array
+      items:
+        $ref: '#/components/schemas/ServiceSortReportSortFields'
+    AccountKeys:
+      type: array
+      description: 'Бизнес-ключ счета. Формат: `<20-значный номер счета>` или `<20-значный номер счета>:<CNUM>`'
+      example:
+      - 40701978200000000001:401867
+      - '40702810500001306832'
+      items:
+        type: string
+    OrderBy:
+      type: string
+      enum:
+      - ASC
+      - DESC
+      description: Направление сортировки
+      example: ASC
+    SortBy:
+      type: string
+      enum:
+      - DEBIT
+      - CREDIT
+      description: Поле сортировки
+      example: CREDIT
+    CreateMt942ReportRequest:
+      type: object
+      properties:
+        accountKeys:
+          $ref: '#/components/schemas/AccountKeys'
+        from:
+          $ref: '#/components/schemas/RequestIntervalFrom'
+        to:
+          $ref: '#/components/schemas/RequestIntervalTo'
+        fileName:
+          $ref: '#/components/schemas/FileName'
+        sort:
+          $ref: '#/components/schemas/ReportSort'
+        splitBy:
+          $ref: '#/components/schemas/SplitByAccountDateMT'
+        encoding:
+          $ref: '#/components/schemas/EncodingMt'
+        showHeader:
+          $ref: '#/components/schemas/ShowHeader'
+        field25:
+          $ref: '#/components/schemas/Field25'
+        field86:
+          $ref: '#/components/schemas/Field86'
+        transliteration:
+          $ref: '#/components/schemas/Transliteration'
+        replacements:
+          $ref: '#/components/schemas/Replacements'
+      required:
+      - accountKeys
+      - from
+      - to
+    Transliteration:
+      type: boolean
+      description: Транслитерация в поле 86
+      example: true
+      default: false
+    Field25CustomValue:
+      type: string
+      description: Значение 25 поля для формата CUSTOM
+      example: Счёт [Account Number] с БИКом [RCBIC] вставлен в отчёт
+    Zero:
+      type: boolean
+      description: Включать нулевые выписки, true - все выписки (с движениями по счету и без), false - только выписки с движениями по счету (ненулевые)
+      default: false
+      example: true
+    FileName:
+      type: string
+      description: Имя сгенерированного файла
+      example: qwerty
+    LastStatementNumber:
+      type: integer
+      description: 'Номер последней полученной инкрементальной выписки MT942 (поле 28С).
+
+        Параметр должен содержать корректный номер ранее полученной инкрементальной выписки за текущую дату
+
+        либо может быть не заполнен для получения первой выписки за текущую дату.'
+      example: 260
+    Field25Format:
+      type: string
+      enum:
+      - SWIFT_ACCOUNT_CURRENCY
+      - SWIFT_ACCOUNT
+      - RCBIC_ACCOUNT
+      - CUSTOM
+      description: "Формат поля 25. SWIFT_ACCOUNT_CURRENCY - строка формата [SWIFT][Счет][Валюта счета], SWIFT_ACCOUNT - строка формата [SWIFT][Счет], RCBIC_ACCOUNT - строка формата [RCBIC][Счет], CUSTOM - кастомизируемый формат. \nДля формата CUSTOM доступны переменные: [Account Number] - счет, [RCBIC] - БИК Банка, [SWIFT] - SWIFT код банка, [Cur] - валюта счета."
+      example: RCBIC_ACCOUNT
+      default: SWIFT_ACCOUNT_CURRENCY
+    ServiceSortReportSortFields:
+      type: object
+      properties:
+        sortBy:
+          $ref: '#/components/schemas/SortBy'
+        orderBy:
+          $ref: '#/components/schemas/OrderBy'
+      required:
+      - sortBy
+      - orderBy
+      example:
+        sortBy: DEBIT
+        orderBy: ASC
+    ErrorType:
+      type: string
+      enum:
+      - BAD_REQUEST
+      - STATEMENT_KEY_PARSE_ERROR
+      - ACCOUNT_KEY_PARSE_ERROR
+      - TRANSACTION_KEY_PARSE_ERROR
+      - STMT_FILE_NAME_PARSE_ERROR
+      - REPLACEMENTS_PARSE_ERROR
+      - TOO_MANY_TRANSACTIONS_ERROR
+      - NO_STATEMENTS
+      - NO_TRANSACTIONS
+      - STATEMENTS_PERIOD_BEFORE_OPEN_ERROR
+      - STATEMENTS_PERIOD_NOT_READY_ERROR
+      - STATEMENTS_PERIOD_NO_COB_ERROR
+      - STATEMENTS_SIGN_NOT_READY_ERROR
+      - STATEMENTS_SIGN_PERIOD_ERROR
+      - STATEMENTS_SIGN_PARAMS_ERROR
+      - REPORT_FILE_IS_NOT_READY
+    Replacements:
+      type: string
+      description: Правила корректировки символов SWIFT в поле 86 и 61. В формате "sourceChar1:targetChar1;sourceChar2:targetChar2". В targetChar могут быть символы пустой строки и пробела ('empty', 'space').
+      example: a:b;c:d;e:empty;f:space
     Field25:
       type: object
       properties:
@@ -377,19 +472,67 @@ components:
       description: Отображать заголовок выписок
       example: true
       default: false
-    ServiceSortReportSortFields:
-      type: object
-      properties:
-        sortBy:
-          $ref: '#/components/schemas/SortBy'
-        orderBy:
-          $ref: '#/components/schemas/OrderBy'
-      required:
-      - sortBy
-      - orderBy
-      example:
-        sortBy: DEBIT
-        orderBy: ASC
+    RequestIntervalFrom:
+      type: string
+      format: date
+      description: Дата выписки с
+      example: '2023-10-06'
+    EncodingMt:
+      type: string
+      enum:
+      - WINDOWS
+      - DOS
+      - UTF8
+      description: 'Кодировка файла: WINDOWS - cp1251, DOS - cp866, UTF8 - utf-8'
+      default: WINDOWS
+      example: DOS
+  parameters:
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    acceptRanges:
+      name: Accept-Ranges
+      in: header
+      description: Стандартное поведение заголовка Accept-Ranges.
+      schema:
+        type: string
+      example: bytes
+    contentLength:
+      name: Content-Length
+      in: header
+      description: Стандартное поведение заголовка Content-Length.
+      schema:
+        type: string
+      example: '1809115'
+    eTag:
+      name: ETag
+      in: header
+      description: Идентификатор версии ресурса
+      schema:
+        type: string
+      example: b7a68b1bfd796350eebccce70ae597e4
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    contentDisposition:
+      name: Content-Disposition
+      in: header
+      description: Стандартное поведение заголовка Content-Disposition.
+      schema:
+        type: string
+      example: attachment; filename="export_to_pdf_05-05-2025_20-38-50.zip"
   responses:
     requestValidationErrorReportRequest:
       description: Ошибка валидации запроса
@@ -402,6 +545,19 @@ components:
               $ref: '#/components/examples/tooManyTransactionsError'
             accountKeyValidationError:
               $ref: '#/components/examples/accountKeyValidationError'
+    noStatementsErrorReportRequest:
+      description: Нет выписок по указанным параметрам
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            noStatements:
+              $ref: '#/components/examples/noStatements'
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
     fileContentMT:
       description: Содержимое файла.
       headers:
@@ -426,168 +582,3 @@ components:
           schema:
             type: string
             format: binary
-    InternalError:
-      description: Внутренняя ошибка
-    noStatementsErrorReportRequest:
-      description: Нет выписок по указанным параметрам
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            noStatements:
-              $ref: '#/components/examples/noStatements'
-    Unauthorized:
-      description: Аутентификация не пройдена
-  examples:
-    mt940RequestAllFields:
-      summary: Запрос MT940 все поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - 40701978200000000001:401867
-        from: '2023-10-06'
-        to: '2023-10-06'
-        fileName: file
-        zero: true
-        sort:
-        - sortBy: DEBIT
-          orderBy: ASC
-        - sortBy: CREDIT
-          orderBy: ASC
-        splitBy: ACCOUNT_DATE
-        encoding: WINDOWS
-        showHeader: false
-        field25:
-          format: CUSTOM
-          customValue: Счёт [Account Number] с БИКом [RCBIC] вставлен в отчёт
-        field86: SEPA
-        transliteration: true
-        replacements: a:b;c:d;e:empty;f:space
-    mt942RequestAllFields:
-      summary: Запрос MT942 все поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - 40701978200000000001:401867
-        from: '2023-10-06'
-        to: '2023-10-06'
-        fileName: file
-        sort:
-        - sortBy: DEBIT
-          orderBy: ASC
-        - sortBy: CREDIT
-          orderBy: ASC
-        splitBy: ACCOUNT_DATE
-        encoding: WINDOWS
-        showHeader: false
-        field25:
-          format: CUSTOM
-          customValue: Счёт [Account Number] с БИКом [RCBIC] вставлен в отчёт
-        field86: SEPA
-        transliteration: true
-        replacements: a:b;c:d;e:empty;f:space
-    mt942RequestOnlyRequired:
-      summary: Запрос MT942 только обязательные поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - '40702810500001306832'
-        from: '2023-10-06'
-        to: '2023-10-06'
-    mt942DeltaRequestOnlyRequired:
-      summary: Запрос инкрементальной выписки MT942 только обязательные поля
-      value:
-        accountKey: '40702810500001306832'
-    noStatements:
-      summary: Выписок не найдено
-      value:
-        code: no-statements
-        message: No statements were found that match the request parameters
-    tooManyTransactionsError:
-      summary: Превышено допустимое количество операций для генерации
-      value:
-        code: too-many-transactions-error
-        message: Too many transactions for generation
-    mt942DeltaRequestAllFields:
-      summary: Запрос инкрементальной выписки MT942 все поля
-      value:
-        accountKey: 40701978200000000001:401867
-        lastStatementNumber: 260
-        fileName: file
-        sort:
-        - sortBy: DEBIT
-          orderBy: ASC
-        - sortBy: CREDIT
-          orderBy: ASC
-        encoding: WINDOWS
-        showHeader: false
-        field25:
-          format: CUSTOM
-          customValue: Счёт [Account Number] с БИКом [RCBIC] вставлен в отчёт
-        field86: SEPA
-        transliteration: true
-        replacements: a:b;c:d;e:empty;f:space
-    accountKeyValidationError:
-      summary: Ошибка валидации AccountKey
-      value:
-        code: account-key-parse-error
-        message: 'Failed to read request JSON parse error: Wrong accountKey format [4070103610000000060867:::321312]'
-    mt940RequestOnlyRequired:
-      summary: Запрос MT940 только обязательные поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - '40702810500001306832'
-        from: '2023-10-06'
-        to: '2023-10-06'
-  parameters:
-    contentLength:
-      name: Content-Length
-      in: header
-      description: Стандартное поведение заголовка Content-Length.
-      schema:
-        type: string
-      example: '1809115'
-    eTag:
-      name: ETag
-      in: header
-      description: Идентификатор версии ресурса
-      schema:
-        type: string
-      example: b7a68b1bfd796350eebccce70ae597e4
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
-    IdTokenHeader:
-      name: Id-Token
-      in: header
-      description: Идентификационный токен пользователя
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-    contentDisposition:
-      name: Content-Disposition
-      in: header
-      description: Стандартное поведение заголовка Content-Disposition.
-      schema:
-        type: string
-      example: attachment; filename="export_to_pdf_05-05-2025_20-38-50.zip"
-    acceptRanges:
-      name: Accept-Ranges
-      in: header
-      description: Стандартное поведение заголовка Accept-Ranges.
-      schema:
-        type: string
-      example: bytes
-x-refined-from:
-- raiffeisen-ru-bank-statements-openapi.yml
-- raiffeisen-ru-bank-statements-openapi.yml

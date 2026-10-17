@@ -1,20 +1,23 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Code Blocking API
+  title: Управление кодами внесения АДМ Code Blocking API
   version: 1.0.0
-  x-refined-note:
-  - x-logo differs across the merged source definitions and was not carried
-  - x-raif-api-description-en differs across the merged source definitions and was not carried
-  - x-raif-api-title-en differs across the merged source definitions and was not carried
-  description: 'Operations tagged code-blocking across 3 of this provider''s published API definitions: raiffeisen-ru-adm-deposit-codes-openapi.yml, raiffeisen-ru-adm-deposit-codes-openapi.yml, raiffeisen-ru-raif-pay-adm-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: '# Общая информация
+
+
+    Данный раздел описывает методы для просмотра и управления выпущенными кодами внесения АДМ, включая:
+
+    - Получение списка кодов
+
+    - Фильтрация по ключевым атрибутам
+
+    - Получение детальной информации о коде
+
+    - Блокировка кода
+
+    - Изменение электронной почты для получения чеков'
 servers:
 - url: https://api.raiffeisen.ru/adm
-- url: https://ecom-prev-int-balancer.raiffeisen.ru/adm
-  description: prev
-- url: https://ecom-test-int-balancer.raiffeisen.ru/adm
-  description: test
-- url: https://ecom-int-balancer.raiffeisen.ru/adm
-  description: prod
 tags:
 - name: code-blocking
   description: ''
@@ -67,69 +70,8 @@ paths:
       parameters:
       - $ref: '#/components/parameters/AuthorizationHeader'
       - $ref: '#/components/parameters/IdTokenHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/adm
 components:
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
-  parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
-    IdTokenHeader:
-      name: Id-Token
-      in: header
-      description: Идентификационный токен пользователя
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-  examples:
-    BadRequestErrorExample:
-      summary: Пример ошибки валидации
-      value:
-        code: INVALID_DATA
-        message: The request contains invalid fields or values
-        traceId: 84b19a21e19410b62c30b4cd40c228a1
-    ForbiddenErrorExample:
-      summary: Пример ошибки доступа
-      value:
-        code: FORBIDDEN
-        message: Permission denied for code blocking
-        traceId: 84b19a21e19410b62c30b4cd40c228a1
-    InternalServerErrorExample:
-      summary: Пример внутренней ошибки
-      value:
-        code: INTERNAL_ERROR
-        message: An internal error occurred
-        traceId: 84b19a21e19410b62c30b4cd40c228a1
   schemas:
-    ForbiddenErrorResponse:
-      required:
-      - code
-      - message
-      - traceId
-      type: object
-      properties:
-        code:
-          type: string
-          example: FORBIDDEN
-        message:
-          type: string
-          example: Setting available=true is not allowed. Code unblocking is disabled.
-        traceId:
-          type: string
-          example: 84b19a21e19410b62c30b4cd40c228a1
     BadRequestErrorResponse:
       required:
       - code
@@ -146,15 +88,6 @@ components:
         traceId:
           type: string
           example: 84b19a21e19410b62c30b4cd40c228a1
-    DeactivateCodeRequest:
-      type: object
-      required:
-      - code
-      properties:
-        code:
-          type: string
-          example: '2873654434'
-          description: Код внесения
     DeactivateCodeResponse:
       type: object
       required:
@@ -164,7 +97,7 @@ components:
           type: string
           example: 6f6cd181-13dc-4736-b944-6d9da53f45a3
           description: Идентификатор заявки
-    InternalServerError:
+    ForbiddenErrorResponse:
       required:
       - code
       - message
@@ -173,14 +106,56 @@ components:
       properties:
         code:
           type: string
-          example: INTERNAL_ERROR
+          example: FORBIDDEN
         message:
           type: string
-          example: An internal error occurred
+          example: Setting available=true is not allowed. Code unblocking is disabled.
         traceId:
           type: string
           example: 84b19a21e19410b62c30b4cd40c228a1
-x-refined-from:
-- raiffeisen-ru-adm-deposit-codes-openapi.yml
-- raiffeisen-ru-adm-deposit-codes-openapi.yml
-- raiffeisen-ru-raif-pay-adm-openapi.yml
+    DeactivateCodeRequest:
+      type: object
+      required:
+      - code
+      properties:
+        code:
+          type: string
+          example: '2873654434'
+          description: Код внесения
+  parameters:
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена
+  examples:
+    ForbiddenErrorExample:
+      summary: Пример ошибки доступа
+      value:
+        code: FORBIDDEN
+        message: Permission denied for code blocking
+        traceId: 84b19a21e19410b62c30b4cd40c228a1
+    BadRequestErrorExample:
+      summary: Пример ошибки валидации
+      value:
+        code: INVALID_DATA
+        message: The request contains invalid fields or values
+        traceId: 84b19a21e19410b62c30b4cd40c228a1

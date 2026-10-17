@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Topics API
+  title: Письма Topics API
+  description: API Входящих писем в банк
   version: 1.0.0
-  description: 'Operations tagged Topics across 2 of this provider''s published API definitions: raiffeisen-ru-letters-openapi.yml, raiffeisen-ru-letters-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/letters
 tags:
@@ -36,8 +36,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/letters
 components:
   responses:
     Unauthorized:
@@ -45,15 +43,6 @@ components:
     InternalError:
       description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -63,6 +52,15 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
   schemas:
     ExternalTopicsResponse:
       type: array
@@ -132,6 +130,3 @@ components:
           - message
       required:
       - error
-x-refined-from:
-- raiffeisen-ru-letters-openapi.yml
-- raiffeisen-ru-letters-openapi.yml

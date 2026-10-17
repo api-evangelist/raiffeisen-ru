@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Sublimit API
+  description: API Факторинга
+  title: Финансирование. Факторинг Sublimit API
   version: 1.0.0
-  description: 'Operations tagged Sublimit across 2 of this provider''s published API definitions: raiffeisen-ru-factoring-openapi.yml, raiffeisen-ru-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/factoring
 tags:
@@ -92,10 +92,20 @@ paths:
       summary: Получение сублимитов
       tags:
       - Sublimit
-    servers:
-    - url: https://api.raiffeisen.ru/factoring
 components:
   schemas:
+    ErrorMessage:
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+      required:
+      - code
+      - message
+      type: object
     RestErrorCodes:
       description: '| code            | description                                          |
 
@@ -158,41 +168,6 @@ components:
       - SELECTED_ORGANIZATION_NOT_ALLOWED
       example: REST_ERROR_5001
       type: string
-    ErrorMessage:
-      properties:
-        code:
-          $ref: '#/components/schemas/RestErrorCodes'
-        message:
-          description: Сообщение
-          example: General service error
-          type: string
-      required:
-      - code
-      - message
-      type: object
-    SublimitState:
-      allOf:
-      - $ref: '#/components/schemas/State'
-      - properties:
-          status:
-            $ref: '#/components/schemas/SublimitStatus'
-        required:
-        - status
-        type: object
-      description: Состояние сублимита
-      example:
-        status: APPROVED
-        statusDate: '2025-10-25T16:05:48.531124'
-        errors: []
-        cqrsVersion: 8914661325
-      type: object
-    SublimitStatus:
-      description: Статус сублимита
-      enum:
-      - IN_PROCESSING
-      - APPROVED
-      example: APPROVED
-      type: string
     State:
       description: Состояние объекта
       properties:
@@ -213,6 +188,59 @@ components:
       required:
       - cqrsVersion
       - statusDate
+      type: object
+    SublimitListResponse:
+      allOf:
+      - properties:
+          sublimits:
+            description: Сублимиты
+            items:
+              $ref: '#/components/schemas/Sublimit'
+            type: array
+        type: object
+      example:
+        sublimits:
+        - id: 04ab216e-5626-4111-86d8-f606048fc000
+          dealConditionsId: b5c1e36d-bde1-42bf-8d72-9d0aa4504f73
+          amount: 2000000.0
+          utilizedAmount: 987654.38
+          state:
+            status: APPROVED
+            statusDate: '2025-10-16T12:00:01.024001'
+            errors: []
+            cqrsVersion: 1742767789
+        - id: b76ab99e-067c-4eea-ab51-2f759d6d0bbe
+          dealConditionsId: 58a4683f-f1f6-41e8-9615-b1c8ea39523d
+          amount: 1500000.0
+          utilizedAmount: 0.0
+          state:
+            status: IN_PROCESSING
+            statusDate: '2025-08-12T19:31:43.645387'
+            errors: []
+            cqrsVersion: 1742767789
+      type: object
+    SublimitStatus:
+      description: Статус сублимита
+      enum:
+      - IN_PROCESSING
+      - APPROVED
+      example: APPROVED
+      type: string
+    SublimitState:
+      allOf:
+      - $ref: '#/components/schemas/State'
+      - properties:
+          status:
+            $ref: '#/components/schemas/SublimitStatus'
+        required:
+        - status
+        type: object
+      description: Состояние сублимита
+      example:
+        status: APPROVED
+        statusDate: '2025-10-25T16:05:48.531124'
+        errors: []
+        cqrsVersion: 8914661325
       type: object
     Sublimit:
       description: Сублимит - лимит на дебитора в рамках конкретного договора Факторинга
@@ -257,36 +285,6 @@ components:
       - state
       - utilizedAmount
       type: object
-    SublimitListResponse:
-      allOf:
-      - properties:
-          sublimits:
-            description: Сублимиты
-            items:
-              $ref: '#/components/schemas/Sublimit'
-            type: array
-        type: object
-      example:
-        sublimits:
-        - id: 04ab216e-5626-4111-86d8-f606048fc000
-          dealConditionsId: b5c1e36d-bde1-42bf-8d72-9d0aa4504f73
-          amount: 2000000.0
-          utilizedAmount: 987654.38
-          state:
-            status: APPROVED
-            statusDate: '2025-10-16T12:00:01.024001'
-            errors: []
-            cqrsVersion: 1742767789
-        - id: b76ab99e-067c-4eea-ab51-2f759d6d0bbe
-          dealConditionsId: 58a4683f-f1f6-41e8-9615-b1c8ea39523d
-          amount: 1500000.0
-          utilizedAmount: 0.0
-          state:
-            status: IN_PROCESSING
-            statusDate: '2025-08-12T19:31:43.645387'
-            errors: []
-            cqrsVersion: 1742767789
-      type: object
     ErrorResponse:
       example:
       - code: REST_ERROR_5001
@@ -300,15 +298,6 @@ components:
     InternalError:
       description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -318,6 +307,12 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-factoring-openapi.yml
-- raiffeisen-ru-factoring-openapi.yml
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=

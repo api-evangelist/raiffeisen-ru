@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Guarantee Beneficiary API
+  title: Торговое Финансирование.
+  description: API для получения информации по выпущенным гарантиям в кабинете бенефициара
   version: 1.0.0
-  description: 'Operations tagged Guarantee Beneficiary across 2 of this provider''s published API definitions: raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml, raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/trade-finance
 tags:
@@ -61,8 +61,6 @@ paths:
       parameters:
       - $ref: '#/components/parameters/AuthorizationHeader'
       - $ref: '#/components/parameters/IdTokenHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/trade-finance
   /v1/beneficiary/guarantees/{id}:
     get:
       tags:
@@ -113,55 +111,27 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/trade-finance
 components:
-  responses:
-    UnprocessableEntity:
-      description: Unprocessable Entity
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
-    Forbidden:
-      description: Forbidden
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
-    InternalError:
-      description: Внутренняя ошибка
-    Unauthorized:
-      description: Аутентификация не пройдена
-    BadRequest:
-      description: Bad Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
-    NotFound:
-      description: Not Found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
+  parameters:
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
   schemas:
-    Principal:
-      type: object
-      properties:
-        shortName:
-          type: string
-          description: Наименование принципала
-          example: ООО "ТЕСТ-ТЕХНОЛОГИИ ПЛЮС"
-        cnum:
-          type: string
-          description: CNUM принципала
-          example: Z55687
-        inn:
-          type: string
-          description: ИНН принципала
-          example: '7712345678'
-      description: CNUM принципала
     ErrorResponseItemDto:
       required:
       - code
@@ -179,6 +149,43 @@ components:
           type: string
         source:
           $ref: '#/components/schemas/ErrorSource'
+    GuaranteeBeneficiaryResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GuaranteeBeneficiaryDto'
+      allOf:
+      - $ref: '#/components/schemas/Pagination'
+    Principal:
+      type: object
+      properties:
+        shortName:
+          type: string
+          description: Наименование принципала
+          example: ООО "ТЕСТ-ТЕХНОЛОГИИ ПЛЮС"
+        cnum:
+          type: string
+          description: CNUM принципала
+          example: Z55687
+        inn:
+          type: string
+          description: ИНН принципала
+          example: '7712345678'
+      description: CNUM принципала
+    RangeDtoLocalDate:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date
+          example: '2025-09-01'
+        to:
+          type: string
+          format: date
+          example: '2025-09-30'
+      description: Дата окончания действия гарантии
     GuaranteeBeneficiaryFilterRequest:
       type: object
       properties:
@@ -190,6 +197,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Order'
+    SortDirection:
+      type: string
+      enum:
+      - ASC
+      - DESC
+    ErrorSource:
+      required:
+      - pointer
+      type: object
+      properties:
+        pointer:
+          type: string
     Order:
       required:
       - sortBy
@@ -218,18 +237,6 @@ components:
           type: string
           description: ИНН бенефициара
           example: '7814987654'
-    RangeDtoBigDecimal:
-      type: object
-      properties:
-        from:
-          type: number
-          description: Начальное значение интервала
-          example: 1000000
-        to:
-          type: number
-          description: Конечное значение интервала
-          example: 10000000
-      description: Сумма гарантии, интервал
     GuaranteeFilterDto:
       type: object
       properties:
@@ -273,49 +280,18 @@ components:
             example: tax
         principal:
           $ref: '#/components/schemas/Principal'
-    SortDirection:
-      type: string
-      enum:
-      - ASC
-      - DESC
-    Paging:
-      required:
-      - limit
-      - offset
-      properties:
-        offset:
-          type: integer
-          format: int32
-          example: 60
-        limit:
-          type: integer
-          format: int32
-          example: 20
-    ErrorSource:
-      required:
-      - pointer
+    RangeDtoBigDecimal:
       type: object
       properties:
-        pointer:
-          type: string
-    GuaranteeBeneficiaryResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/GuaranteeBeneficiaryDto'
-      allOf:
-      - $ref: '#/components/schemas/Pagination'
-    ErrorResponseDto:
-      required:
-      - errors
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorResponseItemDto'
+        from:
+          type: number
+          description: Начальное значение интервала
+          example: 1000000
+        to:
+          type: number
+          description: Конечное значение интервала
+          example: 10000000
+      description: Сумма гарантии, интервал
     GuaranteeBeneficiaryDto:
       required:
       - id
@@ -355,6 +331,28 @@ components:
           example: '407016'
         beneficiary:
           $ref: '#/components/schemas/Beneficiary'
+    ErrorResponseDto:
+      required:
+      - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseItemDto'
+    Paging:
+      required:
+      - limit
+      - offset
+      properties:
+        offset:
+          type: integer
+          format: int32
+          example: 60
+        limit:
+          type: integer
+          format: int32
+          example: 20
     Pagination:
       required:
       - limit
@@ -374,37 +372,32 @@ components:
           type: integer
           format: int64
           example: 35
-    RangeDtoLocalDate:
-      type: object
-      properties:
-        from:
-          type: string
-          format: date
-          example: '2025-09-01'
-        to:
-          type: string
-          format: date
-          example: '2025-09-30'
-      description: Дата окончания действия гарантии
-  parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
-    IdTokenHeader:
-      name: Id-Token
-      in: header
-      description: Идентификационный токен пользователя
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml
-- raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+    UnprocessableEntity:
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+    InternalError:
+      description: Внутренняя ошибка
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'

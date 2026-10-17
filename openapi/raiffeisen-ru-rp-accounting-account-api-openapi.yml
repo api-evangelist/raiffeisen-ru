@@ -1,17 +1,19 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Rp Accounting Account API
-  version: '0.1'
+  title: интеграции Системы быстрых платежей (СБП) для B2B Rp…
   contact:
     email: ecom@raiffeisen.ru
     name: Support e-mail
     x-team-id: 932
     x-short-team-name: FPS B2B
+  description: '# Подключение к СБП
+
+    Для приёма и / или отправки СБП-платежей оставьте заявку в РБО → Продукты → В2В-платежи по СБП.'
   x-logo:
     url: images/raifflogo.png
     backgroundColor: '#FFFFFF'
     altText: Raiff logo
-  description: 'Operations tagged rp-accounting-account across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-sbp-b2b-openapi.json, raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml. Each path carries the servers of the definition it was published in.'
+  version: '0.1'
 servers:
 - url: https://pay-test.raif.ru
   description: Sandbox
@@ -46,11 +48,6 @@ paths:
                 $ref: '#/components/schemas/AccountResponseArray'
         '500':
           $ref: '#/components/responses/InternalServer'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/v1/accounts/{id}:
     get:
       tags:
@@ -79,11 +76,6 @@ paths:
           $ref: '#/components/responses/NotFound-2'
         '500':
           $ref: '#/components/responses/InternalServer'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
 components:
   schemas:
     AccountResponseArray:
@@ -152,28 +144,6 @@ components:
           minLength: 9
           maxLength: 9
   responses:
-    InternalServer:
-      description: Internal Server Error
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              code:
-                type: string
-                description: Код ошибки запроса
-              message:
-                type: string
-                description: Описание ошибки
-              traceId:
-                type: string
-                description: Идентификатор запроса
-          examples:
-            default:
-              value:
-                code: SYSTEM_ERROR
-                message: Internal server error
-                traceId: f48ea581c6fed304bae465de04b22ad9
     NotFound-2:
       description: Not Found
       content:
@@ -196,6 +166,28 @@ components:
                 code: ORDER_NOT_FOUND
                 message: По данному идентификатору Заказ не найден
                 traceId: f48ea581c6fed304bae465de04b22ad9
+    InternalServer:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Код ошибки запроса
+              message:
+                type: string
+                description: Описание ошибки
+              traceId:
+                type: string
+                description: Идентификатор запроса
+          examples:
+            default:
+              value:
+                code: SYSTEM_ERROR
+                message: Internal server error
+                traceId: f48ea581c6fed304bae465de04b22ad9
   securitySchemes:
     BearerAuth:
       type: http
@@ -208,6 +200,26 @@ components:
       scheme: bearer
       bearerFormat: JWT
       x-internal: false
-x-refined-from:
-- raiffeisen-ru-raif-pay-sbp-b2b-openapi.json
-- raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml
+x-tagGroups:
+- name: Тестирование
+  tags:
+  - testing
+- name: API Стандартная схема
+  tags:
+  - order
+  - reusable-payment-link
+  - invoice
+  - report-standard
+- name: API Транзитная схема
+  tags:
+  - splits
+  - applications
+  - rp-accounting
+  - report-transit
+- name: Выписки
+  tags:
+  - incoming-statements
+  - outgoing-statements
+- name: Уведомления
+  tags:
+  - callback

@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Brokerage Payment Orders API
+  title: Брокерские платёжные поручения Brokerage Payment Orders API
+  description: Создание и получение брокерских платёжных поручений
   version: 1.0.0
-  description: 'Operations tagged brokerage-payment-orders across 2 of this provider''s published API definitions: raiffeisen-ru-brokerage-payment-orders-openapi.yml, raiffeisen-ru-brokerage-payment-orders-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/brokerage
 tags:
@@ -80,8 +80,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/brokerage
   /v1/payments/orders/{id}:
     get:
       tags:
@@ -113,18 +111,17 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/brokerage
 components:
   parameters:
-    CryptoProfileIdHeader:
-      name: X-Signature-Crypto-Profile-Id
+    IdTokenHeader:
+      name: Id-Token
       in: header
-      description: Идентификатор криптографического профиля подписанта
+      description: Идентификационный токен пользователя
       required: true
       schema:
         type: string
-      example: 6a9b8c7d-1234-4567-890a-bcdef1234567
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
     PageNumberParam:
       name: page
       in: query
@@ -135,23 +132,6 @@ components:
         minimum: 0
         default: 0
       example: 0
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
-    SignatureHeader:
-      name: X-Signature-Sign
-      in: header
-      description: Электронная подпись канонического JSON-тела запроса
-      required: true
-      schema:
-        type: string
-      example: MEUCIQDxExampleSignature
     SkipSecurityCacheHeader:
       name: X-Skip-Security-Cache
       in: header
@@ -161,6 +141,39 @@ components:
         type: boolean
         default: false
       example: false
+    PaymentOrderIdPathParam:
+      name: id
+      in: path
+      description: Идентификатор платёжного поручения
+      required: true
+      schema:
+        $ref: '#/components/schemas/PaymentOrderId'
+      example: 128745
+    SignatureHeader:
+      name: X-Signature-Sign
+      in: header
+      description: Электронная подпись канонического JSON-тела запроса
+      required: true
+      schema:
+        type: string
+      example: MEUCIQDxExampleSignature
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    CryptoProfileIdHeader:
+      name: X-Signature-Crypto-Profile-Id
+      in: header
+      description: Идентификатор криптографического профиля подписанта
+      required: true
+      schema:
+        type: string
+      example: 6a9b8c7d-1234-4567-890a-bcdef1234567
     PageSizeParam:
       name: size
       in: query
@@ -171,60 +184,89 @@ components:
         minimum: 1
         default: 20
       example: 20
-    IdTokenHeader:
-      name: Id-Token
-      in: header
-      description: Идентификационный токен пользователя
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-    PaymentOrderIdPathParam:
-      name: id
-      in: path
-      description: Идентификатор платёжного поручения
-      required: true
-      schema:
-        $ref: '#/components/schemas/PaymentOrderId'
-      example: 128745
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    BadRequest:
+      description: Некорректный запрос
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            simple:
+              $ref: '#/components/examples/ErrorResponseExample'
+    Forbidden:
+      description: Недостаточно прав для выполнения операции
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            simple:
+              $ref: '#/components/examples/ErrorResponseExample'
+    InternalError:
+      description: Внутренняя ошибка
+    NotFound:
+      description: Платёжное поручение не найдено
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            simple:
+              $ref: '#/components/examples/ErrorResponseExample'
+  examples:
+    PaymentOrderListResponseExample:
+      summary: Пример списка платёжных поручений
+      description: PaymentOrderList
+      value:
+      - id: 128745
+        agreementNumber: '35463'
+        accountFrom: '40702810900000000001'
+        accountTo: '40702810900000000002'
+        description: Пополнение брокерского счёта
+        amount: 150000.5
+        status: SUCCESS
+        errorDescription: null
+      - id: 128746
+        agreementNumber: '35463'
+        accountFrom: '40702810900000000001'
+        accountTo: '40702810900000000002'
+        description: Пополнение брокерского счёта
+        amount: 25000
+        status: IN_PROGRESS
+        errorDescription: null
+    PaymentOrderResponseExample:
+      summary: Пример платёжного поручения
+      description: PaymentOrder
+      value:
+        id: 128745
+        agreementNumber: '35463'
+        accountFrom: '40702810900000000001'
+        accountTo: '40702810900000000002'
+        description: Пополнение брокерского счёта
+        amount: 150000.5
+        status: SUCCESS
+        errorDescription: null
+    PaymentOrderCreateRequestExample:
+      summary: Пример создания платёжного поручения
+      description: PaymentOrderCreateRequest
+      value:
+        agreementNumber: '35463'
+        accountFrom: '40702810900000000001'
+        accountTo: '40702810900000000002'
+        description: Пополнение брокерского счёта
+        amount: 150000.5
+    ErrorResponseExample:
+      summary: Пример ошибки
+      description: ErrorResponse
+      value:
+        code: VALIDATION_ERROR
+        message: Параметры запроса не прошли проверку
+        traceId: 4bf92f3577b34da6a3ce929d0e0e4736
+        errors: null
   schemas:
-    PaymentOrderCreateRequest:
-      type: object
-      properties:
-        agreementNumber:
-          type: string
-          description: Номер брокерского договора
-          example: '35463'
-        accountFrom:
-          type: string
-          description: Счёт списания
-          example: '40702810900000000001'
-        accountTo:
-          type: string
-          description: Счёт зачисления
-          example: '40702810900000000002'
-        description:
-          type: string
-          description: Назначение платежа
-          example: Пополнение брокерского счёта
-        amount:
-          type: number
-          description: Сумма платежа
-          example: 150000.5
-    PaymentOrderStatus:
-      type: string
-      description: Статус обработки платёжного поручения
-      enum:
-      - IN_PROGRESS
-      - SUCCESS
-      - ERROR
-      example: SUCCESS
-    PaymentOrderId:
-      type: integer
-      format: int64
-      description: Идентификатор платёжного поручения
-      example: 128745
     ErrorResponse:
       type: object
       required:
@@ -250,6 +292,37 @@ components:
           description: Детали ошибок по полям
           additionalProperties:
             type: string
+    PaymentOrderStatus:
+      type: string
+      description: Статус обработки платёжного поручения
+      enum:
+      - IN_PROGRESS
+      - SUCCESS
+      - ERROR
+      example: SUCCESS
+    PaymentOrderCreateRequest:
+      type: object
+      properties:
+        agreementNumber:
+          type: string
+          description: Номер брокерского договора
+          example: '35463'
+        accountFrom:
+          type: string
+          description: Счёт списания
+          example: '40702810900000000001'
+        accountTo:
+          type: string
+          description: Счёт зачисления
+          example: '40702810900000000002'
+        description:
+          type: string
+          description: Назначение платежа
+          example: Пополнение брокерского счёта
+        amount:
+          type: number
+          description: Сумма платежа
+          example: 150000.5
     PaymentOrder:
       type: object
       properties:
@@ -283,88 +356,8 @@ components:
           - 'null'
           description: Описание ошибки обработки поручения
           example: null
-  examples:
-    PaymentOrderCreateRequestExample:
-      summary: Пример создания платёжного поручения
-      description: PaymentOrderCreateRequest
-      value:
-        agreementNumber: '35463'
-        accountFrom: '40702810900000000001'
-        accountTo: '40702810900000000002'
-        description: Пополнение брокерского счёта
-        amount: 150000.5
-    PaymentOrderListResponseExample:
-      summary: Пример списка платёжных поручений
-      description: PaymentOrderList
-      value:
-      - id: 128745
-        agreementNumber: '35463'
-        accountFrom: '40702810900000000001'
-        accountTo: '40702810900000000002'
-        description: Пополнение брокерского счёта
-        amount: 150000.5
-        status: SUCCESS
-        errorDescription: null
-      - id: 128746
-        agreementNumber: '35463'
-        accountFrom: '40702810900000000001'
-        accountTo: '40702810900000000002'
-        description: Пополнение брокерского счёта
-        amount: 25000
-        status: IN_PROGRESS
-        errorDescription: null
-    ErrorResponseExample:
-      summary: Пример ошибки
-      description: ErrorResponse
-      value:
-        code: VALIDATION_ERROR
-        message: Параметры запроса не прошли проверку
-        traceId: 4bf92f3577b34da6a3ce929d0e0e4736
-        errors: null
-    PaymentOrderResponseExample:
-      summary: Пример платёжного поручения
-      description: PaymentOrder
-      value:
-        id: 128745
-        agreementNumber: '35463'
-        accountFrom: '40702810900000000001'
-        accountTo: '40702810900000000002'
-        description: Пополнение брокерского счёта
-        amount: 150000.5
-        status: SUCCESS
-        errorDescription: null
-  responses:
-    Forbidden:
-      description: Недостаточно прав для выполнения операции
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            simple:
-              $ref: '#/components/examples/ErrorResponseExample'
-    InternalError:
-      description: Внутренняя ошибка
-    Unauthorized:
-      description: Аутентификация не пройдена
-    BadRequest:
-      description: Некорректный запрос
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            simple:
-              $ref: '#/components/examples/ErrorResponseExample'
-    NotFound:
-      description: Платёжное поручение не найдено
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            simple:
-              $ref: '#/components/examples/ErrorResponseExample'
-x-refined-from:
-- raiffeisen-ru-brokerage-payment-orders-openapi.yml
-- raiffeisen-ru-brokerage-payment-orders-openapi.yml
+    PaymentOrderId:
+      type: integer
+      format: int64
+      description: Идентификатор платёжного поручения
+      example: 128745

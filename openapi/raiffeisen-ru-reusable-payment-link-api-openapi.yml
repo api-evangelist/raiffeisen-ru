@@ -1,17 +1,19 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Reusable Payment Link API
-  version: '0.1'
+  title: интеграции Системы быстрых платежей (СБП) для B2B Reusable…
   contact:
     email: ecom@raiffeisen.ru
     name: Support e-mail
     x-team-id: 932
     x-short-team-name: FPS B2B
+  description: '# Подключение к СБП
+
+    Для приёма и / или отправки СБП-платежей оставьте заявку в РБО → Продукты → В2В-платежи по СБП.'
   x-logo:
     url: images/raifflogo.png
     backgroundColor: '#FFFFFF'
     altText: Raiff logo
-  description: 'Operations tagged reusable-payment-link across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-sbp-b2b-openapi.json, raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml. Each path carries the servers of the definition it was published in.'
+  version: '0.1'
 servers:
 - url: https://pay-test.raif.ru
   description: Sandbox
@@ -60,11 +62,6 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/v1/b2b/reusable-payment-links/{id}:
     get:
       tags:
@@ -106,11 +103,6 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/v1/b2b/reusable-payment-link/transactions:
     get:
       tags:
@@ -136,11 +128,6 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
 webhooks:
   IncomingReusablePaymentLinkPayment:
     post:
@@ -159,217 +146,24 @@ webhooks:
             examples:
               incoming_payment_for_reusable_payment_link:
                 $ref: '#/components/examples/IncomingPaymentForReusablePaymentLinkCallbackDto'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
 components:
   schemas:
-    ImageUrl:
-      type: string
-      description: URL с изображением зарегистрированного QR-кода в СБП
-      example: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
-    Qr:
+    Extra:
       type: object
-      description: Информация о платёжной ссылке по заказу
-      required:
-      - id
-      - name
-      - type
-      - payload
-      - imageUrl
-      properties:
-        id:
-          allOf:
-          - $ref: '#/components/schemas/PaymentLinkId'
-        name:
-          allOf:
-          - $ref: '#/components/schemas/PaymentLinkName'
-        type:
-          allOf:
-          - $ref: '#/components/schemas/QrType'
-        payload:
-          allOf:
-          - $ref: '#/components/schemas/Payload'
-        imageUrl:
-          allOf:
-          - $ref: '#/components/schemas/ImageUrl'
-    Payment-2:
-      description: Информация об успешном платеже
-      type:
-      - object
-      - 'null'
-      required:
-      - id
-      - sbpTransactionId
-      - status
-      - amount
-      - sender
-      properties:
-        id:
-          allOf:
-          - $ref: '#/components/schemas/PaymentId'
-        sbpTransactionId:
-          allOf:
-          - $ref: '#/components/schemas/SbpTransactionId'
-        status:
-          allOf:
-          - $ref: '#/components/schemas/PaymentStatus'
-        amount:
-          allOf:
-          - $ref: '#/components/schemas/Amount'
-        totalTaxAmount:
-          allOf:
-          - $ref: '#/components/schemas/TotalTaxAmount'
-        senderPaymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/SenderPaymentPurpose'
-        receiverPaymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/ReceiverPaymentPurpose'
-        extra:
-          allOf:
-          - $ref: '#/components/schemas/Extra'
-        sender:
-          allOf:
-          - $ref: '#/components/schemas/PaymentSender'
-    PaymentSender:
-      type: object
-      description: Информация о плательщике
-      required:
-      - legalName
-      - inn
-      - account
-      - bank
-      properties:
-        legalName:
-          $ref: '#/components/schemas/LegalName'
-        inn:
-          $ref: '#/components/schemas/Inn'
-        account:
-          allOf:
-          - $ref: '#/components/schemas/Account'
-          description: Банковский счёт ЮЛ или ИП, с которого списаны средства
-        bank:
-          allOf:
-          - $ref: '#/components/schemas/BankInfo'
-          description: Информация о банке плательщика
-    QrType:
+      description: Дополнительные поля
+      additionalProperties:
+        type: string
+      example:
+        additionalInfo: testing operation
+    RedirectUrl:
       type: string
-      enum:
-      - DYNAMIC
-      - STATIC
-      description: Тип платёжной ссылки
-    Restrictions:
-      type: object
-      description: Ограничения к заказу
-      properties:
-        senderInn:
-          type: string
-          minLength: 10
-          maxLength: 12
-          description: ИНН ЮЛ или ИП, которое может оплатить заказ
-          example: '123456789012'
-    ReusablePaymentLinkResponse:
-      type: object
-      required:
-      - id
-      - account
-      - creationDate
-      - expirationDate
-      - isTaxable
-      - status
-      - redirectUrl
-      - qr
-      properties:
-        id:
-          allOf:
-          - $ref: '#/components/schemas/Id'
-        account:
-          allOf:
-          - $ref: '#/components/schemas/Account'
-        creationDate:
-          allOf:
-          - $ref: '#/components/schemas/CreationDate'
-        expirationDate:
-          allOf:
-          - $ref: '#/components/schemas/ExpirationDate'
-        amount:
-          allOf:
-          - $ref: '#/components/schemas/Amount'
-        isTaxable:
-          allOf:
-          - $ref: '#/components/schemas/IsTaxable'
-        totalTaxAmount:
-          allOf:
-          - $ref: '#/components/schemas/TotalTaxAmount'
-        status:
-          allOf:
-          - $ref: '#/components/schemas/ReusableStatus'
-        senderPaymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/SenderPaymentPurpose'
-        receiverPaymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/ReceiverPaymentPurpose'
-        redirectUrl:
-          allOf:
-          - $ref: '#/components/schemas/RedirectUrl'
-        qr:
-          allOf:
-          - $ref: '#/components/schemas/Qr'
-        restrictions:
-          allOf:
-          - $ref: '#/components/schemas/Restrictions'
-        extra:
-          allOf:
-          - $ref: '#/components/schemas/Extra'
-    ExpirationDate:
+      maxLength: 1024
+      description: Ссылка для автоматического возврата плательщика из приложения банка в приложение или на сайт ТСП
+      example: https://exampletsp.io/qwertyui
+    SenderPaymentPurpose:
       type: string
-      format: date-time
-      description: Срок жизни
-      example: '2024-08-12T20:35:55+03:00'
-    ReusableStatus:
-      type: string
-      description: 'Статус заказа:
-
-        <br>• ACTIVE – активен, можно проводить оплату
-
-        <br>• EXPIRED - срок действия истёк, нельзя провести оплату
-
-        <br>• CANCELLED - отменен, нельзя провести оплату
-
-        '
-      enum:
-      - ACTIVE
-      - EXPIRED
-      - CANCELLED
-      example: ACTIVE
-    PaymentLinkName:
-      type: string
-      description: Наименование платёжной ссылки
-      example: QR на оплату 14.10.2024 в 15:12
-    BankName:
-      type: string
-      description: Наименование банка
-      example: Райффайзенбанк
-    TotalTaxAmount:
-      type: number
-      format: float
-      maximum: 1000000
-      description: Сумма НДС в рублях
-      example: 2.41
-    ReceiverPaymentPurpose:
-      type: string
-      maxLength: 150
-      description: 'Назначение платежа, которое увидит получатель в выписке в поле «Основание операции» вместе с инн плательщика.
-
-        <br>Например, "ИНН плательщика: 231150869432. Какое-то ваше назначение"
-
-        <br>Если поле не заполнено, то поле «Основание операции» заполнится по шаблону, в который будет передан идентификатор заказа, наименование плательщика и инн плательщика.
-
-        <br>Например, «Перевод по идентификатору nM43NFfqiaAh04QdSmCoI5u4S2YrWU2ikHJ. Плательщик: ООО Ромашка, ИНН: 231150869432. Осуществлен через СБП B2В».
+      maxLength: 210
+      description: 'Назначение платежа, которое увидит плательщик при оплате. Поле обязательное.
 
         <br>Может содержать:
 
@@ -383,40 +177,18 @@ components:
 
         '
       example: Какое-то назначение платежа
-    PaymentId:
+    Account:
       type: string
-      description: Идентификатор платежа
-      example: '123456789012345678'
-    LegalName:
+      minLength: 20
+      maxLength: 20
+      description: Банковский счёт ЮЛ или ИП для зачисления средств
+      example: '40817810601002630020'
+    SbpTransactionId:
       type: string
-      maxLength: 512
-      description: Сокращённое наименование ЮЛ или ИП Плательщика
-      example: ООО Ромашка
-    Extra:
-      type: object
-      description: Дополнительные поля
-      additionalProperties:
-        type: string
-      example:
-        additionalInfo: testing operation
-    PaymentStatus:
-      type: object
-      description: Статус входящего платежа
-      required:
-      - value
-      - date
-      properties:
-        value:
-          type: string
-          description: Статус платежа, возможен только "SUCCESS"
-          enum:
-          - SUCCESS
-          example: SUCCESS
-        date:
-          type: string
-          format: date-time
-          description: Время проведения платежа
-          example: '2024-06-12T19:36:55+03:00'
+      minLength: 32
+      maxLength: 32
+      description: Уникальный идентификатор операции на уровне всей системы СБП
+      example: PMSHT0BYVSYE7LDXMCXJSGIUHJLQWZXY
     ReusablePaymentLinkTransactions:
       type: object
       properties:
@@ -475,14 +247,146 @@ components:
           type: boolean
           description: Наличие следующей страницы.
           example: true
-    IsTaxable:
-      type: boolean
-      description: Информация о взимании НДС
-      example: true
-    SenderPaymentPurpose:
+    ReusablePaymentLinkResponse:
+      type: object
+      required:
+      - id
+      - account
+      - creationDate
+      - expirationDate
+      - isTaxable
+      - status
+      - redirectUrl
+      - qr
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/Id'
+        account:
+          allOf:
+          - $ref: '#/components/schemas/Account'
+        creationDate:
+          allOf:
+          - $ref: '#/components/schemas/CreationDate'
+        expirationDate:
+          allOf:
+          - $ref: '#/components/schemas/ExpirationDate'
+        amount:
+          allOf:
+          - $ref: '#/components/schemas/Amount'
+        isTaxable:
+          allOf:
+          - $ref: '#/components/schemas/IsTaxable'
+        totalTaxAmount:
+          allOf:
+          - $ref: '#/components/schemas/TotalTaxAmount'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ReusableStatus'
+        senderPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/SenderPaymentPurpose'
+        receiverPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/ReceiverPaymentPurpose'
+        redirectUrl:
+          allOf:
+          - $ref: '#/components/schemas/RedirectUrl'
+        qr:
+          allOf:
+          - $ref: '#/components/schemas/Qr'
+        restrictions:
+          allOf:
+          - $ref: '#/components/schemas/Restrictions'
+        extra:
+          allOf:
+          - $ref: '#/components/schemas/Extra'
+    Qr:
+      type: object
+      description: Информация о платёжной ссылке по заказу
+      required:
+      - id
+      - name
+      - type
+      - payload
+      - imageUrl
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/PaymentLinkId'
+        name:
+          allOf:
+          - $ref: '#/components/schemas/PaymentLinkName'
+        type:
+          allOf:
+          - $ref: '#/components/schemas/QrType'
+        payload:
+          allOf:
+          - $ref: '#/components/schemas/Payload'
+        imageUrl:
+          allOf:
+          - $ref: '#/components/schemas/ImageUrl'
+    IncomingPaymentReusablePaymentLink:
+      type: object
+      required:
+      - event
+      - data
+      properties:
+        event:
+          type: string
+          description: Тип события
+          example: B2B_REUSABLE_PAYMENT
+          enum:
+          - B2B_REUSABLE_PAYMENT
+        data:
+          type: object
+          required:
+          - reusablePaymentLink
+          - payment
+          properties:
+            reusablePaymentLink:
+              type: object
+              description: Данные о многоразовой платежной ссылки
+              required:
+              - id
+              - qr
+              properties:
+                id:
+                  allOf:
+                  - $ref: '#/components/schemas/Id'
+                qr:
+                  required:
+                  - id
+                  - name
+                  - type
+                  type: object
+                  description: Информация о QR-коде
+                  properties:
+                    id:
+                      allOf:
+                      - $ref: '#/components/schemas/PaymentLinkId'
+                    name:
+                      allOf:
+                      - $ref: '#/components/schemas/PaymentLinkName'
+                    type:
+                      allOf:
+                      - $ref: '#/components/schemas/Type'
+                extra:
+                  allOf:
+                  - $ref: '#/components/schemas/Extra'
+            payment:
+              allOf:
+              - $ref: '#/components/schemas/Payment-2'
+    ReceiverPaymentPurpose:
       type: string
-      maxLength: 210
-      description: 'Назначение платежа, которое увидит плательщик при оплате. Поле обязательное.
+      maxLength: 150
+      description: 'Назначение платежа, которое увидит получатель в выписке в поле «Основание операции» вместе с инн плательщика.
+
+        <br>Например, "ИНН плательщика: 231150869432. Какое-то ваше назначение"
+
+        <br>Если поле не заполнено, то поле «Основание операции» заполнится по шаблону, в который будет передан идентификатор заказа, наименование плательщика и инн плательщика.
+
+        <br>Например, «Перевод по идентификатору nM43NFfqiaAh04QdSmCoI5u4S2YrWU2ikHJ. Плательщик: ООО Ромашка, ИНН: 231150869432. Осуществлен через СБП B2В».
 
         <br>Может содержать:
 
@@ -496,25 +400,70 @@ components:
 
         '
       example: Какое-то назначение платежа
-    Payload:
-      type: string
-      maxLength: 999
-      description: Функциональная ссылка
-      example: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+    PaymentStatus:
+      type: object
+      description: Статус входящего платежа
+      required:
+      - value
+      - date
+      properties:
+        value:
+          type: string
+          description: Статус платежа, возможен только "SUCCESS"
+          enum:
+          - SUCCESS
+          example: SUCCESS
+        date:
+          type: string
+          format: date-time
+          description: Время проведения платежа
+          example: '2024-06-12T19:36:55+03:00'
+    PaymentSender:
+      type: object
+      description: Информация о плательщике
+      required:
+      - legalName
+      - inn
+      - account
+      - bank
+      properties:
+        legalName:
+          $ref: '#/components/schemas/LegalName'
+        inn:
+          $ref: '#/components/schemas/Inn'
+        account:
+          allOf:
+          - $ref: '#/components/schemas/Account'
+          description: Банковский счёт ЮЛ или ИП, с которого списаны средства
+        bank:
+          allOf:
+          - $ref: '#/components/schemas/BankInfo'
+          description: Информация о банке плательщика
     PaymentLinkId:
       type: string
       maxLength: 32
       description: Уникальный идентификатор платёжной ссылки
       example: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
-    BankId:
+    QrType:
       type: string
-      description: Идентификатор банка
-      example: '100000000007'
-    RedirectUrl:
+      enum:
+      - DYNAMIC
+      - STATIC
+      description: Тип платёжной ссылки
+    Inn:
       type: string
-      maxLength: 1024
-      description: Ссылка для автоматического возврата плательщика из приложения банка в приложение или на сайт ТСП
-      example: https://exampletsp.io/qwertyui
+      minLength: 10
+      maxLength: 12
+      description: ИНН ЮЛ или ИП Плательщика
+      example: '123456789012'
+    PaymentLinkName:
+      type: string
+      description: Наименование платёжной ссылки
+      example: QR на оплату 14.10.2024 в 15:12
+    BankBic:
+      type: string
+      description: БИК банка
+      example: '044525700'
     BankInfo:
       type: object
       description: Информация о банке
@@ -529,42 +478,99 @@ components:
           $ref: '#/components/schemas/BankName'
         bic:
           $ref: '#/components/schemas/BankBic'
-    Account:
-      type: string
-      minLength: 20
-      maxLength: 20
-      description: Банковский счёт ЮЛ или ИП для зачисления средств
-      example: '40817810601002630020'
-    SbpTransactionId:
-      type: string
-      minLength: 32
-      maxLength: 32
-      description: Уникальный идентификатор операции на уровне всей системы СБП
-      example: PMSHT0BYVSYE7LDXMCXJSGIUHJLQWZXY
-    Id:
-      type: string
-      description: Идентификатор многоразовой платежной ссылки
-      maximum: 40
-      example: 123e4567-e89b-12d3-a456-426655440000
-    ErrorResponseDto:
+    Restrictions:
       type: object
+      description: Ограничения к заказу
       properties:
-        code:
+        senderInn:
           type: string
-          description: Код ошибки запроса.
-        message:
-          type: string
-          description: Описание ошибки
-    BankBic:
+          minLength: 10
+          maxLength: 12
+          description: ИНН ЮЛ или ИП, которое может оплатить заказ
+          example: '123456789012'
+    BankId:
       type: string
-      description: БИК банка
-      example: '044525700'
+      description: Идентификатор банка
+      example: '100000000007'
+    CreationDate:
+      type: string
+      format: date-time
+      description: Дата создания
+      example: '2024-06-12T19:35:55+03:00'
+    Type:
+      type: string
+      enum:
+      - STATIC
+      description: Тип платёжной ссылки
+      example: STATIC
+    Payment-2:
+      description: Информация об успешном платеже
+      type:
+      - object
+      - 'null'
+      required:
+      - id
+      - sbpTransactionId
+      - status
+      - amount
+      - sender
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/PaymentId'
+        sbpTransactionId:
+          allOf:
+          - $ref: '#/components/schemas/SbpTransactionId'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStatus'
+        amount:
+          allOf:
+          - $ref: '#/components/schemas/Amount'
+        totalTaxAmount:
+          allOf:
+          - $ref: '#/components/schemas/TotalTaxAmount'
+        senderPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/SenderPaymentPurpose'
+        receiverPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/ReceiverPaymentPurpose'
+        extra:
+          allOf:
+          - $ref: '#/components/schemas/Extra'
+        sender:
+          allOf:
+          - $ref: '#/components/schemas/PaymentSender'
+    ExpirationDate:
+      type: string
+      format: date-time
+      description: Срок жизни
+      example: '2024-08-12T20:35:55+03:00'
+    Payload:
+      type: string
+      maxLength: 999
+      description: Функциональная ссылка
+      example: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+    ImageUrl:
+      type: string
+      description: URL с изображением зарегистрированного QR-кода в СБП
+      example: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
+    LegalName:
+      type: string
+      maxLength: 512
+      description: Сокращённое наименование ЮЛ или ИП Плательщика
+      example: ООО Ромашка
     Amount:
       type: number
       format: float
       maximum: 1000000
       description: Сумма операции в рублях
       example: 8573.79
+    PaymentId:
+      type: string
+      description: Идентификатор платежа
+      example: '123456789012345678'
     ReusablePaymentLinkRequest:
       type: object
       required:
@@ -652,92 +658,51 @@ components:
         extra:
           allOf:
           - $ref: '#/components/schemas/Extra'
-    CreationDate:
-      type: string
-      format: date-time
-      description: Дата создания
-      example: '2024-06-12T19:35:55+03:00'
-    Inn:
-      type: string
-      minLength: 10
-      maxLength: 12
-      description: ИНН ЮЛ или ИП Плательщика
-      example: '123456789012'
-    IncomingPaymentReusablePaymentLink:
+    TotalTaxAmount:
+      type: number
+      format: float
+      maximum: 1000000
+      description: Сумма НДС в рублях
+      example: 2.41
+    ErrorResponseDto:
       type: object
-      required:
-      - event
-      - data
       properties:
-        event:
+        code:
           type: string
-          description: Тип события
-          example: B2B_REUSABLE_PAYMENT
-          enum:
-          - B2B_REUSABLE_PAYMENT
-        data:
-          type: object
-          required:
-          - reusablePaymentLink
-          - payment
-          properties:
-            reusablePaymentLink:
-              type: object
-              description: Данные о многоразовой платежной ссылки
-              required:
-              - id
-              - qr
-              properties:
-                id:
-                  allOf:
-                  - $ref: '#/components/schemas/Id'
-                qr:
-                  required:
-                  - id
-                  - name
-                  - type
-                  type: object
-                  description: Информация о QR-коде
-                  properties:
-                    id:
-                      allOf:
-                      - $ref: '#/components/schemas/PaymentLinkId'
-                    name:
-                      allOf:
-                      - $ref: '#/components/schemas/PaymentLinkName'
-                    type:
-                      allOf:
-                      - $ref: '#/components/schemas/Type'
-                extra:
-                  allOf:
-                  - $ref: '#/components/schemas/Extra'
-            payment:
-              allOf:
-              - $ref: '#/components/schemas/Payment-2'
-    Type:
+          description: Код ошибки запроса.
+        message:
+          type: string
+          description: Описание ошибки
+    Id:
       type: string
+      description: Идентификатор многоразовой платежной ссылки
+      maximum: 40
+      example: 123e4567-e89b-12d3-a456-426655440000
+    BankName:
+      type: string
+      description: Наименование банка
+      example: Райффайзенбанк
+    IsTaxable:
+      type: boolean
+      description: Информация о взимании НДС
+      example: true
+    ReusableStatus:
+      type: string
+      description: 'Статус заказа:
+
+        <br>• ACTIVE – активен, можно проводить оплату
+
+        <br>• EXPIRED - срок действия истёк, нельзя провести оплату
+
+        <br>• CANCELLED - отменен, нельзя провести оплату
+
+        '
       enum:
-      - STATIC
-      description: Тип платёжной ссылки
-      example: STATIC
+      - ACTIVE
+      - EXPIRED
+      - CANCELLED
+      example: ACTIVE
   examples:
-    ReusablePaymentLinkRequestDtoWithRestriction:
-      summary: Многоразовая платежная ссылка c ограничениями
-      description: Запрос на создание многоразовой платежной ссылки с указанием ограничений **Присутствует блок restrictions**
-      value:
-        id: 123e4567-e89b-12d3-a456-426655440000
-        name: QR на оплату 25.09.2024 в 15:12
-        account: '40817810601002630000'
-        isTaxable: false
-        expirationDate: '2024-08-12T20:35:55+03:00'
-        senderPaymentPurpose: Какое-то назначение платежа
-        receiverPaymentPurpose: Какое-то назначение платежа
-        redirectUrl: https://example.ru
-        extra:
-          additionalInfo: testing operation
-        restrictions:
-          senderInn: '1234567890'
-          maxAmount: 150.01
     ReusablePaymentLinkResponseDtoWithoutRestrictions:
       summary: Многоразовая платежная ссылка без ограничений
       description: Ответ на создание многоразовой платежной ссылки без указания ограничений **Отсутствует блок restrictions**
@@ -761,30 +726,6 @@ components:
           type: STATIC
           payload: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
           imageUrl: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
-    ReusablePaymentLinkResponseDtoWithRestrictions:
-      summary: Многоразовая платежная ссылка с ограничениями
-      description: Ответ на создание многоразовой платежной ссылки с указанием ограничений **Присутствует блок restrictions**
-      value:
-        id: 123e4567-e89b-12d3-a456-426655440000
-        account: '40817810601002630000'
-        isTaxable: false
-        creationDate: '2024-06-12T19:35:55+03:00'
-        expirationDate: '2024-08-12T20:35:55+03:00'
-        status: ACTIVE
-        senderPaymentPurpose: Какое-то назначение платежа
-        receiverPaymentPurpose: Какое-то назначение платежа
-        redirectUrl: https://exampletsp.io/qwertyui
-        extra:
-          additionalInfo: testing operation
-        restrictions:
-          senderInn: '1234567890'
-          maxAmount: 150.01
-        qr:
-          id: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
-          name: QR на оплату 25.09.2024 в 15:12
-          type: STATIC
-          payload: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
-          imageUrl: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
     ReusablePaymentLinkRequestDtoWithoutRestriction:
       summary: Многоразовая платежная ссылка без ограничений
       description: Запрос на создание многоразовой платежной ссылки без указания ограничений **Отсутствует блок restrictions**
@@ -801,6 +742,23 @@ components:
         redirectUrl: https://example.ru
         extra:
           additionalInfo: testing operation
+    ReusablePaymentLinkRequestDtoWithRestriction:
+      summary: Многоразовая платежная ссылка c ограничениями
+      description: Запрос на создание многоразовой платежной ссылки с указанием ограничений **Присутствует блок restrictions**
+      value:
+        id: 123e4567-e89b-12d3-a456-426655440000
+        name: QR на оплату 25.09.2024 в 15:12
+        account: '40817810601002630000'
+        isTaxable: false
+        expirationDate: '2024-08-12T20:35:55+03:00'
+        senderPaymentPurpose: Какое-то назначение платежа
+        receiverPaymentPurpose: Какое-то назначение платежа
+        redirectUrl: https://example.ru
+        extra:
+          additionalInfo: testing operation
+        restrictions:
+          senderInn: '1234567890'
+          maxAmount: 150.01
     IncomingPaymentForReusablePaymentLinkCallbackDto:
       value:
         event: B2B_REUSABLE_PAYMENT
@@ -832,7 +790,56 @@ components:
                 id: 100000000007
                 name: Райффайзенбанк
                 bic: 44525700
+    ReusablePaymentLinkResponseDtoWithRestrictions:
+      summary: Многоразовая платежная ссылка с ограничениями
+      description: Ответ на создание многоразовой платежной ссылки с указанием ограничений **Присутствует блок restrictions**
+      value:
+        id: 123e4567-e89b-12d3-a456-426655440000
+        account: '40817810601002630000'
+        isTaxable: false
+        creationDate: '2024-06-12T19:35:55+03:00'
+        expirationDate: '2024-08-12T20:35:55+03:00'
+        status: ACTIVE
+        senderPaymentPurpose: Какое-то назначение платежа
+        receiverPaymentPurpose: Какое-то назначение платежа
+        redirectUrl: https://exampletsp.io/qwertyui
+        extra:
+          additionalInfo: testing operation
+        restrictions:
+          senderInn: '1234567890'
+          maxAmount: 150.01
+        qr:
+          id: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+          name: QR на оплату 25.09.2024 в 15:12
+          type: STATIC
+          payload: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+          imageUrl: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
   parameters:
+    Size-2:
+      name: size
+      in: query
+      description: Количество отображаемых операций
+      schema:
+        type: integer
+        default: 20
+        format: int32
+    FromDate:
+      name: from
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date-time
+      description: Дата начала выборки
+      example: '2025-06-15T04:31:17.604Z'
+    Page:
+      name: page
+      in: query
+      description: Номер страницы
+      schema:
+        type: integer
+        default: 1
+        format: int32
     Ids:
       name: ids
       description: Идентификаторы многоразовых платежных ссылок
@@ -844,15 +851,6 @@ components:
           maxItems: 5
       example:
       - 123e4567-e89b-12d3-a456-426655440000
-    FromDate:
-      name: from
-      in: query
-      required: true
-      schema:
-        type: string
-        format: date-time
-      description: Дата начала выборки
-      example: '2025-06-15T04:31:17.604Z'
     ToDate:
       name: to
       in: query
@@ -862,22 +860,6 @@ components:
         format: date-time
       description: Дата окончания выборки
       example: '2025-06-19T04:31:17.604Z'
-    Page:
-      name: page
-      in: query
-      description: Номер страницы
-      schema:
-        type: integer
-        default: 1
-        format: int32
-    Size-2:
-      name: size
-      in: query
-      description: Количество отображаемых операций
-      schema:
-        type: integer
-        default: 20
-        format: int32
     Id:
       description: Идентификатор многоразовой платежной ссылки
       in: path
@@ -886,28 +868,6 @@ components:
       schema:
         type: string
   responses:
-    Forbidden:
-      description: Forbidden
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
-          examples:
-            default:
-              value:
-                code: FORBIDDEN
-                message: Доступ запрещен
-    InternalServerError:
-      description: Internal Server Error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
-          examples:
-            default:
-              value:
-                code: SYSTEM_ERROR
-                message: Возникла системная ошибка
     BadRequest:
       description: Bad Request
       content:
@@ -919,6 +879,28 @@ components:
               value:
                 code: INVALID_DATA
                 message: Некорректные данные
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: SYSTEM_ERROR
+                message: Возникла системная ошибка
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: FORBIDDEN
+                message: Доступ запрещен
     NotFound:
       description: Not Found
       content:
@@ -942,6 +924,26 @@ components:
       scheme: bearer
       bearerFormat: JWT
       x-internal: false
-x-refined-from:
-- raiffeisen-ru-raif-pay-sbp-b2b-openapi.json
-- raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml
+x-tagGroups:
+- name: Тестирование
+  tags:
+  - testing
+- name: API Стандартная схема
+  tags:
+  - order
+  - reusable-payment-link
+  - invoice
+  - report-standard
+- name: API Транзитная схема
+  tags:
+  - splits
+  - applications
+  - rp-accounting
+  - report-transit
+- name: Выписки
+  tags:
+  - incoming-statements
+  - outgoing-statements
+- name: Уведомления
+  tags:
+  - callback

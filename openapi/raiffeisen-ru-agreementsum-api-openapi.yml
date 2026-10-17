@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Agreement Sum API
+  description: API Факторинга
+  title: Финансирование. Факторинг Agreement Sum API
   version: 1.0.0
-  description: 'Operations tagged AgreementSum across 2 of this provider''s published API definitions: raiffeisen-ru-factoring-openapi.yml, raiffeisen-ru-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/factoring
 tags:
@@ -93,72 +93,20 @@ paths:
       summary: Получение сумм договоров Факторинга
       tags:
       - AgreementSum
-    servers:
-    - url: https://api.raiffeisen.ru/factoring
 components:
   schemas:
-    RestErrorCodes:
-      description: '| code            | description                                          |
-
-        |-----------------|------------------------------------------------------|
-
-        | REST_ERROR_5001 | General service error                                |
-
-        | REST_ERROR_5004 | Agreement does not exist                             |
-
-        | REST_ERROR_5017 | DealConditions does not exist                        |
-
-        | REST_ERROR_5024 | Action is available at working hour                  |
-
-        | REST_ERROR_5025 | Supplies are not found                               |
-
-        | REST_ERROR_5026 | Approved contract does not exist                     |
-
-        | REST_ERROR_5027 | Supplies must be selected on only one deal condition |
-
-        | REST_ERROR_5028 | Approved deal conditions do not exist                |
-
-        | REST_ERROR_5029 | Approved agreement does not exist                    |
-
-        | REST_ERROR_5031 | Account for financing cannot be empty                |
-
-        | REST_ERROR_5032 | Data validation failed                               |
-
-        | REST_ERROR_5033 | File is infected                                     |
-
-        | REST_ERROR_5034 | Invalid type of file                                 |
-
-        | REST_ERROR_5035 | File is empty                                        |
-
-        | REST_ERROR_5036 | Failed to read file                                  |
-
-        | REST_ERROR_5037 | Supplier are not found                               |
-
-        | SELECTED_ORGANIZATION_REQUIRED | selectedCnum is required when several organizations are available |
-
-        | SELECTED_ORGANIZATION_NOT_ALLOWED | selectedCnum is not included in allowed organizations |
-
-        '
-      enum:
-      - REST_ERROR_5001
-      - REST_ERROR_5004
-      - REST_ERROR_5017
-      - REST_ERROR_5024
-      - REST_ERROR_5025
-      - REST_ERROR_5026
-      - REST_ERROR_5027
-      - REST_ERROR_5028
-      - REST_ERROR_5029
-      - REST_ERROR_5031
-      - REST_ERROR_5032
-      - REST_ERROR_5033
-      - REST_ERROR_5034
-      - REST_ERROR_5035
-      - REST_ERROR_5036
-      - SELECTED_ORGANIZATION_REQUIRED
-      - SELECTED_ORGANIZATION_NOT_ALLOWED
-      example: REST_ERROR_5001
-      type: string
+    ErrorMessage:
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+      required:
+      - code
+      - message
+      type: object
     AgreementSum:
       description: Сумма договора Факторинга
       example:
@@ -240,23 +188,67 @@ components:
             errors: []
             cqrsVersion: 6123601121
       type: object
-    ErrorMessage:
-      properties:
-        code:
-          $ref: '#/components/schemas/RestErrorCodes'
-        message:
-          description: Сообщение
-          example: General service error
-          type: string
-      required:
-      - code
-      - message
-      type: object
-    AgreementSumStatus:
-      description: Статус суммы договора Факторинга
+    RestErrorCodes:
+      description: '| code            | description                                          |
+
+        |-----------------|------------------------------------------------------|
+
+        | REST_ERROR_5001 | General service error                                |
+
+        | REST_ERROR_5004 | Agreement does not exist                             |
+
+        | REST_ERROR_5017 | DealConditions does not exist                        |
+
+        | REST_ERROR_5024 | Action is available at working hour                  |
+
+        | REST_ERROR_5025 | Supplies are not found                               |
+
+        | REST_ERROR_5026 | Approved contract does not exist                     |
+
+        | REST_ERROR_5027 | Supplies must be selected on only one deal condition |
+
+        | REST_ERROR_5028 | Approved deal conditions do not exist                |
+
+        | REST_ERROR_5029 | Approved agreement does not exist                    |
+
+        | REST_ERROR_5031 | Account for financing cannot be empty                |
+
+        | REST_ERROR_5032 | Data validation failed                               |
+
+        | REST_ERROR_5033 | File is infected                                     |
+
+        | REST_ERROR_5034 | Invalid type of file                                 |
+
+        | REST_ERROR_5035 | File is empty                                        |
+
+        | REST_ERROR_5036 | Failed to read file                                  |
+
+        | REST_ERROR_5037 | Supplier are not found                               |
+
+        | SELECTED_ORGANIZATION_REQUIRED | selectedCnum is required when several organizations are available |
+
+        | SELECTED_ORGANIZATION_NOT_ALLOWED | selectedCnum is not included in allowed organizations |
+
+        '
       enum:
-      - ACTIVE
-      example: ACTIVE
+      - REST_ERROR_5001
+      - REST_ERROR_5004
+      - REST_ERROR_5017
+      - REST_ERROR_5024
+      - REST_ERROR_5025
+      - REST_ERROR_5026
+      - REST_ERROR_5027
+      - REST_ERROR_5028
+      - REST_ERROR_5029
+      - REST_ERROR_5031
+      - REST_ERROR_5032
+      - REST_ERROR_5033
+      - REST_ERROR_5034
+      - REST_ERROR_5035
+      - REST_ERROR_5036
+      - SELECTED_ORGANIZATION_REQUIRED
+      - SELECTED_ORGANIZATION_NOT_ALLOWED
+      example: REST_ERROR_5001
       type: string
     State:
       description: Состояние объекта
@@ -295,6 +287,12 @@ components:
         errors: []
         cqrsVersion: 1742767789
       type: object
+    AgreementSumStatus:
+      description: Статус суммы договора Факторинга
+      enum:
+      - ACTIVE
+      example: ACTIVE
+      type: string
     ErrorResponse:
       example:
       - code: REST_ERROR_5001
@@ -302,16 +300,12 @@ components:
       items:
         $ref: '#/components/schemas/ErrorMessage'
       type: array
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -321,11 +315,12 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
-x-refined-from:
-- raiffeisen-ru-factoring-openapi.yml
-- raiffeisen-ru-factoring-openapi.yml
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=

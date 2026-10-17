@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Audits Controller API
+  title: Справки и аудиторские отчеты.
   version: 0.0.1
-  description: 'Operations tagged AuditsController across 2 of this provider''s published API definitions: raiffeisen-ru-audit-reports-openapi.yml, raiffeisen-ru-audit-reports-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: DB API продукта "Справки"
 servers:
 - url: https://api.raiffeisen.ru/enquiries
 tags:
@@ -107,8 +107,6 @@ paths:
                   value: FORBIDDEN
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/enquiries
   /v1/audits/{id}:
     get:
       summary: Получить информацию о запросе на аудиторский отчет
@@ -186,8 +184,6 @@ paths:
                   value: NOT_FOUND
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/enquiries
   /v1/audits/{id}/results/{resultId}:
     head:
       tags:
@@ -354,19 +350,30 @@ paths:
                   value: NOT_FOUND
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/enquiries
 components:
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
   schemas:
-    StringResponse:
-      type: string
-      description: Строковый ответ
-      example: Forbidden
+    AuditRequest:
+      type: object
+      description: Данные для создания аудиторского запроса
+      properties:
+        auditEmail:
+          type: string
+          format: email
+          description: Email аудитора, которому требуется направить аудиторский отчет
+          example: audit@test.ru
+        auditDate:
+          type: string
+          format: date
+          description: Дата, на которую требуется выполнить запрос. (year-month-day)
+          example: '2025-04-10'
+        auditComment:
+          type: string
+          description: Комментарий к запросу
+          maxLength: 1500
+          example: Проверка по налоговым обязательствам
+      required:
+      - auditEmail
+      - auditDate
     AuditStatus:
       type: string
       description: Текущий статус аудиторского запроса
@@ -386,6 +393,10 @@ components:
       - RBM
       example: RBO
       default: RBO
+    StringResponse:
+      type: string
+      description: Строковый ответ
+      example: Forbidden
     AuditOrderResponse:
       type: object
       properties:
@@ -497,46 +508,12 @@ components:
       - orgName
       - auditEmail
       - auditDate
-    AuditRequest:
-      type: object
-      description: Данные для создания аудиторского запроса
-      properties:
-        auditEmail:
-          type: string
-          format: email
-          description: Email аудитора, которому требуется направить аудиторский отчет
-          example: audit@test.ru
-        auditDate:
-          type: string
-          format: date
-          description: Дата, на которую требуется выполнить запрос. (year-month-day)
-          example: '2025-04-10'
-        auditComment:
-          type: string
-          description: Комментарий к запросу
-          maxLength: 1500
-          example: Проверка по налоговым обязательствам
-      required:
-      - auditEmail
-      - auditDate
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
-    CnumParam:
-      name: cnum
-      in: query
-      description: Номер организации
-      required: true
-      schema:
-        type: string
-        example: '408943'
     SourceSystem:
       in: header
       name: Source-System
@@ -553,6 +530,20 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-audit-reports-openapi.yml
-- raiffeisen-ru-audit-reports-openapi.yml
+    CnumParam:
+      name: cnum
+      in: query
+      description: Номер организации
+      required: true
+      schema:
+        type: string
+        example: '408943'
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=

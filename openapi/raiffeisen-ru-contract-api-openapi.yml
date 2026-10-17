@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Contract API
+  description: API Факторинга
+  title: Финансирование. Факторинг Contract API
   version: 1.0.0
-  description: 'Operations tagged Contract across 2 of this provider''s published API definitions: raiffeisen-ru-factoring-openapi.yml, raiffeisen-ru-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/factoring
 tags:
@@ -69,10 +69,27 @@ paths:
       summary: Получение контрактов
       tags:
       - Contract
-    servers:
-    - url: https://api.raiffeisen.ru/factoring
 components:
   schemas:
+    ErrorMessage:
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    ContractStatus:
+      description: Статус контракта
+      enum:
+      - IN_PROCESSING
+      - APPROVED
+      example: APPROVED
+      type: string
     RestErrorCodes:
       description: '| code            | description                                          |
 
@@ -134,41 +151,6 @@ components:
       - SELECTED_ORGANIZATION_REQUIRED
       - SELECTED_ORGANIZATION_NOT_ALLOWED
       example: REST_ERROR_5001
-      type: string
-    ErrorMessage:
-      properties:
-        code:
-          $ref: '#/components/schemas/RestErrorCodes'
-        message:
-          description: Сообщение
-          example: General service error
-          type: string
-      required:
-      - code
-      - message
-      type: object
-    ContractState:
-      allOf:
-      - $ref: '#/components/schemas/State'
-      - properties:
-          status:
-            $ref: '#/components/schemas/ContractStatus'
-        required:
-        - status
-        type: object
-      description: Состояние контракта
-      example:
-        status: APPROVED
-        statusDate: '2025-10-16T12:00:01.024991'
-        errors: []
-        cqrsVersion: 1742767789
-      type: object
-    ContractStatus:
-      description: Статус контракта
-      enum:
-      - IN_PROCESSING
-      - APPROVED
-      example: APPROVED
       type: string
     ContractListResponse:
       allOf:
@@ -247,6 +229,22 @@ components:
       - cqrsVersion
       - statusDate
       type: object
+    ContractState:
+      allOf:
+      - $ref: '#/components/schemas/State'
+      - properties:
+          status:
+            $ref: '#/components/schemas/ContractStatus'
+        required:
+        - status
+        type: object
+      description: Состояние контракта
+      example:
+        status: APPROVED
+        statusDate: '2025-10-16T12:00:01.024991'
+        errors: []
+        cqrsVersion: 1742767789
+      type: object
     ErrorResponse:
       example:
       - code: REST_ERROR_5001
@@ -260,15 +258,6 @@ components:
     InternalError:
       description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -278,6 +267,12 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-factoring-openapi.yml
-- raiffeisen-ru-factoring-openapi.yml
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=

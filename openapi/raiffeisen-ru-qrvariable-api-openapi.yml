@@ -1,19 +1,25 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru QR Variable API
+  title: интеграции Системы быстрых платежей (СБП) QR Variable API
   version: '1.0'
   contact:
     email: ecom@raiffeisen.ru
     name: Support e-mail
     x-team-id: 178
     x-short-team-name: PAPAS
-  x-description-i18n:
-    eng: "You can give your comments about current documentation in repository: https://github.com/Raiffeisen-DGTL/ecom-API/blob/master/sbp_en.yaml\n\n# Connect to SBP\n\nTo receive SBP payments, submit application on [site](https://www.rbo.raiffeisen.ru/sign-form/).\n\nRaiffeisenbank will complete the registration.\nAfter the process is completed, you will be notified by email.\n\n## SBP participants\n\n### Buyer\n* selects the services / goods in the partner software and the item “Payment via SBP” (optional)\n* scans the QR code provided by the partner and confirms the payment in the application of their bank\n* receives the result of payment and paid services / goods\n\n### Partner\n* requests the formation of a QR code for the selected goods / services (basket)\n* displays a QR code to the client for scanning and making payment\n* processes notifications of the results of SBP operations\n* requests payment data (optional)\n* ensures the delivery of goods / services to the buyer upon payment\n\n### Raiffeisenbank\n* provides an interface for requesting a QR code from a partner\n* provides money transfer to the partner's account upon settlements in SBP\n* defines the format of the notification of the fact of the SBP payment\n* provides an interface for receiving payment data\n\n## Support 54-FZ\n\nIn accordance with the Federal Law NO. 54-FZ of May 22, 2003 \"On the use of cash registers in implementation of settlements in the Russian Federation\",\nfor taxation purposes a fiscal receipt is required for making settlements for goods sold, work performed or services rendered, as well as transfer of the receipts to tax authorities.\n\nRaiffeisenbank provides generation of fiscal receipts and their transfer to tax authorities by integration via [API](https://pay.raif.ru/doc/fiscal.html).\n\n# General schemas of work\n\n## Working with a form\nTo accept payments online on the website or in the mobile application, you can use [QR code opening protocol in the form](https://pay.raif.ru/doc/ecom_en.html).\n\n<a href='images/SBP and ECOM EN. Working with a form.png' target='_blank'><img src='images/SBP and ECOM EN. Working with a form.png'></a>\n\n## White label SBP API\n\nThe figure below shows the schema of information exchange with a partner when making a payment using a QR code.\n\n<a href='images/SBP EN. White label SBP API.png' target='_blank'><img src='images/SBP EN. White label SBP API.png'></a>\n\n## Subscription schema\n\nYou can offer the client to link the SBP payment to the loyalty program or to an account in your service. To do this, you can generate a QR code and display it to the client or redirect it via a special link that is located in the response to the request to create a QR code for a subscription.\n\nAfter that, using the unique subscription identifier, you can apply for debiting funds from the client for your goods and services without the client's acceptance.\n\n<a href='images/SBP EN. Subscription schema.png' target='_blank'><img src='images/SBP EN. Subscription schema.png'></a>\n\n## Payment and subscription schema\n\nThere is also a schema in which one request receives a QR code to receive payment and subscription.\n\nIn this case, the client makes a payment, after which a window is displayed with a proposal to activate the subscription.\n\nThe customer can pay but unsubscribe. Also, the client can make a payment from a bank application that does not support subscriptions.\n\n<a href='images/SBP EN. Payment and subscription schema.png' target='_blank'><img src='images/SBP EN. Payment and subscription schema.png'></a>\n\n## Working with QRVariable\n\nThe diagram below depicts usage scenario for QRVariable. It is a new QR code type that is differentiated from QRStatic and QRDynamic.\n\n<a href='images/SBP EN. Working with QRVariable.png' target='_blank'><img src='images/SBP EN. Working with QRVariable.png'></a>\n\n## Subscription with recurring charges\nSubscriptions support automatic recurring charges made by bank on regular basis. As of now, only monthly charges are supported.\nIn case of unsuccessful payment another attempt is made on the same day. If the second attempt fails, charge will be repeated the next day and so on. Failed attempts do not cause subscription cancellation.<br><br>\nAutomatic recurring charges can be made for both of subscription scenarios listed above. To enable the feature, additional fields must be passed either in [QR creation method](#operation/post-sbp-v2-qrs) or in [subscription creation method](#operation/post-sbp-v1-subscriptions).<br><br>\nPayment notifications might be received by [callbacks](#tag/Callback). In this case subscriptionId will be passed in the [body message](#operation/сallbackPay). Subscription can be deactivated via [cancellation method](#operation/delete-sbp-v1-subscriptions-subscriptionId).\n<a href='images/SBP EN. Subscription with recurring payments.png' target='_blank'><img src='images/SBP EN. Subscription with recurring payments.png'></a>\n# Ready solutions\nYou can use our SDK for faster integration:\n* [Java](https://github.com/Raiffeisen-DGTL/sbp-sdk-java)\n[Our other solutions](https://pay.raif.ru/doc/solutions.html).\n# API description\nThe interaction is carried out using the HTTP protocol using the GET/POST/DELETE methods (the description of each request clearly indicates the required method and address).\n\nPOST requests use JSON arguments, GET/DELETE requests work with query strings.\n\nThe API always returns a response in JSON format, regardless of the type of request.\n\nThe response of any method contains a message code (code). If a logical error occurs during the processing of any request, the API will additionally return a description of the error (message).\n\n## Authorization\nRequests like:\n* receiving information on a QR code\n* receipt of payment information\n* processing a return on payment\n* receiving information on return\n\nare authorized using the API secret key (secretKey). The authorization parameter is specified in the Authorization header, the value of which is formed as \"Bearer secretKey\".\n\nYou can view your sbpMerchantId and generate keys in your [personal account](https://www.rbo.raiffeisen.ru/acquiring/mcp#/) in the \"Accept payments\" tab\n\n<div align=center><a href='images/createKey.png' target='_blank'><img src='images/createKey.png'></a></div>\n\nTo generate test data, please contact the Bank's support team by sending an email to ecom@raiffeisen.ru\n\nThe secret key must be stored in a trusted environment, since refunds can be made using it.<br><br>\nIt is our recommendation to create a single merchant for all trading locations owned by your company. If so, there will be no need to:\n- store a dictionary linking merchants with your trading locations\n- store a large amount of secret keys and set them up at each trading location individually\n- create additional merchants if new trading locations are opened by the company\n- make refunds strictly at the same store where items were purchased\n- make complicated reports based on various merchants\n- link QR codes with corresponding merchants (in case of using QRVariable)\n# Mobile version and application\nWe recommend using our [payment form](https://pay.raif.ru/doc/ecom_en.html), for working in the mobile version of the site or mobile application.\n\nIf you plan to use your form, then you need to implement a bank selection widget, for this you need to get its scheme for each bank:\n- [bank schemes for payment QR](https://qr.nspk.ru/proxyapp/c2bmembers.json )\n- [bank schemes for subscription QR codes](https://sub.nspk.ru/proxyapp/c2bmembers.json )\n\nAnd substitute it in the url from the payload parameter, instead of https.\n\nFor the correct choice of the bank's app, we recommend using the SDK from the NSPK:\n\nIOS , Android , Web - https://sbp.nspk.ru/business_online/#widget-business\n\nOr you can use our SDK:\nAndroid - https://github.com/Raiffeisen-DGTL/sbp-sdk-android\nIOS - https://github.com/Raiffeisen-DGTL/payform-sdk-ios\n\n### Recommendations for working with deeplink in mobile applications\n\nFor correct deeplink handling in WebView, we recommend the following implementation:\n\n1. **Configure WebView:**\n   ```kotlin\n   webView.settings.javaScriptEnabled = true\n   webView.settings.setSupportMultipleWindows = false\n   ```\n\n2. **Create a custom WebViewClient:**\n   ```kotlin\n   webView.webViewClient = object : WebViewClient() {\n       override fun shouldOverrideUrlLoading(\n           view: WebView,\n           request: WebResourceRequest\n       ): Boolean {\n           val url = request.url.toString()\n\n           return if (url.startsWith(\"http://\") || url.startsWith(\"https://\")) {\n               false\n           } else {\n               try {\n                   val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))\n                   if (intent.resolveActivity(view.context.packageManager) != null) {\n                       view.context.startActivity(intent)\n                       true\n                   } else {\n                       // resolveActivity may return null on API 30+ due to package visibility\n                       // try launching directly as fallback\n                       view.context.startActivity(intent)\n                       true\n                   }\n               } catch (e: ActivityNotFoundException) {\n                   // No app available to handle this scheme\n                   false\n               } catch (e: Exception) {\n                   e.printStackTrace()\n                   false\n               }\n           }\n       }\n   }\n   ```\n\n3. **How it works:**\n   - `http://` and `https://` links → load inside WebView\n   - Other schemes (deeplinks) → open in installed apps via Intent\n\nThis approach ensures correct deeplink handling and keeps web pages within your app.\n\n# NFC and SBPay\nTo work with SBP via NFC, it is necessary to implement interaction via [\"QRVariable\"](#section/General-schemas-of-work/Working-with-QRVariable).\n\nYou need to generate a QR code with the QRVariable type for each cash register.\nFrom the response to the QR generation request, you need to get a link from the payload parameter, in the link to the beginning of the domain you need to add \"web.\" and the resulting link needs to be write into an NFC tag.\n\nExample:\n\nIn payload you got https://qr.nspk.ru/AS100004BAL7227F9BNP6KNE007J9B3K,\n\nthe NFC tag will need to be write https://web.qr.nspk.ru/AS100004BAL7227F9BNP6KNE007J9B3K\n\n# Testing\n\nFor a full payment testing cycle, Raiffeisenbank provides the opportunity to use a demo application for scanning QRC on behalf of the buyer at:\nhttps://pay.raif.ru/pay/rfuture/\n\nThe specified address can be opened in the browser of any device with a camera. No additional software / plugins need to be installed. Then click on the SBP icon (if necessary, allow the browser access to the camera) and bring the QR code image to it.\nIf the camera doesn't open, check the url, it has to have https.\n"
   x-logo:
     url: images/raifflogo.png
     backgroundColor: '#FFFFFF'
     altText: Raiff logo
-  description: 'Operations tagged QRVariable across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-sbp-openapi.json, raiffeisen-ru-raif-pay-sbp-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Свои предложения и идеи о документации можно оставить в репозитории по адресу: https://github.com/Raiffeisen-DGTL/ecom-API/blob/master/sbp.yaml
+
+
+    # Подключение к СБП
+
+
+    Для приема СБП-платежей оставьте заявку на сайте.'
+  x-description-i18n:
+    eng: "You can give your comments about current documentation in repository: https://github.com/Raiffeisen-DGTL/ecom-API/blob/master/sbp_en.yaml\n\n# Connect to SBP\n\nTo receive SBP payments, submit application on [site](https://www.rbo.raiffeisen.ru/sign-form/).\n\nRaiffeisenbank will complete the registration.\nAfter the process is completed, you will be notified by email.\n\n## SBP participants\n\n### Buyer\n* selects the services / goods in the partner software and the item “Payment via SBP” (optional)\n* scans the QR code provided by the partner and confirms the payment in the application of their bank\n* receives the result of payment and paid services / goods\n\n### Partner\n* requests the formation of a QR code for the selected goods / services (basket)\n* displays a QR code to the client for scanning and making payment\n* processes notifications of the results of SBP operations\n* requests payment data (optional)\n* ensures the delivery of goods / services to the buyer upon payment\n\n### Raiffeisenbank\n* provides an interface for requesting a QR code from a partner\n* provides money transfer to the partner's account upon settlements in SBP\n* defines the format of the notification of the fact of the SBP payment\n* provides an interface for receiving payment data\n\n## Support 54-FZ\n\nIn accordance with the Federal Law NO. 54-FZ of May 22, 2003 \"On the use of cash registers in implementation of settlements in the Russian Federation\",\nfor taxation purposes a fiscal receipt is required for making settlements for goods sold, work performed or services rendered, as well as transfer of the receipts to tax authorities.\n\nRaiffeisenbank provides generation of fiscal receipts and their transfer to tax authorities by integration via [API](https://pay.raif.ru/doc/fiscal.html).\n\n# General schemas of work\n\n## Working with a form\nTo accept payments online on the website or in the mobile application, you can use [QR code opening protocol in the form](https://pay.raif.ru/doc/ecom_en.html).\n\n<a href='images/SBP and ECOM EN. Working with a form.png' target='_blank'><img src='images/SBP and ECOM EN. Working with a form.png'></a>\n\n## White label SBP API\n\nThe figure below shows the schema of information exchange with a partner when making a payment using a QR code.\n\n<a href='images/SBP EN. White label SBP API.png' target='_blank'><img src='images/SBP EN. White label SBP API.png'></a>\n\n## Subscription schema\n\nYou can offer the client to link the SBP payment to the loyalty program or to an account in your service. To do this, you can generate a QR code and display it to the client or redirect it via a special link that is located in the response to the request to create a QR code for a subscription.\n\nAfter that, using the unique subscription identifier, you can apply for debiting funds from the client for your goods and services without the client's acceptance.\n\n<a href='images/SBP EN. Subscription schema.png' target='_blank'><img src='images/SBP EN. Subscription schema.png'></a>\n\n## Payment and subscription schema\n\nThere is also a schema in which one request receives a QR code to receive payment and subscription.\n\nIn this case, the client makes a payment, after which a window is displayed with a proposal to activate the subscription.\n\nThe customer can pay but unsubscribe. Also, the client can make a payment from a bank application that does not support subscriptions.\n\n<a href='images/SBP EN. Payment and subscription schema.png' target='_blank'><img src='images/SBP EN. Payment and subscription schema.png'></a>\n\n## Working with QRVariable\n\nThe diagram below depicts usage scenario for QRVariable. It is a new QR code type that is differentiated from QRStatic and QRDynamic.\n\n<a href='images/SBP EN. Working with QRVariable.png' target='_blank'><img src='images/SBP EN. Working with QRVariable.png'></a>\n\n## Subscription with recurring charges\nSubscriptions support automatic recurring charges made by bank on regular basis. As of now, only monthly charges are supported.\nIn case of unsuccessful payment another attempt is made on the same day. If the second attempt fails, charge will be repeated the next day and so on. Failed attempts do not cause subscription cancellation.<br><br>\nAutomatic recurring charges can be made for both of subscription scenarios listed above. To enable the feature, additional fields must be passed either in [QR creation method](#operation/post-sbp-v2-qrs) or in [subscription creation method](#operation/post-sbp-v1-subscriptions).<br><br>\nPayment notifications might be received by [callbacks](#tag/Callback). In this case subscriptionId will be passed in the [body message](#operation/сallbackPay). Subscription can be deactivated via [cancellation method](#operation/delete-sbp-v1-subscriptions-subscriptionId).\n<a href='images/SBP EN. Subscription with recurring payments.png' target='_blank'><img src='images/SBP EN. Subscription with recurring payments.png'></a>\n# Ready solutions\nYou can use our SDK for faster integration:\n* [Java](https://github.com/Raiffeisen-DGTL/sbp-sdk-java)\n[Our other solutions](https://pay.raif.ru/doc/solutions.html).\n# API description\nThe interaction is carried out using the HTTP protocol using the GET/POST/DELETE methods (the description of each request clearly indicates the required method and address).\n\nPOST requests use JSON arguments, GET/DELETE requests work with query strings.\n\nThe API always returns a response in JSON format, regardless of the type of request.\n\nThe response of any method contains a message code (code). If a logical error occurs during the processing of any request, the API will additionally return a description of the error (message).\n\n## Authorization\nRequests like:\n* receiving information on a QR code\n* receipt of payment information\n* processing a return on payment\n* receiving information on return\n\nare authorized using the API secret key (secretKey). The authorization parameter is specified in the Authorization header, the value of which is formed as \"Bearer secretKey\".\n\nYou can view your sbpMerchantId and generate keys in your [personal account](https://www.rbo.raiffeisen.ru/acquiring/mcp#/) in the \"Accept payments\" tab\n\n<div align=center><a href='images/createKey.png' target='_blank'><img src='images/createKey.png'></a></div>\n\nTo generate test data, please contact the Bank's support team by sending an email to ecom@raiffeisen.ru\n\nThe secret key must be stored in a trusted environment, since refunds can be made using it.<br><br>\nIt is our recommendation to create a single merchant for all trading locations owned by your company. If so, there will be no need to:\n- store a dictionary linking merchants with your trading locations\n- store a large amount of secret keys and set them up at each trading location individually\n- create additional merchants if new trading locations are opened by the company\n- make refunds strictly at the same store where items were purchased\n- make complicated reports based on various merchants\n- link QR codes with corresponding merchants (in case of using QRVariable)\n# Mobile version and application\nWe recommend using our [payment form](https://pay.raif.ru/doc/ecom_en.html), for working in the mobile version of the site or mobile application.\n\nIf you plan to use your form, then you need to implement a bank selection widget, for this you need to get its scheme for each bank:\n- [bank schemes for payment QR](https://qr.nspk.ru/proxyapp/c2bmembers.json )\n- [bank schemes for subscription QR codes](https://sub.nspk.ru/proxyapp/c2bmembers.json )\n\nAnd substitute it in the url from the payload parameter, instead of https.\n\nFor the correct choice of the bank's app, we recommend using the SDK from the NSPK:\n\nIOS , Android , Web - https://sbp.nspk.ru/business_online/#widget-business\n\nOr you can use our SDK:\nAndroid - https://github.com/Raiffeisen-DGTL/sbp-sdk-android\nIOS - https://github.com/Raiffeisen-DGTL/payform-sdk-ios\n\n### Recommendations for working with deeplink in mobile applications\n\nFor correct deeplink handling in WebView, we recommend the following implementation:\n\n1. **Configure WebView:**\n   ```kotlin\n   webView.settings.javaScriptEnabled = true\n   webView.settings.setSupportMultipleWindows = false\n   ```\n\n2. **Create a custom WebViewClient:**\n   ```kotlin\n   webView.webViewClient = object : WebViewClient() {\n       override fun shouldOverrideUrlLoading(\n           view: WebView,\n           request: WebResourceRequest\n       ): Boolean {\n           val url = request.url.toString()\n\n           return if (url.startsWith(\"http://\") || url.startsWith(\"https://\")) {\n               false\n           } else {\n               try {\n                   val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))\n                   if (intent.resolveActivity(view.context.packageManager) != null) {\n                       view.context.startActivity(intent)\n                       true\n                   } else {\n                       // resolveActivity may return null on API 30+ due to package visibility\n                       // try launching directly as fallback\n                       view.context.startActivity(intent)\n                       true\n                   }\n               } catch (e: ActivityNotFoundException) {\n                   // No app available to handle this scheme\n                   false\n               } catch (e: Exception) {\n                   e.printStackTrace()\n                   false\n               }\n           }\n       }\n   }\n   ```\n\n3. **How it works:**\n   - `http://` and `https://` links → load inside WebView\n   - Other schemes (deeplinks) → open in installed apps via Intent\n\nThis approach ensures correct deeplink handling and keeps web pages within your app.\n\n# NFC and SBPay\nTo work with SBP via NFC, it is necessary to implement interaction via [\"QRVariable\"](#section/General-schemas-of-work/Working-with-QRVariable).\n\nYou need to generate a QR code with the QRVariable type for each cash register.\nFrom the response to the QR generation request, you need to get a link from the payload parameter, in the link to the beginning of the domain you need to add \"web.\" and the resulting link needs to be write into an NFC tag.\n\nExample:\n\nIn payload you got https://qr.nspk.ru/AS100004BAL7227F9BNP6KNE007J9B3K,\n\nthe NFC tag will need to be write https://web.qr.nspk.ru/AS100004BAL7227F9BNP6KNE007J9B3K\n\n# Testing\n\nFor a full payment testing cycle, Raiffeisenbank provides the opportunity to use a demo application for scanning QRC on behalf of the buyer at:\nhttps://pay.raif.ru/pay/rfuture/\n\nThe specified address can be opened in the browser of any device with a camera. No additional software / plugins need to be installed. Then click on the SBP icon (if necessary, allow the browser access to the camera) and bring the QR code image to it.\nIf the camera doesn't open, check the url, it has to have https.\n"
 servers:
 - url: https://pay.raif.ru/api
   description: Production
@@ -109,11 +115,6 @@ paths:
                     message: Счёт не найден
       security:
       - secretKey: []
-    servers:
-    - url: https://pay.raif.ru/api
-      description: Production
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
   /payment/v1/orders:
     post:
       summary: Создание заказа
@@ -141,11 +142,6 @@ paths:
       - QRVariable
       security:
       - secretKey: []
-    servers:
-    - url: https://pay.raif.ru/api
-      description: Production
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
   /payment/v1/orders/{orderId}:
     parameters:
     - $ref: '#/components/parameters/orderId'
@@ -185,11 +181,6 @@ paths:
       - QRVariable
       security:
       - secretKey: []
-    servers:
-    - url: https://pay.raif.ru/api
-      description: Production
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
   /payments/v2/orders/{orderId}/refunds/{refundId}:
     parameters:
     - $ref: '#/components/parameters/orderId'
@@ -230,11 +221,6 @@ paths:
         eng: Getting information about the refund.
       security:
       - secretKey: []
-    servers:
-    - url: https://pay.raif.ru/api
-      description: Production
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
   /payments/v2/banks:
     parameters: []
     get:
@@ -266,13 +252,143 @@ paths:
         eng: Get a list of banks accepting SBP payments
       security:
       - secretKey: []
-    servers:
-    - url: https://pay.raif.ru/api
-      description: Production
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
 components:
   schemas:
+    Extra:
+      title: Extra
+      type: object
+      additionalProperties:
+        type: string
+      description: Дополнительные поля для свободного заполнения по принципу key-value<br> В extra рекомендуется передавать параметры `apiClient` и `apiClientVersion`. Данная информация позволит Банку определять клиентское ПО, исправлять ошибки и улучшать сервис
+    RedirectUrl:
+      title: RedirectUrl
+      type: string
+      description: 'Ссылка, по котрой плательщик будет перенаправлен из приложения Банка в приложение или на сайт мерчанта в случае успешной оплаты по СБП<br>
+
+        * Допускается использование схемы `http` или `https`, за которой следует `://` и последовательность символов без пробелов.
+
+        * Допускается использование схемы, начинающейся с буквы латинского алфавита и содержащей цифры, за которыми следует `://` и непробельная последовательность символов.
+
+        '
+      pattern: ^[A-Za-z][A-Za-z0-9]*://\S+$
+    GeneralErrorResponse:
+      type: object
+      title: error
+      properties:
+        code:
+          type: string
+          description: Код ошибки
+          x-description-i18n:
+            eng: Error code
+        message:
+          type: string
+          description: Описание ошибки
+          x-description-i18n:
+            eng: Error description
+    OrderStatus:
+      title: OrderStatus
+      type: object
+      description: Статус заказа
+      x-description-i18n:
+        eng: Order status
+      minProperties: 1
+      properties:
+        value:
+          $ref: '#/components/schemas/OrderStatusValue'
+        date:
+          type: string
+          description: Дата создания заказа
+          x-description-i18n:
+            eng: Order creation date
+          format: date-time
+          example: '2025-01-10T20:10:00+03:00'
+          minLength: 1
+    PaymentDetails:
+      title: PaymentDetails
+      type: string
+      description: 'Назначение платежа. Отображается в выписке. Может содержать:<br>
+
+        - Символы латиницы (A–Z и a–z)
+
+        - Символы кириллицы (А-Я и а-я)
+
+        - Цифры 0-9
+
+        - Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`
+
+        - Спецсимвол `№`'
+      pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
+    AdditionalInfo:
+      type: string
+      description: "Дополнительная информация. <br>\nМожет быть доступна для пользователя в зависимости от банка, назначение платежа плательщика.\nПопадает в реестр в колонку \"Комментарий\".\nНе может быть пустым или содержать только пробелы. Может содержать:<br>\n  • Символы латиницы (A–Z и a–z) <br>\n  • Символы кириллицы (А-Я и а-я) <br>\n  • Цифры 0-9 <br>\n  • Спецсимволы: пробел и `!`, `\"`, `#`, `$`, `%`, `'`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`<br>"
+      x-description-i18n:
+        eng: 'Additional information to be filled out at the request of the partner when generating the QR code. Cannot be empty or contain only spaces. May contain:<br>
+
+          • Latin letters (A–Z and a–z) <br>
+
+          • Cyrillic letters (А–Я and а–я) <br>
+
+          • Digits 0-9 <br>
+
+          • Special characters: space and `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`<br>
+
+          '
+      maxLength: 140
+      pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
+      example: Дополнительная информация
+    OrderStatusValue:
+      title: OrderStatusValue
+      type: string
+      enum:
+      - NEW
+      - PAID
+      - EXPIRED
+      - CANCELLED
+    BankListResponse:
+      type: array
+      x-examples:
+        '200':
+        - alias: RAIFFEISEN
+          name: Райффайзенбанк
+        - alias: TINKOFF
+          name: Тинькофф
+        - alias: VTB
+          name: ВТБ
+      items:
+        type: object
+        properties:
+          alias:
+            type: string
+            description: Алиас Банка
+            x-description-i18n:
+              eng: Bank alias
+            minLength: 1
+          name:
+            type: string
+            description: Наименование Банка
+            x-description-i18n:
+              eng: Name of the Bank
+            minLength: 1
+    BindDraftQrToMerchantRequest:
+      title: BindDraftQrToMerchantRequest
+      type: object
+      x-internal: false
+      properties:
+        account:
+          type: string
+          description: Счет для зачисления
+          example: '40700000000000000000'
+          x-description-i18n:
+            eng: Account
+        redirectUrl:
+          $ref: '#/components/schemas/RedirectUrl'
+        qrDescription:
+          type: string
+          maxLength: 32
+          example: QR на главной кассе
+          description: Описание QR-кода<br>Может содержать любую информацию для удобства идентификации конкретного QR-кода. Например, его местоположение или расположение в магазине. Отображается в ЛК и RBO как название QR. Не отображается покупателю и в выписке
+          x-description-i18n:
+            eng: QR description<br>May contain any useful information to differentiate between QRs. For example, QR location or where it is placed in the store. It is displayed as QR name in UI of RBO and Raif Pay account. This information is not displayed to customers in banking apps nor in bank statements
     OrderComment:
       title: OrderComment
       type: string
@@ -304,24 +420,6 @@ components:
       maxLength: 140
       pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
       example: Тестовый комментарий
-    OrderStatus:
-      title: OrderStatus
-      type: object
-      description: Статус заказа
-      x-description-i18n:
-        eng: Order status
-      minProperties: 1
-      properties:
-        value:
-          $ref: '#/components/schemas/OrderStatusValue'
-        date:
-          type: string
-          description: Дата создания заказа
-          x-description-i18n:
-            eng: Order creation date
-          format: date-time
-          example: '2025-01-10T20:10:00+03:00'
-          minLength: 1
     ExpirationDate:
       title: ExpirationDate
       type: string
@@ -340,75 +438,6 @@ components:
       type: string
       pattern: ^[A-Za-z0-9-_.]+$
       description: Идентификатор заказа. Рекомендуем использовать длинный формат без возможности перебора, например, использовать формат [UUID v4](https://ru.wikipedia.org/wiki/UUID)
-    Extra:
-      title: Extra
-      type: object
-      additionalProperties:
-        type: string
-      description: Дополнительные поля для свободного заполнения по принципу key-value<br> В extra рекомендуется передавать параметры `apiClient` и `apiClientVersion`. Данная информация позволит Банку определять клиентское ПО, исправлять ошибки и улучшать сервис
-    BindDraftQrToMerchantRequest:
-      title: BindDraftQrToMerchantRequest
-      type: object
-      x-internal: false
-      properties:
-        account:
-          type: string
-          description: Счет для зачисления
-          example: '40700000000000000000'
-          x-description-i18n:
-            eng: Account
-        redirectUrl:
-          $ref: '#/components/schemas/RedirectUrl'
-        qrDescription:
-          type: string
-          maxLength: 32
-          example: QR на главной кассе
-          description: Описание QR-кода<br>Может содержать любую информацию для удобства идентификации конкретного QR-кода. Например, его местоположение или расположение в магазине. Отображается в ЛК и RBO как название QR. Не отображается покупателю и в выписке
-          x-description-i18n:
-            eng: QR description<br>May contain any useful information to differentiate between QRs. For example, QR location or where it is placed in the store. It is displayed as QR name in UI of RBO and Raif Pay account. This information is not displayed to customers in banking apps nor in bank statements
-    AdditionalInfo:
-      type: string
-      description: "Дополнительная информация. <br>\nМожет быть доступна для пользователя в зависимости от банка, назначение платежа плательщика.\nПопадает в реестр в колонку \"Комментарий\".\nНе может быть пустым или содержать только пробелы. Может содержать:<br>\n  • Символы латиницы (A–Z и a–z) <br>\n  • Символы кириллицы (А-Я и а-я) <br>\n  • Цифры 0-9 <br>\n  • Спецсимволы: пробел и `!`, `\"`, `#`, `$`, `%`, `'`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`<br>"
-      x-description-i18n:
-        eng: 'Additional information to be filled out at the request of the partner when generating the QR code. Cannot be empty or contain only spaces. May contain:<br>
-
-          • Latin letters (A–Z and a–z) <br>
-
-          • Cyrillic letters (А–Я and а–я) <br>
-
-          • Digits 0-9 <br>
-
-          • Special characters: space and `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`<br>
-
-          '
-      maxLength: 140
-      pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
-      example: Дополнительная информация
-    BankListResponse:
-      type: array
-      x-examples:
-        '200':
-        - alias: RAIFFEISEN
-          name: Райффайзенбанк
-        - alias: TINKOFF
-          name: Тинькофф
-        - alias: VTB
-          name: ВТБ
-      items:
-        type: object
-        properties:
-          alias:
-            type: string
-            description: Алиас Банка
-            x-description-i18n:
-              eng: Bank alias
-            minLength: 1
-          name:
-            type: string
-            description: Наименование Банка
-            x-description-i18n:
-              eng: Name of the Bank
-            minLength: 1
     CreatedOrder:
       title: CreatedOrder
       type: object
@@ -439,54 +468,6 @@ components:
               $ref: '#/components/schemas/AdditionalInfo'
             paymentDetails:
               $ref: '#/components/schemas/PaymentDetails'
-    GeneralErrorResponse:
-      type: object
-      title: error
-      properties:
-        code:
-          type: string
-          description: Код ошибки
-          x-description-i18n:
-            eng: Error code
-        message:
-          type: string
-          description: Описание ошибки
-          x-description-i18n:
-            eng: Error description
-    OrderStatusValue:
-      title: OrderStatusValue
-      type: string
-      enum:
-      - NEW
-      - PAID
-      - EXPIRED
-      - CANCELLED
-    PaymentDetails:
-      title: PaymentDetails
-      type: string
-      description: 'Назначение платежа. Отображается в выписке. Может содержать:<br>
-
-        - Символы латиницы (A–Z и a–z)
-
-        - Символы кириллицы (А-Я и а-я)
-
-        - Цифры 0-9
-
-        - Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`
-
-        - Спецсимвол `№`'
-      pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
-    RedirectUrl:
-      title: RedirectUrl
-      type: string
-      description: 'Ссылка, по котрой плательщик будет перенаправлен из приложения Банка в приложение или на сайт мерчанта в случае успешной оплаты по СБП<br>
-
-        * Допускается использование схемы `http` или `https`, за которой следует `://` и последовательность символов без пробелов.
-
-        * Допускается использование схемы, начинающейся с буквы латинского алфавита и содержащей цифры, за которыми следует `://` и непробельная последовательность символов.
-
-        '
-      pattern: ^[A-Za-z][A-Za-z0-9]*://\S+$
   requestBodies:
     CreateRefundOldRequest:
       required: true
@@ -593,60 +574,28 @@ components:
                   additionalInfo: Доп. информация
                   paymentDetails: Назначение платежа
   responses:
-    BindQrDraftResponse:
+    OrderStatusQRVariableResponse:
       description: OK
       content:
         application/json:
           schema:
-            type: object
-            description: Уникальный идентификатор QR
-            properties:
-              qrId:
-                type: string
-                example: AS5D904CACD4416B92CFA4B781CB1157
-                maxLength: 32
-                description: Уникальный идентификатор QR
-              qrStatus:
-                type: string
-                enum:
-                - NEW
-                - INACTIVE
-                - IN_PROGRESS
-                - PAID
-                - CANCELLED
-                - EXPIRED
-                description: 'Статус QR-кода
-
-                  - `NEW` - QR ожидает оплаты
-
-                  - `INACTIVE` - QR необходимо активировать для дальнейшей оплаты
-
-                  - `IN_PROGRESS` - промежуточный статус, оплата в процессе
-
-                  - `PAID` - оплата прошла успешно
-
-                  - `EXPIRED` - закончился срок действия QR-кода
-
-                  - `CANCELLED` - QR-код был отменен со стороны мерчанта'
-                example: INACTIVE
-              payload:
-                type: string
-                description: Данные для самостоятельной генерации изображения зарегистрированного QR-кода в СБП. При открытии с мобильного устройства запускает банковское приложение клиента или список для выбора банка
-              qrUrl:
-                type: string
-                description: URL с изображением зарегистрированного QR-кода
-            required:
-            - qrId
-            - qrStatus
-            - payload
-            - qrUrl
+            $ref: '#/components/schemas/CreatedOrder'
           examples:
-            Успешная привязка:
+            '200':
               value:
-                qrId: AS5D904CACD4416B92CFA4B781CB1157
-                qrStatus: INACTIVE
-                payload: https://qr.nspk.ru/AS5D904CACD4416B92CFA4B781CB1157
-                qrUrl: https://pay-test.raif.ru/api/sbp/v2/qr/AS5D904CACD4416B92CFA4B781CB1157/image
+                id: c5b3fd07-c66b-4f11-a8a2-1cc5d319f9e3
+                amount: 1000.1
+                comment: Шоколадный торт
+                extra:
+                  extraParam: Example extra param
+                status:
+                  value: NEW
+                  date: '2021-12-24T11:15:22.000Z'
+                expirationDate: '2022-01-24T11:15:22.000Z'
+                qr:
+                  id: AD100004BAL7227F9BNP6KNE007J9B3K
+                  additionalInfo: Доп. информация
+                  paymentDetails: Назначение платежа
     RefundStatusOldResponse:
       description: OK
       content:
@@ -728,28 +677,60 @@ components:
               value:
                 code: ERROR.QR_EXPIRATION_DATE_NOT_VALID
                 message: Неверная дата истечения QR-кода
-    OrderStatusQRVariableResponse:
+    BindQrDraftResponse:
       description: OK
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/CreatedOrder'
+            type: object
+            description: Уникальный идентификатор QR
+            properties:
+              qrId:
+                type: string
+                example: AS5D904CACD4416B92CFA4B781CB1157
+                maxLength: 32
+                description: Уникальный идентификатор QR
+              qrStatus:
+                type: string
+                enum:
+                - NEW
+                - INACTIVE
+                - IN_PROGRESS
+                - PAID
+                - CANCELLED
+                - EXPIRED
+                description: 'Статус QR-кода
+
+                  - `NEW` - QR ожидает оплаты
+
+                  - `INACTIVE` - QR необходимо активировать для дальнейшей оплаты
+
+                  - `IN_PROGRESS` - промежуточный статус, оплата в процессе
+
+                  - `PAID` - оплата прошла успешно
+
+                  - `EXPIRED` - закончился срок действия QR-кода
+
+                  - `CANCELLED` - QR-код был отменен со стороны мерчанта'
+                example: INACTIVE
+              payload:
+                type: string
+                description: Данные для самостоятельной генерации изображения зарегистрированного QR-кода в СБП. При открытии с мобильного устройства запускает банковское приложение клиента или список для выбора банка
+              qrUrl:
+                type: string
+                description: URL с изображением зарегистрированного QR-кода
+            required:
+            - qrId
+            - qrStatus
+            - payload
+            - qrUrl
           examples:
-            '200':
+            Успешная привязка:
               value:
-                id: c5b3fd07-c66b-4f11-a8a2-1cc5d319f9e3
-                amount: 1000.1
-                comment: Шоколадный торт
-                extra:
-                  extraParam: Example extra param
-                status:
-                  value: NEW
-                  date: '2021-12-24T11:15:22.000Z'
-                expirationDate: '2022-01-24T11:15:22.000Z'
-                qr:
-                  id: AD100004BAL7227F9BNP6KNE007J9B3K
-                  additionalInfo: Доп. информация
-                  paymentDetails: Назначение платежа
+                qrId: AS5D904CACD4416B92CFA4B781CB1157
+                qrStatus: INACTIVE
+                payload: https://qr.nspk.ru/AS5D904CACD4416B92CFA4B781CB1157
+                qrUrl: https://pay-test.raif.ru/api/sbp/v2/qr/AS5D904CACD4416B92CFA4B781CB1157/image
   parameters:
     orderId:
       name: orderId
@@ -780,6 +761,27 @@ components:
 
 
         Подробная информация содержится в разделе [Авторизация](#section/Avtorizaciya)'
-x-refined-from:
-- raiffeisen-ru-raif-pay-sbp-openapi.json
-- raiffeisen-ru-raif-pay-sbp-openapi.yml
+x-tagGroups:
+- name: API
+  tags:
+  - QR
+  - QRVariable
+  - Subscription
+  - Splits
+  - Callback
+- name: Сверка
+  x-displayName: Сверка
+  x-x-displayName-i18n:
+    eng: Comparison
+  tags:
+  - Registry
+  - Statement
+  - CashReconciliation
+- name: Справочник
+  x-displayName: Справочник
+  x-x-displayName-i18n:
+    eng: Reference information
+  tags:
+  - Errors
+  - SettlementSchemes
+  - Change log

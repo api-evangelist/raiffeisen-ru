@@ -1,12 +1,20 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Pay Controller API
   version: '1.0'
+  title: платежной формы Pay Controller API
   contact:
     email: ecom@raiffeisen.ru
     name: Support e-mail
     x-team-id: 178
     x-short-team-name: PAPAS
+  x-logo:
+    url: images/raifflogo.png
+    backgroundColor: '#FFFFFF'
+    altText: Raiff logo
+  description: '# Подключение к эквайрингу
+
+
+    Для подключения заполните заявку в Онлайн-банке или мобильном приложении.'
   x-description-i18n:
     eng: '# Connection to acquiring
 
@@ -164,11 +172,6 @@ info:
 
 
       Questions regarding solution support can be sent to technical support: ecom@raiffeisen.ru'
-  x-logo:
-    url: images/raifflogo.png
-    backgroundColor: '#FFFFFF'
-    altText: Raiff logo
-  description: 'Operations tagged pay-controller across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-payment-form-openapi.json, raiffeisen-ru-raif-pay-payment-form-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://pay-test.raif.ru/api
   description: Sandbox
@@ -261,11 +264,6 @@ paths:
       x-internal: false
       tags:
       - pay-controller
-    servers:
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
-    - url: https://pay.raif.ru/api
-      description: Production
   /payment/v1/orders/{orderId}:
     parameters:
     - $ref: '#/components/parameters/orderId'
@@ -288,11 +286,6 @@ paths:
         eng: This method allows you to cancel an order if it has not been paid, after cancellation the payment page will be unavailable.
       tags:
       - pay-controller
-    servers:
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
-    - url: https://pay.raif.ru/api
-      description: Production
   /payments/v2/merchants/{publicId}/orders/{orderId}/refunds:
     parameters:
     - $ref: '#/components/parameters/orderId'
@@ -322,11 +315,6 @@ paths:
           The method also allows you to make a refund to the payer to another bank. Both full and partial refunds are supported.
 
           '
-    servers:
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
-    - url: https://pay.raif.ru/api
-      description: Production
   /payments/v2/merchants/{publicId}/orders/{orderId}/clear:
     parameters:
     - $ref: '#/components/parameters/orderId'
@@ -367,11 +355,6 @@ paths:
           Splits that retain the same amount as in the original order do not need to be included.
 
           '
-    servers:
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
-    - url: https://pay.raif.ru/api
-      description: Production
   /payments/v2/merchants/{publicId}/orders/{orderId}/refunds/{refundId}:
     parameters:
     - $ref: '#/components/parameters/publicId'
@@ -401,11 +384,6 @@ paths:
         eng: Refund status
       x-description-i18n:
         eng: The method allows you to get the refund status.
-    servers:
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
-    - url: https://pay.raif.ru/api
-      description: Production
   /fiscal/v1/orders/{orderId}/receipts:
     parameters:
     - $ref: '#/components/parameters/orderId'
@@ -442,11 +420,6 @@ paths:
       description: 'Метод позволяет получить по заказу список чеков, которые успешно зарегистрированы в ОФД и имеют статус `DONE`. По умолчанию возвращаются как чеки прихода, так и чеки возврата. Чтобы получить чеки определенного типа, необходимо в строке запроса передать дополнительный параметр receiptType.
 
         Если ни один чек не найден, в ответ вернется 200 OK и пустой массив.'
-    servers:
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
-    - url: https://pay.raif.ru/api
-      description: Production
   /fiscal/v1/orders/{orderId}/refunds/{refundId}/receipt:
     parameters:
     - $ref: '#/components/parameters/orderId'
@@ -470,463 +443,16 @@ paths:
         eng: Getting refund receipt
       x-description-i18n:
         eng: Method allows to get refund receipt by order ID and refund ID.
-    servers:
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
-    - url: https://pay.raif.ru/api
-      description: Production
 components:
-  requestBodies:
-    CreateRefundRequestV2:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/CreateRefundRequestV2'
-          examples:
-            Возврат со сплитованием:
-              value:
-                id: 348230ad-2a8d-4976-af4f-8603d11cba8c
-                amount: 432.21
-                paymentDetails: Возврат за обувь
-                splits:
-                - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
-                  amount: 10.21
-                - accountId: 226f0738-d5d8-4ee6-afff-71e05836820a
-                  amount: 422
-            Возврат:
-              value:
-                id: 348230ad-2a8d-4976-af4f-8603d11cba8c
-                amount: 432.21
-                paymentDetails: Возврат за обувь
-            Возврат в другой банк:
-              value:
-                id: 348230ad-2a8d-4976-af4f-8603d11cba8c
-                amount: 432.21
-                paymentDetails: Возврат за обувь
-                customer:
-                  bankAlias: RAIFFEISEN
-                  phone: '79161111111'
-    ClearEcomRequest:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            description: Запрос на клиринг по операциям интернет эквайринга со сплитованием
-            x-description-i18n:
-              eng: Clearing request for Internet Acquiring operations with splitting
-            properties:
-              amount:
-                type: number
-                description: Итоговая сумма клиринга
-                x-description-i18n:
-                  eng: Final clearing amount
-                example: 1200
-              splits:
-                $ref: '#/components/schemas/Split'
-  responses:
-    GetOrderResponseV2:
-      description: OK
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/CreatedOrder'
-    GetRefundReceiptResponse:
-      description: OK
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/FiscalReceiptExtended'
-            - $ref: '#/components/schemas/FiscalReceiptBasicWoRequiredParams'
-    GetReceiptsListResponse:
-      description: OK
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              allOf:
-              - $ref: '#/components/schemas/FiscalReceiptBasicWoRequiredParams'
-              - $ref: '#/components/schemas/FiscalReceiptExtended'
-          examples:
-            ФФД 1.05:
-              value:
-              - receiptNumber: '3000827351832'
-                receiptType: REFUND
-                status: DONE
-                orderNumber: order-test
-                total: 1200
-                ofdUrl: https://lk.platformaofd.ru/web/noauth/cheque?fn=7284440500012345&fp=1702712345&i=1234
-                ofdDocumentNumber: 133
-                ofdDocumentAttribute: '3449555941'
-                customer:
-                  email: customer@test.ru
-                  name: Иванов Иван Иванович
-                items:
-                - name: Шоколадный торт
-                  price: 1200
-                  quantity: 1
-                  amount: 1200
-                  paymentObject: COMMODITY
-                  paymentMode: FULL_PAYMENT
-                  measurementUnit: шт
-                  nomenclatureCode: 00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00
-                  vatType: VAT20
-                  agentType: ANOTHER
-                  supplierInfo:
-                    phone: '+79991234567'
-                    name: ООО «Ромашка»
-                    inn: '956839506500'
-                payments:
-                - type: PREPAID
-                  amount: 1200
-            ФФД 1.2:
-              value:
-              - receiptNumber: '3000827351832'
-                receiptType: REFUND
-                status: DONE
-                orderNumber: order-test
-                total: 1200
-                ofdUrl: https://lk.platformaofd.ru/web/noauth/cheque?fn=7284440500012345&fp=1702712345&i=1234
-                ofdDocumentNumber: 133
-                ofdDocumentAttribute: '3449555941'
-                customer:
-                  email: customer@test.ru
-                  extra:
-                    name: Иванов Иван Иванович
-                    inn: '516974792202'
-                items:
-                - name: Шоколадный торт
-                  price: 1200
-                  quantity: 1
-                  amount: 1200
-                  paymentObject: COMMODITY_MARKING_WITH_CODE
-                  paymentMode: FULL_PAYMENT
-                  measurementUnit: PIECE
-                  vatType: VAT20
-                  agentType: ANOTHER
-                  supplierInfo:
-                    phone: '+79991234567'
-                    name: ООО «Ромашка»
-                    inn: '956839506500'
-                  marking:
-                    quantity:
-                      numerator: 1
-                      denominator: 3
-                    code:
-                      format: GS1M
-                      value: MDEwNDYwNzQyODY3OTA5MDIxNmVKSWpvV0g1NERkVSA5MWZmZDAgOTJzejZrU1BpckFwZk1CZnR2TGJvRTFkbFdDLzU4aEV4UVVxdjdCQmtabWs0PQ==
-                payments:
-                - type: PREPAID
-                  amount: 1200
-    Error400Response:
-      description: Bad Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error4xx'
-    Error404Response:
-      description: Not Found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error4xx'
-    RefundStatusResponseV2:
-      description: OK
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/RefundWithSplits'
-    Error401Response:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error4xx'
-    ClearCardPaymentResponse:
-      description: OK
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              reversalAmount:
-                type: number
-                description: Сумма отмененная в ходе клиринга
-                x-description-i18n:
-                  eng: Reversal amount in rubles
-                example: 1200
   schemas:
-    OrderComment:
-      title: OrderComment
-      type: string
-      description: 'Комментарий. Доступен в реестрах и Онлайн-Банке. Не может быть пустым или содержать только пробелы. Может содержать:<br>
-
-        • Символы латиницы (A–Z и a–z) <br>
-
-        • Символы кириллицы (А-Я и а-я) <br>
-
-        • Цифры 0-9 <br>
-
-        • Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`<br>
-
-        • Спецсимвол `№`'
-      x-description-i18n:
-        eng: 'Comment. Cannot be empty or contain only spaces. May contain:<br>
-
-          • Latin symbols (A–Z и a–z); <br>
-
-          • Cyrillic symbols (А-Я и а-я); <br>
-
-          • Digits 0-9;<br>
-
-          • Special symbols: spaces and `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`<br>
-
-          • Special symbol №
-
-          '
-      maxLength: 140
-      pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
-      example: Тестовый комментарий
-    OrderStatus:
-      title: OrderStatus
+    Extra:
+      title: Extra
       type: object
-      description: Статус заказа
+      description: Дополнительные поля в формате key-value. Отображаются в реестрах.
       x-description-i18n:
-        eng: Order status
-      minProperties: 1
-      properties:
-        value:
-          $ref: '#/components/schemas/OrderStatusValue'
-        date:
-          type: string
-          description: Дата создания заказа
-          x-description-i18n:
-            eng: Order creation date
-          format: date-time
-          example: '2025-01-10T20:10:00+03:00'
-          minLength: 1
-    FiscalReceiptExtended:
-      title: Объект чека с доп. параметрами
-      type: object
-      description: Данные чека с доп. параметрами
-      x-description-i18n:
-        eng: Receipt data with additional parameters
-      properties:
-        receiptNumber:
-          type: string
-          description: Уникальный номер чека
-          x-description-i18n:
-            eng: Unique receipt number
-          example: '3000827351831'
-          pattern: ^[A-Za-z0-9_-]+$
-          maxLength: 99
-        receiptType:
-          type: string
-          description: Тип чека:<br>• `SELL` – чек прихода<br>• `REFUND` – чек возврата
-          x-description-i18n:
-            eng: Receipt type:<br>• `SELL` – payment receipt<br>• `REFUND` – refund receipt
-          example: REFUND
-          enum:
-          - SELL
-          - REFUND
-        status:
-          type: string
-          description: 'Статус регистрации чека.
-
-            - `NEW` – создан черновик чека
-
-            - `IN_PROGRESS` – чек в процессе регистрации в ОФД
-
-            - `DONE` – чек успешно зарегистрирован в ОФД
-
-            - `FAILED` – регистрация чека в ОФД завершилась ошибкой
-
-            - `AWAITING` – технический статус перед отправкой чека на регистрацию в ОФД
-
-            '
-          x-description-i18n:
-            eng: Receipt registration status - `NEW` – a draft receipt has been created - `IN_PROGRESS` – receipt in the process of registration in the OFD - `DONE` – receipt was successfully registered in the OFD - `FAILED` – receipt registration in OFD ended with an error - `AWAITING` – technical status before sending the receipt for registration to the OFD
-          example: DONE
-          enum:
-          - NEW
-          - IN_PROGRESS
-          - DONE
-          - FAILED
-          - AWAITING
-        orderNumber:
-          type: string
-          description: Идентификатор заказа в системе мерчанта
-          x-description-i18n:
-            eng: Order ID in the merchant system
-          example: order-test
-          pattern: ^[A-z0-9-_.]+$
-          maxLength: 40
-        total:
-          type: number
-          description: Итоговая сумма чека в рублях
-          x-description-i18n:
-            eng: Total receipt amount in rubles
-          example: 1200
-        ofdUrl:
-          type: string
-          description: Ссылка на чек<br>Передается в ответе только для чеков в статусе DONE и при условии, что была получена от ОФД при регистрации чека. Список ОФД, которые поддерживают передачу ссылки на чек, необходимо уточнять у поставщика онлайн-кассы
-          x-description-i18n:
-            eng: Receipt link<br>Transmitted in the response only for receipts with the DONE status and provided that it was received from the OFD when registering the receipt. The list of OFDs that support the transfer of a receipt link must be clarified with the online cash register supplier
-          example: https://lk.platformaofd.ru/web/noauth/cheque?fn=7284440500012345&fp=1702712345&i=1234
-        ofdDocumentNumber:
-          type: number
-          description: '`Тег ФФД — 1040` <br>
-
-            Фискальный номер документа'
-          x-description-i18n:
-            eng: '`Tag FFD — 1040` <br>
-
-              Fiscal document number
-
-              '
-          example: 133
-        ofdDocumentAttribute:
-          type: string
-          description: '`Тег ФФД — 1077` <br>
-
-            Фискальный признак документа'
-          x-description-i18n:
-            eng: '`Tag FFD — 1077` <br>
-
-              Fiscal document attribute
-
-              '
-          example: '3449555941'
-        timezone:
-          type: string
-          description: '`Тег ФФД — 1011` <br/>
-
-            Часовая зона (+02:00, +03:00... +11:00). Только для ФФД 1.2'
-          x-description-i18n:
-            eng: '`Tag FFD - 1011` <br>
-
-              Time zone (+02:00, +03:00... +11:00). Only for FFD 1.2
-
-              '
-        onlinePayment:
-          type: boolean
-          description: '`Тег ФФД — 1125` <br/>
-
-            Признак расчета в Интернете'
-          x-description-i18n:
-            eng: '`Tag FFD - 1125` <br>
-
-              Internet settlement flag
-
-              '
-    FiscalReceiptBasic:
-      title: Receipt
-      type: object
-      x-description-i18n:
-        eng: Receipt data
-      description: Данные чека. Объект должен быть передан, если подключена фискализация чеков. При отсутствии объекта receipt чек не будет создан. Если объект receipt был передан, но заполнен некорректно, сервис вернет ошибку.
-      properties:
-        customer:
-          type: object
-          description: Данные покупателя
-          x-description-i18n:
-            eng: Buyer details
-          properties:
-            email:
-              type: string
-              description: '`Тег ФФД — 1008` <br>
-
-                E-mail покупателя для отправки чека. Если объект customer не передан, то чек отправляется на электронную почту мерчанта'
-              x-description-i18n:
-                eng: '`Tag FFD - 1008` <br>
-
-                  Buyer''s email for sending a receipt. If the customer object is not passed, the receipt is sent to the merchant''s email
-
-                  '
-              example: customer@test.ru
-              maxLength: 64
-              format: email
-            name:
-              type: string
-              description: '`Тег ФФД — 1227` <br>
-
-                ФИО покупателя (ФФД 1.05)'
-              x-description-i18n:
-                eng: '`Tag FFD - 1227` <br>
-
-                  Full name of the buyer (FFD 1.05)
-
-                  '
-              example: Иванов Иван Иванович
-              maxLength: 256
-            inn:
-              type: string
-              description: '`Тег ФФД — 1228` <br>
-
-                ИНН покупателя. Может содержать только 10 или 12 цифр'
-              x-description-i18n:
-                eng: '`Tag FFD - 1228` <br>
-
-                  Buyer''s tax identification number of 10 or 12 digits'
-              pattern: ^(?:[0-9]{10}|[0-9]{12})$
-              example: '7707083893'
-            extra:
-              type: object
-              description: Дополнительная информация о покупателе (ФФД 1.2)<br>Объект свободного наполнения, передается в ОФД без изменений. Если Вам необходимо передать доп. данные покупателя в extra, то сверьтесь с протоколом Вашего ОФД
-              x-description-i18n:
-                eng: Additional information about the buyer (FFD 1.2)<br>An object of free filling, transferred to the OFD without changes. If you need to transfer additional buyer data to extra, then check with the protocol of your OFD
-              additionalProperties:
-                type: string
-          required:
-          - email
-        timezone:
-          type: string
-          description: '`Тег ФФД — 1011` <br/>
-
-            Часовая зона (+02:00, +03:00... +11:00). Только для ФФД 1.2'
-          x-description-i18n:
-            eng: '`Tag FFD - 1011` <br>
-
-              Time zone (+02:00, +03:00... +11:00). Only for FFD 1.2
-
-              '
-        onlinePayment:
-          type: boolean
-          description: '`Тег ФФД — 1125` <br/>
-
-            Признак расчета в Интернете'
-          x-description-i18n:
-            eng: '`Tag FFD - 1125` <br>
-
-              Internet settlement flag
-
-              '
-        items:
-          type: array
-          uniqueItems: true
-          minItems: 1
-          maxItems: 100
-          description: Позиции чека
-          x-description-i18n:
-            eng: Receipt items
-          items:
-            $ref: '#/components/schemas/receiptItem'
-        payments:
-          type: array
-          uniqueItems: true
-          minItems: 1
-          description: Данные об оплате<br>Объект заполняется только для чеков с зачетом аванса или частичной предоплаты. Если чек содержит только безналичный вид оплаты (без зачета аванса/частичной предоплаты), то объект payments не заполняется.<br>Если payments не передан, то по умолчанию заполняется безналичным видом оплаты и ее суммой, которая равна сумме чека
-          x-description-i18n:
-            eng: Payment types info. Object must be passed only for receipts that include prepaid amount (either advance or partial prepayment receipts)<br> If null, then value E_PAYMENT is set by default, with the total receipt amount
-          items:
-            $ref: '#/components/schemas/payments'
-        additionalUserProperty:
-          $ref: '#/components/schemas/additionalUserProperty'
-      required:
-      - items
+        eng: Additional fields in key-value format. Displayed in registries
+      additionalProperties:
+        type: string
     RefundWithSplits:
       title: RefundWithSplits
       type: object
@@ -985,322 +511,14 @@ components:
               example: '2024-12-31T17:00:00+03:00'
         receipt:
           $ref: '#/components/schemas/FiscalReceiptBasic'
-    CreateRefundRequestV2:
-      title: CreateRefundRequestV2
-      type: object
-      properties:
-        id:
-          type: string
-          example: 348230ad-2a8d-4976-af4f-8603d11cba8c
-          pattern: ^[A-Za-z0-9-_.]+$
-          description: Идентификатор возврата
-          x-description-i18n:
-            eng: Refund ID
-          maxLength: 40
-        amount:
-          type: number
-          description: Сумма возврата
-          x-description-i18n:
-            eng: Refund amount
-          example: 432.21
-          format: float
-        paymentDetails:
-          $ref: '#/components/schemas/PaymentDetails'
-        splits:
-          $ref: '#/components/schemas/Split'
-        customer:
-          type: object
-          description: Объект передается, если требуется сделать возврат в другой банк или на другой номер. **Заполняется только при проведении возвратов по СБП.**
-          x-description-i18n:
-            eng: The object is transferred if you need to make a return to another bank or to another number
-          properties:
-            bankAlias:
-              type: string
-              description: Код банка плательщика. Коды банков можно получить выполнив [[Запрос на получение списка банков]](#tag/QR/operation/getBanksForRefunds).
-              x-description-i18n:
-                eng: Recipient bank code from the bank list request
-            phone:
-              type: string
-              description: Номер телефона плательщика
-              x-description-i18n:
-                eng: Recipient's phone number
-          required:
-          - bankAlias
-          - phone
-        receipt:
-          $ref: '#/components/schemas/FiscalReceiptBasic'
-      required:
-      - id
-      - amount
-    DigitalRubleOrder:
-      title: DigitalRubleOrder
-      allOf:
-      - $ref: '#/components/schemas/GetOrderResponseSchema'
     UndefinedOrder:
       title: UndefinedOrder
       allOf:
       - $ref: '#/components/schemas/GetOrderResponseSchema'
-    FiscalReceiptBasicWoRequiredParams:
-      title: ФФД 1.05 | ФФД 1.2
-      type: object
-      description: Данные чека<br>Объект передается в ответе, только если подключена фискализация и чек был передан в запросе на возврат
-      x-description-i18n:
-        eng: Receipt data<br>The object is transmitted in the response only if fiscalization is enabled and the receipt was transmitted in the refund request
-      properties:
-        customer:
-          type: object
-          description: Данные о покупателе
-          x-description-i18n:
-            eng: Buyer details
-          properties:
-            email:
-              type: string
-              description: '`Тег ФФД — 1008` <br>
-
-                E-mail покупателя для отправки чека'
-              x-description-i18n:
-                eng: '`Tag FFD - 1008` <br>
-
-                  Buyer''s email for sending a receipt.
-
-                  '
-              example: customer@test.ru
-              format: email
-              maxLength: 64
-            name:
-              type: string
-              description: '`Тег ФФД — 1227` <br>
-
-                ФИО покупателя (ФФД 1.05)'
-              x-description-i18n:
-                eng: '`Tag FFD - 1227` <br>
-
-                  Full name of the buyer (FFD 1.05)
-
-                  '
-              maxLength: 256
-              example: Иванов Иван Иванович
-            inn:
-              type: string
-              description: '`Тег ФФД — 1228` <br>
-
-                ИНН покупателя. Может содержать только 10 или 12 цифр'
-              x-description-i18n:
-                eng: '`Tag FFD - 1228` <br>
-
-                  Buyer''s tax identification number of 10 or 12 digits'
-              pattern: ^(?:[0-9]{10}|[0-9]{12})$
-              example: '7707083893'
-            extra:
-              type: object
-              description: Дополнительная информация о покупателе (ФФД 1.2)<br>Объект свободного наполнения, передается в ОФД без изменений. Если Вам необходимо передать доп. данные покупателя в extra, то сверьтесь с протоколом Вашего ОФД
-              x-description-i18n:
-                eng: Additional information about the buyer (FFD 1.2)<br>An object of free filling, transferred to the OFD without changes. If you need to transfer additional buyer data to extra, then check with the protocol of your OFD
-        items:
-          type: array
-          uniqueItems: true
-          minItems: 1
-          maxItems: 100
-          description: Позиции чека
-          x-description-i18n:
-            eng: Receipt items
-          items:
-            $ref: '#/components/schemas/receiptItem'
-        payments:
-          type: array
-          uniqueItems: true
-          minItems: 1
-          description: Данные об оплате<br>Объект заполняется только для чеков с зачетом аванса или частичной предоплаты. Если чек содержит только безналичный вид оплаты (без зачета аванса/частичной предоплаты), то объект payments не заполняется.<br>Если payments не передан, то по умолчанию заполняется безналичным видом оплаты и ее суммой, которая равна сумме чека
-          x-description-i18n:
-            eng: Payment types info. Object must be passed only for receipts that include prepaid amount (either advance or partial prepayment receipts)<br> If null, then value E_PAYMENT is set by default, with the total receipt amount
-          items:
-            $ref: '#/components/schemas/payments'
-        additionalUserProperty:
-          $ref: '#/components/schemas/additionalUserProperty'
-    SbpOrder:
-      title: SbpOrder
+    DigitalRubleOrder:
+      title: DigitalRubleOrder
       allOf:
       - $ref: '#/components/schemas/GetOrderResponseSchema'
-      - type: object
-        properties:
-          paymentParameters:
-            type: object
-            properties:
-              qrId:
-                type: string
-                description: Идентификатор QR-кода
-              sbpTransactionId:
-                type: string
-                description: Идентификатор операции в системе НСПК
-    AcquiringOrder:
-      title: AcquiringOrder
-      allOf:
-      - $ref: '#/components/schemas/GetOrderResponseSchema'
-      - type: object
-        properties:
-          paymentParameters:
-            type: object
-            properties:
-              rrn:
-                type: string
-                description: Идентификатор транзакции в системе Банка
-              authCode:
-                type: string
-                description: Код авторизации, полученный от Банка-эмитента
-              eci:
-                type: string
-                description: Уровень и тип риска операции в процессе обработки онлайн-платежа
-    Extra:
-      title: Extra
-      type: object
-      description: Дополнительные поля в формате key-value. Отображаются в реестрах.
-      x-description-i18n:
-        eng: Additional fields in key-value format. Displayed in registries
-      additionalProperties:
-        type: string
-    Error4xx:
-      title: Error4xx
-      type: object
-      properties:
-        code:
-          type: string
-          description: Код ошибки
-          x-description-i18n:
-            eng: Error code
-        message:
-          type: string
-          description: Описание ошибки
-          x-description-i18n:
-            eng: Error description
-      required:
-      - code
-      - message
-    GetOrderResponseSchema:
-      title: GetOrderResponseSchema
-      type: object
-      description: Схема ответа информации о заказе
-      x-description-i18n:
-        eng: Order information response schema
-      properties:
-        id:
-          type: string
-          description: Идентификатор заказа в системе мерчанта
-          x-description-i18n:
-            eng: Order ID in the merchant system
-          example: order-test
-        amount:
-          type: number
-          description: Сумма заказа
-          x-description-i18n:
-            eng: Order amount
-          example: 1200
-        comment:
-          $ref: '#/components/schemas/OrderComment'
-        status:
-          $ref: '#/components/schemas/OrderStatus'
-        expirationDate:
-          type: string
-          description: Дата истечения срока заказа
-          x-description-i18n:
-            eng: Order expiration date
-          format: date-time
-          example: '2024-12-31T17:00:00+03:00'
-        payformUrl:
-          type: string
-          format: uri
-          description: Ссылка на оплату
-          x-description-i18n:
-            eng: Payment form URL for order payment
-          example: https://pay.raif.ru/pay?payformId=1238ana84
-        extra:
-          $ref: '#/components/schemas/Extra'
-        paymentMethod:
-          $ref: '#/components/schemas/OrderPaymentMethod'
-        created:
-          type: string
-          format: date-time
-          description: Дата создания заказа
-      required:
-      - id
-      - amount
-      - status
-      - expirationDate
-      - created
-    Split:
-      title: Split
-      type: array
-      description: 'Набор параметров для сплитования платежа.<br>
-
-        Сплитование позволяет ТСП передавать параметры распределения суммы платежа или возврата между контрагентами.<br>
-
-        Сумма всех объектов сплита должна быть равна сумме операции.<br>
-
-        При взаиморасчетах суммы платежей, указанные в сплите, увеличивают суммы к перечислению контрагентам, а суммы возвратов — уменьшают их.<br>
-
-        Сплитование доступно только при агрегированной схеме взаиморасчетов. Чтобы настроить агрегированную схему, обратитесь в техническую поддержку банка: ecom@raiffeisen.ru. Подробнее см. в разделе [Схема взаиморасчетов](#tag/SettlementSchemes).'
-      x-description-i18n:
-        eng: 'Set of parameters for payment splitting.<br>
-
-          Payment splitting allows the merchant to pass parameters for distributing a payment or refund amount among counterparties.<br>
-
-          The total amount of all split objects must be equal to the operation amount.<br>
-
-          In settlements, payment amounts specified in the split increase the amounts to be transferred to counterparties, while refund amounts decrease them.<br>
-
-          Payment splitting is available only with the aggregated settlement scheme. To set up the aggregated scheme, contact bank technical support: ecom@raiffeisen.ru. See [Settlement schemes](#tag/SettlementSchemes).'
-      items:
-        type: object
-        properties:
-          accountId:
-            type: string
-            description: "\t\nstring\nИдентификтор реквизитов, которые были получены от поддержки."
-            x-description-i18n:
-              eng: ID of the bank account details obtained from support
-          amount:
-            type: number
-            description: Сумма зачисления
-            x-description-i18n:
-              eng: Crediting amount
-            format: float
-            exclusiveMinimum: 0
-        required:
-        - accountId
-        - amount
-    payments:
-      type: object
-      title: платежи
-      x-title-i18n:
-        eng: payments
-      required:
-      - type
-      - amount
-      description: Данные об оплате и ее видах
-      x-description-i18n:
-        eng: Info on payment and its types
-      properties:
-        type:
-          type: string
-          description: Вид оплаты. Возможные значения:<br/>• E_PAYMENT – безналичная оплата<br/>• PREPAID – предварительная оплата (зачет аванса и/или предыдущих платежей)
-          x-description-i18n:
-            eng: Payment type. Valid values:<br/>• E_PAYMENT – electronic payment<br/>• PREPAID – prepaid amount (advance payment and/or previous payments)
-          example: PREPAID
-          enum:
-          - E_PAYMENT
-          - PREPAID
-        amount:
-          type: number
-          description: '`Тег ФФД — 1081. Сумма по чеку безналичными` <br/>
-
-            `Тег ФФД — 1251. Сумма по чеку предоплатой (зачетом аванса и(или) предыдущих платежей)` <br/>
-
-            Сумма оплаты<br/>Сумма всех переданных amount должна равняться итоговой сумме чека'
-          x-description-i18n:
-            eng: '`The tag FDF — 1081. Receipt amount non-cash payment` <br/>
-
-              `The tag FDF — 1251. Receipt amount prepayment (advance payment and(or) previous payment)` <br/>
-
-              Amount paid'
-          example: 1200
     receiptItem:
       type: object
       title: ФФД 1.05 | ФФД 1.2
@@ -2017,24 +1235,156 @@ components:
 
               Additional user property value'
           maxLength: 256
-    CreatedOrder:
-      title: CreatedOrder
+    OrderStatus:
+      title: OrderStatus
       type: object
+      description: Статус заказа
+      x-description-i18n:
+        eng: Order status
+      minProperties: 1
       properties:
-        paymentMethod:
-          $ref: '#/components/schemas/OrderPaymentMethod'
-      oneOf:
-      - $ref: '#/components/schemas/SbpOrder'
-      - $ref: '#/components/schemas/AcquiringOrder'
-      - $ref: '#/components/schemas/DigitalRubleOrder'
-      - $ref: '#/components/schemas/UndefinedOrder'
-      discriminator:
-        propertyName: paymentMethod
-        mapping:
-          SBP: '#/components/schemas/SbpOrder'
-          ACQUIRING: '#/components/schemas/AcquiringOrder'
-          UNDEFINED: '#/components/schemas/UndefinedOrder'
-          DIGITAL_RUBLE: '#/components/schemas/DigitalRubleOrder'
+        value:
+          $ref: '#/components/schemas/OrderStatusValue'
+        date:
+          type: string
+          description: Дата создания заказа
+          x-description-i18n:
+            eng: Order creation date
+          format: date-time
+          example: '2025-01-10T20:10:00+03:00'
+          minLength: 1
+    FiscalReceiptBasic:
+      title: Receipt
+      type: object
+      x-description-i18n:
+        eng: Receipt data
+      description: Данные чека. Объект должен быть передан, если подключена фискализация чеков. При отсутствии объекта receipt чек не будет создан. Если объект receipt был передан, но заполнен некорректно, сервис вернет ошибку.
+      properties:
+        customer:
+          type: object
+          description: Данные покупателя
+          x-description-i18n:
+            eng: Buyer details
+          properties:
+            email:
+              type: string
+              description: '`Тег ФФД — 1008` <br>
+
+                E-mail покупателя для отправки чека. Если объект customer не передан, то чек отправляется на электронную почту мерчанта'
+              x-description-i18n:
+                eng: '`Tag FFD - 1008` <br>
+
+                  Buyer''s email for sending a receipt. If the customer object is not passed, the receipt is sent to the merchant''s email
+
+                  '
+              example: customer@test.ru
+              maxLength: 64
+              format: email
+            name:
+              type: string
+              description: '`Тег ФФД — 1227` <br>
+
+                ФИО покупателя (ФФД 1.05)'
+              x-description-i18n:
+                eng: '`Tag FFD - 1227` <br>
+
+                  Full name of the buyer (FFD 1.05)
+
+                  '
+              example: Иванов Иван Иванович
+              maxLength: 256
+            inn:
+              type: string
+              description: '`Тег ФФД — 1228` <br>
+
+                ИНН покупателя. Может содержать только 10 или 12 цифр'
+              x-description-i18n:
+                eng: '`Tag FFD - 1228` <br>
+
+                  Buyer''s tax identification number of 10 or 12 digits'
+              pattern: ^(?:[0-9]{10}|[0-9]{12})$
+              example: '7707083893'
+            extra:
+              type: object
+              description: Дополнительная информация о покупателе (ФФД 1.2)<br>Объект свободного наполнения, передается в ОФД без изменений. Если Вам необходимо передать доп. данные покупателя в extra, то сверьтесь с протоколом Вашего ОФД
+              x-description-i18n:
+                eng: Additional information about the buyer (FFD 1.2)<br>An object of free filling, transferred to the OFD without changes. If you need to transfer additional buyer data to extra, then check with the protocol of your OFD
+              additionalProperties:
+                type: string
+          required:
+          - email
+        timezone:
+          type: string
+          description: '`Тег ФФД — 1011` <br/>
+
+            Часовая зона (+02:00, +03:00... +11:00). Только для ФФД 1.2'
+          x-description-i18n:
+            eng: '`Tag FFD - 1011` <br>
+
+              Time zone (+02:00, +03:00... +11:00). Only for FFD 1.2
+
+              '
+        onlinePayment:
+          type: boolean
+          description: '`Тег ФФД — 1125` <br/>
+
+            Признак расчета в Интернете'
+          x-description-i18n:
+            eng: '`Tag FFD - 1125` <br>
+
+              Internet settlement flag
+
+              '
+        items:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          maxItems: 100
+          description: Позиции чека
+          x-description-i18n:
+            eng: Receipt items
+          items:
+            $ref: '#/components/schemas/receiptItem'
+        payments:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          description: Данные об оплате<br>Объект заполняется только для чеков с зачетом аванса или частичной предоплаты. Если чек содержит только безналичный вид оплаты (без зачета аванса/частичной предоплаты), то объект payments не заполняется.<br>Если payments не передан, то по умолчанию заполняется безналичным видом оплаты и ее суммой, которая равна сумме чека
+          x-description-i18n:
+            eng: Payment types info. Object must be passed only for receipts that include prepaid amount (either advance or partial prepayment receipts)<br> If null, then value E_PAYMENT is set by default, with the total receipt amount
+          items:
+            $ref: '#/components/schemas/payments'
+        additionalUserProperty:
+          $ref: '#/components/schemas/additionalUserProperty'
+      required:
+      - items
+    PaymentDetails:
+      title: PaymentDetails
+      type: string
+      description: 'Назначение платежа. Отображается в выписке. Может содержать:<br>
+
+        - Символы латиницы (A–Z и a–z)
+
+        - Символы кириллицы (А-Я и а-я)
+
+        - Цифры 0-9
+
+        - Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`
+
+        - Спецсимвол `№`'
+      x-description-i18n:
+        eng: 'Payment details. Displayed in the statement. May contain:<br>
+
+          - Latin characters (A–Z and a–z)
+
+          - Cyrillic characters (А-Я and а-я)
+
+          - Digits 0-9
+
+          - Special characters: space and `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`
+
+          - Special character `№`'
+      pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
     OrderStatusValue:
       title: OrderStatusValue
       type: string
@@ -2072,33 +1422,219 @@ components:
           - `DIGITAL_RUBLE` - Payment by digital ruble
 
           '
-    PaymentDetails:
-      title: PaymentDetails
-      type: string
-      description: 'Назначение платежа. Отображается в выписке. Может содержать:<br>
-
-        - Символы латиницы (A–Z и a–z)
-
-        - Символы кириллицы (А-Я и а-я)
-
-        - Цифры 0-9
-
-        - Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`
-
-        - Спецсимвол `№`'
+    SbpOrder:
+      title: SbpOrder
+      allOf:
+      - $ref: '#/components/schemas/GetOrderResponseSchema'
+      - type: object
+        properties:
+          paymentParameters:
+            type: object
+            properties:
+              qrId:
+                type: string
+                description: Идентификатор QR-кода
+              sbpTransactionId:
+                type: string
+                description: Идентификатор операции в системе НСПК
+    payments:
+      type: object
+      title: платежи
+      x-title-i18n:
+        eng: payments
+      required:
+      - type
+      - amount
+      description: Данные об оплате и ее видах
       x-description-i18n:
-        eng: 'Payment details. Displayed in the statement. May contain:<br>
+        eng: Info on payment and its types
+      properties:
+        type:
+          type: string
+          description: Вид оплаты. Возможные значения:<br/>• E_PAYMENT – безналичная оплата<br/>• PREPAID – предварительная оплата (зачет аванса и/или предыдущих платежей)
+          x-description-i18n:
+            eng: Payment type. Valid values:<br/>• E_PAYMENT – electronic payment<br/>• PREPAID – prepaid amount (advance payment and/or previous payments)
+          example: PREPAID
+          enum:
+          - E_PAYMENT
+          - PREPAID
+        amount:
+          type: number
+          description: '`Тег ФФД — 1081. Сумма по чеку безналичными` <br/>
 
-          - Latin characters (A–Z and a–z)
+            `Тег ФФД — 1251. Сумма по чеку предоплатой (зачетом аванса и(или) предыдущих платежей)` <br/>
 
-          - Cyrillic characters (А-Я and а-я)
+            Сумма оплаты<br/>Сумма всех переданных amount должна равняться итоговой сумме чека'
+          x-description-i18n:
+            eng: '`The tag FDF — 1081. Receipt amount non-cash payment` <br/>
 
-          - Digits 0-9
+              `The tag FDF — 1251. Receipt amount prepayment (advance payment and(or) previous payment)` <br/>
 
-          - Special characters: space and `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`
+              Amount paid'
+          example: 1200
+    OrderComment:
+      title: OrderComment
+      type: string
+      description: 'Комментарий. Доступен в реестрах и Онлайн-Банке. Не может быть пустым или содержать только пробелы. Может содержать:<br>
 
-          - Special character `№`'
+        • Символы латиницы (A–Z и a–z) <br>
+
+        • Символы кириллицы (А-Я и а-я) <br>
+
+        • Цифры 0-9 <br>
+
+        • Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`<br>
+
+        • Спецсимвол `№`'
+      x-description-i18n:
+        eng: 'Comment. Cannot be empty or contain only spaces. May contain:<br>
+
+          • Latin symbols (A–Z и a–z); <br>
+
+          • Cyrillic symbols (А-Я и а-я); <br>
+
+          • Digits 0-9;<br>
+
+          • Special symbols: spaces and `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`<br>
+
+          • Special symbol №
+
+          '
+      maxLength: 140
       pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
+      example: Тестовый комментарий
+    FiscalReceiptExtended:
+      title: Объект чека с доп. параметрами
+      type: object
+      description: Данные чека с доп. параметрами
+      x-description-i18n:
+        eng: Receipt data with additional parameters
+      properties:
+        receiptNumber:
+          type: string
+          description: Уникальный номер чека
+          x-description-i18n:
+            eng: Unique receipt number
+          example: '3000827351831'
+          pattern: ^[A-Za-z0-9_-]+$
+          maxLength: 99
+        receiptType:
+          type: string
+          description: Тип чека:<br>• `SELL` – чек прихода<br>• `REFUND` – чек возврата
+          x-description-i18n:
+            eng: Receipt type:<br>• `SELL` – payment receipt<br>• `REFUND` – refund receipt
+          example: REFUND
+          enum:
+          - SELL
+          - REFUND
+        status:
+          type: string
+          description: 'Статус регистрации чека.
+
+            - `NEW` – создан черновик чека
+
+            - `IN_PROGRESS` – чек в процессе регистрации в ОФД
+
+            - `DONE` – чек успешно зарегистрирован в ОФД
+
+            - `FAILED` – регистрация чека в ОФД завершилась ошибкой
+
+            - `AWAITING` – технический статус перед отправкой чека на регистрацию в ОФД
+
+            '
+          x-description-i18n:
+            eng: Receipt registration status - `NEW` – a draft receipt has been created - `IN_PROGRESS` – receipt in the process of registration in the OFD - `DONE` – receipt was successfully registered in the OFD - `FAILED` – receipt registration in OFD ended with an error - `AWAITING` – technical status before sending the receipt for registration to the OFD
+          example: DONE
+          enum:
+          - NEW
+          - IN_PROGRESS
+          - DONE
+          - FAILED
+          - AWAITING
+        orderNumber:
+          type: string
+          description: Идентификатор заказа в системе мерчанта
+          x-description-i18n:
+            eng: Order ID in the merchant system
+          example: order-test
+          pattern: ^[A-z0-9-_.]+$
+          maxLength: 40
+        total:
+          type: number
+          description: Итоговая сумма чека в рублях
+          x-description-i18n:
+            eng: Total receipt amount in rubles
+          example: 1200
+        ofdUrl:
+          type: string
+          description: Ссылка на чек<br>Передается в ответе только для чеков в статусе DONE и при условии, что была получена от ОФД при регистрации чека. Список ОФД, которые поддерживают передачу ссылки на чек, необходимо уточнять у поставщика онлайн-кассы
+          x-description-i18n:
+            eng: Receipt link<br>Transmitted in the response only for receipts with the DONE status and provided that it was received from the OFD when registering the receipt. The list of OFDs that support the transfer of a receipt link must be clarified with the online cash register supplier
+          example: https://lk.platformaofd.ru/web/noauth/cheque?fn=7284440500012345&fp=1702712345&i=1234
+        ofdDocumentNumber:
+          type: number
+          description: '`Тег ФФД — 1040` <br>
+
+            Фискальный номер документа'
+          x-description-i18n:
+            eng: '`Tag FFD — 1040` <br>
+
+              Fiscal document number
+
+              '
+          example: 133
+        ofdDocumentAttribute:
+          type: string
+          description: '`Тег ФФД — 1077` <br>
+
+            Фискальный признак документа'
+          x-description-i18n:
+            eng: '`Tag FFD — 1077` <br>
+
+              Fiscal document attribute
+
+              '
+          example: '3449555941'
+        timezone:
+          type: string
+          description: '`Тег ФФД — 1011` <br/>
+
+            Часовая зона (+02:00, +03:00... +11:00). Только для ФФД 1.2'
+          x-description-i18n:
+            eng: '`Tag FFD - 1011` <br>
+
+              Time zone (+02:00, +03:00... +11:00). Only for FFD 1.2
+
+              '
+        onlinePayment:
+          type: boolean
+          description: '`Тег ФФД — 1125` <br/>
+
+            Признак расчета в Интернете'
+          x-description-i18n:
+            eng: '`Tag FFD - 1125` <br>
+
+              Internet settlement flag
+
+              '
+    AcquiringOrder:
+      title: AcquiringOrder
+      allOf:
+      - $ref: '#/components/schemas/GetOrderResponseSchema'
+      - type: object
+        properties:
+          paymentParameters:
+            type: object
+            properties:
+              rrn:
+                type: string
+                description: Идентификатор транзакции в системе Банка
+              authCode:
+                type: string
+                description: Код авторизации, полученный от Банка-эмитента
+              eci:
+                type: string
+                description: Уровень и тип риска операции в процессе обработки онлайн-платежа
     GeneralError:
       title: General Error
       type: object
@@ -2118,6 +1654,438 @@ components:
           description: Идентификатор выполнения запроса при наличии ошибки
           x-description-i18n:
             eng: Request ID if there is an error
+    CreatedOrder:
+      title: CreatedOrder
+      type: object
+      properties:
+        paymentMethod:
+          $ref: '#/components/schemas/OrderPaymentMethod'
+      oneOf:
+      - $ref: '#/components/schemas/SbpOrder'
+      - $ref: '#/components/schemas/AcquiringOrder'
+      - $ref: '#/components/schemas/DigitalRubleOrder'
+      - $ref: '#/components/schemas/UndefinedOrder'
+      discriminator:
+        propertyName: paymentMethod
+        mapping:
+          SBP: '#/components/schemas/SbpOrder'
+          ACQUIRING: '#/components/schemas/AcquiringOrder'
+          UNDEFINED: '#/components/schemas/UndefinedOrder'
+          DIGITAL_RUBLE: '#/components/schemas/DigitalRubleOrder'
+    Error4xx:
+      title: Error4xx
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки
+          x-description-i18n:
+            eng: Error code
+        message:
+          type: string
+          description: Описание ошибки
+          x-description-i18n:
+            eng: Error description
+      required:
+      - code
+      - message
+    GetOrderResponseSchema:
+      title: GetOrderResponseSchema
+      type: object
+      description: Схема ответа информации о заказе
+      x-description-i18n:
+        eng: Order information response schema
+      properties:
+        id:
+          type: string
+          description: Идентификатор заказа в системе мерчанта
+          x-description-i18n:
+            eng: Order ID in the merchant system
+          example: order-test
+        amount:
+          type: number
+          description: Сумма заказа
+          x-description-i18n:
+            eng: Order amount
+          example: 1200
+        comment:
+          $ref: '#/components/schemas/OrderComment'
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        expirationDate:
+          type: string
+          description: Дата истечения срока заказа
+          x-description-i18n:
+            eng: Order expiration date
+          format: date-time
+          example: '2024-12-31T17:00:00+03:00'
+        payformUrl:
+          type: string
+          format: uri
+          description: Ссылка на оплату
+          x-description-i18n:
+            eng: Payment form URL for order payment
+          example: https://pay.raif.ru/pay?payformId=1238ana84
+        extra:
+          $ref: '#/components/schemas/Extra'
+        paymentMethod:
+          $ref: '#/components/schemas/OrderPaymentMethod'
+        created:
+          type: string
+          format: date-time
+          description: Дата создания заказа
+      required:
+      - id
+      - amount
+      - status
+      - expirationDate
+      - created
+    Split:
+      title: Split
+      type: array
+      description: 'Набор параметров для сплитования платежа.<br>
+
+        Сплитование позволяет ТСП передавать параметры распределения суммы платежа или возврата между контрагентами.<br>
+
+        Сумма всех объектов сплита должна быть равна сумме операции.<br>
+
+        При взаиморасчетах суммы платежей, указанные в сплите, увеличивают суммы к перечислению контрагентам, а суммы возвратов — уменьшают их.<br>
+
+        Сплитование доступно только при агрегированной схеме взаиморасчетов. Чтобы настроить агрегированную схему, обратитесь в техническую поддержку банка: ecom@raiffeisen.ru. Подробнее см. в разделе [Схема взаиморасчетов](#tag/SettlementSchemes).'
+      x-description-i18n:
+        eng: 'Set of parameters for payment splitting.<br>
+
+          Payment splitting allows the merchant to pass parameters for distributing a payment or refund amount among counterparties.<br>
+
+          The total amount of all split objects must be equal to the operation amount.<br>
+
+          In settlements, payment amounts specified in the split increase the amounts to be transferred to counterparties, while refund amounts decrease them.<br>
+
+          Payment splitting is available only with the aggregated settlement scheme. To set up the aggregated scheme, contact bank technical support: ecom@raiffeisen.ru. See [Settlement schemes](#tag/SettlementSchemes).'
+      items:
+        type: object
+        properties:
+          accountId:
+            type: string
+            description: "\t\nstring\nИдентификтор реквизитов, которые были получены от поддержки."
+            x-description-i18n:
+              eng: ID of the bank account details obtained from support
+          amount:
+            type: number
+            description: Сумма зачисления
+            x-description-i18n:
+              eng: Crediting amount
+            format: float
+            exclusiveMinimum: 0
+        required:
+        - accountId
+        - amount
+    FiscalReceiptBasicWoRequiredParams:
+      title: ФФД 1.05 | ФФД 1.2
+      type: object
+      description: Данные чека<br>Объект передается в ответе, только если подключена фискализация и чек был передан в запросе на возврат
+      x-description-i18n:
+        eng: Receipt data<br>The object is transmitted in the response only if fiscalization is enabled and the receipt was transmitted in the refund request
+      properties:
+        customer:
+          type: object
+          description: Данные о покупателе
+          x-description-i18n:
+            eng: Buyer details
+          properties:
+            email:
+              type: string
+              description: '`Тег ФФД — 1008` <br>
+
+                E-mail покупателя для отправки чека'
+              x-description-i18n:
+                eng: '`Tag FFD - 1008` <br>
+
+                  Buyer''s email for sending a receipt.
+
+                  '
+              example: customer@test.ru
+              format: email
+              maxLength: 64
+            name:
+              type: string
+              description: '`Тег ФФД — 1227` <br>
+
+                ФИО покупателя (ФФД 1.05)'
+              x-description-i18n:
+                eng: '`Tag FFD - 1227` <br>
+
+                  Full name of the buyer (FFD 1.05)
+
+                  '
+              maxLength: 256
+              example: Иванов Иван Иванович
+            inn:
+              type: string
+              description: '`Тег ФФД — 1228` <br>
+
+                ИНН покупателя. Может содержать только 10 или 12 цифр'
+              x-description-i18n:
+                eng: '`Tag FFD - 1228` <br>
+
+                  Buyer''s tax identification number of 10 or 12 digits'
+              pattern: ^(?:[0-9]{10}|[0-9]{12})$
+              example: '7707083893'
+            extra:
+              type: object
+              description: Дополнительная информация о покупателе (ФФД 1.2)<br>Объект свободного наполнения, передается в ОФД без изменений. Если Вам необходимо передать доп. данные покупателя в extra, то сверьтесь с протоколом Вашего ОФД
+              x-description-i18n:
+                eng: Additional information about the buyer (FFD 1.2)<br>An object of free filling, transferred to the OFD without changes. If you need to transfer additional buyer data to extra, then check with the protocol of your OFD
+        items:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          maxItems: 100
+          description: Позиции чека
+          x-description-i18n:
+            eng: Receipt items
+          items:
+            $ref: '#/components/schemas/receiptItem'
+        payments:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          description: Данные об оплате<br>Объект заполняется только для чеков с зачетом аванса или частичной предоплаты. Если чек содержит только безналичный вид оплаты (без зачета аванса/частичной предоплаты), то объект payments не заполняется.<br>Если payments не передан, то по умолчанию заполняется безналичным видом оплаты и ее суммой, которая равна сумме чека
+          x-description-i18n:
+            eng: Payment types info. Object must be passed only for receipts that include prepaid amount (either advance or partial prepayment receipts)<br> If null, then value E_PAYMENT is set by default, with the total receipt amount
+          items:
+            $ref: '#/components/schemas/payments'
+        additionalUserProperty:
+          $ref: '#/components/schemas/additionalUserProperty'
+    CreateRefundRequestV2:
+      title: CreateRefundRequestV2
+      type: object
+      properties:
+        id:
+          type: string
+          example: 348230ad-2a8d-4976-af4f-8603d11cba8c
+          pattern: ^[A-Za-z0-9-_.]+$
+          description: Идентификатор возврата
+          x-description-i18n:
+            eng: Refund ID
+          maxLength: 40
+        amount:
+          type: number
+          description: Сумма возврата
+          x-description-i18n:
+            eng: Refund amount
+          example: 432.21
+          format: float
+        paymentDetails:
+          $ref: '#/components/schemas/PaymentDetails'
+        splits:
+          $ref: '#/components/schemas/Split'
+        customer:
+          type: object
+          description: Объект передается, если требуется сделать возврат в другой банк или на другой номер. **Заполняется только при проведении возвратов по СБП.**
+          x-description-i18n:
+            eng: The object is transferred if you need to make a return to another bank or to another number
+          properties:
+            bankAlias:
+              type: string
+              description: Код банка плательщика. Коды банков можно получить выполнив [[Запрос на получение списка банков]](#tag/QR/operation/getBanksForRefunds).
+              x-description-i18n:
+                eng: Recipient bank code from the bank list request
+            phone:
+              type: string
+              description: Номер телефона плательщика
+              x-description-i18n:
+                eng: Recipient's phone number
+          required:
+          - bankAlias
+          - phone
+        receipt:
+          $ref: '#/components/schemas/FiscalReceiptBasic'
+      required:
+      - id
+      - amount
+  requestBodies:
+    ClearEcomRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Запрос на клиринг по операциям интернет эквайринга со сплитованием
+            x-description-i18n:
+              eng: Clearing request for Internet Acquiring operations with splitting
+            properties:
+              amount:
+                type: number
+                description: Итоговая сумма клиринга
+                x-description-i18n:
+                  eng: Final clearing amount
+                example: 1200
+              splits:
+                $ref: '#/components/schemas/Split'
+    CreateRefundRequestV2:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateRefundRequestV2'
+          examples:
+            Возврат со сплитованием:
+              value:
+                id: 348230ad-2a8d-4976-af4f-8603d11cba8c
+                amount: 432.21
+                paymentDetails: Возврат за обувь
+                splits:
+                - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
+                  amount: 10.21
+                - accountId: 226f0738-d5d8-4ee6-afff-71e05836820a
+                  amount: 422
+            Возврат:
+              value:
+                id: 348230ad-2a8d-4976-af4f-8603d11cba8c
+                amount: 432.21
+                paymentDetails: Возврат за обувь
+            Возврат в другой банк:
+              value:
+                id: 348230ad-2a8d-4976-af4f-8603d11cba8c
+                amount: 432.21
+                paymentDetails: Возврат за обувь
+                customer:
+                  bankAlias: RAIFFEISEN
+                  phone: '79161111111'
+  responses:
+    ClearCardPaymentResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              reversalAmount:
+                type: number
+                description: Сумма отмененная в ходе клиринга
+                x-description-i18n:
+                  eng: Reversal amount in rubles
+                example: 1200
+    RefundStatusResponseV2:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RefundWithSplits'
+    GetReceiptsListResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/FiscalReceiptBasicWoRequiredParams'
+              - $ref: '#/components/schemas/FiscalReceiptExtended'
+          examples:
+            ФФД 1.05:
+              value:
+              - receiptNumber: '3000827351832'
+                receiptType: REFUND
+                status: DONE
+                orderNumber: order-test
+                total: 1200
+                ofdUrl: https://lk.platformaofd.ru/web/noauth/cheque?fn=7284440500012345&fp=1702712345&i=1234
+                ofdDocumentNumber: 133
+                ofdDocumentAttribute: '3449555941'
+                customer:
+                  email: customer@test.ru
+                  name: Иванов Иван Иванович
+                items:
+                - name: Шоколадный торт
+                  price: 1200
+                  quantity: 1
+                  amount: 1200
+                  paymentObject: COMMODITY
+                  paymentMode: FULL_PAYMENT
+                  measurementUnit: шт
+                  nomenclatureCode: 00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00
+                  vatType: VAT20
+                  agentType: ANOTHER
+                  supplierInfo:
+                    phone: '+79991234567'
+                    name: ООО «Ромашка»
+                    inn: '956839506500'
+                payments:
+                - type: PREPAID
+                  amount: 1200
+            ФФД 1.2:
+              value:
+              - receiptNumber: '3000827351832'
+                receiptType: REFUND
+                status: DONE
+                orderNumber: order-test
+                total: 1200
+                ofdUrl: https://lk.platformaofd.ru/web/noauth/cheque?fn=7284440500012345&fp=1702712345&i=1234
+                ofdDocumentNumber: 133
+                ofdDocumentAttribute: '3449555941'
+                customer:
+                  email: customer@test.ru
+                  extra:
+                    name: Иванов Иван Иванович
+                    inn: '516974792202'
+                items:
+                - name: Шоколадный торт
+                  price: 1200
+                  quantity: 1
+                  amount: 1200
+                  paymentObject: COMMODITY_MARKING_WITH_CODE
+                  paymentMode: FULL_PAYMENT
+                  measurementUnit: PIECE
+                  vatType: VAT20
+                  agentType: ANOTHER
+                  supplierInfo:
+                    phone: '+79991234567'
+                    name: ООО «Ромашка»
+                    inn: '956839506500'
+                  marking:
+                    quantity:
+                      numerator: 1
+                      denominator: 3
+                    code:
+                      format: GS1M
+                      value: MDEwNDYwNzQyODY3OTA5MDIxNmVKSWpvV0g1NERkVSA5MWZmZDAgOTJzejZrU1BpckFwZk1CZnR2TGJvRTFkbFdDLzU4aEV4UVVxdjdCQmtabWs0PQ==
+                payments:
+                - type: PREPAID
+                  amount: 1200
+    GetRefundReceiptResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/FiscalReceiptExtended'
+            - $ref: '#/components/schemas/FiscalReceiptBasicWoRequiredParams'
+    Error404Response:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error4xx'
+    Error401Response:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error4xx'
+    Error400Response:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error4xx'
+    GetOrderResponseV2:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreatedOrder'
   parameters:
     orderId:
       name: orderId
@@ -2163,6 +2131,25 @@ components:
           Detailed information is contained in the [Authorization] section (#section/API/Authorizaciya)
 
           '
-x-refined-from:
-- raiffeisen-ru-raif-pay-payment-form-openapi.json
-- raiffeisen-ru-raif-pay-payment-form-openapi.yml
+x-tagGroups:
+- name: API
+  tags:
+  - payform
+  - subscriptions
+  - pay-controller
+  - Callback
+- name: Сверка
+  x-name-i18n:
+    eng: COMPARISON
+  tags:
+  - Registry
+  - Statement
+  - cashReconciliation
+- name: Справочник
+  x-name-i18n:
+    eng: REFERENCE INFORMATION
+  tags:
+  - Errors
+  - SettlementSchemes
+  - deprecated
+  - Change log

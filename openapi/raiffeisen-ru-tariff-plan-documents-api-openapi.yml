@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Tariff plan documents API
+  title: Система управления тарифами клиента Tariff plan documents…
+  description: Платформа для хранения и управления продуктовыми комиссиями и тарифами клиентов ЮЛ
   version: 1.0.0
-  description: 'Operations tagged Tariff plan documents across 2 of this provider''s published API definitions: raiffeisen-ru-client-tariffs-openapi.yml, raiffeisen-ru-client-tariffs-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/client-tariffs
 tags:
@@ -44,8 +44,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/client-tariffs
   /v1/tariff-plan/client/{cnum}/documents/record:
     get:
       tags:
@@ -80,34 +78,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/client-tariffs
 components:
   schemas:
-    TariffPlanDocumentPublicView:
-      required:
-      - attachment
-      - id
-      - name
-      - tariffPlan
-      type: object
-      properties:
-        id:
-          type: integer
-          description: Уникальный идентификатор документа
-          format: int64
-          example: 1
-        tariffPlan:
-          type: string
-          description: Код тарифного плана
-          example: SPKG
-        name:
-          type: string
-          description: Отображаемое название документа
-          example: Тарифный план SPKG
-        attachment:
-          $ref: '#/components/schemas/TariffPlanDocumentAttachmentPublicView'
-      description: Информация о документе тарифного плана
     TariffPlanDocumentAttachmentPublicView:
       required:
       - name
@@ -196,21 +168,31 @@ components:
       description: Модель ошибки API
     StreamingResponseBody:
       type: object
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
+    TariffPlanDocumentPublicView:
+      required:
+      - attachment
+      - id
+      - name
+      - tariffPlan
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Уникальный идентификатор документа
+          format: int64
+          example: 1
+        tariffPlan:
+          type: string
+          description: Код тарифного плана
+          example: SPKG
+        name:
+          type: string
+          description: Отображаемое название документа
+          example: Тарифный план SPKG
+        attachment:
+          $ref: '#/components/schemas/TariffPlanDocumentAttachmentPublicView'
+      description: Информация о документе тарифного плана
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -220,6 +202,17 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-client-tariffs-openapi.yml
-- raiffeisen-ru-client-tariffs-openapi.yml
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена

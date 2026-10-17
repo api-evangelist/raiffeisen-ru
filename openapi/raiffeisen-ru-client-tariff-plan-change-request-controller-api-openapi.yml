@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Client Tariff Plan Change Request Controller…
+  title: Модуль обработки клиентских запросов на смену тарифного…
+  description: Модуль обработки клиентских запросов на смену тарифного плана в системе управления тарифами клиента
   version: 1.0.0
-  description: 'Operations tagged client-tariff-plan-change-request-controller across 2 of this provider''s published API definitions: raiffeisen-ru-tariff-change-requests-openapi.yml, raiffeisen-ru-tariff-change-requests-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/client-tariffs
 tags:
@@ -134,8 +134,6 @@ paths:
       parameters:
       - $ref: '#/components/parameters/AuthorizationHeader'
       - $ref: '#/components/parameters/IdTokenHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/client-tariffs
   /v1/ctcm/request/create:
     post:
       tags:
@@ -262,8 +260,6 @@ paths:
       parameters:
       - $ref: '#/components/parameters/AuthorizationHeader'
       - $ref: '#/components/parameters/IdTokenHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/client-tariffs
   /v1/ctcm/request/{id}/client/{cnum}/state/history:
     get:
       tags:
@@ -397,8 +393,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/client-tariffs
   /v1/ctcm/request/{id}/client/{cnum}/pre-sign:
     get:
       tags:
@@ -532,8 +526,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/client-tariffs
   /v1/ctcm/request/{id}/client/{cnum}/download:
     get:
       tags:
@@ -667,8 +659,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/client-tariffs
   /v1/ctcm/request/{id}/client/{cnum}/body:
     get:
       tags:
@@ -802,8 +792,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/client-tariffs
   /v1/ctcm/request/client/{cnum}/list:
     get:
       tags:
@@ -962,8 +950,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/client-tariffs
   /v1/ctcm/request/{id}/client/{cnum}:
     delete:
       tags:
@@ -1093,10 +1079,88 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/client-tariffs
 components:
   schemas:
+    ClientTariffPlanChangeRequestListView:
+      required:
+      - documentType
+      - id
+      - state
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Уникальный идентификатор
+          format: int64
+        documentType:
+          type: string
+          description: Тип заявления
+          enum:
+          - CLIENT_TARIFF_PLAN_CHANGE_REQUEST
+          - FUTURE_CLIENT_TARIFF_PLAN_CANCEL_REQUEST
+        state:
+          type: string
+          description: Статус заявления
+          enum:
+          - UNSIGNED
+          - PARTIALLY_SIGNED
+          - SIGNED
+          - PROCESSING
+          - DECLINED
+          - DONE
+          - CANCELLED
+        targetTariffPlanName:
+          type: string
+          description: Наименование тарифного плана
+        targetTariffPlanPublicName:
+          type: string
+          description: Публичное наименование тарифного плана
+        createdAt:
+          type: string
+          description: Дата создания записи
+          format: date-time
+        updatedAt:
+          type: string
+          description: Дата обновления записи
+          format: date-time
+      description: Общее представление заявки на смену тарифного плана
+    ClientTariffPlanChangeRequestTemplateView:
+      required:
+      - body
+      type: object
+      properties:
+        version:
+          minimum: 1
+          type: integer
+          description: Версия шаблона
+          format: int32
+        body:
+          minLength: 1
+          type: string
+          description: Тело шаблона заявки
+      description: Шаблон заявки на смену тарифного плана
+    ClientTariffPlanChangeRequestStateView:
+      type: object
+      properties:
+        state:
+          type: string
+          description: Статус заявления
+          enum:
+          - UNSIGNED
+          - PARTIALLY_SIGNED
+          - SIGNED
+          - PROCESSING
+          - DECLINED
+          - DONE
+          - CANCELLED
+        date:
+          type: string
+          description: Дата изменения статуса
+          format: date-time
+        author:
+          type: string
+          description: Автор изменения статуса
+      description: Изменение статуса заявки на смену тарифного плана
     PageResponseClientTariffPlanChangeRequestListView:
       type: object
       properties:
@@ -1120,6 +1184,42 @@ components:
           type: boolean
           description: Признак наличия предыдущей страницы
       description: Страница результатов
+    StreamingResponseBody:
+      type: object
+    ClientTariffPlanChangeRequestBodyView:
+      required:
+      - body
+      - documentType
+      - id
+      - state
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Уникальный идентификатор заявки
+          format: int64
+        documentType:
+          type: string
+          description: Тип заявления
+          enum:
+          - CLIENT_TARIFF_PLAN_CHANGE_REQUEST
+          - FUTURE_CLIENT_TARIFF_PLAN_CANCEL_REQUEST
+        state:
+          type: string
+          description: Статус заявления
+          enum:
+          - UNSIGNED
+          - PARTIALLY_SIGNED
+          - SIGNED
+          - PROCESSING
+          - DECLINED
+          - DONE
+          - CANCELLED
+        body:
+          minLength: 1
+          type: string
+          description: Тело заявки
+      description: Клиентское представление заявки на смену тарифного плана
     ClientTariffPlanChangeRequestStateHistoryView:
       type: object
       properties:
@@ -1133,6 +1233,19 @@ components:
           items:
             $ref: '#/components/schemas/ClientTariffPlanChangeRequestStateView'
       description: История изменений статуса заявки на смену тарифного плана
+    ClientTariffPlanChangeRequestParamsView:
+      required:
+      - cnum
+      - tariffPlan
+      type: object
+      properties:
+        cnum:
+          type: string
+          description: Идентификатор клиента
+        tariffPlan:
+          type: string
+          description: Код целевого тарифного плана
+      description: Параметры заявки на смену тарифного плана
     ClientTariffPlanChangeRequestPreSignView:
       required:
       - clientDocumentNumber
@@ -1204,150 +1317,7 @@ components:
           description: Дата обновления записи
           format: date-time
       description: Данные заявки на смену тарифного плана для виджета наложения подписи
-    ClientTariffPlanChangeRequestBodyView:
-      required:
-      - body
-      - documentType
-      - id
-      - state
-      type: object
-      properties:
-        id:
-          type: integer
-          description: Уникальный идентификатор заявки
-          format: int64
-        documentType:
-          type: string
-          description: Тип заявления
-          enum:
-          - CLIENT_TARIFF_PLAN_CHANGE_REQUEST
-          - FUTURE_CLIENT_TARIFF_PLAN_CANCEL_REQUEST
-        state:
-          type: string
-          description: Статус заявления
-          enum:
-          - UNSIGNED
-          - PARTIALLY_SIGNED
-          - SIGNED
-          - PROCESSING
-          - DECLINED
-          - DONE
-          - CANCELLED
-        body:
-          minLength: 1
-          type: string
-          description: Тело заявки
-      description: Клиентское представление заявки на смену тарифного плана
-    ClientTariffPlanChangeRequestParamsView:
-      required:
-      - cnum
-      - tariffPlan
-      type: object
-      properties:
-        cnum:
-          type: string
-          description: Идентификатор клиента
-        tariffPlan:
-          type: string
-          description: Код целевого тарифного плана
-      description: Параметры заявки на смену тарифного плана
-    ClientTariffPlanChangeRequestTemplateView:
-      required:
-      - body
-      type: object
-      properties:
-        version:
-          minimum: 1
-          type: integer
-          description: Версия шаблона
-          format: int32
-        body:
-          minLength: 1
-          type: string
-          description: Тело шаблона заявки
-      description: Шаблон заявки на смену тарифного плана
-    ClientTariffPlanChangeRequestStateView:
-      type: object
-      properties:
-        state:
-          type: string
-          description: Статус заявления
-          enum:
-          - UNSIGNED
-          - PARTIALLY_SIGNED
-          - SIGNED
-          - PROCESSING
-          - DECLINED
-          - DONE
-          - CANCELLED
-        date:
-          type: string
-          description: Дата изменения статуса
-          format: date-time
-        author:
-          type: string
-          description: Автор изменения статуса
-      description: Изменение статуса заявки на смену тарифного плана
-    ClientTariffPlanChangeRequestListView:
-      required:
-      - documentType
-      - id
-      - state
-      type: object
-      properties:
-        id:
-          type: integer
-          description: Уникальный идентификатор
-          format: int64
-        documentType:
-          type: string
-          description: Тип заявления
-          enum:
-          - CLIENT_TARIFF_PLAN_CHANGE_REQUEST
-          - FUTURE_CLIENT_TARIFF_PLAN_CANCEL_REQUEST
-        state:
-          type: string
-          description: Статус заявления
-          enum:
-          - UNSIGNED
-          - PARTIALLY_SIGNED
-          - SIGNED
-          - PROCESSING
-          - DECLINED
-          - DONE
-          - CANCELLED
-        targetTariffPlanName:
-          type: string
-          description: Наименование тарифного плана
-        targetTariffPlanPublicName:
-          type: string
-          description: Публичное наименование тарифного плана
-        createdAt:
-          type: string
-          description: Дата создания записи
-          format: date-time
-        updatedAt:
-          type: string
-          description: Дата обновления записи
-          format: date-time
-      description: Общее представление заявки на смену тарифного плана
-    StreamingResponseBody:
-      type: object
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -1357,6 +1327,17 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-tariff-change-requests-openapi.yml
-- raiffeisen-ru-tariff-change-requests-openapi.yml
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена

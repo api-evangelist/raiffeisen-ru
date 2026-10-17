@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Report V1 API
+  title: Выписки Report V1 API
+  description: API для генерации и получения выписок в различных форматах.
   version: 1.0.0
-  description: 'Operations tagged Report V1 across 2 of this provider''s published API definitions: raiffeisen-ru-bank-statements-openapi.yml, raiffeisen-ru-bank-statements-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/bank-statements
 tags:
@@ -43,8 +43,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/bank-statements
   /v1/reports/excel:
     post:
       tags:
@@ -80,8 +78,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/bank-statements
   /v1/reports/mt-942:
     post:
       tags:
@@ -118,8 +114,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/bank-statements
   /v1/reports/mt-942-delta:
     post:
       tags:
@@ -171,8 +165,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/bank-statements
   /v1/reports/mt-940:
     post:
       tags:
@@ -209,8 +201,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/bank-statements
   /v1/reports/pdf/attachments:
     post:
       tags:
@@ -246,8 +236,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/bank-statements
   /v1/reports/pdf:
     post:
       tags:
@@ -283,8 +271,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/bank-statements
   /v1/reports/1c:
     post:
       tags:
@@ -320,8 +306,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/bank-statements
   /v1/reports/camt-053:
     post:
       tags:
@@ -358,8 +342,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/bank-statements
   /v1/reports/camt-052:
     post:
       tags:
@@ -396,8 +378,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/bank-statements
   /v1/reports/{reportId}/status:
     get:
       tags:
@@ -420,8 +400,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/bank-statements
   /v1/reports/{reportId}/file:
     get:
       tags:
@@ -468,616 +446,87 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/bank-statements
 components:
-  examples:
-    pdfAttachmentsRequestAllFields:
-      summary: Запрос PDF приложения все поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - 40701978200000000001:401867
-        from: '2023-10-06'
-        to: '2023-10-06'
-        fileName: file
-        intraday: true
-        debitCreditFilter: DEBIT
-        counterpartyInn: '7718266916'
-        counterpartyAccounts:
-        - '40701978200000000001'
-        - '40701978200000000001'
-        splitBy: OPERATION
-        sign: true
-        sort:
-        - sortBy: DEBIT
-          orderBy: ASC
-        - sortBy: CREDIT
-          orderBy: ASC
-    reportStatusCompleted:
-      summary: Генерация отчета завершена
-      value:
-        reportId: 819e5e3c-07f8-4dda-a640-9d6d47bd9344
-        status: COMPLETED
-    fileIsNotReady:
-      summary: Файл отчета не готов
-      value:
-        code: report-file-is-not-ready
-        message: Requested report file is not ready yet.
-    statementsSignParamsError:
-      summary: Невозможно подписать выписки. Внутридневные или разделенные на файлы выписки не могут быть подписаны.
-      value:
-        code: statements-sign-params-error
-        message: 'Statements cannot be signed: intraday or split statements cannot be signed.'
-    excelRequestAllFields:
-      summary: Запрос Excel все поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - 40701978200000000001:401867
-        from: '2023-09-06'
-        to: '2023-10-06'
-        zero: true
-        fileName: file
-        sort:
-        - sortBy: DEBIT
-          orderBy: ASC
-        - sortBy: CREDIT
-          orderBy: ASC
-        intraday: true
-        debitCreditFilter: DEBIT
-        counterpartyInn: '7718266916'
-        counterpartyAccounts:
-        - '40701978200000000001'
-        - '40701978200000000001'
-        splitBy: ACCOUNT
-    noStatements:
-      summary: Выписок не найдено
-      value:
-        code: no-statements
-        message: No statements were found that match the request parameters
-    reportRequestGenerationAccepted:
-      summary: Запрос на генерацию отчета был принят
-      value:
-        reportId: 819e5e3c-07f8-4dda-a640-9d6d47bd9344
-    oneCRequestOnlyRequired:
-      summary: Запрос 1C только обязательные поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - '40702810500001306832'
-        from: '2023-10-06'
-        to: '2023-10-06'
-    mt940RequestOnlyRequired:
-      summary: Запрос MT940 только обязательные поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - '40702810500001306832'
-        from: '2023-10-06'
-        to: '2023-10-06'
-    xmlRequestOnlyRequired:
-      summary: Запрос XML только обязательные поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - '40702810500001306832'
-        from: '2023-10-06'
-        to: '2023-10-06'
-    mt940RequestAllFields:
-      summary: Запрос MT940 все поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - 40701978200000000001:401867
-        from: '2023-10-06'
-        to: '2023-10-06'
-        fileName: file
-        zero: true
-        sort:
-        - sortBy: DEBIT
-          orderBy: ASC
-        - sortBy: CREDIT
-          orderBy: ASC
-        splitBy: ACCOUNT_DATE
-        encoding: WINDOWS
-        showHeader: false
-        field25:
-          format: CUSTOM
-          customValue: Счёт [Account Number] с БИКом [RCBIC] вставлен в отчёт
-        field86: SEPA
-        transliteration: true
-        replacements: a:b;c:d;e:empty;f:space
-    pdfAttachmentsRequestOnlyRequired:
-      summary: Запрос PDF приложения только обязательные поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - '40702810500001306832'
-        from: '2023-10-06'
-        to: '2023-10-06'
-    camt052RequestOnlyRequired:
-      summary: Запрос camt052 только обязательные поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - '40702810500001306832'
-        from: '2023-10-06'
-        to: '2023-10-06'
-    noTransactions:
-      summary: Операций не найдено
-      value:
-        code: no-transactions
-        message: No transactions were found that match the request parameters
-    mt942DeltaRequestOnlyRequired:
-      summary: Запрос инкрементальной выписки MT942 только обязательные поля
-      value:
-        accountKey: '40702810500001306832'
-    oneCRequestAllFields:
-      summary: Запрос 1C все поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - 40701978200000000001:401867
-        from: '2023-10-06'
-        to: '2023-10-06'
-        zero: true
-        fileName: file
-        intraday: true
-        debitCreditFilter: DEBIT
-        includeHolds: true
-        encoding: WINDOWS
-        splitBy: ACCOUNT_DATE
-        zeroIfNoStatementExpected: true
-        sort:
-        - sortBy: DEBIT
-          orderBy: ASC
-        - sortBy: CREDIT
-          orderBy: ASC
-    pdfRequestOnlyRequired:
-      summary: Запрос PDF только обязательные поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - '40702810500001306832'
-        from: '2023-10-06'
-        to: '2023-10-06'
-        withAttachments: true
-    tooManyTransactionsError:
-      summary: Превышено допустимое количество операций для генерации
-      value:
-        code: too-many-transactions-error
-        message: Too many transactions for generation
-    camt053RequestAllFields:
-      summary: Запрос camt053 все поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - 40701978200000000001:401867
-        from: '2023-09-06'
-        to: '2023-10-06'
-        zero: true
-        fileName: file
-        sort:
-        - sortBy: DEBIT
-          orderBy: ASC
-        - sortBy: CREDIT
-          orderBy: ASC
-    excelRequestOnlyRequired:
-      summary: Запрос Excel только обязательные поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - '40702810500001306832'
-        from: '2023-09-06'
-        to: '2023-10-06'
-    statementsSignPeriodError:
-      summary: Невозможно подписать выписки. Параметр "to" должен быть меньше текущей даты.
-      value:
-        code: statements-sign-period-error
-        message: 'Statements cannot be signed: ''to'' is greater than or equal to current date.'
-    xmlRequestAllFields:
-      summary: Запрос XML все поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - 40701978200000000001:401867
-        from: '2023-10-06'
-        to: '2023-10-06'
-        fileName: file
-        zero: true
-        sort:
-        - sortBy: DEBIT
-          orderBy: ASC
-        - sortBy: CREDIT
-          orderBy: ASC
-        splitBy: ACCOUNT
-        intraday: false
-    reportStatusFailed:
-      summary: Генерация отчета завершилась ошибкой
-      value:
-        reportId: 819e5e3c-07f8-4dda-a640-9d6d47bd9344
-        status: FAILED
-    camt052RequestAllFields:
-      summary: Запрос camt052 все поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - 40701978200000000001:401867
-        from: '2023-10-06'
-        to: '2023-10-06'
-        zero: true
-        fileName: file
-        sort:
-        - sortBy: DEBIT
-          orderBy: ASC
-        - sortBy: CREDIT
-          orderBy: ASC
-    uuidValidationError:
-      summary: Ошибка валидации UUID
-      value:
-        code: bad-request
-        message: 'Failed to read request Invalid UUID string: 8770a120-4280-423a-be0'
-    reportStatusCreated:
-      summary: Запрос на создание отчета создан
-      value:
-        reportId: 819e5e3c-07f8-4dda-a640-9d6d47bd9344
-        status: CREATED
-    mt942RequestAllFields:
-      summary: Запрос MT942 все поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - 40701978200000000001:401867
-        from: '2023-10-06'
-        to: '2023-10-06'
-        fileName: file
-        sort:
-        - sortBy: DEBIT
-          orderBy: ASC
-        - sortBy: CREDIT
-          orderBy: ASC
-        splitBy: ACCOUNT_DATE
-        encoding: WINDOWS
-        showHeader: false
-        field25:
-          format: CUSTOM
-          customValue: Счёт [Account Number] с БИКом [RCBIC] вставлен в отчёт
-        field86: SEPA
-        transliteration: true
-        replacements: a:b;c:d;e:empty;f:space
-    mt942RequestOnlyRequired:
-      summary: Запрос MT942 только обязательные поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - '40702810500001306832'
-        from: '2023-10-06'
-        to: '2023-10-06'
-    pdfRequestAllFields:
-      summary: Запрос PDF все поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - 40701978200000000001:401867
-        from: '2023-10-06'
-        to: '2023-10-06'
-        zero: true
-        fileName: file
-        intraday: true
-        debitCreditFilter: DEBIT
-        counterpartyInn: '7718266916'
-        counterpartyAccounts:
-        - '40701978200000000001'
-        - '40701978200000000001'
-        splitBy: ACCOUNT
-        sign: true
-        withAttachments: true
-        sort:
-        - sortBy: DEBIT
-          orderBy: ASC
-        - sortBy: CREDIT
-          orderBy: ASC
-    statementsSignNotReadyError:
-      summary: Невозможно подписать выписки. Данные выписок не готовы.
-      value:
-        code: statements-sign-not-ready-error
-        message: 'Statements cannot be signed: statements data is not ready yet.'
-    reportStatusStarted:
-      summary: Генерация отчета начата
-      value:
-        reportId: 819e5e3c-07f8-4dda-a640-9d6d47bd9344
-        status: STARTED
-    mt942DeltaRequestAllFields:
-      summary: Запрос инкрементальной выписки MT942 все поля
-      value:
-        accountKey: 40701978200000000001:401867
-        lastStatementNumber: 260
-        fileName: file
-        sort:
-        - sortBy: DEBIT
-          orderBy: ASC
-        - sortBy: CREDIT
-          orderBy: ASC
-        encoding: WINDOWS
-        showHeader: false
-        field25:
-          format: CUSTOM
-          customValue: Счёт [Account Number] с БИКом [RCBIC] вставлен в отчёт
-        field86: SEPA
-        transliteration: true
-        replacements: a:b;c:d;e:empty;f:space
-    accountKeyValidationError:
-      summary: Ошибка валидации AccountKey
-      value:
-        code: account-key-parse-error
-        message: 'Failed to read request JSON parse error: Wrong accountKey format [4070103610000000060867:::321312]'
-    camt053RequestOnlyRequired:
-      summary: Запрос camt053 только обязательные поля
-      value:
-        accountKeys:
-        - 40701978200000000001:401867
-        - '40702810500001306832'
-        from: '2023-09-06'
-        to: '2023-10-06'
+  parameters:
+    acceptRanges:
+      name: Accept-Ranges
+      in: header
+      description: Стандартное поведение заголовка Accept-Ranges.
+      schema:
+        type: string
+      example: bytes
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    dryRun:
+      name: dryRun
+      in: query
+      description: "Параметр позволяет выполнить проверку необходимых условий для формирования отчета без запуска генерации. \ntrue - будут выполнены все необходимые проверки перед формированием отчета без запуска генерации. В случае невозможности сгенерировать отчет будет возвращаться ошибка.  \nfalse - проверка необходимых условий для формирования отчета будет выполнена и затем запущена генерация."
+      schema:
+        type: boolean
+        default: false
+      example: true
+    reportId:
+      name: reportId
+      in: path
+      description: Идентификатор отчета
+      required: true
+      schema:
+        type: string
+        format: uuid
+      example: f81d4fae-7dec-11d0-a765-00a0c91e6bf6
+    ifNoneMatch:
+      name: If-None-Match
+      in: header
+      description: Проверить был ли модифицирован файл по значению заголовка ETag
+      schema:
+        type: string
+      example: b7a68b1bfd796350eebccce70ae597e4
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    range:
+      name: Range
+      in: header
+      description: Скачивать определенный интервал байтов файла
+      required: false
+      schema:
+        type: string
+      example: bytes=500-999
+    contentLength:
+      name: Content-Length
+      in: header
+      description: Стандартное поведение заголовка Content-Length.
+      schema:
+        type: string
+      example: '1809115'
+    eTag:
+      name: ETag
+      in: header
+      description: Идентификатор версии ресурса
+      schema:
+        type: string
+      example: b7a68b1bfd796350eebccce70ae597e4
+    contentDisposition:
+      name: Content-Disposition
+      in: header
+      description: Стандартное поведение заголовка Content-Disposition.
+      schema:
+        type: string
+      example: attachment; filename="export_to_pdf_05-05-2025_20-38-50.zip"
   schemas:
-    Field25CustomValue:
-      type: string
-      description: Значение 25 поля для формата CUSTOM
-      example: Счёт [Account Number] с БИКом [RCBIC] вставлен в отчёт
-    SplitByExcel:
-      type: string
-      enum:
-      - ACCOUNT
-      - ACCOUNT_DATE
-      - MULTIPLE_ACCOUNT_DATE
-      description: "Разделить выписки на отдельные файлы и генерировать zip архив. \nACCOUNT - разделить по счетам (в архиве каждый файл будет содержать выписки за период по одному счету), \nACCOUNT_DATE - разделить по счетам и дням (в архиве каждый файл будет содержать выписки по счету за один день),\nMULTIPLE_ACCOUNT_DATE - разделить по дням (в архиве каждый файл будет содержать выписки по нескольким счетам за один день),\nnull - генерируется один файл. \nПо умолчанию генерируется один файл."
-      example: ACCOUNT
-    Intraday:
-      type: boolean
-      description: 'Включать внутридневные выписки: true - включать, false - не включать'
-      default: false
-      example: true
-    DebitCreditFilter:
-      type: string
-      enum:
-      - DEBIT
-      - CREDIT
-      - ALL
-      description: 'Фильтр дебетовых/кредитовых операций: DEBIT - только дебетовые операции, CREDIT - только кредитовые операции, ALL - все операции'
-      default: ALL
-      example: DEBIT
-    ReportSort:
-      type: array
-      items:
-        $ref: '#/components/schemas/ServiceSortReportSortFields'
-    SplitByAccountDateMT:
-      type: string
-      enum:
-      - ACCOUNT_DATE
-      - ACCOUNT_DATE_CHUNKS
-      description: "Разделить выписки на отдельные файлы и генерировать zip архив. \nACCOUNT_DATE - разделить по счетам за день (в архиве каждый файл будет содержать выписки за один день по одному счету), \nACCOUNT_DATE_CHUNKS - разделить по счетам за день, разбивая файл на части по 1000 символов (в архиве каждый файл будет содержать часть выписки за один день по одному счету),\nnull - генерируется один файл. По умолчанию генерируется один файл."
-      example: ACCOUNT_DATE
-    LastStatementNumber:
-      type: integer
-      description: 'Номер последней полученной инкрементальной выписки MT942 (поле 28С).
-
-        Параметр должен содержать корректный номер ранее полученной инкрементальной выписки за текущую дату
-
-        либо может быть не заполнен для получения первой выписки за текущую дату.'
-      example: 260
-    CounterpartyInn:
-      type: string
-      description: Фильтр операций по ИНН контрагента
-      example: '7718266916'
-    CreateCamt052ReportRequest:
-      type: object
-      properties:
-        accountKeys:
-          $ref: '#/components/schemas/AccountKeys'
-        from:
-          $ref: '#/components/schemas/RequestIntervalFrom'
-        to:
-          $ref: '#/components/schemas/RequestIntervalTo'
-        zero:
-          $ref: '#/components/schemas/Zero'
-        fileName:
-          $ref: '#/components/schemas/FileName'
-        sort:
-          $ref: '#/components/schemas/ReportSort'
-      required:
-      - accountKeys
-      - from
-      - to
-    Field25:
-      type: object
-      properties:
-        format:
-          $ref: '#/components/schemas/Field25Format'
-        customValue:
-          $ref: '#/components/schemas/Field25CustomValue'
-      required:
-      - format
-      description: Настройка поля 25
-      example:
-        format: CUSTOM
-        customValue: Счёт [Account Number] с БИКом [RCBIC] вставлен в отчёт
-      default:
-        format: SWIFT_ACCOUNT_CURRENCY
-    WithAttachments:
-      type: boolean
-      description: 'Генерировать выписку с приложениями или без приложений: true - with, false - without'
-      example: true
-    CreateMt942ReportRequest:
-      type: object
-      properties:
-        accountKeys:
-          $ref: '#/components/schemas/AccountKeys'
-        from:
-          $ref: '#/components/schemas/RequestIntervalFrom'
-        to:
-          $ref: '#/components/schemas/RequestIntervalTo'
-        fileName:
-          $ref: '#/components/schemas/FileName'
-        sort:
-          $ref: '#/components/schemas/ReportSort'
-        splitBy:
-          $ref: '#/components/schemas/SplitByAccountDateMT'
-        encoding:
-          $ref: '#/components/schemas/EncodingMt'
-        showHeader:
-          $ref: '#/components/schemas/ShowHeader'
-        field25:
-          $ref: '#/components/schemas/Field25'
-        field86:
-          $ref: '#/components/schemas/Field86'
-        transliteration:
-          $ref: '#/components/schemas/Transliteration'
-        replacements:
-          $ref: '#/components/schemas/Replacements'
-      required:
-      - accountKeys
-      - from
-      - to
-    RequestIntervalFrom:
-      type: string
-      format: date
-      description: Дата выписки с
-      example: '2023-10-06'
-    SplitByAccount:
-      type: string
-      enum:
-      - ACCOUNT
-      description: Разделить выписки на отдельные файлы и генерировать zip архив. ACCOUNT - разделить по счетам (в архиве каждый файл будет содержать выписки за период по одному счету), null - генерируется один файл. По умолчанию генерируется один файл.
-      example: ACCOUNT
-    ErrorResponse:
-      type: object
-      required:
-      - code
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorType'
-        message:
-          $ref: '#/components/schemas/ErrorMessage'
-      example:
-        code: too-many-transactions-error
-        message: Too many transactions for print
-    Transliteration:
-      type: boolean
-      description: Транслитерация в поле 86
-      example: true
-      default: false
-    CreateCamt053ReportRequest:
-      type: object
-      properties:
-        accountKeys:
-          $ref: '#/components/schemas/AccountKeys'
-        from:
-          $ref: '#/components/schemas/RequestIntervalFrom'
-        to:
-          $ref: '#/components/schemas/RequestIntervalTo'
-        zero:
-          $ref: '#/components/schemas/Zero'
-        fileName:
-          $ref: '#/components/schemas/FileName'
-        sort:
-          $ref: '#/components/schemas/ReportSort'
-      required:
-      - accountKeys
-      - from
-      - to
-    ShowVat:
-      type: boolean
-      description: Признак добавления колонки "Сумма НДС". Значение НДС извлекается из текста назначения платежа по шаблонам и может отсутствовать или быть определено некорректно. true - добавить колонку "Сумма НДС" (только для рублёвых счетов), false - не добавлять колонку
-      default: false
-      example: true
-    ReportGenerationRequestResponse:
-      type: object
-      properties:
-        reportId:
-          $ref: '#/components/schemas/ReportId'
-      example:
-        reportId: 4c8d9891-4ee9-4ac8-ae2d-e41ad9f5ee10
-    SplitByPdf:
-      type: string
-      enum:
-      - ACCOUNT
-      - ACCOUNT_DATE
-      - MULTIPLE_ACCOUNT_DATE
-      description: 'Разделить выписки на отдельные файлы и генерировать zip архив.
-
-        ACCOUNT - разделить по счетам (в архиве каждый файл будет содержать выписки за период по одному счету),
-
-        ACCOUNT_DATE - разделить по счетам и дням (в архиве каждый файл будет содержать выписки по счету за один день),
-
-        MULTIPLE_ACCOUNT_DATE - разделить по дням (в архиве каждый файл будет содержать выписки по нескольким счетам за один день),
-
-        null - генерируется один файл.
-
-        По умолчанию генерируется один файл.'
-      example: ACCOUNT
-    SplitByOperation:
-      type: string
-      enum:
-      - OPERATION
-      description: Разделить приложения к выписке на отдельные файлы и генерировать zip архив. OPERATION - разделить по операциям (в архиве каждый файл будет содержать отдельную операцию), null - генерируется один файл. По умолчанию генерируется один файл.
-      example: OPERATION
-    FileName:
-      type: string
-      description: Имя сгенерированного файла
-      example: qwerty
-    SortBy:
-      type: string
-      enum:
-      - DEBIT
-      - CREDIT
-      description: Поле сортировки
-      example: CREDIT
-    CreateXmlReportRequest:
-      type: object
-      properties:
-        accountKeys:
-          $ref: '#/components/schemas/AccountKeys'
-        from:
-          $ref: '#/components/schemas/RequestIntervalFrom'
-        to:
-          $ref: '#/components/schemas/RequestIntervalTo'
-        zero:
-          $ref: '#/components/schemas/Zero'
-        fileName:
-          $ref: '#/components/schemas/FileName'
-        sort:
-          $ref: '#/components/schemas/ReportSort'
-        intraday:
-          $ref: '#/components/schemas/Intraday'
-        splitBy:
-          $ref: '#/components/schemas/SplitByAccount'
-      required:
-      - accountKeys
-      - from
-      - to
-    ServiceSortReportSortFields:
-      type: object
-      properties:
-        sortBy:
-          $ref: '#/components/schemas/SortBy'
-        orderBy:
-          $ref: '#/components/schemas/OrderBy'
-      required:
-      - sortBy
-      - orderBy
-      example:
-        sortBy: DEBIT
-        orderBy: ASC
-    Field86:
-      type: string
-      enum:
-      - SEPA
-      - OLD
-      - DISABLED
-      description: Формат 86 поля. SEPA - формта SEPA, OLD - Старый формат (NZP/[Details of payment]), DISABLED - не добавлять поле 86
-      example: OLD
-      default: SEPA
     Create1CReportRequest:
       type: object
       properties:
@@ -1109,6 +558,94 @@ components:
       - accountKeys
       - from
       - to
+    ZeroIfNoStatementExpected:
+      type: boolean
+      description: Генерировать синтетическую нулевую итоговую выписку, когда обычная выписка не будет генерироваться.
+      example: true
+      default: false
+    ErrorMessage:
+      type: string
+      description: Сообщение об ошибке
+      example: Too many transactions for print
+    AccountKeys:
+      type: array
+      description: 'Бизнес-ключ счета. Формат: `<20-значный номер счета>` или `<20-значный номер счета>:<CNUM>`'
+      example:
+      - 40701978200000000001:401867
+      - '40702810500001306832'
+      items:
+        type: string
+    Encoding1C:
+      type: string
+      enum:
+      - WINDOWS
+      - DOS
+      description: 'Кодировка файла: WINDOWS - cp1251, DOS - cp866'
+      default: WINDOWS
+      example: DOS
+    OrderBy:
+      type: string
+      enum:
+      - ASC
+      - DESC
+      description: Направление сортировки
+      example: ASC
+    CreateXmlReportRequest:
+      type: object
+      properties:
+        accountKeys:
+          $ref: '#/components/schemas/AccountKeys'
+        from:
+          $ref: '#/components/schemas/RequestIntervalFrom'
+        to:
+          $ref: '#/components/schemas/RequestIntervalTo'
+        zero:
+          $ref: '#/components/schemas/Zero'
+        fileName:
+          $ref: '#/components/schemas/FileName'
+        sort:
+          $ref: '#/components/schemas/ReportSort'
+        intraday:
+          $ref: '#/components/schemas/Intraday'
+        splitBy:
+          $ref: '#/components/schemas/SplitByAccount'
+      required:
+      - accountKeys
+      - from
+      - to
+    SplitByExcel:
+      type: string
+      enum:
+      - ACCOUNT
+      - ACCOUNT_DATE
+      - MULTIPLE_ACCOUNT_DATE
+      description: "Разделить выписки на отдельные файлы и генерировать zip архив. \nACCOUNT - разделить по счетам (в архиве каждый файл будет содержать выписки за период по одному счету), \nACCOUNT_DATE - разделить по счетам и дням (в архиве каждый файл будет содержать выписки по счету за один день),\nMULTIPLE_ACCOUNT_DATE - разделить по дням (в архиве каждый файл будет содержать выписки по нескольким счетам за один день),\nnull - генерируется один файл. \nПо умолчанию генерируется один файл."
+      example: ACCOUNT
+    FileName:
+      type: string
+      description: Имя сгенерированного файла
+      example: qwerty
+    ReportGenerationStatusResponse:
+      type: object
+      properties:
+        reportId:
+          $ref: '#/components/schemas/ReportId'
+        status:
+          type: string
+          enum:
+          - CREATED
+          - STARTED
+          - FAILED
+          - STOPPED
+          - RESTARTED
+          - COMPLETED
+          - CANCELLED
+      required:
+      - status
+      - reportId
+      example:
+        reportId: 4c8d9891-4ee9-4ac8-ae2d-e41ad9f5ee10
+        status: STARTED
     ErrorType:
       type: string
       enum:
@@ -1128,6 +665,282 @@ components:
       - STATEMENTS_SIGN_PERIOD_ERROR
       - STATEMENTS_SIGN_PARAMS_ERROR
       - REPORT_FILE_IS_NOT_READY
+    Replacements:
+      type: string
+      description: Правила корректировки символов SWIFT в поле 86 и 61. В формате "sourceChar1:targetChar1;sourceChar2:targetChar2". В targetChar могут быть символы пустой строки и пробела ('empty', 'space').
+      example: a:b;c:d;e:empty;f:space
+    CounterpartyInn:
+      type: string
+      description: Фильтр операций по ИНН контрагента
+      example: '7718266916'
+    Field25:
+      type: object
+      properties:
+        format:
+          $ref: '#/components/schemas/Field25Format'
+        customValue:
+          $ref: '#/components/schemas/Field25CustomValue'
+      required:
+      - format
+      description: Настройка поля 25
+      example:
+        format: CUSTOM
+        customValue: Счёт [Account Number] с БИКом [RCBIC] вставлен в отчёт
+      default:
+        format: SWIFT_ACCOUNT_CURRENCY
+    RequestIntervalFrom:
+      type: string
+      format: date
+      description: Дата выписки с
+      example: '2023-10-06'
+    EncodingMt:
+      type: string
+      enum:
+      - WINDOWS
+      - DOS
+      - UTF8
+      description: 'Кодировка файла: WINDOWS - cp1251, DOS - cp866, UTF8 - utf-8'
+      default: WINDOWS
+      example: DOS
+    CounterpartyAccounts:
+      type: array
+      description: Фильтр операций по счетам контрагента
+      example:
+      - '40701978200000000001'
+      - '40701978200000000002'
+      items:
+        type: string
+    AccountKey:
+      type: string
+      description: 'Бизнес-ключ счета. Формат: `<20-значный номер счета>` или `<20-значный номер счета>:<CNUM>`'
+      example: '40702810500001306832'
+    RequestIntervalTo:
+      type: string
+      format: date
+      description: Дата выписки по
+      example: '2023-10-06'
+    CreateCamt052ReportRequest:
+      type: object
+      properties:
+        accountKeys:
+          $ref: '#/components/schemas/AccountKeys'
+        from:
+          $ref: '#/components/schemas/RequestIntervalFrom'
+        to:
+          $ref: '#/components/schemas/RequestIntervalTo'
+        zero:
+          $ref: '#/components/schemas/Zero'
+        fileName:
+          $ref: '#/components/schemas/FileName'
+        sort:
+          $ref: '#/components/schemas/ReportSort'
+      required:
+      - accountKeys
+      - from
+      - to
+    ShowVat:
+      type: boolean
+      description: Признак добавления колонки "Сумма НДС". Значение НДС извлекается из текста назначения платежа по шаблонам и может отсутствовать или быть определено некорректно. true - добавить колонку "Сумма НДС" (только для рублёвых счетов), false - не добавлять колонку
+      default: false
+      example: true
+    ReportSort:
+      type: array
+      items:
+        $ref: '#/components/schemas/ServiceSortReportSortFields'
+    Intraday:
+      type: boolean
+      description: 'Включать внутридневные выписки: true - включать, false - не включать'
+      default: false
+      example: true
+    SortBy:
+      type: string
+      enum:
+      - DEBIT
+      - CREDIT
+      description: Поле сортировки
+      example: CREDIT
+    CreateMt942ReportRequest:
+      type: object
+      properties:
+        accountKeys:
+          $ref: '#/components/schemas/AccountKeys'
+        from:
+          $ref: '#/components/schemas/RequestIntervalFrom'
+        to:
+          $ref: '#/components/schemas/RequestIntervalTo'
+        fileName:
+          $ref: '#/components/schemas/FileName'
+        sort:
+          $ref: '#/components/schemas/ReportSort'
+        splitBy:
+          $ref: '#/components/schemas/SplitByAccountDateMT'
+        encoding:
+          $ref: '#/components/schemas/EncodingMt'
+        showHeader:
+          $ref: '#/components/schemas/ShowHeader'
+        field25:
+          $ref: '#/components/schemas/Field25'
+        field86:
+          $ref: '#/components/schemas/Field86'
+        transliteration:
+          $ref: '#/components/schemas/Transliteration'
+        replacements:
+          $ref: '#/components/schemas/Replacements'
+      required:
+      - accountKeys
+      - from
+      - to
+    ReportId:
+      type: string
+      format: uuid
+      description: Идентификатор отчета
+      example: 4c8d9891-4ee9-4ac8-ae2d-e41ad9f5ee10
+    CreatePdfAttachmentsReportRequest:
+      type: object
+      properties:
+        accountKeys:
+          $ref: '#/components/schemas/AccountKeys'
+        from:
+          $ref: '#/components/schemas/RequestIntervalFrom'
+        to:
+          $ref: '#/components/schemas/RequestIntervalTo'
+        fileName:
+          $ref: '#/components/schemas/FileName'
+        sort:
+          $ref: '#/components/schemas/ReportSort'
+        intraday:
+          $ref: '#/components/schemas/Intraday'
+        debitCreditFilter:
+          $ref: '#/components/schemas/DebitCreditFilter'
+        counterpartyInn:
+          $ref: '#/components/schemas/CounterpartyInn'
+        counterpartyAccounts:
+          $ref: '#/components/schemas/CounterpartyAccounts'
+        splitBy:
+          $ref: '#/components/schemas/SplitByOperation'
+        sign:
+          $ref: '#/components/schemas/Sign'
+      required:
+      - accountKeys
+      - from
+      - to
+    SplitByPdf:
+      type: string
+      enum:
+      - ACCOUNT
+      - ACCOUNT_DATE
+      - MULTIPLE_ACCOUNT_DATE
+      description: 'Разделить выписки на отдельные файлы и генерировать zip архив.
+
+        ACCOUNT - разделить по счетам (в архиве каждый файл будет содержать выписки за период по одному счету),
+
+        ACCOUNT_DATE - разделить по счетам и дням (в архиве каждый файл будет содержать выписки по счету за один день),
+
+        MULTIPLE_ACCOUNT_DATE - разделить по дням (в архиве каждый файл будет содержать выписки по нескольким счетам за один день),
+
+        null - генерируется один файл.
+
+        По умолчанию генерируется один файл.'
+      example: ACCOUNT
+    SplitByAccountDateMT:
+      type: string
+      enum:
+      - ACCOUNT_DATE
+      - ACCOUNT_DATE_CHUNKS
+      description: "Разделить выписки на отдельные файлы и генерировать zip архив. \nACCOUNT_DATE - разделить по счетам за день (в архиве каждый файл будет содержать выписки за один день по одному счету), \nACCOUNT_DATE_CHUNKS - разделить по счетам за день, разбивая файл на части по 1000 символов (в архиве каждый файл будет содержать часть выписки за один день по одному счету),\nnull - генерируется один файл. По умолчанию генерируется один файл."
+      example: ACCOUNT_DATE
+    CreateMt940ReportRequest:
+      type: object
+      properties:
+        accountKeys:
+          $ref: '#/components/schemas/AccountKeys'
+        from:
+          $ref: '#/components/schemas/RequestIntervalFrom'
+        to:
+          $ref: '#/components/schemas/RequestIntervalTo'
+        zero:
+          $ref: '#/components/schemas/Zero'
+        fileName:
+          $ref: '#/components/schemas/FileName'
+        sort:
+          $ref: '#/components/schemas/ReportSort'
+        splitBy:
+          $ref: '#/components/schemas/SplitByAccountDateMT'
+        encoding:
+          $ref: '#/components/schemas/EncodingMt'
+        showHeader:
+          $ref: '#/components/schemas/ShowHeader'
+        field25:
+          $ref: '#/components/schemas/Field25'
+        field86:
+          $ref: '#/components/schemas/Field86'
+        transliteration:
+          $ref: '#/components/schemas/Transliteration'
+        replacements:
+          $ref: '#/components/schemas/Replacements'
+      required:
+      - accountKeys
+      - from
+      - to
+    Field86:
+      type: string
+      enum:
+      - SEPA
+      - OLD
+      - DISABLED
+      description: Формат 86 поля. SEPA - формта SEPA, OLD - Старый формат (NZP/[Details of payment]), DISABLED - не добавлять поле 86
+      example: OLD
+      default: SEPA
+    CreateMt942DeltaReportRequest:
+      type: object
+      properties:
+        accountKey:
+          $ref: '#/components/schemas/AccountKey'
+        lastStatementNumber:
+          $ref: '#/components/schemas/LastStatementNumber'
+        fileName:
+          $ref: '#/components/schemas/FileName'
+        sort:
+          $ref: '#/components/schemas/ReportSort'
+        encoding:
+          $ref: '#/components/schemas/EncodingMt'
+        showHeader:
+          $ref: '#/components/schemas/ShowHeader'
+        field25:
+          $ref: '#/components/schemas/Field25'
+        field86:
+          $ref: '#/components/schemas/Field86'
+        transliteration:
+          $ref: '#/components/schemas/Transliteration'
+        replacements:
+          $ref: '#/components/schemas/Replacements'
+      required:
+      - accountKey
+    SplitByOperation:
+      type: string
+      enum:
+      - OPERATION
+      description: Разделить приложения к выписке на отдельные файлы и генерировать zip архив. OPERATION - разделить по операциям (в архиве каждый файл будет содержать отдельную операцию), null - генерируется один файл. По умолчанию генерируется один файл.
+      example: OPERATION
+    Field25CustomValue:
+      type: string
+      description: Значение 25 поля для формата CUSTOM
+      example: Счёт [Account Number] с БИКом [RCBIC] вставлен в отчёт
+    Zero:
+      type: boolean
+      description: Включать нулевые выписки, true - все выписки (с движениями по счету и без), false - только выписки с движениями по счету (ненулевые)
+      default: false
+      example: true
+    Field25Format:
+      type: string
+      enum:
+      - SWIFT_ACCOUNT_CURRENCY
+      - SWIFT_ACCOUNT
+      - RCBIC_ACCOUNT
+      - CUSTOM
+      description: "Формат поля 25. SWIFT_ACCOUNT_CURRENCY - строка формата [SWIFT][Счет][Валюта счета], SWIFT_ACCOUNT - строка формата [SWIFT][Счет], RCBIC_ACCOUNT - строка формата [RCBIC][Счет], CUSTOM - кастомизируемый формат. \nДля формата CUSTOM доступны переменные: [Account Number] - счет, [RCBIC] - БИК Банка, [SWIFT] - SWIFT код банка, [Cur] - валюта счета."
+      example: RCBIC_ACCOUNT
+      default: SWIFT_ACCOUNT_CURRENCY
     CreateExcelReportRequest:
       type: object
       properties:
@@ -1159,57 +972,81 @@ components:
       - accountKeys
       - from
       - to
-    EncodingMt:
+    SplitByAccountDate:
       type: string
       enum:
-      - WINDOWS
-      - DOS
-      - UTF8
-      description: 'Кодировка файла: WINDOWS - cp1251, DOS - cp866, UTF8 - utf-8'
-      default: WINDOWS
-      example: DOS
-    IncludeHolds:
-      type: boolean
-      description: 'Включать холды: true - включать, false - не включать'
-      default: true
-      example: false
-    Replacements:
-      type: string
-      description: Правила корректировки символов SWIFT в поле 86 и 61. В формате "sourceChar1:targetChar1;sourceChar2:targetChar2". В targetChar могут быть символы пустой строки и пробела ('empty', 'space').
-      example: a:b;c:d;e:empty;f:space
-    AccountKeys:
-      type: array
-      description: 'Бизнес-ключ счета. Формат: `<20-значный номер счета>` или `<20-значный номер счета>:<CNUM>`'
-      example:
-      - 40701978200000000001:401867
-      - '40702810500001306832'
-      items:
-        type: string
-    CreateMt942DeltaReportRequest:
+      - ACCOUNT_DATE
+      description: Разделить выписки на отдельные файлы и генерировать zip архив. ACCOUNT_DATE - разделить по счетам за день (в архиве каждый файл будет содержать выписки за один день по одному счету), null - генерируется один файл. По умолчанию генерируется один файл.
+      example: ACCOUNT_DATE
+    ReportGenerationRequestResponse:
       type: object
       properties:
-        accountKey:
-          $ref: '#/components/schemas/AccountKey'
-        lastStatementNumber:
-          $ref: '#/components/schemas/LastStatementNumber'
-        fileName:
-          $ref: '#/components/schemas/FileName'
-        sort:
-          $ref: '#/components/schemas/ReportSort'
-        encoding:
-          $ref: '#/components/schemas/EncodingMt'
-        showHeader:
-          $ref: '#/components/schemas/ShowHeader'
-        field25:
-          $ref: '#/components/schemas/Field25'
-        field86:
-          $ref: '#/components/schemas/Field86'
-        transliteration:
-          $ref: '#/components/schemas/Transliteration'
-        replacements:
-          $ref: '#/components/schemas/Replacements'
+        reportId:
+          $ref: '#/components/schemas/ReportId'
+      example:
+        reportId: 4c8d9891-4ee9-4ac8-ae2d-e41ad9f5ee10
+    WithAttachments:
+      type: boolean
+      description: 'Генерировать выписку с приложениями или без приложений: true - with, false - without'
+      example: true
+    DebitCreditFilter:
+      type: string
+      enum:
+      - DEBIT
+      - CREDIT
+      - ALL
+      description: 'Фильтр дебетовых/кредитовых операций: DEBIT - только дебетовые операции, CREDIT - только кредитовые операции, ALL - все операции'
+      default: ALL
+      example: DEBIT
+    SplitByAccount:
+      type: string
+      enum:
+      - ACCOUNT
+      description: Разделить выписки на отдельные файлы и генерировать zip архив. ACCOUNT - разделить по счетам (в архиве каждый файл будет содержать выписки за период по одному счету), null - генерируется один файл. По умолчанию генерируется один файл.
+      example: ACCOUNT
+    Sign:
+      type: boolean
+      description: 'Подписывать итоговые выписки: true - подписывать, false - не подписывать'
+      default: false
+      example: true
+    ErrorResponse:
+      type: object
       required:
-      - accountKey
+      - code
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorType'
+        message:
+          $ref: '#/components/schemas/ErrorMessage'
+      example:
+        code: too-many-transactions-error
+        message: Too many transactions for print
+    Transliteration:
+      type: boolean
+      description: Транслитерация в поле 86
+      example: true
+      default: false
+    LastStatementNumber:
+      type: integer
+      description: 'Номер последней полученной инкрементальной выписки MT942 (поле 28С).
+
+        Параметр должен содержать корректный номер ранее полученной инкрементальной выписки за текущую дату
+
+        либо может быть не заполнен для получения первой выписки за текущую дату.'
+      example: 260
+    ServiceSortReportSortFields:
+      type: object
+      properties:
+        sortBy:
+          $ref: '#/components/schemas/SortBy'
+        orderBy:
+          $ref: '#/components/schemas/OrderBy'
+      required:
+      - sortBy
+      - orderBy
+      example:
+        sortBy: DEBIT
+        orderBy: ASC
     CreatePdfReportRequest:
       type: object
       properties:
@@ -1244,45 +1081,7 @@ components:
       - from
       - to
       - withAttachments
-    Field25Format:
-      type: string
-      enum:
-      - SWIFT_ACCOUNT_CURRENCY
-      - SWIFT_ACCOUNT
-      - RCBIC_ACCOUNT
-      - CUSTOM
-      description: "Формат поля 25. SWIFT_ACCOUNT_CURRENCY - строка формата [SWIFT][Счет][Валюта счета], SWIFT_ACCOUNT - строка формата [SWIFT][Счет], RCBIC_ACCOUNT - строка формата [RCBIC][Счет], CUSTOM - кастомизируемый формат. \nДля формата CUSTOM доступны переменные: [Account Number] - счет, [RCBIC] - БИК Банка, [SWIFT] - SWIFT код банка, [Cur] - валюта счета."
-      example: RCBIC_ACCOUNT
-      default: SWIFT_ACCOUNT_CURRENCY
-    Zero:
-      type: boolean
-      description: Включать нулевые выписки, true - все выписки (с движениями по счету и без), false - только выписки с движениями по счету (ненулевые)
-      default: false
-      example: true
-    SplitByAccountDate:
-      type: string
-      enum:
-      - ACCOUNT_DATE
-      description: Разделить выписки на отдельные файлы и генерировать zip архив. ACCOUNT_DATE - разделить по счетам за день (в архиве каждый файл будет содержать выписки за один день по одному счету), null - генерируется один файл. По умолчанию генерируется один файл.
-      example: ACCOUNT_DATE
-    Sign:
-      type: boolean
-      description: 'Подписывать итоговые выписки: true - подписывать, false - не подписывать'
-      default: false
-      example: true
-    OrderBy:
-      type: string
-      enum:
-      - ASC
-      - DESC
-      description: Направление сортировки
-      example: ASC
-    RequestIntervalTo:
-      type: string
-      format: date
-      description: Дата выписки по
-      example: '2023-10-06'
-    CreateMt940ReportRequest:
+    CreateCamt053ReportRequest:
       type: object
       properties:
         accountKeys:
@@ -1297,210 +1096,379 @@ components:
           $ref: '#/components/schemas/FileName'
         sort:
           $ref: '#/components/schemas/ReportSort'
-        splitBy:
-          $ref: '#/components/schemas/SplitByAccountDateMT'
-        encoding:
-          $ref: '#/components/schemas/EncodingMt'
-        showHeader:
-          $ref: '#/components/schemas/ShowHeader'
-        field25:
-          $ref: '#/components/schemas/Field25'
-        field86:
-          $ref: '#/components/schemas/Field86'
-        transliteration:
-          $ref: '#/components/schemas/Transliteration'
-        replacements:
-          $ref: '#/components/schemas/Replacements'
       required:
       - accountKeys
       - from
       - to
-    CounterpartyAccounts:
-      type: array
-      description: Фильтр операций по счетам контрагента
-      example:
-      - '40701978200000000001'
-      - '40701978200000000002'
-      items:
-        type: string
     ShowHeader:
       type: boolean
       description: Отображать заголовок выписок
       example: true
       default: false
-    Encoding1C:
-      type: string
-      enum:
-      - WINDOWS
-      - DOS
-      description: 'Кодировка файла: WINDOWS - cp1251, DOS - cp866'
-      default: WINDOWS
-      example: DOS
-    ErrorMessage:
-      type: string
-      description: Сообщение об ошибке
-      example: Too many transactions for print
-    AccountKey:
-      type: string
-      description: 'Бизнес-ключ счета. Формат: `<20-значный номер счета>` или `<20-значный номер счета>:<CNUM>`'
-      example: '40702810500001306832'
-    ZeroIfNoStatementExpected:
+    IncludeHolds:
       type: boolean
-      description: Генерировать синтетическую нулевую итоговую выписку, когда обычная выписка не будет генерироваться.
-      example: true
-      default: false
-    ReportGenerationStatusResponse:
-      type: object
-      properties:
-        reportId:
-          $ref: '#/components/schemas/ReportId'
-        status:
-          type: string
-          enum:
-          - CREATED
-          - STARTED
-          - FAILED
-          - STOPPED
-          - RESTARTED
-          - COMPLETED
-          - CANCELLED
-      required:
-      - status
-      - reportId
-      example:
-        reportId: 4c8d9891-4ee9-4ac8-ae2d-e41ad9f5ee10
-        status: STARTED
-    CreatePdfAttachmentsReportRequest:
-      type: object
-      properties:
+      description: 'Включать холды: true - включать, false - не включать'
+      default: true
+      example: false
+  examples:
+    camt053RequestOnlyRequired:
+      summary: Запрос camt053 только обязательные поля
+      value:
         accountKeys:
-          $ref: '#/components/schemas/AccountKeys'
-        from:
-          $ref: '#/components/schemas/RequestIntervalFrom'
-        to:
-          $ref: '#/components/schemas/RequestIntervalTo'
-        fileName:
-          $ref: '#/components/schemas/FileName'
+        - 40701978200000000001:401867
+        - '40702810500001306832'
+        from: '2023-09-06'
+        to: '2023-10-06'
+    oneCRequestOnlyRequired:
+      summary: Запрос 1C только обязательные поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - '40702810500001306832'
+        from: '2023-10-06'
+        to: '2023-10-06'
+    mt942DeltaRequestAllFields:
+      summary: Запрос инкрементальной выписки MT942 все поля
+      value:
+        accountKey: 40701978200000000001:401867
+        lastStatementNumber: 260
+        fileName: file
         sort:
-          $ref: '#/components/schemas/ReportSort'
-        intraday:
-          $ref: '#/components/schemas/Intraday'
-        debitCreditFilter:
-          $ref: '#/components/schemas/DebitCreditFilter'
-        counterpartyInn:
-          $ref: '#/components/schemas/CounterpartyInn'
+        - sortBy: DEBIT
+          orderBy: ASC
+        - sortBy: CREDIT
+          orderBy: ASC
+        encoding: WINDOWS
+        showHeader: false
+        field25:
+          format: CUSTOM
+          customValue: Счёт [Account Number] с БИКом [RCBIC] вставлен в отчёт
+        field86: SEPA
+        transliteration: true
+        replacements: a:b;c:d;e:empty;f:space
+    uuidValidationError:
+      summary: Ошибка валидации UUID
+      value:
+        code: bad-request
+        message: 'Failed to read request Invalid UUID string: 8770a120-4280-423a-be0'
+    reportStatusCompleted:
+      summary: Генерация отчета завершена
+      value:
+        reportId: 819e5e3c-07f8-4dda-a640-9d6d47bd9344
+        status: COMPLETED
+    oneCRequestAllFields:
+      summary: Запрос 1C все поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - 40701978200000000001:401867
+        from: '2023-10-06'
+        to: '2023-10-06'
+        zero: true
+        fileName: file
+        intraday: true
+        debitCreditFilter: DEBIT
+        includeHolds: true
+        encoding: WINDOWS
+        splitBy: ACCOUNT_DATE
+        zeroIfNoStatementExpected: true
+        sort:
+        - sortBy: DEBIT
+          orderBy: ASC
+        - sortBy: CREDIT
+          orderBy: ASC
+    noTransactions:
+      summary: Операций не найдено
+      value:
+        code: no-transactions
+        message: No transactions were found that match the request parameters
+    pdfRequestOnlyRequired:
+      summary: Запрос PDF только обязательные поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - '40702810500001306832'
+        from: '2023-10-06'
+        to: '2023-10-06'
+        withAttachments: true
+    mt942RequestAllFields:
+      summary: Запрос MT942 все поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - 40701978200000000001:401867
+        from: '2023-10-06'
+        to: '2023-10-06'
+        fileName: file
+        sort:
+        - sortBy: DEBIT
+          orderBy: ASC
+        - sortBy: CREDIT
+          orderBy: ASC
+        splitBy: ACCOUNT_DATE
+        encoding: WINDOWS
+        showHeader: false
+        field25:
+          format: CUSTOM
+          customValue: Счёт [Account Number] с БИКом [RCBIC] вставлен в отчёт
+        field86: SEPA
+        transliteration: true
+        replacements: a:b;c:d;e:empty;f:space
+    xmlRequestAllFields:
+      summary: Запрос XML все поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - 40701978200000000001:401867
+        from: '2023-10-06'
+        to: '2023-10-06'
+        fileName: file
+        zero: true
+        sort:
+        - sortBy: DEBIT
+          orderBy: ASC
+        - sortBy: CREDIT
+          orderBy: ASC
+        splitBy: ACCOUNT
+        intraday: false
+    camt052RequestOnlyRequired:
+      summary: Запрос camt052 только обязательные поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - '40702810500001306832'
+        from: '2023-10-06'
+        to: '2023-10-06'
+    camt052RequestAllFields:
+      summary: Запрос camt052 все поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - 40701978200000000001:401867
+        from: '2023-10-06'
+        to: '2023-10-06'
+        zero: true
+        fileName: file
+        sort:
+        - sortBy: DEBIT
+          orderBy: ASC
+        - sortBy: CREDIT
+          orderBy: ASC
+    statementsSignPeriodError:
+      summary: Невозможно подписать выписки. Параметр "to" должен быть меньше текущей даты.
+      value:
+        code: statements-sign-period-error
+        message: 'Statements cannot be signed: ''to'' is greater than or equal to current date.'
+    pdfAttachmentsRequestOnlyRequired:
+      summary: Запрос PDF приложения только обязательные поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - '40702810500001306832'
+        from: '2023-10-06'
+        to: '2023-10-06'
+    tooManyTransactionsError:
+      summary: Превышено допустимое количество операций для генерации
+      value:
+        code: too-many-transactions-error
+        message: Too many transactions for generation
+    reportRequestGenerationAccepted:
+      summary: Запрос на генерацию отчета был принят
+      value:
+        reportId: 819e5e3c-07f8-4dda-a640-9d6d47bd9344
+    statementsSignNotReadyError:
+      summary: Невозможно подписать выписки. Данные выписок не готовы.
+      value:
+        code: statements-sign-not-ready-error
+        message: 'Statements cannot be signed: statements data is not ready yet.'
+    reportStatusCreated:
+      summary: Запрос на создание отчета создан
+      value:
+        reportId: 819e5e3c-07f8-4dda-a640-9d6d47bd9344
+        status: CREATED
+    pdfAttachmentsRequestAllFields:
+      summary: Запрос PDF приложения все поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - 40701978200000000001:401867
+        from: '2023-10-06'
+        to: '2023-10-06'
+        fileName: file
+        intraday: true
+        debitCreditFilter: DEBIT
+        counterpartyInn: '7718266916'
         counterpartyAccounts:
-          $ref: '#/components/schemas/CounterpartyAccounts'
-        splitBy:
-          $ref: '#/components/schemas/SplitByOperation'
-        sign:
-          $ref: '#/components/schemas/Sign'
-      required:
-      - accountKeys
-      - from
-      - to
-    ReportId:
-      type: string
-      format: uuid
-      description: Идентификатор отчета
-      example: 4c8d9891-4ee9-4ac8-ae2d-e41ad9f5ee10
-  parameters:
-    contentLength:
-      name: Content-Length
-      in: header
-      description: Стандартное поведение заголовка Content-Length.
-      schema:
-        type: string
-      example: '1809115'
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
-    ifNoneMatch:
-      name: If-None-Match
-      in: header
-      description: Проверить был ли модифицирован файл по значению заголовка ETag
-      schema:
-        type: string
-      example: b7a68b1bfd796350eebccce70ae597e4
-    reportId:
-      name: reportId
-      in: path
-      description: Идентификатор отчета
-      required: true
-      schema:
-        type: string
-        format: uuid
-      example: f81d4fae-7dec-11d0-a765-00a0c91e6bf6
-    range:
-      name: Range
-      in: header
-      description: Скачивать определенный интервал байтов файла
-      required: false
-      schema:
-        type: string
-      example: bytes=500-999
-    eTag:
-      name: ETag
-      in: header
-      description: Идентификатор версии ресурса
-      schema:
-        type: string
-      example: b7a68b1bfd796350eebccce70ae597e4
-    dryRun:
-      name: dryRun
-      in: query
-      description: "Параметр позволяет выполнить проверку необходимых условий для формирования отчета без запуска генерации. \ntrue - будут выполнены все необходимые проверки перед формированием отчета без запуска генерации. В случае невозможности сгенерировать отчет будет возвращаться ошибка.  \nfalse - проверка необходимых условий для формирования отчета будет выполнена и затем запущена генерация."
-      schema:
-        type: boolean
-        default: false
-      example: true
-    IdTokenHeader:
-      name: Id-Token
-      in: header
-      description: Идентификационный токен пользователя
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-    contentDisposition:
-      name: Content-Disposition
-      in: header
-      description: Стандартное поведение заголовка Content-Disposition.
-      schema:
-        type: string
-      example: attachment; filename="export_to_pdf_05-05-2025_20-38-50.zip"
-    acceptRanges:
-      name: Accept-Ranges
-      in: header
-      description: Стандартное поведение заголовка Accept-Ranges.
-      schema:
-        type: string
-      example: bytes
+        - '40701978200000000001'
+        - '40701978200000000001'
+        splitBy: OPERATION
+        sign: true
+        sort:
+        - sortBy: DEBIT
+          orderBy: ASC
+        - sortBy: CREDIT
+          orderBy: ASC
+    reportStatusFailed:
+      summary: Генерация отчета завершилась ошибкой
+      value:
+        reportId: 819e5e3c-07f8-4dda-a640-9d6d47bd9344
+        status: FAILED
+    accountKeyValidationError:
+      summary: Ошибка валидации AccountKey
+      value:
+        code: account-key-parse-error
+        message: 'Failed to read request JSON parse error: Wrong accountKey format [4070103610000000060867:::321312]'
+    camt053RequestAllFields:
+      summary: Запрос camt053 все поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - 40701978200000000001:401867
+        from: '2023-09-06'
+        to: '2023-10-06'
+        zero: true
+        fileName: file
+        sort:
+        - sortBy: DEBIT
+          orderBy: ASC
+        - sortBy: CREDIT
+          orderBy: ASC
+    pdfRequestAllFields:
+      summary: Запрос PDF все поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - 40701978200000000001:401867
+        from: '2023-10-06'
+        to: '2023-10-06'
+        zero: true
+        fileName: file
+        intraday: true
+        debitCreditFilter: DEBIT
+        counterpartyInn: '7718266916'
+        counterpartyAccounts:
+        - '40701978200000000001'
+        - '40701978200000000001'
+        splitBy: ACCOUNT
+        sign: true
+        withAttachments: true
+        sort:
+        - sortBy: DEBIT
+          orderBy: ASC
+        - sortBy: CREDIT
+          orderBy: ASC
+    noStatements:
+      summary: Выписок не найдено
+      value:
+        code: no-statements
+        message: No statements were found that match the request parameters
+    fileIsNotReady:
+      summary: Файл отчета не готов
+      value:
+        code: report-file-is-not-ready
+        message: Requested report file is not ready yet.
+    mt940RequestAllFields:
+      summary: Запрос MT940 все поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - 40701978200000000001:401867
+        from: '2023-10-06'
+        to: '2023-10-06'
+        fileName: file
+        zero: true
+        sort:
+        - sortBy: DEBIT
+          orderBy: ASC
+        - sortBy: CREDIT
+          orderBy: ASC
+        splitBy: ACCOUNT_DATE
+        encoding: WINDOWS
+        showHeader: false
+        field25:
+          format: CUSTOM
+          customValue: Счёт [Account Number] с БИКом [RCBIC] вставлен в отчёт
+        field86: SEPA
+        transliteration: true
+        replacements: a:b;c:d;e:empty;f:space
+    excelRequestOnlyRequired:
+      summary: Запрос Excel только обязательные поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - '40702810500001306832'
+        from: '2023-09-06'
+        to: '2023-10-06'
+    mt942RequestOnlyRequired:
+      summary: Запрос MT942 только обязательные поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - '40702810500001306832'
+        from: '2023-10-06'
+        to: '2023-10-06'
+    excelRequestAllFields:
+      summary: Запрос Excel все поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - 40701978200000000001:401867
+        from: '2023-09-06'
+        to: '2023-10-06'
+        zero: true
+        fileName: file
+        sort:
+        - sortBy: DEBIT
+          orderBy: ASC
+        - sortBy: CREDIT
+          orderBy: ASC
+        intraday: true
+        debitCreditFilter: DEBIT
+        counterpartyInn: '7718266916'
+        counterpartyAccounts:
+        - '40701978200000000001'
+        - '40701978200000000001'
+        splitBy: ACCOUNT
+    mt940RequestOnlyRequired:
+      summary: Запрос MT940 только обязательные поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - '40702810500001306832'
+        from: '2023-10-06'
+        to: '2023-10-06'
+    statementsSignParamsError:
+      summary: Невозможно подписать выписки. Внутридневные или разделенные на файлы выписки не могут быть подписаны.
+      value:
+        code: statements-sign-params-error
+        message: 'Statements cannot be signed: intraday or split statements cannot be signed.'
+    xmlRequestOnlyRequired:
+      summary: Запрос XML только обязательные поля
+      value:
+        accountKeys:
+        - 40701978200000000001:401867
+        - '40702810500001306832'
+        from: '2023-10-06'
+        to: '2023-10-06'
+    reportStatusStarted:
+      summary: Генерация отчета начата
+      value:
+        reportId: 819e5e3c-07f8-4dda-a640-9d6d47bd9344
+        status: STARTED
+    mt942DeltaRequestOnlyRequired:
+      summary: Запрос инкрементальной выписки MT942 только обязательные поля
+      value:
+        accountKey: '40702810500001306832'
   responses:
-    reportStatus:
-      description: Статус задачи
+    requestValidationErrorReportStatus:
+      description: Ошибка валидации запроса
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ReportGenerationStatusResponse'
+            $ref: '#/components/schemas/ErrorResponse'
           examples:
-            reportStatusCreated:
-              $ref: '#/components/examples/reportStatusCreated'
-            reportStatusStarted:
-              $ref: '#/components/examples/reportStatusStarted'
-            reportStatusFailed:
-              $ref: '#/components/examples/reportStatusFailed'
-            reportStatusCompleted:
-              $ref: '#/components/examples/reportStatusCompleted'
-    dryRunCheckSuccess:
-      description: Проверка возможности генерации выполнена успешно
+            uuidValidationError:
+              $ref: '#/components/examples/uuidValidationError'
     fileMetadata:
       description: Метаданные файла
       headers:
@@ -1516,62 +1484,8 @@ components:
         Content-Length:
           schema:
             $ref: '#/components/parameters/contentLength'
-    requestValidationErrorPdfReportRequest:
-      description: Ошибка валидации запроса
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            tooManyTransactionsError:
-              $ref: '#/components/examples/tooManyTransactionsError'
-            accountKeyValidationError:
-              $ref: '#/components/examples/accountKeyValidationError'
-            statementsSignNotReadyError:
-              $ref: '#/components/examples/statementsSignNotReadyError'
-            statementsSignPeriodError:
-              $ref: '#/components/examples/statementsSignPeriodError'
-            statementsSignParamsError:
-              $ref: '#/components/examples/statementsSignParamsError'
     InternalError:
       description: Внутренняя ошибка
-    noStatementsErrorReportRequest:
-      description: Нет выписок по указанным параметрам
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            noStatements:
-              $ref: '#/components/examples/noStatements'
-    requestValidationErrorReportStatus:
-      description: Ошибка валидации запроса
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            uuidValidationError:
-              $ref: '#/components/examples/uuidValidationError'
-    requestValidationErrorPdfAttachmentsReportRequest:
-      description: Ошибка валидации запроса
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          examples:
-            tooManyTransactionsError:
-              $ref: '#/components/examples/tooManyTransactionsError'
-            accountKeyValidationError:
-              $ref: '#/components/examples/accountKeyValidationError'
-            statementsSignNotReadyError:
-              $ref: '#/components/examples/statementsSignNotReadyError'
-            statementsSignPeriodError:
-              $ref: '#/components/examples/statementsSignPeriodError'
-            statementsSignParamsError:
-              $ref: '#/components/examples/statementsSignParamsError'
-    reportNotFound:
-      description: Отчета не найдено
     requestValidationErrorReportRequest:
       description: Ошибка валидации запроса
       content:
@@ -1583,6 +1497,17 @@ components:
               $ref: '#/components/examples/tooManyTransactionsError'
             accountKeyValidationError:
               $ref: '#/components/examples/accountKeyValidationError'
+    requestValidationErrorFileStorage:
+      description: Ошибка валидации запроса
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            uuidValidationError:
+              $ref: '#/components/examples/uuidValidationError'
+            fileIsNotReady:
+              $ref: '#/components/examples/fileIsNotReady'
     fileContent:
       description: Содержимое файла.
       headers:
@@ -1619,15 +1544,53 @@ components:
           schema:
             type: string
             format: binary
-    reportRequestGenerationAccepted:
-      description: Запрос на генерацию принят
+    reportStatus:
+      description: Статус задачи
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ReportGenerationRequestResponse'
+            $ref: '#/components/schemas/ReportGenerationStatusResponse'
           examples:
-            reportRequestGenerationAcceptedResponse:
-              $ref: '#/components/examples/reportRequestGenerationAccepted'
+            reportStatusCreated:
+              $ref: '#/components/examples/reportStatusCreated'
+            reportStatusStarted:
+              $ref: '#/components/examples/reportStatusStarted'
+            reportStatusFailed:
+              $ref: '#/components/examples/reportStatusFailed'
+            reportStatusCompleted:
+              $ref: '#/components/examples/reportStatusCompleted'
+    reportNotFound:
+      description: Отчета не найдено
+    requestValidationErrorPdfReportRequest:
+      description: Ошибка валидации запроса
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            tooManyTransactionsError:
+              $ref: '#/components/examples/tooManyTransactionsError'
+            accountKeyValidationError:
+              $ref: '#/components/examples/accountKeyValidationError'
+            statementsSignNotReadyError:
+              $ref: '#/components/examples/statementsSignNotReadyError'
+            statementsSignPeriodError:
+              $ref: '#/components/examples/statementsSignPeriodError'
+            statementsSignParamsError:
+              $ref: '#/components/examples/statementsSignParamsError'
+    dryRunCheckSuccess:
+      description: Проверка возможности генерации выполнена успешно
+    noStatementsErrorReportRequest:
+      description: Нет выписок по указанным параметрам
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            noStatements:
+              $ref: '#/components/examples/noStatements'
+    Unauthorized:
+      description: Аутентификация не пройдена
     noStatementsErrorPdfAttachmentsReportRequest:
       description: Нет выписок или операций по указанным параметрам
       content:
@@ -1639,19 +1602,29 @@ components:
               $ref: '#/components/examples/noStatements'
             noTransactions:
               $ref: '#/components/examples/noTransactions'
-    requestValidationErrorFileStorage:
+    requestValidationErrorPdfAttachmentsReportRequest:
       description: Ошибка валидации запроса
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
           examples:
-            uuidValidationError:
-              $ref: '#/components/examples/uuidValidationError'
-            fileIsNotReady:
-              $ref: '#/components/examples/fileIsNotReady'
-    Unauthorized:
-      description: Аутентификация не пройдена
-x-refined-from:
-- raiffeisen-ru-bank-statements-openapi.yml
-- raiffeisen-ru-bank-statements-openapi.yml
+            tooManyTransactionsError:
+              $ref: '#/components/examples/tooManyTransactionsError'
+            accountKeyValidationError:
+              $ref: '#/components/examples/accountKeyValidationError'
+            statementsSignNotReadyError:
+              $ref: '#/components/examples/statementsSignNotReadyError'
+            statementsSignPeriodError:
+              $ref: '#/components/examples/statementsSignPeriodError'
+            statementsSignParamsError:
+              $ref: '#/components/examples/statementsSignParamsError'
+    reportRequestGenerationAccepted:
+      description: Запрос на генерацию принят
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ReportGenerationRequestResponse'
+          examples:
+            reportRequestGenerationAcceptedResponse:
+              $ref: '#/components/examples/reportRequestGenerationAccepted'

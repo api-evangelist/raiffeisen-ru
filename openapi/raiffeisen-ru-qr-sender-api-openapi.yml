@@ -1,17 +1,19 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Qr Sender API
-  version: '0.1'
+  title: интеграции B2B оплат через СБП Qr Sender API
   contact:
     email: ecom@raiffeisen.ru
     name: Support e-mail
     x-team-id: 932
     x-short-team-name: FPS B2B
+  description: '# Подключение к СБП
+
+    Для отправки СБП-платежей оставьте заявку в RBO → Продукты → В2В-платежи по СБП.'
   x-logo:
     url: images/raifflogo.png
     backgroundColor: '#FFFFFF'
     altText: Raiff logo
-  description: 'Operations tagged qr-sender across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-sbp-b2b-transfers-openapi.json, raiffeisen-ru-raif-pay-sbp-b2b-transfers-openapi.yml. Each path carries the servers of the definition it was published in.'
+  version: '0.1'
 servers:
 - url: https://pay-test.raif.ru
   description: Sandbox
@@ -46,11 +48,6 @@ paths:
           $ref: '#/components/responses/Error404ResponseDto'
         '500':
           $ref: '#/components/responses/InternalServerErrorDto'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/transfers/v1/transfers:
     post:
       tags:
@@ -96,11 +93,6 @@ paths:
           $ref: '#/components/responses/Error404ResponseDto'
         '500':
           $ref: '#/components/responses/InternalServerErrorDto'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/transfers/v1/transfers/{id}:
     get:
       tags:
@@ -126,11 +118,6 @@ paths:
           $ref: '#/components/responses/Error404ResponseDto'
         '500':
           $ref: '#/components/responses/InternalServerErrorDto'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/transfers/v1/bundles:
     x-exclude-for-generate-front: true
     post:
@@ -172,11 +159,6 @@ paths:
           $ref: '#/components/responses/Error404ResponseDto'
         '500':
           $ref: '#/components/responses/InternalServerErrorDto'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/transfers/v1/bundles/{id}:
     get:
       tags:
@@ -203,17 +185,42 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerErrorDto'
       x-exclude-for-generate-front: true
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
 components:
   schemas:
-    CreateDate:
+    Extra:
+      type: object
+      description: Дополнительные поля в json-формате
+      example:
+        additionalInfo: Тестовая операция
+    StatementPaymentPurpose-2:
       type: string
-      format: date-time
-      description: Дата и время создания платежа
+      maxLength: 150
+      description: Назначение платежа в выписке отправителя
+      example: Какое-то назначение платежа
+    RedirectUrl:
+      type: string
+      maxLength: 1024
+      description: Содержит ссылку для автоматического возврата Плательщика из приложения Банка в приложение или на сайт ТСП
+      example: https://exampletsp.io/qwertyui
+    BankDto:
+      type: object
+      description: Данные банка получателя
+      required:
+      - id
+      properties:
+        id:
+          $ref: '#/components/schemas/BankId'
+        name:
+          $ref: '#/components/schemas/BankName'
+        bic:
+          $ref: '#/components/schemas/BankBic'
+    Account:
+      type: string
+      minLength: 20
+      maxLength: 20
+      pattern: ^[0-9]+$
+      description: Банковский счёт ЮЛ или ИП для списания средств
+      example: '40817810601002630020'
     SenderDto:
       type: object
       description: Данные отправителя
@@ -224,86 +231,20 @@ components:
           $ref: '#/components/schemas/LegalName'
         inn:
           $ref: '#/components/schemas/Inn'
-    PaymentBundleInfoResponse:
-      required:
-      - id
-      - account
-      - transfers
-      - status
-      type: object
-      properties:
-        id:
-          $ref: '#/components/schemas/BundleId'
-        account:
-          $ref: '#/components/schemas/Account'
-        status:
-          $ref: '#/components/schemas/PaymentBundleStatus'
-        transfers:
-          type: array
-          description: Массив платежей
-          items:
-            $ref: '#/components/schemas/PaymentResponseWithoutAccount'
-      x-exclude-for-generate-front: true
-    MccTitle:
+    SbpTransactionId:
       type: string
-      description: Описание MCC-кода получателя
-      example: Лимузины и такси
-    ContentDigest:
-      type: string
-      description: Дайджест, подписываемый клиентом, является строкой в формате base64, в которой хранится результат хеш-функции sha256, представленный массивом байт. Подробности создания можно найти в <a href='https://help.pay.raif.ru/ru/sbp-b2b/sign' target='_blank'>инструкции</a>.
-      example: yxlZv97...
-      x-exclude-for-generate-front: true
-    Amount-2:
-      type: number
-      format: float
-      maximum: 1000000
-      description: Сумма операции в рублях
-      example: 8573.79
-    StatementPaymentPurpose:
-      type: string
-      maxLength: 150
-      description: 'Назначение платежа, которое увидит отправитель в выписке в поле «Основание операции».
-
-        <br>Может содержать:
-
-        <br>• Символы латиницы (A–Z и a–z)
-
-        <br>• Символы кириллицы (А-Я и а-я)
-
-        <br>• Цифры 0-9
-
-        <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
-
-        '
-      example: Какое-то назначение платежа
-    QrType:
-      type: string
-      description: Тип платёжной ссылки
-      enum:
-      - DYNAMIC
-      - STATIC
-    Signature:
-      type: string
-      description: Подпись в формате base64, созданная при использовании RBO-сертификата. Подробности создания можно найти в <a href='https://help.pay.raif.ru/ru/sbp-b2b/sign' target='_blank'>инструкции</a>.
-      example: MIAGCSqGSIb3D...
-      x-exclude-for-generate-front: true
-    BundleId:
-      type: string
-      minLength: 1
+      minLength: 10
       maxLength: 40
-      pattern: ^[A-z0-9-_.]+$
-      description: Уникальный идентификатор пакета
-      example: ee64d393836241dcb557
-    StatementPaymentPurpose-2:
-      type: string
-      maxLength: 150
-      description: Назначение платежа в выписке отправителя
-      example: Какое-то назначение платежа
-    BrandName:
-      type: string
-      maxLength: 35
-      description: Торговое наименование ТСП
-      example: ООО Торг на Б.Татарской
+      description: Идентификатор транзакции NSPK, внесен в требование к экранным формам
+      example: '40817810601002630020'
+    MccCodeDto:
+      type: object
+      description: Данные mcc-кода получателя
+      properties:
+        code:
+          $ref: '#/components/schemas/MccCode'
+        title:
+          $ref: '#/components/schemas/MccTitle'
     PaymentResponseWithoutAccount:
       required:
       - id
@@ -336,248 +277,27 @@ components:
           $ref: '#/components/schemas/Extra'
         receiver:
           $ref: '#/components/schemas/ReceiverDto'
-    BankName:
-      type: string
-      description: Наименование банка получателя
-      example: Райффайзенбанк
-    PaymentBundleStatus:
-      type: object
-      description: Статус пакета
-      required:
-      - value
-      - updateDate
-      properties:
-        value:
-          type: string
-          description: Статус
-          enum:
-          - SUCCESS
-          - FAILED
-          - IN_PROGRESS
-          example: SUCCESS
-        updateDate:
-          type: string
-          format: date-time
-          description: Дата и время обновления статуса
-          example: '2024-06-12T19:36:55+03:00'
-      x-exclude-for-generate-front: true
-    PaymentResponse:
-      type: object
-      description: Ответ по платежу
-      required:
-      - id
-      - qrId
-      - account
-      - createDate
-      - status
-      - receiver
-      - sender
-      properties:
-        id:
-          $ref: '#/components/schemas/Id'
-        qrId:
-          $ref: '#/components/schemas/QrId'
-        account:
-          $ref: '#/components/schemas/Account'
-        createdDate:
-          $ref: '#/components/schemas/CreateDate'
-        status:
-          $ref: '#/components/schemas/PaymentStatus'
-        paymentPurpose:
-          $ref: '#/components/schemas/PaymentPurpose'
-        statementPaymentPurpose:
-          $ref: '#/components/schemas/StatementPaymentPurpose'
-        isTaxable:
-          $ref: '#/components/schemas/IsTaxable'
-        totalTaxAmount:
-          $ref: '#/components/schemas/TotalTaxAmount'
-        amount:
-          $ref: '#/components/schemas/Amount'
-        extra:
-          $ref: '#/components/schemas/Extra'
-        receiver:
-          $ref: '#/components/schemas/ReceiverDto'
-        sender:
-          $ref: '#/components/schemas/SenderDto'
-        documentId:
-          $ref: '#/components/schemas/DocumentId'
-        sbpTransactionId:
-          $ref: '#/components/schemas/SbpTransactionId'
-    DocumentId:
-      type: string
-      minLength: 1
-      maxLength: 30
-      description: Идентификатор документа на подпись
-      example: '141519241792919'
-    TotalTaxAmount:
-      type: number
-      format: float
-      maximum: 1000000
-      description: Сумма НДС в рублях
-      example: 2.41
-    MccCodeDto:
-      type: object
-      description: Данные mcc-кода получателя
-      properties:
-        code:
-          $ref: '#/components/schemas/MccCode'
-        title:
-          $ref: '#/components/schemas/MccTitle'
-    BrandName-2:
-      type: string
-      maxLength: 35
-      description: Торговое наименование ТСП получателя
-      example: ООО Торг на Б.Татарской
-    LegalName-2:
-      type: string
-      maxLength: 512
-      description: Сокращённое наименование ЮЛ или ИП получателя
-      example: ООО Торг
-    Cnum:
-      type: string
-      maxLength: 6
-      description: CNUM клиента
-      example: 123456
-    ReceiverDto:
-      type: object
-      description: Данные получателя
-      properties:
-        legalName:
-          $ref: '#/components/schemas/LegalName'
-        inn:
-          $ref: '#/components/schemas/Inn'
-        brandName:
-          $ref: '#/components/schemas/BrandName'
-        address:
-          $ref: '#/components/schemas/Address'
-        mcc:
-          $ref: '#/components/schemas/MccCodeDto'
-        bank:
-          $ref: '#/components/schemas/BankDto'
-    LegalName:
-      type: string
-      maxLength: 512
-      description: Сокращённое наименование ЮЛ или ИП
-      example: ООО Торг
-    Extra:
-      type: object
-      description: Дополнительные поля в json-формате
-      example:
-        additionalInfo: Тестовая операция
-    CreatePaymentRequestWithQr:
-      required:
-      - id
-      - qrId
-      type: object
-      description: Массив платежей
-      properties:
-        id:
-          $ref: '#/components/schemas/Id'
-        qrId:
-          $ref: '#/components/schemas/QrId'
-        isTaxable:
-          $ref: '#/components/schemas/IsTaxable'
-        totalTaxAmount:
-          $ref: '#/components/schemas/TotalTaxAmount'
-        amount:
-          $ref: '#/components/schemas/Amount'
-        paymentPurpose:
-          $ref: '#/components/schemas/PaymentPurpose'
-        statementPaymentPurpose:
-          $ref: '#/components/schemas/StatementPaymentPurpose'
-        extra:
-          $ref: '#/components/schemas/Extra'
-      x-exclude-for-generate-front: true
-    Address-2:
-      type: string
-      maxLength: 140
-      description: Фактический адрес ТСП получателя
-      example: г. Москва, ул. Б.Татарская, д.133, стр.1
-    CreatePaymentRequest:
-      required:
-      - id
-      - account
-      - qrId
-      type: object
-      description: Запрос на создание платежа
-      properties:
-        id:
-          $ref: '#/components/schemas/Id'
-        account:
-          $ref: '#/components/schemas/Account'
-        qrId:
-          $ref: '#/components/schemas/QrId'
-        isTaxable:
-          $ref: '#/components/schemas/IsTaxable'
-        totalTaxAmount:
-          $ref: '#/components/schemas/TotalTaxAmount'
-          description: Сумма НДС в рублях. Если сумма НДС указана в реквизитах платёжной ссылки, то используется значение из этих реквизитов. В противном случае заполняется плательщиком самостоятельно. Сумма НДС не должна превышать сумму операции (amount)
-        amount:
-          $ref: '#/components/schemas/Amount'
-          description: Сумма операции в рублях. Если сумма операции указана в реквизитах платёжной ссылки, то используется значение из этих реквизитов. В противном случае заполняется плательщиком самостоятельно. Максимальное значение - 1000000 рублей
-        paymentPurpose:
-          $ref: '#/components/schemas/PaymentPurpose'
-          description: Назначение платежа для получателя. Если назначение указано в реквизитах платёжной ссылки, то используется значение из этих реквизитов. Иначе, заполняется плательщиком самостоятельно.<br/> Может содержать:<br/>• Символы латинского алфавита (A–Z и a–z) с десятичными кодами из диапазонов [065-090] и [097-122] в кодировке UTF-8;<br/>• Символы русского алфавита (А-Я и а-я) с десятичными кодами из диапазона [1040-1103] в кодировке UTF-8;<br/>• Цифры 0-9 с десятичными кодами из диапазона [048-057] в кодировке UTF-8;<br/>• Специальные символы с десятичными кодами из диапазонов [032-047], [058-064], [091-096], [123-126] в кодировке UTF-8; - Символ «№» под номером 8470 в кодировке UTF-8
-        statementPaymentPurpose:
-          $ref: '#/components/schemas/StatementPaymentPurpose'
-          description: Назначение платежа в выписке отправителя.<br/> Может содержать:<br/>• Символы латинского алфавита (A–Z и a–z) с десятичными кодами из диапазонов [065-090] и [097-122] в кодировке UTF-8;<br/>• Символы русского алфавита (А-Я и а-я) с десятичными кодами из диапазона [1040-1103] в кодировке UTF-8;<br/>• Цифры 0-9 с десятичными кодами из диапазона [048-057] в кодировке UTF-8;<br/>• Специальные символы с десятичными кодами из диапазонов [032-047], [058-064], [091-096], [123-126] в кодировке UTF-8; - Символ «№» под номером 8470 в кодировке UTF-8
-        extra:
-          $ref: '#/components/schemas/Extra'
-    MccCode:
-      type: string
-      minLength: 4
-      maxLength: 4
-      description: MCC-код получателя
-      example: '4121'
-    PaymentStatus:
-      type: object
-      description: Статус платежа
-      allOf: []
-      required:
-      - updateDate
-      - value
-      properties:
-        value:
-          $ref: '#/components/schemas/SignedPaymentStatusesEnum'
-          x-exclude-for-generate-front: true
-        updateDate:
-          type: string
-          format: date-time
-          description: Дата и время обновления статуса
-          example: '2024-06-12T19:36:55+03:00'
-        failReason:
-          type: string
-          description: Причина отклонения. Указывается в случае отклонения платежа.
-    IsTaxable:
-      type: boolean
-      description: Информация о взимании НДС. Допустимые значения:<br>• true – облагается НДС<br>• false – не облагается НДС<br> Если платеж облагается НДС (isTaxable = "true") обязательно должна быть заполнена сумма НДС в поле totalTaxAmount
-      example: true
-    QrStatus:
-      type: object
-      description: Статус платежной ссылки
-      required:
-      - value
-      - updateDate
-      properties:
-        value:
-          type: string
-          description: Статус
-          enum:
-          - CREATED_BY_NON_RESIDENT
-          - ACTIVE
-          - EXPIRED
-          - PAID
-          example: ACTIVE
-        updateDate:
-          type: string
-          format: date-time
-          description: Дата и время обновления статуса
-          example: '2024-06-12T19:36:55+03:00'
     Address:
       type: string
       maxLength: 140
       description: Фактический адрес ТСП
       example: г. Москва, ул. Б.Татарская, д.133, стр.1
+    Inn-2:
+      type: string
+      minLength: 10
+      maxLength: 12
+      description: ИНН ЮЛ или ИП получателя
+      example: '4285733785'
+    Id-2:
+      type: string
+      maxLength: 32
+      description: Уникальный идентификатор платёжной ссылки
+      example: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+    ContentDigest:
+      type: string
+      description: Дайджест, подписываемый клиентом, является строкой в формате base64, в которой хранится результат хеш-функции sha256, представленный массивом байт. Подробности создания можно найти в <a href='https://help.pay.raif.ru/ru/sbp-b2b/sign' target='_blank'>инструкции</a>.
+      example: yxlZv97...
+      x-exclude-for-generate-front: true
     GetQrResponse:
       type: object
       description: Ответ по платежной ссылке
@@ -622,11 +342,207 @@ components:
           $ref: '#/components/schemas/StatementPaymentPurpose-2'
         redirectUrl:
           $ref: '#/components/schemas/RedirectUrl'
-    Id-2:
+    QrId:
       type: string
       maxLength: 32
       description: Уникальный идентификатор платёжной ссылки
       example: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+    PaymentStatus:
+      type: object
+      description: Статус платежа
+      allOf: []
+      required:
+      - updateDate
+      - value
+      properties:
+        value:
+          $ref: '#/components/schemas/SignedPaymentStatusesEnum'
+          x-exclude-for-generate-front: true
+        updateDate:
+          type: string
+          format: date-time
+          description: Дата и время обновления статуса
+          example: '2024-06-12T19:36:55+03:00'
+        failReason:
+          type: string
+          description: Причина отклонения. Указывается в случае отклонения платежа.
+    MccCode:
+      type: string
+      minLength: 4
+      maxLength: 4
+      description: MCC-код получателя
+      example: '4121'
+    QrType:
+      type: string
+      description: Тип платёжной ссылки
+      enum:
+      - DYNAMIC
+      - STATIC
+    Inn:
+      type: string
+      minLength: 10
+      maxLength: 12
+      description: ИНН ЮЛ или ИП
+      example: '4285733785'
+    CreatePaymentRequestWithQr:
+      required:
+      - id
+      - qrId
+      type: object
+      description: Массив платежей
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        qrId:
+          $ref: '#/components/schemas/QrId'
+        isTaxable:
+          $ref: '#/components/schemas/IsTaxable'
+        totalTaxAmount:
+          $ref: '#/components/schemas/TotalTaxAmount'
+        amount:
+          $ref: '#/components/schemas/Amount'
+        paymentPurpose:
+          $ref: '#/components/schemas/PaymentPurpose'
+        statementPaymentPurpose:
+          $ref: '#/components/schemas/StatementPaymentPurpose'
+        extra:
+          $ref: '#/components/schemas/Extra'
+      x-exclude-for-generate-front: true
+    CreatePaymentRequest:
+      required:
+      - id
+      - account
+      - qrId
+      type: object
+      description: Запрос на создание платежа
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        account:
+          $ref: '#/components/schemas/Account'
+        qrId:
+          $ref: '#/components/schemas/QrId'
+        isTaxable:
+          $ref: '#/components/schemas/IsTaxable'
+        totalTaxAmount:
+          $ref: '#/components/schemas/TotalTaxAmount'
+          description: Сумма НДС в рублях. Если сумма НДС указана в реквизитах платёжной ссылки, то используется значение из этих реквизитов. В противном случае заполняется плательщиком самостоятельно. Сумма НДС не должна превышать сумму операции (amount)
+        amount:
+          $ref: '#/components/schemas/Amount'
+          description: Сумма операции в рублях. Если сумма операции указана в реквизитах платёжной ссылки, то используется значение из этих реквизитов. В противном случае заполняется плательщиком самостоятельно. Максимальное значение - 1000000 рублей
+        paymentPurpose:
+          $ref: '#/components/schemas/PaymentPurpose'
+          description: Назначение платежа для получателя. Если назначение указано в реквизитах платёжной ссылки, то используется значение из этих реквизитов. Иначе, заполняется плательщиком самостоятельно.<br/> Может содержать:<br/>• Символы латинского алфавита (A–Z и a–z) с десятичными кодами из диапазонов [065-090] и [097-122] в кодировке UTF-8;<br/>• Символы русского алфавита (А-Я и а-я) с десятичными кодами из диапазона [1040-1103] в кодировке UTF-8;<br/>• Цифры 0-9 с десятичными кодами из диапазона [048-057] в кодировке UTF-8;<br/>• Специальные символы с десятичными кодами из диапазонов [032-047], [058-064], [091-096], [123-126] в кодировке UTF-8; - Символ «№» под номером 8470 в кодировке UTF-8
+        statementPaymentPurpose:
+          $ref: '#/components/schemas/StatementPaymentPurpose'
+          description: Назначение платежа в выписке отправителя.<br/> Может содержать:<br/>• Символы латинского алфавита (A–Z и a–z) с десятичными кодами из диапазонов [065-090] и [097-122] в кодировке UTF-8;<br/>• Символы русского алфавита (А-Я и а-я) с десятичными кодами из диапазона [1040-1103] в кодировке UTF-8;<br/>• Цифры 0-9 с десятичными кодами из диапазона [048-057] в кодировке UTF-8;<br/>• Специальные символы с десятичными кодами из диапазонов [032-047], [058-064], [091-096], [123-126] в кодировке UTF-8; - Символ «№» под номером 8470 в кодировке UTF-8
+        extra:
+          $ref: '#/components/schemas/Extra'
+    BrandName-2:
+      type: string
+      maxLength: 35
+      description: Торговое наименование ТСП получателя
+      example: ООО Торг на Б.Татарской
+    Address-2:
+      type: string
+      maxLength: 140
+      description: Фактический адрес ТСП получателя
+      example: г. Москва, ул. Б.Татарская, д.133, стр.1
+    StatementPaymentPurpose:
+      type: string
+      maxLength: 150
+      description: 'Назначение платежа, которое увидит отправитель в выписке в поле «Основание операции».
+
+        <br>Может содержать:
+
+        <br>• Символы латиницы (A–Z и a–z)
+
+        <br>• Символы кириллицы (А-Я и а-я)
+
+        <br>• Цифры 0-9
+
+        <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
+
+        '
+      example: Какое-то назначение платежа
+    DocumentId:
+      type: string
+      minLength: 1
+      maxLength: 30
+      description: Идентификатор документа на подпись
+      example: '141519241792919'
+    QrStatus:
+      type: object
+      description: Статус платежной ссылки
+      required:
+      - value
+      - updateDate
+      properties:
+        value:
+          type: string
+          description: Статус
+          enum:
+          - CREATED_BY_NON_RESIDENT
+          - ACTIVE
+          - EXPIRED
+          - PAID
+          example: ACTIVE
+        updateDate:
+          type: string
+          format: date-time
+          description: Дата и время обновления статуса
+          example: '2024-06-12T19:36:55+03:00'
+    BankBic:
+      type: string
+      description: БИК банка получателя
+      example: '044525700'
+    BankId:
+      type: string
+      description: Идентификатор банка получателя
+      example: '100000000007'
+    BundleId:
+      type: string
+      minLength: 1
+      maxLength: 40
+      pattern: ^[A-z0-9-_.]+$
+      description: Уникальный идентификатор пакета
+      example: ee64d393836241dcb557
+    PaymentBundleStatus:
+      type: object
+      description: Статус пакета
+      required:
+      - value
+      - updateDate
+      properties:
+        value:
+          type: string
+          description: Статус
+          enum:
+          - SUCCESS
+          - FAILED
+          - IN_PROGRESS
+          example: SUCCESS
+        updateDate:
+          type: string
+          format: date-time
+          description: Дата и время обновления статуса
+          example: '2024-06-12T19:36:55+03:00'
+      x-exclude-for-generate-front: true
+    PaymentPurpose:
+      type: string
+      maxLength: 210
+      description: Назначение платежа для получателя
+      example: Какое-то назначение платежа
+    Amount-2:
+      type: number
+      format: float
+      maximum: 1000000
+      description: Сумма операции в рублях
+      example: 8573.79
+    CreateDate:
+      type: string
+      format: date-time
+      description: Дата и время создания платежа
     SignedPaymentStatusesEnum:
       type: string
       description: Статус
@@ -635,30 +551,110 @@ components:
       - FAILED
       - IN_PROGRESS
       example: SUCCESS
-    Inn:
+    Cnum:
       type: string
-      minLength: 10
-      maxLength: 12
-      description: ИНН ЮЛ или ИП
-      example: '4285733785'
-    BankId:
+      maxLength: 6
+      description: CNUM клиента
+      example: 123456
+    ReceiverDto:
+      type: object
+      description: Данные получателя
+      properties:
+        legalName:
+          $ref: '#/components/schemas/LegalName'
+        inn:
+          $ref: '#/components/schemas/Inn'
+        brandName:
+          $ref: '#/components/schemas/BrandName'
+        address:
+          $ref: '#/components/schemas/Address'
+        mcc:
+          $ref: '#/components/schemas/MccCodeDto'
+        bank:
+          $ref: '#/components/schemas/BankDto'
+    Signature:
       type: string
-      description: Идентификатор банка получателя
-      example: '100000000007'
-    Id:
+      description: Подпись в формате base64, созданная при использовании RBO-сертификата. Подробности создания можно найти в <a href='https://help.pay.raif.ru/ru/sbp-b2b/sign' target='_blank'>инструкции</a>.
+      example: MIAGCSqGSIb3D...
+      x-exclude-for-generate-front: true
+    PaymentBundleInfoResponse:
+      required:
+      - id
+      - account
+      - transfers
+      - status
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/BundleId'
+        account:
+          $ref: '#/components/schemas/Account'
+        status:
+          $ref: '#/components/schemas/PaymentBundleStatus'
+        transfers:
+          type: array
+          description: Массив платежей
+          items:
+            $ref: '#/components/schemas/PaymentResponseWithoutAccount'
+      x-exclude-for-generate-front: true
+    LegalName:
       type: string
-      pattern: ^[A-z0-9-_.]+$
-      description: Уникальный идентификатор операции в вашей системе, используется как номер документа в выписке
-      example: 1a5cbc843b2742be9093
-      minLength: 1
-      maxLength: 40
-    Account:
-      type: string
-      minLength: 20
-      maxLength: 20
-      pattern: ^[0-9]+$
-      description: Банковский счёт ЮЛ или ИП для списания средств
-      example: '40817810601002630020'
+      maxLength: 512
+      description: Сокращённое наименование ЮЛ или ИП
+      example: ООО Торг
+    Amount:
+      type: number
+      format: float
+      description: Сумма платежа
+      example: 8573.79
+    PaymentResponse:
+      type: object
+      description: Ответ по платежу
+      required:
+      - id
+      - qrId
+      - account
+      - createDate
+      - status
+      - receiver
+      - sender
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        qrId:
+          $ref: '#/components/schemas/QrId'
+        account:
+          $ref: '#/components/schemas/Account'
+        createdDate:
+          $ref: '#/components/schemas/CreateDate'
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        paymentPurpose:
+          $ref: '#/components/schemas/PaymentPurpose'
+        statementPaymentPurpose:
+          $ref: '#/components/schemas/StatementPaymentPurpose'
+        isTaxable:
+          $ref: '#/components/schemas/IsTaxable'
+        totalTaxAmount:
+          $ref: '#/components/schemas/TotalTaxAmount'
+        amount:
+          $ref: '#/components/schemas/Amount'
+        extra:
+          $ref: '#/components/schemas/Extra'
+        receiver:
+          $ref: '#/components/schemas/ReceiverDto'
+        sender:
+          $ref: '#/components/schemas/SenderDto'
+        documentId:
+          $ref: '#/components/schemas/DocumentId'
+        sbpTransactionId:
+          $ref: '#/components/schemas/SbpTransactionId'
+    TotalTaxAmount:
+      type: number
+      format: float
+      maximum: 1000000
+      description: Сумма НДС в рублях
+      example: 2.41
     ErrorResponseDto:
       type: object
       required:
@@ -678,54 +674,6 @@ components:
           type: string
           example: 84b19a21e19410b62c30b4cd40c228a1
           description: Уникальный идентификатор запроса
-    SbpTransactionId:
-      type: string
-      minLength: 10
-      maxLength: 40
-      description: Идентификатор транзакции NSPK, внесен в требование к экранным формам
-      example: '40817810601002630020'
-    QrId:
-      type: string
-      maxLength: 32
-      description: Уникальный идентификатор платёжной ссылки
-      example: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
-    PaymentPurpose:
-      type: string
-      maxLength: 210
-      description: Назначение платежа для получателя
-      example: Какое-то назначение платежа
-    BankBic:
-      type: string
-      description: БИК банка получателя
-      example: '044525700'
-    Amount:
-      type: number
-      format: float
-      description: Сумма платежа
-      example: 8573.79
-    Inn-2:
-      type: string
-      minLength: 10
-      maxLength: 12
-      description: ИНН ЮЛ или ИП получателя
-      example: '4285733785'
-    BankDto:
-      type: object
-      description: Данные банка получателя
-      required:
-      - id
-      properties:
-        id:
-          $ref: '#/components/schemas/BankId'
-        name:
-          $ref: '#/components/schemas/BankName'
-        bic:
-          $ref: '#/components/schemas/BankBic'
-    RedirectUrl:
-      type: string
-      maxLength: 1024
-      description: Содержит ссылку для автоматического возврата Плательщика из приложения Банка в приложение или на сайт ТСП
-      example: https://exampletsp.io/qwertyui
     CreatePaymentBundleRequest:
       required:
       - id
@@ -744,55 +692,35 @@ components:
           items:
             $ref: '#/components/schemas/CreatePaymentRequestWithQr'
       x-exclude-for-generate-front: true
-  responses:
-    InternalServerErrorDto:
-      description: Внутренняя ошибка сервера
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
-          examples:
-            default:
-              value:
-                code: INTERNAL_ERROR
-                message: An internal error occurred
-                example: 84b19a21e19410b62c30b4cd40c228a1
-    Error400ResponseDto:
-      description: Неверный запрос
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
-          examples:
-            default:
-              value:
-                code: INVALID_DATA
-                message: The request contains invalid fields or values.
-                traceId: 84b19a21e19410b62c30b4cd40c228a
-    Error403ResponseDto:
-      description: Операция запрещена
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
-          examples:
-            default:
-              value:
-                code: OPERATION_FORBIDDEN
-                message: The operation is not allowed.
-                traceId: 84b19a21e19410b62c30b4cd40c228a
-    Error404ResponseDto:
-      description: Ресурс не найден
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
-          examples:
-            default:
-              value:
-                code: QR_NOT_FOUND
-                message: The specified QR code was not found.
-                example: 84b19a21e19410b62c30b4cd40c228a1
+    BrandName:
+      type: string
+      maxLength: 35
+      description: Торговое наименование ТСП
+      example: ООО Торг на Б.Татарской
+    LegalName-2:
+      type: string
+      maxLength: 512
+      description: Сокращённое наименование ЮЛ или ИП получателя
+      example: ООО Торг
+    MccTitle:
+      type: string
+      description: Описание MCC-кода получателя
+      example: Лимузины и такси
+    BankName:
+      type: string
+      description: Наименование банка получателя
+      example: Райффайзенбанк
+    Id:
+      type: string
+      pattern: ^[A-z0-9-_.]+$
+      description: Уникальный идентификатор операции в вашей системе, используется как номер документа в выписке
+      example: 1a5cbc843b2742be9093
+      minLength: 1
+      maxLength: 40
+    IsTaxable:
+      type: boolean
+      description: Информация о взимании НДС. Допустимые значения:<br>• true – облагается НДС<br>• false – не облагается НДС<br> Если платеж облагается НДС (isTaxable = "true") обязательно должна быть заполнена сумма НДС в поле totalTaxAmount
+      example: true
   parameters:
     BundleId:
       name: id
@@ -820,6 +748,55 @@ components:
       description: Уникальный идентификатор операции
       schema:
         type: string
+  responses:
+    Error400ResponseDto:
+      description: Неверный запрос
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: INVALID_DATA
+                message: The request contains invalid fields or values.
+                traceId: 84b19a21e19410b62c30b4cd40c228a
+    InternalServerErrorDto:
+      description: Внутренняя ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: INTERNAL_ERROR
+                message: An internal error occurred
+                example: 84b19a21e19410b62c30b4cd40c228a1
+    Error403ResponseDto:
+      description: Операция запрещена
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: OPERATION_FORBIDDEN
+                message: The operation is not allowed.
+                traceId: 84b19a21e19410b62c30b4cd40c228a
+    Error404ResponseDto:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: QR_NOT_FOUND
+                message: The specified QR code was not found.
+                example: 84b19a21e19410b62c30b4cd40c228a1
   securitySchemes:
     BearerAuth:
       type: http
@@ -832,6 +809,20 @@ components:
       scheme: bearer
       bearerFormat: JWT
       x-internal: false
-x-refined-from:
-- raiffeisen-ru-raif-pay-sbp-b2b-transfers-openapi.json
-- raiffeisen-ru-raif-pay-sbp-b2b-transfers-openapi.yml
+x-tagGroups:
+- name: Схема работы
+  tags:
+  - single-transfer
+  - bundle-transfer
+- name: API
+  tags:
+  - authorization
+  - qr-sender
+  - transfers-v2
+- name: Выписки
+  tags:
+  - incoming-statements
+  - outgoing-statements
+- name: Ошибки
+  tags:
+  - errors

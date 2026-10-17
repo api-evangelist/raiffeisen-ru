@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Guarantee Renunciation API
+  title: Торговое Финансирование.
+  description: API для получения информации по выпущенным гарантиям в кабинете бенефициара
   version: 1.0.0
-  description: 'Operations tagged Guarantee Renunciation across 2 of this provider''s published API definitions: raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml, raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/trade-finance
 tags:
@@ -59,8 +59,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/trade-finance
   /v1/beneficiary/guarantees/{id}/renunciations/:
     get:
       tags:
@@ -113,8 +111,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/trade-finance
   /v1/beneficiary/guarantees/renunciations/count:
     get:
       tags:
@@ -159,8 +155,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/trade-finance
   /v1/beneficiary/guarantees/renunciations/{id}/statuses:
     get:
       tags:
@@ -211,40 +205,23 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/trade-finance
 components:
   schemas:
-    StatusHistoryResponse:
-      required:
-      - statuses
-      type: object
-      properties:
-        statuses:
-          type: array
-          items:
-            $ref: '#/components/schemas/StatusChangeDto'
-    ActionDto:
-      required:
-      - actionType
-      - permissionType
-      type: object
-      properties:
-        actionType:
-          type: string
-          example: EDIT
-        permissionType:
-          $ref: '#/components/schemas/PermissionType'
     PermissionType:
       type: string
       enum:
       - ALLOWED
       - DENIED
-    RenunciationType:
-      type: string
-      enum:
-      - PARTLY
-      - FULL
+    TfoCounterResult:
+      required:
+      - count
+      type: object
+      properties:
+        count:
+          type: integer
+          format: int64
+          example: 4243
+          default: 0
     ErrorResponseItemDto:
       required:
       - code
@@ -318,44 +295,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ActionDto'
-    RenunciationStatus:
+    RenunciationType:
       type: string
       enum:
-      - DRAFT
-      - ON_SIGN
-      - PARTIALLY_SIGNED
-      - SIGNED
-      - ON_PENDING_BANK
-      - BANK_PROCESSING
-      - APPROVED
-      - DECLINED
-      - DELETED
-    TfoCounterResult:
-      required:
-      - count
-      type: object
-      properties:
-        count:
-          type: integer
-          format: int64
-          example: 4243
-          default: 0
-    ErrorSource:
-      required:
-      - pointer
-      type: object
-      properties:
-        pointer:
-          type: string
-    ErrorResponseDto:
-      required:
-      - errors
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorResponseItemDto'
+      - PARTLY
+      - FULL
     StatusChangeDto:
       required:
       - applicationId
@@ -386,15 +330,84 @@ components:
           type: string
           format: date-time
           example: '2025-09-11T10:00:00Z'
+    StatusHistoryResponse:
+      required:
+      - statuses
+      type: object
+      properties:
+        statuses:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusChangeDto'
     RenunciationReason:
       type: string
       enum:
       - FULFILLMENT_OBLIGATION
       - OTHER_OBLIGATION
       - CONTRACT_TERMINATION
+    ErrorSource:
+      required:
+      - pointer
+      type: object
+      properties:
+        pointer:
+          type: string
+    RenunciationStatus:
+      type: string
+      enum:
+      - DRAFT
+      - ON_SIGN
+      - PARTIALLY_SIGNED
+      - SIGNED
+      - ON_PENDING_BANK
+      - BANK_PROCESSING
+      - APPROVED
+      - DECLINED
+      - DELETED
+    ErrorResponseDto:
+      required:
+      - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseItemDto'
+    ActionDto:
+      required:
+      - actionType
+      - permissionType
+      type: object
+      properties:
+        actionType:
+          type: string
+          example: EDIT
+        permissionType:
+          $ref: '#/components/schemas/PermissionType'
+  parameters:
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
   responses:
-    UnprocessableEntity:
-      description: Unprocessable Entity
+    Unauthorized:
+      description: Аутентификация не пройдена
+    BadRequest:
+      description: Bad Request
       content:
         application/json:
           schema:
@@ -405,41 +418,17 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponseDto'
-    InternalError:
-      description: Внутренняя ошибка
-    Unauthorized:
-      description: Аутентификация не пройдена
-    BadRequest:
-      description: Bad Request
+    UnprocessableEntity:
+      description: Unprocessable Entity
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponseDto'
+    InternalError:
+      description: Внутренняя ошибка
     NotFound:
       description: Not Found
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponseDto'
-  parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
-    IdTokenHeader:
-      name: Id-Token
-      in: header
-      description: Идентификационный токен пользователя
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml
-- raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml

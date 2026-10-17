@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Packet API
+  description: API Агентского факторинга
+  title: Финансирование. Агентский факторинг Packet API
   version: 1.0.0
-  description: 'Operations tagged Packet across 2 of this provider''s published API definitions: raiffeisen-ru-agency-factoring-openapi.yml, raiffeisen-ru-agency-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/payables-financing
 tags:
@@ -168,8 +168,6 @@ paths:
       parameters:
       - $ref: '#/components/parameters/AuthorizationHeader'
       - $ref: '#/components/parameters/IdTokenHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/payables-financing
   /v1/packets/{id}:
     get:
       description: Метод получение пакета поручений по идентификатору
@@ -228,180 +226,27 @@ paths:
       summary: Получение пакета поручений по идентификатору
       tags:
       - Packet
-    servers:
-    - url: https://api.raiffeisen.ru/payables-financing
 components:
+  parameters:
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
   schemas:
-    RestErrorCodes:
-      description: '| code            | description                                |
-
-        |-----------------|--------------------------------------------|
-
-        | REST_ERR_5001   | General service error                       |
-
-        | REST_ERR_5040   | Tax is not available                        |
-
-        | REST_ERR_5041   | Incorrect format of taxpayer status         |
-
-        | REST_ERR_5042   | Incorrect format of KPP payer''s             |
-
-        | REST_ERR_5043   | Incorrect format of UIN                     |
-
-        | REST_ERR_5044   | Incorrect format of CBC                     |
-
-        | REST_ERR_5045   | Incorrect format of OKTMO                   |
-
-        | REST_ERR_5046   | Incorrect format of payment reason          |
-
-        | REST_ERR_5047   | Incorrect format of tax period              |
-
-        | REST_ERR_5048   | Incorrect format of the payment reason document number |
-
-        | REST_ERR_5049   | Incorrect format of the payment reason document date   |
-
-        | REST_ERR_5050   | Incorrect format of receiver name           |
-
-        | REST_ERR_5051   | Incorrect format of purpose                 |
-
-        '
-      enum:
-      - REST_ERR_5001
-      - REST_ERR_5040
-      - REST_ERR_5041
-      - REST_ERR_5042
-      - REST_ERR_5043
-      - REST_ERR_5044
-      - REST_ERR_5045
-      - REST_ERR_5046
-      - REST_ERR_5047
-      - REST_ERR_5048
-      - REST_ERR_5049
-      - REST_ERR_5050
-      - REST_ERR_5051
-      example: REST_ERR_5001
-      type: string
-    ErrorMessage:
-      example:
-        code: REST_ERR_5001
-        message: General service error
-        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
-      properties:
-        code:
-          $ref: '#/components/schemas/RestErrorCodes'
-        message:
-          description: Сообщение
-          example: General service error
-          type: string
-        traceId:
-          description: traceId
-          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
-          type: string
-      required:
-      - code
-      - message
-      - traceId
-      type: object
-    PacketResponse:
-      description: Реестр поручений
-      example:
-        id: 2c44306f-fc96-4780-9b37-6447273b190e
-        referenceId: 2c44306f-fc96-4780-9b37-6447273b190e
-        number: 2025-04-01-111
-        packetDate: '2025-01-01'
-        financedDate: '2025-01-01'
-        packetSum: 100.11
-        ordersCount: 2
-        financedSum: '100.11'
-        state:
-          statusDate: '2025-07-10T06:53:37.433211'
-          errors: []
-          status: ACCEPTED_BY_BANK
-        cqrsVersion: -1628796591
-      properties:
-        id:
-          description: Идентификатор пакета
-          example: 2c44306f-fc96-4780-9b37-6447273b190e
-          format: uuid
-          type: string
-        referenceId:
-          description: Идентификатор реестра поручений клиента, если реестр загружен через API
-          example: 2c44306f-fc96-4780-9b37-6447273b190e
-          type: string
-        number:
-          description: Номер реестра поручений
-          example: 2025-04-01-111
-          type: string
-        packetDate:
-          description: Дата реестра поручений
-          example: '2025-01-01'
-          format: date
-          type: string
-        financedDate:
-          description: Максимальный executionDate из исполненных поручений
-          example: '2025-01-01'
-          format: date
-          type: string
-        packetSum:
-          description: Сумма реестра
-          example: 100.11
-          type: number
-        ordersCount:
-          description: Количество поручений
-          example: 2
-          type: integer
-        financedSum:
-          description: Сумма финансирования
-          example: '100.11'
-          type: string
-        state:
-          allOf:
-          - $ref: '#/components/schemas/PacketState'
-          description: Состояние пакета
-          example:
-            statusDate: '2025-07-10T06:53:37.433211'
-            errors: []
-            status: ACCEPTED_BY_BANK
-          type: object
-        cqrsVersion:
-          description: hashCode от state - состояния реестра
-          example: -1628796591
-          type: integer
-      required:
-      - cqrsVersion
-      - id
-      - number
-      - packetDate
-      - referenceId
-      - state
-      type: object
-    ErrorResponse:
-      description: Список ошибок
-      example:
-      - code: REST_ERR_5001
-        message: General service error
-        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
-      items:
-        $ref: '#/components/schemas/ErrorMessage'
-      type: array
-    Error:
-      example:
-        code: ERR_1001
-        message: General service error
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCodes'
-        message:
-          description: Сообщение
-          example: General service error
-          type: string
-        traceId:
-          description: traceId
-          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
-          type: string
-      required:
-      - code
-      - message
-      type: object
     ParsedOrderResponse:
       example:
         creditorRequisite:
@@ -457,240 +302,70 @@ components:
       - orderSum
       - paymentRequisite
       type: object
-    CreditorRequisites:
-      description: Реквизиты кредитора
+    PaymentRequisites:
+      description: Платежные реквизиты
       example:
-        fullNameRus: АО Ромашка
-        inn: '1234567890'
-        ogrn: '123456789012345'
-        kpp: '123456789'
+        account: '40702810200001430012'
+        correspondentAccount: '30101810200000000700'
+        bic: '044525700'
+        recipientBankName: АО «Райффайзенбанк»
+        purpose: Оплата по контракту 111111 от 31.12.2021
       properties:
-        fullNameRus:
-          description: Полное наименование кредитора
-          example: АО Ромашка
+        account:
+          description: Расчетный счет получателя
+          example: '40702810200001430012'
           type: string
-        inn:
-          description: ИНН кредитора
-          example: '1234567890'
-          maxLength: 12
-          minLength: 10
+        correspondentAccount:
+          description: Корреспондентский счет получателя
+          example: '30101810200000000700'
           type: string
-        ogrn:
-          description: ОГРН кредитора
-          example: '123456789012345'
-          maxLength: 15
-          minLength: 13
+        bic:
+          description: БИК банка получателя
+          example: '044525700'
           type: string
-        kpp:
-          description: КПП кредитора
-          example: '123456789'
-          maxLength: 9
-          minLength: 9
+        recipientBankName:
+          description: Наименование банка получателя
+          example: АО «Райффайзенбанк»
+          type: string
+        purpose:
+          description: Назначение платежа
+          example: Оплата по контракту 111111 от 31.12.2021
           type: string
       required:
-      - fullNameRus
-      - inn
-      - ogrn
+      - account
+      - bic
+      - correspondentAccount
+      - purpose
+      - recipientBankName
       type: object
-    CreatePacketRequest:
-      description: Запрос создания пакета поручений
+    Error:
       example:
-        orders:
-        - creditorRequisite:
-            fullNameRus: АО Ромашка
-            inn: '1234567890'
-            ogrn: '123456789012345'
-            kpp: '123456789'
-          paymentRequisite:
-            account: '40702810200001430012'
-            correspondentAccount: '30101810200000000700'
-            bic: '044525700'
-            recipientBankName: АО «Райффайзенбанк»
-            purpose: Оплата по контракту 111111 от 31.12.2021
-          taxRequisite:
-            taxPayerStatus: '01'
-            kppPayer: '770801001'
-            uin: '1820996623340000000000000'
-            cbc: '18200000000000000000'
-            oktmo: '63701000'
-            paymentReason: '0'
-            taxPeriod: '0'
-            docNumberPaymentReason: '0'
-            docDatePaymentReason: '0'
-            receiverName: Казначейство России (ФНС России)
-          maturityDate: '2025-12-31'
-          orderSum: '123.40'
-          currencyCode: RUB
-        agreementNumber: АФ-777
+        code: ERR_1001
+        message: General service error
       properties:
-        orders:
-          description: Список распарсенных поручений
-          example:
-          - creditorRequisite:
-              fullNameRus: АО Ромашка
-              inn: '1234567890'
-              ogrn: '123456789012345'
-              kpp: '123456789'
-            paymentRequisite:
-              account: '40702810200001430012'
-              correspondentAccount: '30101810200000000700'
-              bic: '044525700'
-              recipientBankName: АО «Райффайзенбанк»
-              purpose: Оплата по контракту 111111 от 31.12.2021
-            taxRequisite:
-              taxPayerStatus: '01'
-              kppPayer: '770801001'
-              uin: '1820996623340000000000000'
-              cbc: '18200000000000000000'
-              oktmo: '63701000'
-              paymentReason: '0'
-              taxPeriod: '0'
-              docNumberPaymentReason: '0'
-              docDatePaymentReason: '0'
-              receiverName: Казначейство России (ФНС России)
-            maturityDate: '2025-12-31'
-            orderSum: '123.40'
-            currencyCode: RUB
-          items:
-            $ref: '#/components/schemas/ParsedOrderResponse'
-          type: array
-        agreementNumber:
-          description: Номер агентского договора
-          example: АФ-777
+        code:
+          $ref: '#/components/schemas/ErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+        traceId:
+          description: traceId
+          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
           type: string
       required:
-      - agreementNumber
-      - orders
+      - code
+      - message
       type: object
-    PacketPageResponse:
-      allOf:
-      - properties:
-          packets:
-            description: Реестры
-            items:
-              $ref: '#/components/schemas/PacketResponse'
-            type: array
-        type: object
-      - $ref: '#/components/schemas/PaginationResponse'
+    ErrorResponse:
+      description: Список ошибок
       example:
-        packets:
-        - id: 2c44306f-fc96-4780-9b37-6447273b190e
-          referenceId: 2c44306f-fc96-4780-9b37-6447273b190e
-          number: 2025-04-01-111
-          packetDate: '2025-01-01'
-          financedDate: '2025-01-01'
-          packetSum: 100.11
-          ordersCount: 2
-          financedSum: '100.11'
-          state:
-            statusDate: '2025-07-10T06:53:37.433211'
-            errors: []
-            status: ACCEPTED_BY_BANK
-          cqrsVersion: -1628796591
-        offset: 0
-        limit: 10
-        totalCount: 100
-      type: object
-    TaxRequisites:
-      description: Налоговые реквизиты
-      example:
-        taxPayerStatus: '01'
-        kppPayer: '770801001'
-        uin: '1820996623340000000000000'
-        cbc: '18200000000000000000'
-        oktmo: '63701000'
-        paymentReason: '0'
-        taxPeriod: '0'
-        docNumberPaymentReason: '0'
-        docDatePaymentReason: '0'
-        receiverName: Казначейство России (ФНС России)
-      properties:
-        taxPayerStatus:
-          description: Статус налогоплательщика
-          example: '01'
-          type: string
-        kppPayer:
-          description: КПП плательщика
-          example: '770801001'
-          type: string
-        uin:
-          description: УИН (уникальный идентификатор начислений)
-          example: '1820996623340000000000000'
-          type: string
-        cbc:
-          description: КБК (код бюджетной классификации)
-          example: '18200000000000000000'
-          type: string
-        oktmo:
-          description: ОКТМО (Общероссийский классификатор территорий муниципальных образований)
-          example: '63701000'
-          type: string
-        paymentReason:
-          description: Основание платежа
-          example: '0'
-          type: string
-        taxPeriod:
-          description: Налоговый период
-          example: '0'
-          type: string
-        docNumberPaymentReason:
-          description: Номер документа основания платежа
-          example: '0'
-          type: string
-        docDatePaymentReason:
-          description: Дата документа основания платежа
-          example: '0'
-          type: string
-        receiverName:
-          description: Наименование получателя
-          example: Казначейство России (ФНС России)
-          type: string
-      type: object
-    PaginationResponse:
-      example:
-        offset: 0
-        limit: 10
-        totalCount: 100
-      properties:
-        offset:
-          description: Количество элементов для сдвига
-          example: 1
-          type: integer
-        limit:
-          description: Итоговое количество элементов
-          example: 10
-          type: integer
-        totalCount:
-          description: Общее количество элементов
-          example: 100
-          type: integer
-      required:
-      - limit
-      - offset
-      - totalCount
-      type: object
-    PacketStatus:
-      description: Статус реестра поручений
-      enum:
-      - SIGN_AWAITING
-      - SIGN_REJECTED
-      - DOCUMENT_IN_PROGRESS
-      - ACCEPTED_BY_BANK
-      example: ACCEPTED_BY_BANK
-      type: string
-    PacketState:
-      allOf:
-      - $ref: '#/components/schemas/State'
-      - properties:
-          status:
-            $ref: '#/components/schemas/PacketStatus'
-        type: object
-      description: Состояние пакета
-      example:
-        statusDate: '2025-07-10T06:53:37.433211'
-        errors: []
-        status: ACCEPTED_BY_BANK
-      type: object
+      - code: REST_ERR_5001
+        message: General service error
+        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
+      items:
+        $ref: '#/components/schemas/ErrorMessage'
+      type: array
     ErrorCodes:
       description: '| code       | description                        |
 
@@ -793,41 +468,192 @@ components:
       - ERR_12001
       example: ERR_2000
       type: string
-    PaymentRequisites:
-      description: Платежные реквизиты
+    ErrorMessage:
       example:
-        account: '40702810200001430012'
-        correspondentAccount: '30101810200000000700'
-        bic: '044525700'
-        recipientBankName: АО «Райффайзенбанк»
-        purpose: Оплата по контракту 111111 от 31.12.2021
+        code: REST_ERR_5001
+        message: General service error
+        traceId: 29bda8ca-4d33-11ec-81d3-0242ac130000
       properties:
-        account:
-          description: Расчетный счет получателя
-          example: '40702810200001430012'
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
           type: string
-        correspondentAccount:
-          description: Корреспондентский счет получателя
-          example: '30101810200000000700'
-          type: string
-        bic:
-          description: БИК банка получателя
-          example: '044525700'
-          type: string
-        recipientBankName:
-          description: Наименование банка получателя
-          example: АО «Райффайзенбанк»
-          type: string
-        purpose:
-          description: Назначение платежа
-          example: Оплата по контракту 111111 от 31.12.2021
+        traceId:
+          description: traceId
+          example: 29bda8ca-4d33-11ec-81d3-0242ac130000
           type: string
       required:
-      - account
-      - bic
-      - correspondentAccount
-      - purpose
-      - recipientBankName
+      - code
+      - message
+      - traceId
+      type: object
+    CreatePacketRequest:
+      description: Запрос создания пакета поручений
+      example:
+        orders:
+        - creditorRequisite:
+            fullNameRus: АО Ромашка
+            inn: '1234567890'
+            ogrn: '123456789012345'
+            kpp: '123456789'
+          paymentRequisite:
+            account: '40702810200001430012'
+            correspondentAccount: '30101810200000000700'
+            bic: '044525700'
+            recipientBankName: АО «Райффайзенбанк»
+            purpose: Оплата по контракту 111111 от 31.12.2021
+          taxRequisite:
+            taxPayerStatus: '01'
+            kppPayer: '770801001'
+            uin: '1820996623340000000000000'
+            cbc: '18200000000000000000'
+            oktmo: '63701000'
+            paymentReason: '0'
+            taxPeriod: '0'
+            docNumberPaymentReason: '0'
+            docDatePaymentReason: '0'
+            receiverName: Казначейство России (ФНС России)
+          maturityDate: '2025-12-31'
+          orderSum: '123.40'
+          currencyCode: RUB
+        agreementNumber: АФ-777
+      properties:
+        orders:
+          description: Список распарсенных поручений
+          example:
+          - creditorRequisite:
+              fullNameRus: АО Ромашка
+              inn: '1234567890'
+              ogrn: '123456789012345'
+              kpp: '123456789'
+            paymentRequisite:
+              account: '40702810200001430012'
+              correspondentAccount: '30101810200000000700'
+              bic: '044525700'
+              recipientBankName: АО «Райффайзенбанк»
+              purpose: Оплата по контракту 111111 от 31.12.2021
+            taxRequisite:
+              taxPayerStatus: '01'
+              kppPayer: '770801001'
+              uin: '1820996623340000000000000'
+              cbc: '18200000000000000000'
+              oktmo: '63701000'
+              paymentReason: '0'
+              taxPeriod: '0'
+              docNumberPaymentReason: '0'
+              docDatePaymentReason: '0'
+              receiverName: Казначейство России (ФНС России)
+            maturityDate: '2025-12-31'
+            orderSum: '123.40'
+            currencyCode: RUB
+          items:
+            $ref: '#/components/schemas/ParsedOrderResponse'
+          type: array
+        agreementNumber:
+          description: Номер агентского договора
+          example: АФ-777
+          type: string
+      required:
+      - agreementNumber
+      - orders
+      type: object
+    PacketResponse:
+      description: Реестр поручений
+      example:
+        id: 2c44306f-fc96-4780-9b37-6447273b190e
+        referenceId: 2c44306f-fc96-4780-9b37-6447273b190e
+        number: 2025-04-01-111
+        packetDate: '2025-01-01'
+        financedDate: '2025-01-01'
+        packetSum: 100.11
+        ordersCount: 2
+        financedSum: '100.11'
+        state:
+          statusDate: '2025-07-10T06:53:37.433211'
+          errors: []
+          status: ACCEPTED_BY_BANK
+        cqrsVersion: -1628796591
+      properties:
+        id:
+          description: Идентификатор пакета
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          format: uuid
+          type: string
+        referenceId:
+          description: Идентификатор реестра поручений клиента, если реестр загружен через API
+          example: 2c44306f-fc96-4780-9b37-6447273b190e
+          type: string
+        number:
+          description: Номер реестра поручений
+          example: 2025-04-01-111
+          type: string
+        packetDate:
+          description: Дата реестра поручений
+          example: '2025-01-01'
+          format: date
+          type: string
+        financedDate:
+          description: Максимальный executionDate из исполненных поручений
+          example: '2025-01-01'
+          format: date
+          type: string
+        packetSum:
+          description: Сумма реестра
+          example: 100.11
+          type: number
+        ordersCount:
+          description: Количество поручений
+          example: 2
+          type: integer
+        financedSum:
+          description: Сумма финансирования
+          example: '100.11'
+          type: string
+        state:
+          allOf:
+          - $ref: '#/components/schemas/PacketState'
+          description: Состояние пакета
+          example:
+            statusDate: '2025-07-10T06:53:37.433211'
+            errors: []
+            status: ACCEPTED_BY_BANK
+          type: object
+        cqrsVersion:
+          description: hashCode от state - состояния реестра
+          example: -1628796591
+          type: integer
+      required:
+      - cqrsVersion
+      - id
+      - number
+      - packetDate
+      - referenceId
+      - state
+      type: object
+    PaginationResponse:
+      example:
+        offset: 0
+        limit: 10
+        totalCount: 100
+      properties:
+        offset:
+          description: Количество элементов для сдвига
+          example: 1
+          type: integer
+        limit:
+          description: Итоговое количество элементов
+          example: 10
+          type: integer
+        totalCount:
+          description: Общее количество элементов
+          example: 100
+          type: integer
+      required:
+      - limit
+      - offset
+      - totalCount
       type: object
     State:
       description: Состояние объекта
@@ -848,30 +674,197 @@ components:
       required:
       - statusDate
       type: object
-  parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
-    IdTokenHeader:
-      name: Id-Token
-      in: header
-      description: Идентификационный токен пользователя
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    PacketState:
+      allOf:
+      - $ref: '#/components/schemas/State'
+      - properties:
+          status:
+            $ref: '#/components/schemas/PacketStatus'
+        type: object
+      description: Состояние пакета
+      example:
+        statusDate: '2025-07-10T06:53:37.433211'
+        errors: []
+        status: ACCEPTED_BY_BANK
+      type: object
+    PacketPageResponse:
+      allOf:
+      - properties:
+          packets:
+            description: Реестры
+            items:
+              $ref: '#/components/schemas/PacketResponse'
+            type: array
+        type: object
+      - $ref: '#/components/schemas/PaginationResponse'
+      example:
+        packets:
+        - id: 2c44306f-fc96-4780-9b37-6447273b190e
+          referenceId: 2c44306f-fc96-4780-9b37-6447273b190e
+          number: 2025-04-01-111
+          packetDate: '2025-01-01'
+          financedDate: '2025-01-01'
+          packetSum: 100.11
+          ordersCount: 2
+          financedSum: '100.11'
+          state:
+            statusDate: '2025-07-10T06:53:37.433211'
+            errors: []
+            status: ACCEPTED_BY_BANK
+          cqrsVersion: -1628796591
+        offset: 0
+        limit: 10
+        totalCount: 100
+      type: object
+    CreditorRequisites:
+      description: Реквизиты кредитора
+      example:
+        fullNameRus: АО Ромашка
+        inn: '1234567890'
+        ogrn: '123456789012345'
+        kpp: '123456789'
+      properties:
+        fullNameRus:
+          description: Полное наименование кредитора
+          example: АО Ромашка
+          type: string
+        inn:
+          description: ИНН кредитора
+          example: '1234567890'
+          maxLength: 12
+          minLength: 10
+          type: string
+        ogrn:
+          description: ОГРН кредитора
+          example: '123456789012345'
+          maxLength: 15
+          minLength: 13
+          type: string
+        kpp:
+          description: КПП кредитора
+          example: '123456789'
+          maxLength: 9
+          minLength: 9
+          type: string
+      required:
+      - fullNameRus
+      - inn
+      - ogrn
+      type: object
+    RestErrorCodes:
+      description: '| code            | description                                |
+
+        |-----------------|--------------------------------------------|
+
+        | REST_ERR_5001   | General service error                       |
+
+        | REST_ERR_5040   | Tax is not available                        |
+
+        | REST_ERR_5041   | Incorrect format of taxpayer status         |
+
+        | REST_ERR_5042   | Incorrect format of KPP payer''s             |
+
+        | REST_ERR_5043   | Incorrect format of UIN                     |
+
+        | REST_ERR_5044   | Incorrect format of CBC                     |
+
+        | REST_ERR_5045   | Incorrect format of OKTMO                   |
+
+        | REST_ERR_5046   | Incorrect format of payment reason          |
+
+        | REST_ERR_5047   | Incorrect format of tax period              |
+
+        | REST_ERR_5048   | Incorrect format of the payment reason document number |
+
+        | REST_ERR_5049   | Incorrect format of the payment reason document date   |
+
+        | REST_ERR_5050   | Incorrect format of receiver name           |
+
+        | REST_ERR_5051   | Incorrect format of purpose                 |
+
+        '
+      enum:
+      - REST_ERR_5001
+      - REST_ERR_5040
+      - REST_ERR_5041
+      - REST_ERR_5042
+      - REST_ERR_5043
+      - REST_ERR_5044
+      - REST_ERR_5045
+      - REST_ERR_5046
+      - REST_ERR_5047
+      - REST_ERR_5048
+      - REST_ERR_5049
+      - REST_ERR_5050
+      - REST_ERR_5051
+      example: REST_ERR_5001
+      type: string
+    PacketStatus:
+      description: Статус реестра поручений
+      enum:
+      - SIGN_AWAITING
+      - SIGN_REJECTED
+      - DOCUMENT_IN_PROGRESS
+      - ACCEPTED_BY_BANK
+      example: ACCEPTED_BY_BANK
+      type: string
+    TaxRequisites:
+      description: Налоговые реквизиты
+      example:
+        taxPayerStatus: '01'
+        kppPayer: '770801001'
+        uin: '1820996623340000000000000'
+        cbc: '18200000000000000000'
+        oktmo: '63701000'
+        paymentReason: '0'
+        taxPeriod: '0'
+        docNumberPaymentReason: '0'
+        docDatePaymentReason: '0'
+        receiverName: Казначейство России (ФНС России)
+      properties:
+        taxPayerStatus:
+          description: Статус налогоплательщика
+          example: '01'
+          type: string
+        kppPayer:
+          description: КПП плательщика
+          example: '770801001'
+          type: string
+        uin:
+          description: УИН (уникальный идентификатор начислений)
+          example: '1820996623340000000000000'
+          type: string
+        cbc:
+          description: КБК (код бюджетной классификации)
+          example: '18200000000000000000'
+          type: string
+        oktmo:
+          description: ОКТМО (Общероссийский классификатор территорий муниципальных образований)
+          example: '63701000'
+          type: string
+        paymentReason:
+          description: Основание платежа
+          example: '0'
+          type: string
+        taxPeriod:
+          description: Налоговый период
+          example: '0'
+          type: string
+        docNumberPaymentReason:
+          description: Номер документа основания платежа
+          example: '0'
+          type: string
+        docDatePaymentReason:
+          description: Дата документа основания платежа
+          example: '0'
+          type: string
+        receiverName:
+          description: Наименование получателя
+          example: Казначейство России (ФНС России)
+          type: string
+      type: object
   responses:
-    InternalError:
-      description: Внутренняя ошибка
     Unauthorized:
       description: Аутентификация не пройдена
-x-refined-from:
-- raiffeisen-ru-agency-factoring-openapi.yml
-- raiffeisen-ru-agency-factoring-openapi.yml
+    InternalError:
+      description: Внутренняя ошибка

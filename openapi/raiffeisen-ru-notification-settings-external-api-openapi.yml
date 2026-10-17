@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Notification Settings External API
+  title: (Черновик) Сервис уведомлений Raif Pay Notification…
   version: '1.0'
-  description: 'Operations tagged notification-settings-external across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-notifications-openapi.yml, raiffeisen-ru-raif-pay-notifications-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: API сервиса уведомлений Raif Pay
 servers:
 - url: https://api.raiffeisen.ru/raif-pay
 tags:
@@ -96,8 +96,6 @@ paths:
         description: Тип уведомления
       - $ref: '#/components/parameters/IdTokenHeader'
       - $ref: '#/components/parameters/AuthorizationHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/raif-pay
   /v1/merchants/{publicId}/notification-settings/{id}:
     delete:
       summary: Удаление настройки уведомления на мерчанте
@@ -128,9 +126,33 @@ paths:
       - $ref: '#/components/parameters/RoleToken'
       - $ref: '#/components/parameters/IdTokenHeader'
       - $ref: '#/components/parameters/AuthorizationHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/raif-pay
 components:
+  parameters:
+    RoleToken:
+      name: roleToken
+      in: header
+      required: true
+      description: Аутентификационный токен в системе Raif Pay
+      schema:
+        type: string
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
   schemas:
     NotificationSettingsResponse:
       description: Ответ с настройками уведомлений
@@ -144,12 +166,6 @@ components:
             example: 09b9f34d-e6d1-432d-87a6-61ec5e4018cb
           type:
             $ref: '#/components/schemas/NotificationType'
-    NotificationType:
-      type: string
-      description: Тип уведомления
-      enum:
-      - PAYMENT_SLIP
-      example: PAYMENT_SLIP
     GeneralError:
       title: GeneralError
       type: object
@@ -176,37 +192,14 @@ components:
           $ref: '#/components/schemas/NotificationType'
       required:
       - type
+    NotificationType:
+      type: string
+      description: Тип уведомления
+      enum:
+      - PAYMENT_SLIP
+      example: PAYMENT_SLIP
   responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
     InternalError:
       description: Внутренняя ошибка
-  parameters:
-    RoleToken:
-      name: roleToken
-      in: header
-      required: true
-      description: Аутентификационный токен в системе Raif Pay
-      schema:
-        type: string
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
-    IdTokenHeader:
-      name: Id-Token
-      in: header
-      description: Идентификационный токен пользователя
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-raif-pay-notifications-openapi.yml
-- raiffeisen-ru-raif-pay-notifications-openapi.yml
+    Unauthorized:
+      description: Аутентификация не пройдена

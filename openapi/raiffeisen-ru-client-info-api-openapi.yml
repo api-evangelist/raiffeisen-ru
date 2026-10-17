@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Client Info API
+  description: API кредитования юридических лиц
+  title: Финансирование. Кредитование Client Info API
   version: 1.0.0
-  description: 'Operations tagged ClientInfo across 2 of this provider''s published API definitions: raiffeisen-ru-loans-openapi.yml, raiffeisen-ru-loans-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/loans-financing
 tags:
@@ -56,24 +56,8 @@ paths:
       summary: Получение информации по счетам клиента (для оформления досрочного погашения…
       tags:
       - Client Info
-    servers:
-    - url: https://api.raiffeisen.ru/loans-financing
 components:
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -83,33 +67,16 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
   schemas:
-    BaseErrorResponse:
-      description: Данные об ошибке
-      example:
-        timestamp: '2000-01-23T04:56:07.000+00:00'
-        message: Error message
-      properties:
-        timestamp:
-          description: Дата и время возникновения ошибки
-          example: '2000-01-23T04:56:07Z'
-          format: date-time
-          type: string
-        message:
-          description: Сообщение об ошибке
-          example: Error message
-          type: string
-      type: object
-    ClientInfoAccountDtoResponse:
-      example:
-      - accountNumber: '40702810123456789012'
-        organizationCnum: AAABBB
-        availableBalance: 1.2345678901E8
-        currency: RUB
-      items:
-        $ref: '#/components/schemas/ClientInfoAccountDto'
-      type: array
-      uniqueItems: true
     ClientInfoAccountDto:
       description: Информация по счету клиента
       example:
@@ -135,6 +102,34 @@ components:
           example: RUB
           type: string
       type: object
-x-refined-from:
-- raiffeisen-ru-loans-openapi.yml
-- raiffeisen-ru-loans-openapi.yml
+    ClientInfoAccountDtoResponse:
+      example:
+      - accountNumber: '40702810123456789012'
+        organizationCnum: AAABBB
+        availableBalance: 1.2345678901E8
+        currency: RUB
+      items:
+        $ref: '#/components/schemas/ClientInfoAccountDto'
+      type: array
+      uniqueItems: true
+    BaseErrorResponse:
+      description: Данные об ошибке
+      example:
+        timestamp: '2000-01-23T04:56:07.000+00:00'
+        message: Error message
+      properties:
+        timestamp:
+          description: Дата и время возникновения ошибки
+          example: '2000-01-23T04:56:07Z'
+          format: date-time
+          type: string
+        message:
+          description: Сообщение об ошибке
+          example: Error message
+          type: string
+      type: object
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена

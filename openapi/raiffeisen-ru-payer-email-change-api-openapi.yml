@@ -1,20 +1,23 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Payer Email Change API
+  title: Управление кодами внесения АДМ Payer Email Change API
   version: 1.0.0
-  x-refined-note:
-  - x-logo differs across the merged source definitions and was not carried
-  - x-raif-api-description-en differs across the merged source definitions and was not carried
-  - x-raif-api-title-en differs across the merged source definitions and was not carried
-  description: 'Operations tagged payer-email-change across 3 of this provider''s published API definitions: raiffeisen-ru-adm-deposit-codes-openapi.yml, raiffeisen-ru-adm-deposit-codes-openapi.yml, raiffeisen-ru-raif-pay-adm-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: '# Общая информация
+
+
+    Данный раздел описывает методы для просмотра и управления выпущенными кодами внесения АДМ, включая:
+
+    - Получение списка кодов
+
+    - Фильтрация по ключевым атрибутам
+
+    - Получение детальной информации о коде
+
+    - Блокировка кода
+
+    - Изменение электронной почты для получения чеков'
 servers:
 - url: https://api.raiffeisen.ru/adm
-- url: https://ecom-prev-int-balancer.raiffeisen.ru/adm
-  description: prev
-- url: https://ecom-test-int-balancer.raiffeisen.ru/adm
-  description: test
-- url: https://ecom-int-balancer.raiffeisen.ru/adm
-  description: prod
 tags:
 - name: payer-email-change
   description: ''
@@ -79,27 +82,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/adm
 components:
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
   schemas:
-    UpdateCodeRequest:
-      type: object
-      properties:
-        email:
-          type:
-          - string
-          - 'null'
-          format: email
-          description: Новый email плательщика
-          example: newemail@client.com
-      example:
-        email: newemail@client.com
     BadRequestErrorResponse:
       required:
       - code
@@ -132,58 +116,6 @@ components:
         traceId:
           type: string
           example: 84b19a21e19410b62c30b4cd40c228a1
-    Customer:
-      type: object
-      required:
-      - cnum
-      - name
-      - inn
-      properties:
-        cnum:
-          type: string
-          description: Клиентский номер компании
-          example: '123456'
-        name:
-          type: string
-          description: Наименование компании
-          example: Тестовая компания
-        inn:
-          type: string
-          description: ИНН компании
-          pattern: ^[0-9]{10}$|^$
-          example: '7701000001'
-    Code:
-      type: object
-      required:
-      - id
-      - available
-      - createDate
-      - updateDate
-      - customer
-      - person
-      properties:
-        id:
-          type: string
-          description: Идентификатор кода
-          example: '12345678'
-        available:
-          type: boolean
-          description: Доступен ли код
-          example: true
-        createDate:
-          type: string
-          format: date-time
-          description: Дата создания записи
-          example: '2025-07-16T08:29:31.93956Z'
-        updateDate:
-          type: string
-          format: date-time
-          description: Дата последнего обновления
-          example: '2025-07-31T19:13:15.331124Z'
-        customer:
-          $ref: '#/components/schemas/Customer'
-        person:
-          $ref: '#/components/schemas/Person'
     Person:
       type: object
       required:
@@ -220,7 +152,7 @@ components:
           type: string
           description: Клиентский номер плательщика
           example: ADWCF1
-    UpdateCodeRequest_2:
+    UpdateCodeRequest:
       type: object
       properties:
         email:
@@ -229,50 +161,10 @@ components:
           - 'null'
           format: email
           description: Новый email плательщика
-          x-raif-api-description-en: New payer email
           example: newemail@client.com
       example:
         email: newemail@client.com
-    Customer_2:
-      type: object
-      required:
-      - cnum
-      - name
-      - inn
-      properties:
-        cnum:
-          type: string
-          description: Клиентский номер компании
-          x-raif-api-description-en: Company cnum
-          example: '123456'
-        name:
-          type: string
-          description: Наименование компании
-          x-raif-api-description-en: Company name
-          example: Тестовая компания
-        inn:
-          type: string
-          description: ИНН компании
-          x-raif-api-description-en: Company INN
-          pattern: ^[0-9]{10}$|^$
-          example: '7701000001'
-    InternalServerError:
-      required:
-      - code
-      - message
-      - traceId
-      type: object
-      properties:
-        code:
-          type: string
-          example: INTERNAL_ERROR
-        message:
-          type: string
-          example: An internal error occurred
-        traceId:
-          type: string
-          example: 84b19a21e19410b62c30b4cd40c228a1
-    Code_2:
+    Code:
       type: object
       required:
       - id
@@ -285,78 +177,46 @@ components:
         id:
           type: string
           description: Идентификатор кода
-          x-raif-api-description-en: Code id
           example: '12345678'
         available:
           type: boolean
           description: Доступен ли код
-          x-raif-api-description-en: Code availability
           example: true
         createDate:
           type: string
           format: date-time
           description: Дата создания записи
-          x-raif-api-description-en: Creation date
           example: '2025-07-16T08:29:31.93956Z'
         updateDate:
           type: string
           format: date-time
           description: Дата последнего обновления
-          x-raif-api-description-en: Update date
           example: '2025-07-31T19:13:15.331124Z'
         customer:
-          $ref: '#/components/schemas/Customer_2'
+          $ref: '#/components/schemas/Customer'
         person:
-          $ref: '#/components/schemas/Person_2'
-    Person_2:
+          $ref: '#/components/schemas/Person'
+    Customer:
       type: object
       required:
-      - surname
-      - name
-      - birthDate
       - cnum
+      - name
+      - inn
       properties:
-        surname:
-          type: string
-          description: Фамилия
-          x-raif-api-description-en: Last name
-          example: Иванов
-        name:
-          type: string
-          description: Имя
-          x-raif-api-description-en: Name
-          example: Иван
-        patronymic:
-          type: string
-          description: Отчество
-          x-raif-api-description-en: Patronymic
-          example: Иванович
-        birthDate:
-          type: string
-          format: date
-          description: Дата рождения
-          x-raif-api-description-en: Birth date
-          example: '2007-07-04'
-        email:
-          type:
-          - string
-          - 'null'
-          format: email
-          description: Email плательщика
-          x-raif-api-description-en: Payer email
-          example: test@test.ru
         cnum:
           type: string
-          description: Клиентский номер плательщика
-          x-raif-api-description-en: Payer cnum
-          example: ADWCF1
+          description: Клиентский номер компании
+          example: '123456'
+        name:
+          type: string
+          description: Наименование компании
+          example: Тестовая компания
+        inn:
+          type: string
+          description: ИНН компании
+          pattern: ^[0-9]{10}$|^$
+          example: '7701000001'
   examples:
-    BadRequestErrorExample:
-      summary: Пример ошибки валидации
-      value:
-        code: INVALID_DATA
-        message: The request contains invalid fields or values
-        traceId: 84b19a21e19410b62c30b4cd40c228a1
     UpdateCodeRequestExample:
       summary: Пример обновления email
       value:
@@ -379,36 +239,24 @@ components:
           birthDate: '2007-07-04'
           email: test@test.ru
           cnum: ADWCF1
+    BadRequestErrorExample:
+      summary: Пример ошибки валидации
+      value:
+        code: INVALID_DATA
+        message: The request contains invalid fields or values
+        traceId: 84b19a21e19410b62c30b4cd40c228a1
     NotFoundErrorExample:
       summary: Пример ошибки "ресурс не найден"
       value:
         code: RESOURCE_NOT_FOUND
         message: The resource not found
         traceId: 84b19a21e19410b62c30b4cd40c228a1
-    InternalServerErrorExample:
-      summary: Пример внутренней ошибки
-      value:
-        code: INTERNAL_ERROR
-        message: An internal error occurred
-        traceId: 84b19a21e19410b62c30b4cd40c228a1
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
-    CodeId:
-      name: id
-      in: path
-      required: true
-      description: Идентификатор кода
-      schema:
-        type: string
-        example: '78901211'
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -418,16 +266,20 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-    CodeId_2:
+    CodeId:
       name: id
       in: path
       required: true
       description: Идентификатор кода
-      x-raif-api-description-en: Code id
       schema:
         type: string
         example: '78901211'
-x-refined-from:
-- raiffeisen-ru-adm-deposit-codes-openapi.yml
-- raiffeisen-ru-adm-deposit-codes-openapi.yml
-- raiffeisen-ru-raif-pay-adm-openapi.yml
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=

@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Debtor API
+  description: API Факторинга
+  title: Финансирование. Факторинг Debtor API
   version: 1.0.0
-  description: 'Operations tagged Debtor across 2 of this provider''s published API definitions: raiffeisen-ru-factoring-openapi.yml, raiffeisen-ru-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/factoring
 tags:
@@ -61,10 +61,56 @@ paths:
       summary: Получение дебитора по идентификатору
       tags:
       - Debtor
-    servers:
-    - url: https://api.raiffeisen.ru/factoring
 components:
   schemas:
+    DebtorStatus:
+      description: Статус дебитора
+      enum:
+      - ACTIVE
+      example: ACTIVE
+      type: string
+    ErrorMessage:
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    Debtor:
+      description: Дебитор
+      example:
+        id: 8867503f-10a5-4591-b739-78d75f3607c1
+        fullNameRus: АО Ромашка
+        state:
+          status: ACTIVE
+          statusDate: '2025-10-21T15:25:12.391551'
+          errors: []
+          cqrsVersion: 2791332215
+      properties:
+        id:
+          description: Идентификатор дебитора
+          example: 8867503f-10a5-4591-b739-78d75f3607c1
+          format: uuid
+          type: string
+        fullNameRus:
+          description: Полное наименование дебитора на русском языке
+          example: АО Ромашка
+          type: string
+        state:
+          allOf:
+          - $ref: '#/components/schemas/DebtorState'
+          description: Состояние дебитора
+          type: object
+      required:
+      - fullNameRus
+      - id
+      - state
+      type: object
     RestErrorCodes:
       description: '| code            | description                                          |
 
@@ -127,18 +173,6 @@ components:
       - SELECTED_ORGANIZATION_NOT_ALLOWED
       example: REST_ERROR_5001
       type: string
-    ErrorMessage:
-      properties:
-        code:
-          $ref: '#/components/schemas/RestErrorCodes'
-        message:
-          description: Сообщение
-          example: General service error
-          type: string
-      required:
-      - code
-      - message
-      type: object
     DebtorState:
       allOf:
       - $ref: '#/components/schemas/State'
@@ -155,12 +189,6 @@ components:
         errors: []
         cqrsVersion: 2791332215
       type: object
-    DebtorStatus:
-      description: Статус дебитора
-      enum:
-      - ACTIVE
-      example: ACTIVE
-      type: string
     State:
       description: Состояние объекта
       properties:
@@ -189,51 +217,12 @@ components:
       items:
         $ref: '#/components/schemas/ErrorMessage'
       type: array
-    Debtor:
-      description: Дебитор
-      example:
-        id: 8867503f-10a5-4591-b739-78d75f3607c1
-        fullNameRus: АО Ромашка
-        state:
-          status: ACTIVE
-          statusDate: '2025-10-21T15:25:12.391551'
-          errors: []
-          cqrsVersion: 2791332215
-      properties:
-        id:
-          description: Идентификатор дебитора
-          example: 8867503f-10a5-4591-b739-78d75f3607c1
-          format: uuid
-          type: string
-        fullNameRus:
-          description: Полное наименование дебитора на русском языке
-          example: АО Ромашка
-          type: string
-        state:
-          allOf:
-          - $ref: '#/components/schemas/DebtorState'
-          description: Состояние дебитора
-          type: object
-      required:
-      - fullNameRus
-      - id
-      - state
-      type: object
   responses:
     Unauthorized:
       description: Аутентификация не пройдена
     InternalError:
       description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -243,6 +232,12 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-factoring-openapi.yml
-- raiffeisen-ru-factoring-openapi.yml
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=

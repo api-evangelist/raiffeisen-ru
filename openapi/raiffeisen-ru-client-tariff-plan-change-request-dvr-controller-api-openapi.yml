@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Client Tariff Plan Change Request Dvr…
+  title: Модуль обработки клиентских запросов на смену тарифного…
+  description: Модуль обработки клиентских запросов на смену тарифного плана в системе управления тарифами клиента
   version: 1.0.0
-  description: 'Operations tagged client-tariff-plan-change-request-dvr-controller across 2 of this provider''s published API definitions: raiffeisen-ru-tariff-change-requests-openapi.yml, raiffeisen-ru-tariff-change-requests-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/client-tariffs
 tags:
@@ -140,24 +140,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/client-tariffs
 components:
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -167,6 +151,20 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена
   schemas:
     ClientTariffPlanChangeRequestBodyView:
       required:
@@ -202,6 +200,3 @@ components:
           type: string
           description: Тело заявки
       description: Клиентское представление заявки на смену тарифного плана
-x-refined-from:
-- raiffeisen-ru-tariff-change-requests-openapi.yml
-- raiffeisen-ru-tariff-change-requests-openapi.yml

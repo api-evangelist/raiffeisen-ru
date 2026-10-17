@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Guarantee Renunciation Forms API
+  title: Торговое Финансирование.
+  description: API для получения информации по выпущенным гарантиям в кабинете бенефициара
   version: 1.0.0
-  description: 'Operations tagged Guarantee Renunciation Forms across 2 of this provider''s published API definitions: raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml, raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/trade-finance
 tags:
@@ -57,20 +57,44 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/trade-finance
 components:
+  schemas:
+    ErrorSource:
+      required:
+      - pointer
+      type: object
+      properties:
+        pointer:
+          type: string
+    ErrorResponseDto:
+      required:
+      - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponseItemDto'
+    ErrorResponseItemDto:
+      required:
+      - code
+      - detail
+      - id
+      type: object
+      properties:
+        code:
+          type: string
+        detail:
+          type: string
+        meta:
+          type: object
+        id:
+          type: string
+        source:
+          $ref: '#/components/schemas/ErrorSource'
   responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
     UnprocessableEntity:
       description: Unprocessable Entity
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
-    Forbidden:
-      description: Forbidden
       content:
         application/json:
           schema:
@@ -89,50 +113,15 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponseDto'
-  schemas:
-    ErrorResponseItemDto:
-      required:
-      - code
-      - detail
-      - id
-      type: object
-      properties:
-        code:
-          type: string
-        detail:
-          type: string
-        meta:
-          type: object
-        id:
-          type: string
-        source:
-          $ref: '#/components/schemas/ErrorSource'
-    ErrorSource:
-      required:
-      - pointer
-      type: object
-      properties:
-        pointer:
-          type: string
-    ErrorResponseDto:
-      required:
-      - errors
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorResponseItemDto'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+    Unauthorized:
+      description: Аутентификация не пройдена
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -142,6 +131,12 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml
-- raiffeisen-ru-trade-finance-beneficiary-guarantees-openapi.yml
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=

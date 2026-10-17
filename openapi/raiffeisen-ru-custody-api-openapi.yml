@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Custody API
+  title: Депозитарий. Отчеты. Депозитарные выписки Custody API
+  description: Депозитарные выписки
   version: 1.0.0
-  description: 'Operations tagged custody across 2 of this provider''s published API definitions: raiffeisen-ru-custody-statements-openapi.yml, raiffeisen-ru-custody-statements-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/custody
 tags:
@@ -48,8 +48,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/custody
   /v1/statements/tasks/{id}:
     get:
       tags:
@@ -86,8 +84,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/custody
   /v1/statements/tasks/page:
     get:
       tags:
@@ -124,8 +120,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/custody
   /v1/statements/files/{id}/download:
     get:
       tags:
@@ -160,20 +154,80 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/custody
 components:
-  schemas:
-    FileId:
-      type: string
-      description: Идентификатор сформированного zip-архива с выписками
-      format: uuid
-      example: 30dcde3a-b26f-435b-93a5-2bbaaca1ddbf
-    TaskId:
-      type: string
-      description: Идентификатор задачи на формирование выписок
-      format: uuid
+  parameters:
+    TaskStatusParam:
+      name: status
+      in: query
+      description: Filter by task status
+      required: false
+      schema:
+        $ref: '#/components/schemas/TaskStatus'
+      examples:
+        new:
+          summary: Новая задача
+          value: NEW
+        progress:
+          summary: В обработке
+          value: IN_PROGRESS
+        done:
+          summary: Завершена
+          value: DONE
+        failed:
+          summary: Ошибка
+          value: FAILED
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    PageNumberParam:
+      name: number
+      in: query
+      description: Page number (0-indexed)
+      required: false
+      schema:
+        type: integer
+        default: 0
+      example: 0
+    TaskIdQueryParam:
+      name: id
+      in: query
+      description: Filter by task id
+      required: false
+      schema:
+        $ref: '#/components/schemas/TaskId'
       example: 19229514-5821-11f0-9fe2-0242ac120002
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    PageSizeParam:
+      name: size
+      in: query
+      description: Number of items per page
+      required: false
+      schema:
+        type: integer
+        default: 10
+      example: 10
+  schemas:
+    Formats:
+      type: string
+      description: Тип выписки
+      enum:
+      - PDF
+      - XML
+      - JSON
     ErrorResponse:
       type: object
       required:
@@ -195,59 +249,6 @@ components:
           description: Детали ошибок по полям
           additionalProperties:
             type: string
-    TaskResponse:
-      type: object
-      properties:
-        id:
-          $ref: '#/components/schemas/TaskId'
-        status:
-          $ref: '#/components/schemas/TaskStatus'
-          example: DONE
-        createdAt:
-          type: string
-          description: Дата и время создания задачи
-          format: date-time
-          example: '2024-11-05T15:30:00Z'
-        updatedAt:
-          type: string
-          description: Дата и время последнего обновления статуса выполнения задачи
-          format: date-time
-          example: '2024-11-05T15:35:00Z'
-        results:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/FileId'
-          example:
-          - 30dcde3a-b26f-435b-93a5-2bbaaca1ddbf
-          - 30dcde3a-b26f-435b-93a5-2bbaaca1ddbr
-    Formats:
-      type: string
-      description: Тип выписки
-      enum:
-      - PDF
-      - XML
-      - JSON
-    Locales:
-      type: string
-      description: Тип выписки
-      enum:
-      - RUS
-      - ENG
-    TaskStatus:
-      type: string
-      description: Статус выполнения задачи на формирование выписок
-      enum:
-      - NEW
-      - IN_PROGRESS
-      - FAILED
-      - DONE
-    TaskType:
-      type: string
-      description: Тип отчета выписки
-      enum:
-      - PORTFOLIO
-      - TRANSACTIONS
     TaskCreateRequest:
       required:
       - dateFrom
@@ -291,17 +292,92 @@ components:
           description: Тип выписки
           items:
             $ref: '#/components/schemas/Locales'
+    TaskType:
+      type: string
+      description: Тип отчета выписки
+      enum:
+      - PORTFOLIO
+      - TRANSACTIONS
+    TaskResponse:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/TaskId'
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+          example: DONE
+        createdAt:
+          type: string
+          description: Дата и время создания задачи
+          format: date-time
+          example: '2024-11-05T15:30:00Z'
+        updatedAt:
+          type: string
+          description: Дата и время последнего обновления статуса выполнения задачи
+          format: date-time
+          example: '2024-11-05T15:35:00Z'
+        results:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/FileId'
+          example:
+          - 30dcde3a-b26f-435b-93a5-2bbaaca1ddbf
+          - 30dcde3a-b26f-435b-93a5-2bbaaca1ddbr
+    FileId:
+      type: string
+      description: Идентификатор сформированного zip-архива с выписками
+      format: uuid
+      example: 30dcde3a-b26f-435b-93a5-2bbaaca1ddbf
+    TaskId:
+      type: string
+      description: Идентификатор задачи на формирование выписок
+      format: uuid
+      example: 19229514-5821-11f0-9fe2-0242ac120002
+    Locales:
+      type: string
+      description: Тип выписки
+      enum:
+      - RUS
+      - ENG
+    TaskStatus:
+      type: string
+      description: Статус выполнения задачи на формирование выписок
+      enum:
+      - NEW
+      - IN_PROGRESS
+      - FAILED
+      - DONE
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
   examples:
-    TaskResponseExample:
-      summary: Пример ответа по статусу задачи получения выписок
-      description: TaskResponse
+    TaskCreateResponseExample:
+      summary: Пример ответа на создание задачи для получения выписок
+      description: TaskCreateResponse
       value:
         id: 19229514-5821-11f0-9fe2-0242ac120002
-        status: DONE
+        status: NEW
         createdAt: '2024-11-05T15:30:00Z'
         updatedAt: '2024-11-05T15:30:00Z'
+        results: []
+    TaskListResponseExample:
+      summary: Пример ответа со списком задач получения выписок
+      description: TaskListResponse
+      value:
+      - id: 19229514-5821-11f0-9fe2-0242ac120002
+        status: DONE
+        createdAt: '2024-11-05T15:30:00Z'
+        updatedAt: '2024-11-05T15:35:00Z'
         results:
         - 3fa85f64-5717-4562-b3fc-2c963f66afa6
+      - id: 2c9a8081-7f70-4a4e-b8d2-9d1c2a3b4e5f
+        status: IN_PROGRESS
+        createdAt: '2024-11-06T10:15:00Z'
+        updatedAt: '2024-11-06T10:20:00Z'
+        results: []
     TaskCreateRequestExample:
       summary: Пример запроса на создание задачи для получения выписок
       description: TaskCreateRequest
@@ -322,100 +398,13 @@ components:
         - JSON
         locales:
         - RUS
-    TaskListResponseExample:
-      summary: Пример ответа со списком задач получения выписок
-      description: TaskListResponse
-      value:
-      - id: 19229514-5821-11f0-9fe2-0242ac120002
-        status: DONE
-        createdAt: '2024-11-05T15:30:00Z'
-        updatedAt: '2024-11-05T15:35:00Z'
-        results:
-        - 3fa85f64-5717-4562-b3fc-2c963f66afa6
-      - id: 2c9a8081-7f70-4a4e-b8d2-9d1c2a3b4e5f
-        status: IN_PROGRESS
-        createdAt: '2024-11-06T10:15:00Z'
-        updatedAt: '2024-11-06T10:20:00Z'
-        results: []
-    TaskCreateResponseExample:
-      summary: Пример ответа на создание задачи для получения выписок
-      description: TaskCreateResponse
+    TaskResponseExample:
+      summary: Пример ответа по статусу задачи получения выписок
+      description: TaskResponse
       value:
         id: 19229514-5821-11f0-9fe2-0242ac120002
-        status: NEW
+        status: DONE
         createdAt: '2024-11-05T15:30:00Z'
         updatedAt: '2024-11-05T15:30:00Z'
-        results: []
-  parameters:
-    PageNumberParam:
-      name: number
-      in: query
-      description: Page number (0-indexed)
-      required: false
-      schema:
-        type: integer
-        default: 0
-      example: 0
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
-    TaskIdQueryParam:
-      name: id
-      in: query
-      description: Filter by task id
-      required: false
-      schema:
-        $ref: '#/components/schemas/TaskId'
-      example: 19229514-5821-11f0-9fe2-0242ac120002
-    PageSizeParam:
-      name: size
-      in: query
-      description: Number of items per page
-      required: false
-      schema:
-        type: integer
-        default: 10
-      example: 10
-    IdTokenHeader:
-      name: Id-Token
-      in: header
-      description: Идентификационный токен пользователя
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-    TaskStatusParam:
-      name: status
-      in: query
-      description: Filter by task status
-      required: false
-      schema:
-        $ref: '#/components/schemas/TaskStatus'
-      examples:
-        new:
-          summary: Новая задача
-          value: NEW
-        progress:
-          summary: В обработке
-          value: IN_PROGRESS
-        done:
-          summary: Завершена
-          value: DONE
-        failed:
-          summary: Ошибка
-          value: FAILED
-  responses:
-    InternalError:
-      description: Внутренняя ошибка
-    Unauthorized:
-      description: Аутентификация не пройдена
-x-refined-from:
-- raiffeisen-ru-custody-statements-openapi.yml
-- raiffeisen-ru-custody-statements-openapi.yml
+        results:
+        - 3fa85f64-5717-4562-b3fc-2c963f66afa6

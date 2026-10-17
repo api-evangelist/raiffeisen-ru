@@ -1,8 +1,13 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Files API
+  title: (Черновик) API документов валютного контроля Files API
   version: 0.0.1
-  description: 'Operations tagged Files across 2 of this provider''s published API definitions: raiffeisen-ru-currency-control-documents-openapi.yml, raiffeisen-ru-currency-control-documents-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'API для интеграции клиента с системой валютного контроля банка.
+
+
+    Позволяет создавать и направлять в банк следующие документы:
+
+    - Сведения о контракте'
 servers:
 - url: https://api.raiffeisen.ru/foreign-trade
 tags:
@@ -103,8 +108,6 @@ paths:
       parameters:
       - $ref: '#/components/parameters/AuthorizationHeader'
       - $ref: '#/components/parameters/IdTokenHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/foreign-trade
   /currency-control/files/{fileId}:
     get:
       operationId: getFileMetadata
@@ -146,8 +149,6 @@ paths:
           $ref: '#/components/responses/FileGoneError'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/foreign-trade
   /currency-control/files/{fileId}/content:
     get:
       operationId: downloadFile
@@ -233,42 +234,18 @@ paths:
           $ref: '#/components/responses/FileGoneError'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/foreign-trade
 components:
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    FileGoneError:
-      description: Истёк срок доступности невостребованного файла (FILE_EXPIRED) или файл удалён (FILE_DELETED)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            code: FILE_EXPIRED
-            message: Истёк срок доступности невостребованного файла
-    ForbiddenError:
-      description: Недостаточно прав для выполнения операции
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ValidationError:
-      description: Ошибка валидации данных
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    InternalError:
-      description: Внутренняя ошибка
-    NotFoundError:
-      description: Запрашиваемый объект не найден
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   schemas:
+    FileContentHash:
+      type: string
+      pattern: ^[0-9a-f]{64}$
+      description: 'SHA-256 исходных байтов файла без multipart-обрамления и преобразований, в шестнадцатеричном виде, нижний регистр.
+
+
+        Алгоритм фиксирован: SHA-256, отдельное поле не передаётся.
+
+        '
+      example: ae5555eadcc27795e54c6a268684e9457539b07d4e13763fe391d53a6605f887
     FileUploadRequest:
       type: object
       additionalProperties: false
@@ -338,6 +315,92 @@ components:
         '
       default: OTHER
       example: CONTRACT
+    FileUploadResponse:
+      description: При загрузке срок expiresAt всегда задан, файл ещё не использован в документе
+      allOf:
+      - $ref: '#/components/schemas/FileMetadata'
+      - type: object
+        required:
+        - expiresAt
+      example:
+        fileId: 550e8400-e29b-41d4-a716-446655440000
+        fileName: files-content-sample.pdf
+        fileSize: 1457
+        contentType: application/pdf
+        category: CONTRACT
+        uploadedAt: '2025-06-15T10:15:00Z'
+        contentHash: ae5555eadcc27795e54c6a268684e9457539b07d4e13763fe391d53a6605f887
+        expiresAt: '2025-07-15T10:15:00Z'
+    FileMetadata:
+      type: object
+      description: Метаданные файла; срок expiresAt применяется только к невостребованному файлу
+      required:
+      - fileId
+      - fileName
+      - fileSize
+      - contentType
+      - category
+      - uploadedAt
+      - contentHash
+      properties:
+        fileId:
+          type: string
+          format: uuid
+          description: ID сохранённого и проверенного файла
+          example: 550e8400-e29b-41d4-a716-446655440000
+        fileName:
+          type: string
+          description: Исходное имя файла из multipart-части file
+          example: files-content-sample.pdf
+        fileSize:
+          type: integer
+          minimum: 1
+          maximum: 20971520
+          description: Фактический размер содержимого в байтах
+          example: 1457
+        contentType:
+          type: string
+          enum:
+          - application/pdf
+          - image/tiff
+          - image/jpeg
+          - image/gif
+          - image/bmp
+          - image/png
+          description: MIME-тип файла
+          example: application/pdf
+        category:
+          $ref: '#/components/schemas/FileCategory'
+          description: Переданная категория или OTHER
+        uploadedAt:
+          type: string
+          format: date-time
+          description: Время завершения сохранения и проверок в UTC
+          example: '2025-06-15T10:15:00Z'
+        expiresAt:
+          type: string
+          format: date-time
+          description: 'Время окончания доступности невостребованного файла в UTC.
+
+
+            Поле присутствует только для файла, который ещё не прикреплён к документу. После успешного прикрепления, включая черновик, поле отсутствует в ответе: файл хранится вместе с документами, включая их финальные статусы.
+
+
+            > **Примечание:** отсутствие поля не означает бессрочное хранение.
+
+            '
+          example: '2025-07-15T10:15:00Z'
+        contentHash:
+          $ref: '#/components/schemas/FileContentHash'
+      example:
+        fileId: 550e8400-e29b-41d4-a716-446655440000
+        fileName: files-content-sample.pdf
+        fileSize: 1457
+        contentType: application/pdf
+        category: CONTRACT
+        uploadedAt: '2025-06-15T10:15:00Z'
+        expiresAt: '2025-07-15T10:15:00Z'
+        contentHash: ae5555eadcc27795e54c6a268684e9457539b07d4e13763fe391d53a6605f887
     Error:
       type: object
       required:
@@ -420,112 +483,39 @@ components:
                 description: Описание ошибки поля
                 example: Некорректный формат UUID
           description: Детали по полям
-    FileUploadResponse:
-      description: При загрузке срок expiresAt всегда задан, файл ещё не использован в документе
-      allOf:
-      - $ref: '#/components/schemas/FileMetadata'
-      - type: object
-        required:
-        - expiresAt
-      example:
-        fileId: 550e8400-e29b-41d4-a716-446655440000
-        fileName: files-content-sample.pdf
-        fileSize: 1457
-        contentType: application/pdf
-        category: CONTRACT
-        uploadedAt: '2025-06-15T10:15:00Z'
-        contentHash: ae5555eadcc27795e54c6a268684e9457539b07d4e13763fe391d53a6605f887
-        expiresAt: '2025-07-15T10:15:00Z'
-    FileContentHash:
-      type: string
-      pattern: ^[0-9a-f]{64}$
-      description: 'SHA-256 исходных байтов файла без multipart-обрамления и преобразований, в шестнадцатеричном виде, нижний регистр.
-
-
-        Алгоритм фиксирован: SHA-256, отдельное поле не передаётся.
-
-        '
-      example: ae5555eadcc27795e54c6a268684e9457539b07d4e13763fe391d53a6605f887
-    FileMetadata:
-      type: object
-      description: Метаданные файла; срок expiresAt применяется только к невостребованному файлу
-      required:
-      - fileId
-      - fileName
-      - fileSize
-      - contentType
-      - category
-      - uploadedAt
-      - contentHash
-      properties:
-        fileId:
-          type: string
-          format: uuid
-          description: ID сохранённого и проверенного файла
-          example: 550e8400-e29b-41d4-a716-446655440000
-        fileName:
-          type: string
-          description: Исходное имя файла из multipart-части file
-          example: files-content-sample.pdf
-        fileSize:
-          type: integer
-          minimum: 1
-          maximum: 20971520
-          description: Фактический размер содержимого в байтах
-          example: 1457
-        contentType:
-          type: string
-          enum:
-          - application/pdf
-          - image/tiff
-          - image/jpeg
-          - image/gif
-          - image/bmp
-          - image/png
-          description: MIME-тип файла
-          example: application/pdf
-        category:
-          $ref: '#/components/schemas/FileCategory'
-          description: Переданная категория или OTHER
-        uploadedAt:
-          type: string
-          format: date-time
-          description: Время завершения сохранения и проверок в UTC
-          example: '2025-06-15T10:15:00Z'
-        expiresAt:
-          type: string
-          format: date-time
-          description: 'Время окончания доступности невостребованного файла в UTC.
-
-
-            Поле присутствует только для файла, который ещё не прикреплён к документу. После успешного прикрепления, включая черновик, поле отсутствует в ответе: файл хранится вместе с документами, включая их финальные статусы.
-
-
-            > **Примечание:** отсутствие поля не означает бессрочное хранение.
-
-            '
-          example: '2025-07-15T10:15:00Z'
-        contentHash:
-          $ref: '#/components/schemas/FileContentHash'
-      example:
-        fileId: 550e8400-e29b-41d4-a716-446655440000
-        fileName: files-content-sample.pdf
-        fileSize: 1457
-        contentType: application/pdf
-        category: CONTRACT
-        uploadedAt: '2025-06-15T10:15:00Z'
-        expiresAt: '2025-07-15T10:15:00Z'
-        contentHash: ae5555eadcc27795e54c6a268684e9457539b07d4e13763fe391d53a6605f887
+  responses:
+    NotFoundError:
+      description: Запрашиваемый объект не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    FileGoneError:
+      description: Истёк срок доступности невостребованного файла (FILE_EXPIRED) или файл удалён (FILE_DELETED)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: FILE_EXPIRED
+            message: Истёк срок доступности невостребованного файла
+    ForbiddenError:
+      description: Недостаточно прав для выполнения операции
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalError:
+      description: Внутренняя ошибка
+    ValidationError:
+      description: Ошибка валидации данных
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Аутентификация не пройдена
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -535,6 +525,12 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-currency-control-documents-openapi.yml
-- raiffeisen-ru-currency-control-documents-openapi.yml
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=

@@ -1,19 +1,19 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Delivery API
-  version: '0.1'
+  title: Raiffeisenbank cards Delivery API
   contact:
     email: dcc@raiffeisen.ru
     name: Support e-mail
     x-team-id: 228
     x-short-team-name: Corporate Cards
-  x-description-i18n:
-    eng: "Automated card issuance via API or registry. This allows you to issue corporate cards without documents or passports. Send us a list of cardholders via a registry through your online banking or API—we’ll issue the cards for you.\n\n# Registry\n\n1. Send the list of employees via online banking in XLS, CSV, or XML format. You can fill out the employee list manually or export it from your accounting system.\n\n2. If you order cards at a [bank branch](https://docs.google.com/spreadsheets/d/1lT-qOCGrAW7u9IFn8tDWwO1bnUt_gNPEncINGvVVbKE), delivery takes 3-5 business days.\n   If you order cards to be delivered to cardholders' addresses (only for XLS and CSV formats), delivery takes 5-7 business days, depending on the region. Cardholders will receive an SMS notification when their card is ready.\n\n## Registry Format\n  Template: <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/Заявление на выпуск карт для нерезидентов v2.xlsx'\" color=\"primary\">XLS</Button>\n\n  Examples: <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/xml_registry1.xml'\" color=\"primary\">XML_1</Button> <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/xml_registry2.xml'\" color=\"primary\">XML_2</Button> <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/csv_registry.csv'\" color=\"primary\">CSV</Button>\n\n   Parameter Name                     | Value\n  ------------------------------------|------------------------------------------------------------------------------------------\n   ИдПервичногоДокумента              | Unique registry identifier on the Company's side\n   РасчетныйСчетОрганизации           | Company account opened with the Bank to which the cards will be linked\n   ВидВклада/КодВидаВклада            | Card type <br> (MIR_CORPORATE/ MIR_CORPORATE_VIRTUAL/ CASH_IN&OUT)\n   Фамилия                            | Last name of the employee-cardholder\n   Имя                                | First name of the employee-cardholder\n   Отчество                           | Middle name of the employee-cardholder\n   ЭмбоссированныйТекст               | First and last name of the employee-cardholder in Latin script (to be printed on the card)\n   ОтделениеБанка/ ФилиалОтделенияБанка | Bank branch code where the cards will be delivered\n   Пол                                | Gender of the employee-cardholder\n   ДатаРождения                       | Date of birth\n   МестоРождения.СтранаНазвание       | Country of birth\n   Серия                              | Passport series (Russian passport)\n   Номер                              | Passport number (Russian passport)\n   ДатаВыдачи                         | Passport issue date\n   КемВыдан                           | Passport issuing authority\n   Гражданство                        | Citizenship\n   АдресПрописки.Страна               | Country of registration\n   АдресПрописки.РегионНазвание       | Region of registration address\n   АдресПрописки.НаселенныйПунктНазвание | Locality of registration address\n   АдресПрописки.УлицаНазвание        | Street of registration address <br> (if absent, specify \"Нет\")\n   АдресПрописки.Дом                  | House number of registration address\n   МобильныйТелефон                   | Employee-cardholder’s mobile phone <br> (79210000001 or 9210000001)\n   Суточный лимит <br> (CSV file)     | Daily cash withdrawal limit\n   Месячный лимит <br> (CSV file)     | Monthly spending limit\n   Секретное слово <br> (CSV file)    | Cardholder’s secret word\n   Индекс доставки <br> (CSV file)    | Delivery postal code\n   Регион доставки <br> (CSV file)    | Delivery region\n   Населенный пункт доставки <br> (CSV file) | Delivery locality\n   Улица доставки <br> (CSV file)     | Delivery street\n   Дом доставки <br> (CSV file)       | Delivery house number\n   Корпус доставки <br> (CSV file)    | Delivery building/block\n\n## Instructions for Exporting Registry from 1С\n[Instructions for Exporting Registry from 1С](https://docs.google.com/document/d/1xk9q9MDW1qx9oqQI64FF9PUBdShuLc-rgYuciY2SbzI)\n\n## List of Bank Branches for Card Pickup\n[List of Bank Branches for Card Pickup](https://docs.google.com/spreadsheets/d/1lT-qOCGrAW7u9IFn8tDWwO1bnUt_gNPEncINGvVVbKE)\n\n# About the API\n\nAfter signing the contract, you will receive an email with authorization details for the service.\n\n1. Integrate our API with your accounting system.\n2. Send the list of employees.\n3. Check card issuance status.\n4. Within 3-5 business days, the cards will be delivered to the bank branch. Cardholders will receive an SMS notification.\n\nCommunication is carried out via HTTP using GET/POST methods (each request description specifies the required method and address).\n   - POST requests use JSON arguments.\n   - GET requests work with query strings.\n\nThe API always returns a response in JSON format, regardless of the request type.\n   - Every response includes a message code (`code`). If a logical error occurs during processing, the API will also return an error description (`message`).\n\n## Authorization\n\nTo authorize requests, the following is required:\n- `secretKey` – a secret key used for inter-service communication.\n\nIMPORTANT: The secret key must be stored securely. Do not publish it on third-party resources or share it with unauthorized parties.\n\nInter-service requests are authorized via the API secret key (`SECRET_KEY`). The authorization parameter is specified in the `Authorization` header, formatted as `\"Bearer SECRET_KEY\"`.\n"
   x-logo:
     url: images/raifflogo.png
     backgroundColor: '#FFFFFF'
     altText: Raiff logo
-  description: 'Operations tagged delivery across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-corporate-cards-openapi.json, raiffeisen-ru-raif-pay-corporate-cards-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Автоматизированный выпуск карт с помощью API или реестра.
+  x-description-i18n:
+    eng: "Automated card issuance via API or registry. This allows you to issue corporate cards without documents or passports. Send us a list of cardholders via a registry through your online banking or API—we’ll issue the cards for you.\n\n# Registry\n\n1. Send the list of employees via online banking in XLS, CSV, or XML format. You can fill out the employee list manually or export it from your accounting system.\n\n2. If you order cards at a [bank branch](https://docs.google.com/spreadsheets/d/1lT-qOCGrAW7u9IFn8tDWwO1bnUt_gNPEncINGvVVbKE), delivery takes 3-5 business days.\n   If you order cards to be delivered to cardholders' addresses (only for XLS and CSV formats), delivery takes 5-7 business days, depending on the region. Cardholders will receive an SMS notification when their card is ready.\n\n## Registry Format\n  Template: <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/Заявление на выпуск карт для нерезидентов v2.xlsx'\" color=\"primary\">XLS</Button>\n\n  Examples: <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/xml_registry1.xml'\" color=\"primary\">XML_1</Button> <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/xml_registry2.xml'\" color=\"primary\">XML_2</Button> <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/csv_registry.csv'\" color=\"primary\">CSV</Button>\n\n   Parameter Name                     | Value\n  ------------------------------------|------------------------------------------------------------------------------------------\n   ИдПервичногоДокумента              | Unique registry identifier on the Company's side\n   РасчетныйСчетОрганизации           | Company account opened with the Bank to which the cards will be linked\n   ВидВклада/КодВидаВклада            | Card type <br> (MIR_CORPORATE/ MIR_CORPORATE_VIRTUAL/ CASH_IN&OUT)\n   Фамилия                            | Last name of the employee-cardholder\n   Имя                                | First name of the employee-cardholder\n   Отчество                           | Middle name of the employee-cardholder\n   ЭмбоссированныйТекст               | First and last name of the employee-cardholder in Latin script (to be printed on the card)\n   ОтделениеБанка/ ФилиалОтделенияБанка | Bank branch code where the cards will be delivered\n   Пол                                | Gender of the employee-cardholder\n   ДатаРождения                       | Date of birth\n   МестоРождения.СтранаНазвание       | Country of birth\n   Серия                              | Passport series (Russian passport)\n   Номер                              | Passport number (Russian passport)\n   ДатаВыдачи                         | Passport issue date\n   КемВыдан                           | Passport issuing authority\n   Гражданство                        | Citizenship\n   АдресПрописки.Страна               | Country of registration\n   АдресПрописки.РегионНазвание       | Region of registration address\n   АдресПрописки.НаселенныйПунктНазвание | Locality of registration address\n   АдресПрописки.УлицаНазвание        | Street of registration address <br> (if absent, specify \"Нет\")\n   АдресПрописки.Дом                  | House number of registration address\n   МобильныйТелефон                   | Employee-cardholder’s mobile phone <br> (79210000001 or 9210000001)\n   Суточный лимит <br> (CSV file)     | Daily cash withdrawal limit\n   Месячный лимит <br> (CSV file)     | Monthly spending limit\n   Секретное слово <br> (CSV file)    | Cardholder’s secret word\n   Индекс доставки <br> (CSV file)    | Delivery postal code\n   Регион доставки <br> (CSV file)    | Delivery region\n   Населенный пункт доставки <br> (CSV file) | Delivery locality\n   Улица доставки <br> (CSV file)     | Delivery street\n   Дом доставки <br> (CSV file)       | Delivery house number\n   Корпус доставки <br> (CSV file)    | Delivery building/block\n\n## Instructions for Exporting Registry from 1С\n[Instructions for Exporting Registry from 1С](https://docs.google.com/document/d/1xk9q9MDW1qx9oqQI64FF9PUBdShuLc-rgYuciY2SbzI)\n\n## List of Bank Branches for Card Pickup\n[List of Bank Branches for Card Pickup](https://docs.google.com/spreadsheets/d/1lT-qOCGrAW7u9IFn8tDWwO1bnUt_gNPEncINGvVVbKE)\n\n# About the API\n\nAfter signing the contract, you will receive an email with authorization details for the service.\n\n1. Integrate our API with your accounting system.\n2. Send the list of employees.\n3. Check card issuance status.\n4. Within 3-5 business days, the cards will be delivered to the bank branch. Cardholders will receive an SMS notification.\n\nCommunication is carried out via HTTP using GET/POST methods (each request description specifies the required method and address).\n   - POST requests use JSON arguments.\n   - GET requests work with query strings.\n\nThe API always returns a response in JSON format, regardless of the request type.\n   - Every response includes a message code (`code`). If a logical error occurs during processing, the API will also return an error description (`message`).\n\n## Authorization\n\nTo authorize requests, the following is required:\n- `secretKey` – a secret key used for inter-service communication.\n\nIMPORTANT: The secret key must be stored securely. Do not publish it on third-party resources or share it with unauthorized parties.\n\nInter-service requests are authorized via the API secret key (`SECRET_KEY`). The authorization parameter is specified in the `Authorization` header, formatted as `\"Bearer SECRET_KEY\"`.\n"
+  version: '0.1'
 servers:
 - url: https://pay-test.raif.ru
   description: Sandbox
@@ -70,34 +70,194 @@ paths:
           $ref: '#/components/responses/404'
         '500':
           $ref: '#/components/responses/500'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
 components:
+  schemas:
+    DeliveryStatus:
+      type: string
+      description: Статус доставки
+      x-description-i18n:
+        eng: Delivery status
+      enum:
+      - IN_PRODUCTION
+      - PRODUCED
+      - ON_DELIVERY
+      - DELIVERED
+      - RECEIVED
+      - NOT_RECEIVED
+      - DESTROYED
+    TransportName:
+      type: string
+      description: Наименование транспортной компании (для типа доставки COURIER)
+      x-description-i18n:
+        eng: Transport company name (for COURIER delivery type)
+      example: КСЭ
+    DeliveryResponseV2:
+      type: object
+      required:
+      - cardId
+      - delivery
+      - details
+      properties:
+        cardId:
+          allOf:
+          - $ref: '#/components/schemas/CardId'
+        delivery:
+          allOf:
+          - $ref: '#/components/schemas/DeliveryV2'
+        details:
+          type: array
+          description: История статусов доставки
+          x-description-i18n:
+            eng: Delivery status history
+          items:
+            allOf:
+            - $ref: '#/components/schemas/DeliveryDetailsV2'
+    DeliveryType:
+      type: string
+      description: Доставка курьером или в отделение
+      enum:
+      - COURIER
+      - BRANCH
+      example: COURIER
+    DeliveryCreatedDate:
+      type: string
+      format: date-time
+      description: Дата и время создания записи о статусе доставки
+      x-description-i18n:
+        eng: Date and time of delivery status record creation
+      example: '2024-12-13T12:15:15+03:00'
+    DeliveryDetailsV2:
+      type: object
+      required:
+      - status
+      - createdDate
+      properties:
+        status:
+          allOf:
+          - $ref: '#/components/schemas/DeliveryStatus'
+        createdDate:
+          allOf:
+          - $ref: '#/components/schemas/DeliveryCreatedDate'
+        expectedDate:
+          allOf:
+          - $ref: '#/components/schemas/DeliveryExpectedDate'
+        holdUntil:
+          allOf:
+          - $ref: '#/components/schemas/DeliveryDateUntil'
+    DeliveryTrackingId:
+      type: string
+      description: Идентификатор отслеживания доставки (для типа доставки COURIER)
+      x-description-i18n:
+        eng: Tracking identifier for delivery (for COURIER delivery type)
+      example: '1234567890'
+    DeliveryExpectedDate:
+      type: string
+      format: YYYY-MM-DD
+      description: Дата окончания действия (для статуса DELIVERED и типа доставки BRANCH)
+      x-description-i18n:
+        eng: Expiry date (for DELIVERED status and BRANCH delivery type)
+      example: '2026-12-28'
+    DeliveryAddress:
+      type: string
+      description: Адрес местонахождения отделения Банка или адрес доставки курьером
+      x-description-i18n:
+        eng: Address of the Bank branch location or courier delivery address
+      example: г. Омск ул. Жукова 77/1
+    DeliveryTrackingUrl:
+      type: string
+      description: URL для отслеживания доставки (для типа доставки COURIER). На текущий момент не формируется
+      x-description-i18n:
+        eng: URL for tracking delivery (for delivery type COURIER). Currently not generated
+      example: https://example.com/uuid
+    DeliveryV2:
+      type: object
+      required:
+      - address
+      - type
+      properties:
+        address:
+          allOf:
+          - $ref: '#/components/schemas/DeliveryAddress'
+        type:
+          allOf:
+          - $ref: '#/components/schemas/DeliveryType'
+        tracking:
+          type: object
+          properties:
+            name:
+              allOf:
+              - $ref: '#/components/schemas/TransportName'
+            url:
+              allOf:
+              - $ref: '#/components/schemas/DeliveryTrackingUrl'
+            id:
+              allOf:
+              - $ref: '#/components/schemas/DeliveryTrackingId'
+    CardId:
+      type: string
+      description: Уникальный банковский идентификатор карты
+      x-description-i18n:
+        eng: Unique bank card identifier
+    DeliveryDateUntil:
+      type: string
+      format: YYYY-MM-DD
+      description: Ожидаемая дата доставки (для типа доставки COURIER)
+      x-description-i18n:
+        eng: Expected delivery date (for COURIER delivery type)
+      example: '2026-12-28'
+  examples:
+    DeliveryBranch:
+      summary: Доставка завершена (в отделении)
+      value:
+        cardId: '67001889'
+        delivery:
+          type: BRANCH
+          address: г. Омск ул. Жукова 77/1
+        details:
+        - status: IN_PRODUCTION
+          createdDate: '2025-01-13T12:15:15+03:00'
+        - status: ON_DELIVERY
+          createdDate: '2025-01-15T14:00:00+03:00'
+          expectedDate: '2025-01-20'
+        - status: DELIVERED
+          createdDate: '2025-01-18T12:15:15+03:00'
+          holdUntil: '2025-06-15'
+    DeliveryCourierInProduction:
+      summary: Доставка в процессе производства (курьер)
+      value:
+        cardId: '67001889'
+        delivery:
+          type: COURIER
+          address: г. Омск ул. Герцена 48 к.4
+          tracking:
+            name: КСЭ
+            url: https://example.com/uuid
+            id: '1234567890'
+        details:
+        - status: IN_PRODUCTION
+          createdDate: '2025-01-13T12:15:15+03:00'
+    DeliveryCourierReceived:
+      summary: Доставка получена (курьер)
+      value:
+        cardId: '67001889'
+        delivery:
+          type: COURIER
+          address: г. Омск ул. Герцена 48 к.4
+          tracking:
+            name: КСЭ
+            url: https://example.com/uuid
+            id: '1234567890'
+        details:
+        - status: IN_PRODUCTION
+          createdDate: '2025-01-13T12:15:15+03:00'
+        - status: ON_DELIVERY
+          createdDate: '2025-01-15T14:00:00+03:00'
+          expectedDate: '2025-01-20'
+        - status: DELIVERED
+          createdDate: '2025-01-18T12:15:15+03:00'
+        - status: RECEIVED
+          createdDate: '2025-01-18T13:00:00+03:00'
   responses:
-    '404':
-      description: Информация не найдена
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              code:
-                type: string
-                description: Код ошибки
-                example: Not Found
-              message:
-                type: string
-                description: Описание ошибки
-                example: Информация не найдена
-              traceId:
-                type: string
-                description: Trace id запроса
-            required:
-            - code
-            - message
     '401':
       description: Неверный токен аутентификации
       x-description-i18n:
@@ -153,192 +313,27 @@ components:
                 description: Trace id запроса
                 x-description-i18n:
                   eng: Trace id request
-  schemas:
-    DeliveryType:
-      type: string
-      description: Доставка курьером или в отделение
-      enum:
-      - COURIER
-      - BRANCH
-      example: COURIER
-    DeliveryCreatedDate:
-      type: string
-      format: date-time
-      description: Дата и время создания записи о статусе доставки
-      x-description-i18n:
-        eng: Date and time of delivery status record creation
-      example: '2024-12-13T12:15:15+03:00'
-    DeliveryDateUntil:
-      type: string
-      format: YYYY-MM-DD
-      description: Ожидаемая дата доставки (для типа доставки COURIER)
-      x-description-i18n:
-        eng: Expected delivery date (for COURIER delivery type)
-      example: '2026-12-28'
-    DeliveryResponseV2:
-      type: object
-      required:
-      - cardId
-      - delivery
-      - details
-      properties:
-        cardId:
-          allOf:
-          - $ref: '#/components/schemas/CardId'
-        delivery:
-          allOf:
-          - $ref: '#/components/schemas/DeliveryV2'
-        details:
-          type: array
-          description: История статусов доставки
-          x-description-i18n:
-            eng: Delivery status history
-          items:
-            allOf:
-            - $ref: '#/components/schemas/DeliveryDetailsV2'
-    DeliveryV2:
-      type: object
-      required:
-      - address
-      - type
-      properties:
-        address:
-          allOf:
-          - $ref: '#/components/schemas/DeliveryAddress'
-        type:
-          allOf:
-          - $ref: '#/components/schemas/DeliveryType'
-        tracking:
-          type: object
-          properties:
-            name:
-              allOf:
-              - $ref: '#/components/schemas/TransportName'
-            url:
-              allOf:
-              - $ref: '#/components/schemas/DeliveryTrackingUrl'
-            id:
-              allOf:
-              - $ref: '#/components/schemas/DeliveryTrackingId'
-    DeliveryExpectedDate:
-      type: string
-      format: YYYY-MM-DD
-      description: Дата окончания действия (для статуса DELIVERED и типа доставки BRANCH)
-      x-description-i18n:
-        eng: Expiry date (for DELIVERED status and BRANCH delivery type)
-      example: '2026-12-28'
-    DeliveryStatus:
-      type: string
-      description: Статус доставки
-      x-description-i18n:
-        eng: Delivery status
-      enum:
-      - IN_PRODUCTION
-      - PRODUCED
-      - ON_DELIVERY
-      - DELIVERED
-      - RECEIVED
-      - NOT_RECEIVED
-      - DESTROYED
-    DeliveryTrackingId:
-      type: string
-      description: Идентификатор отслеживания доставки (для типа доставки COURIER)
-      x-description-i18n:
-        eng: Tracking identifier for delivery (for COURIER delivery type)
-      example: '1234567890'
-    DeliveryTrackingUrl:
-      type: string
-      description: URL для отслеживания доставки (для типа доставки COURIER). На текущий момент не формируется
-      x-description-i18n:
-        eng: URL for tracking delivery (for delivery type COURIER). Currently not generated
-      example: https://example.com/uuid
-    DeliveryDetailsV2:
-      type: object
-      required:
-      - status
-      - createdDate
-      properties:
-        status:
-          allOf:
-          - $ref: '#/components/schemas/DeliveryStatus'
-        createdDate:
-          allOf:
-          - $ref: '#/components/schemas/DeliveryCreatedDate'
-        expectedDate:
-          allOf:
-          - $ref: '#/components/schemas/DeliveryExpectedDate'
-        holdUntil:
-          allOf:
-          - $ref: '#/components/schemas/DeliveryDateUntil'
-    DeliveryAddress:
-      type: string
-      description: Адрес местонахождения отделения Банка или адрес доставки курьером
-      x-description-i18n:
-        eng: Address of the Bank branch location or courier delivery address
-      example: г. Омск ул. Жукова 77/1
-    TransportName:
-      type: string
-      description: Наименование транспортной компании (для типа доставки COURIER)
-      x-description-i18n:
-        eng: Transport company name (for COURIER delivery type)
-      example: КСЭ
-    CardId:
-      type: string
-      description: Уникальный банковский идентификатор карты
-      x-description-i18n:
-        eng: Unique bank card identifier
-  examples:
-    DeliveryCourierReceived:
-      summary: Доставка получена (курьер)
-      value:
-        cardId: '67001889'
-        delivery:
-          type: COURIER
-          address: г. Омск ул. Герцена 48 к.4
-          tracking:
-            name: КСЭ
-            url: https://example.com/uuid
-            id: '1234567890'
-        details:
-        - status: IN_PRODUCTION
-          createdDate: '2025-01-13T12:15:15+03:00'
-        - status: ON_DELIVERY
-          createdDate: '2025-01-15T14:00:00+03:00'
-          expectedDate: '2025-01-20'
-        - status: DELIVERED
-          createdDate: '2025-01-18T12:15:15+03:00'
-        - status: RECEIVED
-          createdDate: '2025-01-18T13:00:00+03:00'
-    DeliveryCourierInProduction:
-      summary: Доставка в процессе производства (курьер)
-      value:
-        cardId: '67001889'
-        delivery:
-          type: COURIER
-          address: г. Омск ул. Герцена 48 к.4
-          tracking:
-            name: КСЭ
-            url: https://example.com/uuid
-            id: '1234567890'
-        details:
-        - status: IN_PRODUCTION
-          createdDate: '2025-01-13T12:15:15+03:00'
-    DeliveryBranch:
-      summary: Доставка завершена (в отделении)
-      value:
-        cardId: '67001889'
-        delivery:
-          type: BRANCH
-          address: г. Омск ул. Жукова 77/1
-        details:
-        - status: IN_PRODUCTION
-          createdDate: '2025-01-13T12:15:15+03:00'
-        - status: ON_DELIVERY
-          createdDate: '2025-01-15T14:00:00+03:00'
-          expectedDate: '2025-01-20'
-        - status: DELIVERED
-          createdDate: '2025-01-18T12:15:15+03:00'
-          holdUntil: '2025-06-15'
+    '404':
+      description: Информация не найдена
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Код ошибки
+                example: Not Found
+              message:
+                type: string
+                description: Описание ошибки
+                example: Информация не найдена
+              traceId:
+                type: string
+                description: Trace id запроса
+            required:
+            - code
+            - message
   parameters:
     CardId:
       name: cardId
@@ -354,6 +349,3 @@ components:
       bearerFormat: JWT
       description: Bearer secret key
       x-internal: false
-x-refined-from:
-- raiffeisen-ru-raif-pay-corporate-cards-openapi.json
-- raiffeisen-ru-raif-pay-corporate-cards-openapi.yml

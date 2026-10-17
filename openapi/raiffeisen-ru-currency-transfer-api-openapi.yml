@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Currency Transfer API
+  title: Валютные переводы.
+  description: Спецификация API, разработанная для импорта валютных переводов в соответствии с международным стандартом ISO 20022.
   version: 1.11.0
-  description: 'Operations tagged currency-transfer across 2 of this provider''s published API definitions: raiffeisen-ru-foreign-currency-transfers-iso20022-openapi.yml, raiffeisen-ru-foreign-currency-transfers-iso20022-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/foreign-trade
 tags:
@@ -56,8 +56,6 @@ paths:
           $ref: '#/components/responses/PayloadTooLarge'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/foreign-trade
   /v2/currency-transfers/iso20022/signed:
     post:
       tags:
@@ -105,8 +103,6 @@ paths:
           $ref: '#/components/responses/PayloadTooLarge'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/foreign-trade
   /v2/currency-transfers/iso20022/{msgId}/status:
     get:
       tags:
@@ -182,8 +178,6 @@ paths:
           $ref: '#/components/responses/DocumentNotFound'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/foreign-trade
   /v2/currency-transfers/iso20022/{msgId}/payments/{pmtInfId}/status:
     get:
       tags:
@@ -297,8 +291,6 @@ paths:
           $ref: '#/components/responses/DocumentNotFound'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/foreign-trade
 components:
   responses:
     Unauthorized:
@@ -311,8 +303,6 @@ components:
             type: string
             description: Сообщение об ошибке
           example: Duplicate message id or payment id
-    Forbidden:
-      description: Доступ запрещён
     ValidationError:
       description: Ошибки валидации
       content:
@@ -321,6 +311,12 @@ components:
             type: string
             description: Сообщение об ошибке
           example: XML validation error
+    PayloadTooLarge:
+      description: Размер тела XML-запроса превышает установленный лимит
+    InternalError:
+      description: Внутренняя ошибка
+    Forbidden:
+      description: Доступ запрещён
     DocumentNotFound:
       description: Документ не найден
       content:
@@ -329,20 +325,7 @@ components:
             type: string
             description: Сообщение об ошибке
           example: Message not found with id = ... for current user
-    InternalError:
-      description: Внутренняя ошибка
-    PayloadTooLarge:
-      description: Размер тела XML-запроса превышает установленный лимит
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -352,6 +335,12 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-foreign-currency-transfers-iso20022-openapi.yml
-- raiffeisen-ru-foreign-currency-transfers-iso20022-openapi.yml
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=

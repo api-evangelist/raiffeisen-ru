@@ -8,52 +8,12 @@ info:
     x-team-id: 228
     x-short-team-name: Corporate Cards
   x-description-i18n:
-    eng: "Automated card issuance via API or registry. This allows you to issue corporate cards without documents or passports. Send us a list\
-      \ of cardholders via a registry through your online banking or API—we’ll issue the cards for you.\n\n# Registry\n\n1. Send the list of employees\
-      \ via online banking in XLS, CSV, or XML format. You can fill out the employee list manually or export it from your accounting system.\n\
-      \n2. If you order cards at a [bank branch](https://docs.google.com/spreadsheets/d/1lT-qOCGrAW7u9IFn8tDWwO1bnUt_gNPEncINGvVVbKE), delivery\
-      \ takes 3-5 business days.\n   If you order cards to be delivered to cardholders' addresses (only for XLS and CSV formats), delivery takes\
-      \ 5-7 business days, depending on the region. Cardholders will receive an SMS notification when their card is ready.\n\n## Registry Format\n\
-      \  Template: <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/Заявление на выпуск карт для нерезидентов\
-      \ v2.xlsx'\" color=\"primary\">XLS</Button>\n\n  Examples: <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/xml_registry1.xml'\"\
-      \ color=\"primary\">XML_1</Button> <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/xml_registry2.xml'\"\
-      \ color=\"primary\">XML_2</Button> <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/csv_registry.csv'\"\
-      \ color=\"primary\">CSV</Button>\n\n   Parameter Name                     | Value\n  ------------------------------------|------------------------------------------------------------------------------------------\n\
-      \   ИдПервичногоДокумента              | Unique registry identifier on the Company's side\n   РасчетныйСчетОрганизации           | Company\
-      \ account opened with the Bank to which the cards will be linked\n   ВидВклада/КодВидаВклада            | Card type <br> (MIR_CORPORATE/\
-      \ MIR_CORPORATE_VIRTUAL/ CASH_IN&OUT)\n   Фамилия                            | Last name of the employee-cardholder\n   Имя            \
-      \                    | First name of the employee-cardholder\n   Отчество                           | Middle name of the employee-cardholder\n\
-      \   ЭмбоссированныйТекст               | First and last name of the employee-cardholder in Latin script (to be printed on the card)\n  \
-      \ ОтделениеБанка/ ФилиалОтделенияБанка | Bank branch code where the cards will be delivered\n   Пол                                | Gender\
-      \ of the employee-cardholder\n   ДатаРождения                       | Date of birth\n   МестоРождения.СтранаНазвание       | Country of\
-      \ birth\n   Серия                              | Passport series (Russian passport)\n   Номер                              | Passport number\
-      \ (Russian passport)\n   ДатаВыдачи                         | Passport issue date\n   КемВыдан                           | Passport issuing\
-      \ authority\n   Гражданство                        | Citizenship\n   АдресПрописки.Страна               | Country of registration\n   АдресПрописки.РегионНазвание\
-      \       | Region of registration address\n   АдресПрописки.НаселенныйПунктНазвание | Locality of registration address\n   АдресПрописки.УлицаНазвание\
-      \        | Street of registration address <br> (if absent, specify \"Нет\")\n   АдресПрописки.Дом                  | House number of registration\
-      \ address\n   МобильныйТелефон                   | Employee-cardholder’s mobile phone <br> (79210000001 or 9210000001)\n   Суточный лимит\
-      \ <br> (CSV file)     | Daily cash withdrawal limit\n   Месячный лимит <br> (CSV file)     | Monthly spending limit\n   Секретное слово\
-      \ <br> (CSV file)    | Cardholder’s secret word\n   Индекс доставки <br> (CSV file)    | Delivery postal code\n   Регион доставки <br> (CSV\
-      \ file)    | Delivery region\n   Населенный пункт доставки <br> (CSV file) | Delivery locality\n   Улица доставки <br> (CSV file)     |\
-      \ Delivery street\n   Дом доставки <br> (CSV file)       | Delivery house number\n   Корпус доставки <br> (CSV file)    | Delivery building/block\n\
-      \n## Instructions for Exporting Registry from 1С\n[Instructions for Exporting Registry from 1С](https://docs.google.com/document/d/1xk9q9MDW1qx9oqQI64FF9PUBdShuLc-rgYuciY2SbzI)\n\
-      \n## List of Bank Branches for Card Pickup\n[List of Bank Branches for Card Pickup](https://docs.google.com/spreadsheets/d/1lT-qOCGrAW7u9IFn8tDWwO1bnUt_gNPEncINGvVVbKE)\n\
-      \n# About the API\n\nAfter signing the contract, you will receive an email with authorization details for the service.\n\n1. Integrate our\
-      \ API with your accounting system.\n2. Send the list of employees.\n3. Check card issuance status.\n4. Within 3-5 business days, the cards\
-      \ will be delivered to the bank branch. Cardholders will receive an SMS notification.\n\nCommunication is carried out via HTTP using GET/POST\
-      \ methods (each request description specifies the required method and address).\n   - POST requests use JSON arguments.\n   - GET requests\
-      \ work with query strings.\n\nThe API always returns a response in JSON format, regardless of the request type.\n   - Every response includes\
-      \ a message code (`code`). If a logical error occurs during processing, the API will also return an error description (`message`).\n\n##\
-      \ Authorization\n\nTo authorize requests, the following is required:\n- `secretKey` – a secret key used for inter-service communication.\n\
-      \nIMPORTANT: The secret key must be stored securely. Do not publish it on third-party resources or share it with unauthorized parties.\n\
-      \nInter-service requests are authorized via the API secret key (`SECRET_KEY`). The authorization parameter is specified in the `Authorization`\
-      \ header, formatted as `\"Bearer SECRET_KEY\"`.\n"
+    eng: "Automated card issuance via API or registry. This allows you to issue corporate cards without documents or passports. Send us a list of cardholders via a registry through your online banking or API—we’ll issue the cards for you.\n\n# Registry\n\n1. Send the list of employees via online banking in XLS, CSV, or XML format. You can fill out the employee list manually or export it from your accounting system.\n\n2. If you order cards at a [bank branch](https://docs.google.com/spreadsheets/d/1lT-qOCGrAW7u9IFn8tDWwO1bnUt_gNPEncINGvVVbKE), delivery takes 3-5 business days.\n   If you order cards to be delivered to cardholders' addresses (only for XLS and CSV formats), delivery takes 5-7 business days, depending on the region. Cardholders will receive an SMS notification when their card is ready.\n\n## Registry Format\n  Template: <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/Заявление на выпуск карт для нерезидентов v2.xlsx'\" color=\"primary\">XLS</Button>\n\n  Examples: <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/xml_registry1.xml'\" color=\"primary\">XML_1</Button> <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/xml_registry2.xml'\" color=\"primary\">XML_2</Button> <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/csv_registry.csv'\" color=\"primary\">CSV</Button>\n\n   Parameter Name                     | Value\n  ------------------------------------|------------------------------------------------------------------------------------------\n   ИдПервичногоДокумента              | Unique registry identifier on the Company's side\n   РасчетныйСчетОрганизации           | Company account opened with the Bank to which the cards will be linked\n   ВидВклада/КодВидаВклада            | Card type <br> (MIR_CORPORATE/ MIR_CORPORATE_VIRTUAL/ CASH_IN&OUT)\n   Фамилия                            | Last name of the employee-cardholder\n   Имя                                | First name of the employee-cardholder\n   Отчество                           | Middle name of the employee-cardholder\n   ЭмбоссированныйТекст               | First and last name of the employee-cardholder in Latin script (to be printed on the card)\n   ОтделениеБанка/ ФилиалОтделенияБанка | Bank branch code where the cards will be delivered\n   Пол                                | Gender of the employee-cardholder\n   ДатаРождения                       | Date of birth\n   МестоРождения.СтранаНазвание       | Country of birth\n   Серия                              | Passport series (Russian passport)\n   Номер                              | Passport number (Russian passport)\n   ДатаВыдачи                         | Passport issue date\n   КемВыдан                           | Passport issuing authority\n   Гражданство                        | Citizenship\n   АдресПрописки.Страна               | Country of registration\n   АдресПрописки.РегионНазвание       | Region of registration address\n   АдресПрописки.НаселенныйПунктНазвание | Locality of registration address\n   АдресПрописки.УлицаНазвание        | Street of registration address <br> (if absent, specify \"Нет\")\n   АдресПрописки.Дом                  | House number of registration address\n   МобильныйТелефон                   | Employee-cardholder’s mobile phone <br> (79210000001 or 9210000001)\n   Суточный лимит <br> (CSV file)     | Daily cash withdrawal limit\n   Месячный лимит <br> (CSV file)     | Monthly spending limit\n   Секретное слово <br> (CSV file)    | Cardholder’s secret word\n   Индекс доставки <br> (CSV file)    | Delivery postal code\n   Регион доставки <br> (CSV file)    | Delivery region\n   Населенный пункт доставки <br> (CSV file) | Delivery locality\n   Улица доставки <br> (CSV file)     | Delivery street\n   Дом доставки <br> (CSV file)       | Delivery house number\n   Корпус доставки <br> (CSV file)    | Delivery building/block\n\n## Instructions for Exporting Registry from 1С\n[Instructions for Exporting Registry from 1С](https://docs.google.com/document/d/1xk9q9MDW1qx9oqQI64FF9PUBdShuLc-rgYuciY2SbzI)\n\n## List of Bank Branches for Card Pickup\n[List of Bank Branches for Card Pickup](https://docs.google.com/spreadsheets/d/1lT-qOCGrAW7u9IFn8tDWwO1bnUt_gNPEncINGvVVbKE)\n\n# About the API\n\nAfter signing the contract, you will receive an email with authorization details for the service.\n\n1. Integrate our API with your accounting system.\n2. Send the list of employees.\n3. Check card issuance status.\n4. Within 3-5 business days, the cards will be delivered to the bank branch. Cardholders will receive an SMS notification.\n\nCommunication is carried out via HTTP using GET/POST methods (each request description specifies the required method and address).\n   - POST requests use JSON arguments.\n   - GET requests work with query strings.\n\nThe API always returns a response in JSON format, regardless of the request type.\n   - Every response includes a message code (`code`). If a logical error occurs during processing, the API will also return an error description (`message`).\n\n## Authorization\n\nTo authorize requests, the following is required:\n- `secretKey` – a secret key used for inter-service communication.\n\nIMPORTANT: The secret key must be stored securely. Do not publish it on third-party resources or share it with unauthorized parties.\n\nInter-service requests are authorized via the API secret key (`SECRET_KEY`). The authorization parameter is specified in the `Authorization` header, formatted as `\"Bearer SECRET_KEY\"`.\n"
   x-logo:
     url: images/raifflogo.png
     backgroundColor: '#FFFFFF'
     altText: Raiff logo
-  description: 'Operations tagged callback-api across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-corporate-cards-openapi.json,
-    raiffeisen-ru-raif-pay-corporate-cards-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged callback-api across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-corporate-cards-openapi.json, raiffeisen-ru-callback-api-api-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://pay-test.raif.ru
   description: Sandbox
@@ -86,14 +46,12 @@ tags:
       For Company call-backs notifications are represented as incoming POST-request that uses a JSON structure.
 
 
-      A notification is considered to be accepted if the recipient responded to the request with an HTTP-200 code. The responses with another
-      HTTP-code shall be considered as decline.
+      A notification is considered to be accepted if the recipient responded to the request with an HTTP-200 code. The responses with another HTTP-code shall be considered as decline.
 
       Retries of notifications are sent during the day with increasing intervals.
 
 
-      To authenticate the notification, a signature is added to the data in the header x-api-signature-sha256. The signature is made from shared
-      secret key and control string (amount|cardId|creationDate|id|type) using HMAC-SHA-256.
+      To authenticate the notification, a signature is added to the data in the header x-api-signature-sha256. The signature is made from shared secret key and control string (amount|cardId|creationDate|id|type) using HMAC-SHA-256.
 
       Company can use additional authenticate (authType) via login and password (authType = BASIC), or bearer-token (authType = BEARER).
 
@@ -191,12 +149,25 @@ webhooks:
       description: Production
 components:
   schemas:
+    Url:
+      type: string
+      description: URL, куда требуется отправлять уведомления по всем статусам.
+      x-description-i18n:
+        eng: URL for sending notifications for all statuses.
+      example: https://yoururl.ru
     StatusValue:
       type: string
       enum:
       - HOLD
       - CAPTURE
       example: HOLD
+    Token:
+      type: string
+      description: Bearer-токен.
+      x-description-i18n:
+        eng: Bearer-token
+      example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+      maxLength: 4000
     CallbackSendMessageRequestDto:
       type: object
       required:
@@ -227,23 +198,6 @@ components:
         token:
           allOf:
           - $ref: '#/components/schemas/Token'
-    AuthType:
-      type: string
-      description: Тип аутентификации. Необязательный параметр, без отправки которого, будет выставлено значение NO_AUTH.
-      x-description-i18n:
-        eng: Authentication type. Optional parameter. If not provided, defaults to NO_AUTH.
-      enum:
-      - NO_AUTH
-      - BASIC
-      - BEARER
-      example: BASIC
-    Token:
-      type: string
-      description: Bearer-токен.
-      x-description-i18n:
-        eng: Bearer-token
-      example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
-      maxLength: 4000
     Login:
       type: string
       description: Логин клиента.
@@ -251,14 +205,6 @@ components:
         eng: Client login
       example: clientLogin
       maxLength: 30
-    Password:
-      type: string
-      description: Пароль клиента.
-      x-description-i18n:
-        eng: Client password
-      example: pwd/wStrongEncryption
-      format: password
-      maxLength: 200
     CallbackSettingRequestDto:
       type: object
       required:
@@ -287,40 +233,24 @@ components:
         token:
           allOf:
           - $ref: '#/components/schemas/Token'
-    Url:
+    Password:
       type: string
-      description: URL, куда требуется отправлять уведомления по всем статусам.
+      description: Пароль клиента.
       x-description-i18n:
-        eng: URL for sending notifications for all statuses.
-      example: https://yoururl.ru
-    CAPTURE:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves;
-        the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-    HOLD:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves;
-        the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-  examples:
-    CallbackSendMessageRequestDto:
-      value:
-        url: https://yoururl.ru
-        statusValue: HOLD
-        authType: NO_AUTH
-        login: clientLogin
-        password: pwd/wStrongEncryption
-        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c  -
-    CallbackSettingRequestDto:
-      value:
-        url: https://yoururl.ru
-        statusValues:
-        - HOLD
-        authType: NO_AUTH
-        login: clientLogin
-        password: pwd/wStrongEncryption
-        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+        eng: Client password
+      example: pwd/wStrongEncryption
+      format: password
+      maxLength: 200
+    AuthType:
+      type: string
+      description: Тип аутентификации. Необязательный параметр, без отправки которого, будет выставлено значение NO_AUTH.
+      x-description-i18n:
+        eng: Authentication type. Optional parameter. If not provided, defaults to NO_AUTH.
+      enum:
+      - NO_AUTH
+      - BASIC
+      - BEARER
+      example: BASIC
   responses:
     500_without_traceId:
       description: Внутренняя ошибка
@@ -349,6 +279,30 @@ components:
               path:
                 type: string
                 description: URL, по которому была вызвана ошибка
+    400_with_enums:
+      description: Бизнес-ошибка
+      x-description-i18n:
+        eng: Business error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Код ошибки.
+                x-description-i18n:
+                  eng: Error code
+                example: ERROR.INVALID_URL
+                enum:
+                - ERROR_INVALID_URL
+                - ERROR_INVALID_STATUS
+                - ERROR_INVALID_AUTH_TYPE
+              message:
+                type: string
+                description: Описание ошибки.
+                x-description-i18n:
+                  eng: Error description
     401_without_traceId:
       description: Неверный токен аутентификации
       content:
@@ -377,30 +331,24 @@ components:
               path:
                 type: string
                 description: URL, по которому была вызвана ошибка.
-    400_with_enums:
-      description: Бизнес-ошибка
-      x-description-i18n:
-        eng: Business error
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              code:
-                type: string
-                description: Код ошибки.
-                x-description-i18n:
-                  eng: Error code
-                example: ERROR.INVALID_URL
-                enum:
-                - ERROR_INVALID_URL
-                - ERROR_INVALID_STATUS
-                - ERROR_INVALID_AUTH_TYPE
-              message:
-                type: string
-                description: Описание ошибки.
-                x-description-i18n:
-                  eng: Error description
+  examples:
+    CallbackSettingRequestDto:
+      value:
+        url: https://yoururl.ru
+        statusValues:
+        - HOLD
+        authType: NO_AUTH
+        login: clientLogin
+        password: pwd/wStrongEncryption
+        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+    CallbackSendMessageRequestDto:
+      value:
+        url: https://yoururl.ru
+        statusValue: HOLD
+        authType: NO_AUTH
+        login: clientLogin
+        password: pwd/wStrongEncryption
+        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c  -
   securitySchemes:
     Authorization:
       type: http
@@ -410,4 +358,4 @@ components:
       x-internal: false
 x-refined-from:
 - raiffeisen-ru-raif-pay-corporate-cards-openapi.json
-- raiffeisen-ru-raif-pay-corporate-cards-openapi.yml
+- raiffeisen-ru-callback-api-api-openapi.yml

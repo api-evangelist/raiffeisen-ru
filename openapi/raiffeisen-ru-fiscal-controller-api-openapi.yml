@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Fiscal Controller API
   version: '1.1'
+  title: для фискализации чеков Raif Pay Fiscal Controller API
   contact:
     email: ecom@raiffeisen.ru
     name: Support e-mail
@@ -11,7 +11,12 @@ info:
     url: images/raifflogo.png
     backgroundColor: '#FFFFFF'
     altText: Raiff logo
-  description: 'Operations tagged fiscal-controller across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-fiscal-openapi.json, raiffeisen-ru-raif-pay-fiscal-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Свои предложения и идеи о документации можно оставить в репозитории по адресу: https://github.com/Raiffeisen-DGTL/ecom-API/blob/master/fiscal.yaml
+
+
+    # Поддержка 54-ФЗ
+
+    По закону от 22.05.2003 № 54–ФЗ \"О применении контрольно-кассовой техники при осуществлении расчетов в Российской Федерации\" при оплате товаров, работ или услуг необходимо формировать фискальный чек и отправлять его в налоговую с помощью кассы.Клиенты Райффайзенбанка, подключившие интернет-эквайринг, также могут воспользоваться…'
 servers:
 - url: https://pay-test.raif.ru/api
   description: Sandbox
@@ -269,11 +274,6 @@ paths:
       x-codeSamples:
       - lang: cURL
         source: "curl --location --request POST 'https://pay-test.raif.ru/api/fiscal/v1/receipts/sell' \\\n--header 'Content-Type: application/json;charset=UTF-8' \\\n--header 'Authorization: Bearer eyJ0eXA***' \\\n--data-raw'\n{\n  \"receiptNumber\": \"3000827351831\",\n  \"client\": {\n      \"email\": \"customer@test.ru\",\n      \"name\": \"Иванов Иван Иванович\"\n  },\n  \"items\": [\n  {\n      \"name\": \"Шоколадные конфеты\",\n      \"price\": 600.00,\n      \"quantity\": 2,\n      \"amount\": 1200.00,\n      \"paymentObject\": \"COMMODITY\",\n      \"measurementUnit\": \"кг\",\n      \"nomenclatureCode\": \"00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00\",\n      \"vatType\": \"VAT20\"\n  },\n  {\n      \"name\": \"Вода минеральная 1л\",\n      \"price\": 120.00,\n      \"quantity\": 20,\n      \"amount\": 2400.00,\n      \"paymentObject\": \"COMMODITY\",\n      \"measurementUnit\": \"шт\",\n      \"vatType\": \"VAT20\"\n  }\n  ],\n  \"total\": 3600.00\n}'\n"
-    servers:
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
-    - url: https://pay.raif.ru/api
-      description: Production
   /fiscal/v1/receipts/sell/{receiptNumber}:
     parameters:
     - schema:
@@ -543,11 +543,6 @@ paths:
           --header ''Authorization: Bearer eyJ0eXA***''
 
           '
-    servers:
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
-    - url: https://pay.raif.ru/api
-      description: Production
   /fiscal/v1/receipts/refund:
     post:
       tags:
@@ -786,11 +781,6 @@ paths:
       x-codeSamples:
       - lang: cURL
         source: "curl --location --request POST 'https://pay-test.raif.ru/api/fiscal/v1/receipts/refund' \\\n--header 'Content-Type: application/json;charset=UTF-8' \\\n--header 'Authorization: Bearer eyJ0eXA***' \\\n--data-raw'\n{\n  \"receiptNumber\": \"3000827351831\",\n  \"client\": {\n      \"email\": \"customer@test.ru\",\n      \"name\": \"Иванов Иван Иванович\"\n  },\n  \"items\": [\n  {\n      \"name\": \"Шоколадные конфеты\",\n      \"price\": 600.00,\n      \"quantity\": 2,\n      \"amount\": 1200.00,\n      \"paymentObject\": \"COMMODITY\",\n      \"measurementUnit\": \"кг\",\n      \"nomenclatureCode\": \"00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00\",\n      \"vatType\": \"VAT20\"\n  },\n  {\n      \"name\": \"Вода минеральная 1л\",\n      \"price\": 120.00,\n      \"quantity\": 20,\n      \"amount\": 2400.00,\n      \"paymentObject\": \"COMMODITY\",\n      \"measurementUnit\": \"шт\",\n      \"vatType\": \"VAT20\"\n  }\n  ],\n  \"total\": 3600.00\n}'\n"
-    servers:
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
-    - url: https://pay.raif.ru/api
-      description: Production
   /fiscal/v1/receipts/refund/{receiptNumber}:
     parameters:
     - schema:
@@ -1060,46 +1050,38 @@ paths:
           --header ''Authorization: Bearer eyJ0eXA***''
 
           '
-    servers:
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
-    - url: https://pay.raif.ru/api
-      description: Production
 components:
   schemas:
-    additionalUserProperty:
+    415response:
+      title: 415response
       type: object
-      required:
-      - name
-      - value
-      description: '`Тег ФФД — 1084` <br/>
-
-        Дополнительный реквизит пользователя'
-      x-description-i18n:
-        eng: '`The tag FDF — 1084` <br/>
-
-          Additional user property'
+      x-examples:
+        Example 1:
+          timestamp: '2023-02-15T06:36:32.418+00:00'
+          status: 415
+          error: Unsupported Media Type
+          path: string
       properties:
-        name:
+        timestamp:
           type: string
-          description: '`Тег ФФД — 1085` <br/>
-
-            Наименование дополнительного реквизита пользователя'
+          description: Время ответа сервиса
           x-description-i18n:
-            eng: '`The tag FDF — 1085` <br/>
-
-              Additional user property name'
-          maxLength: 64
-        value:
+            eng: Response timestamp
+        status:
+          type: integer
+          description: Код состояния HTTP-запроса
+          x-description-i18n:
+            eng: HTTP-code
+        error:
           type: string
-          description: '`Тег ФФД — 1086` <br/>
-
-            Значение дополнительного реквизита пользователя'
+          description: Описание ошибки
           x-description-i18n:
-            eng: '`The tag FDF — 1086` <br/>
-
-              Additional user property value'
-          maxLength: 256
+            eng: Response description
+        path:
+          type: string
+          description: Путь запроса
+          x-description-i18n:
+            eng: Query path
     receiptWhiteLabel:
       title: ФФД 1.05 / ФФД 1.2
       type: object
@@ -1185,170 +1167,6 @@ components:
           example: 1200
         additionalUserProperty:
           $ref: '#/components/schemas/additionalUserProperty'
-    415response:
-      title: 415response
-      type: object
-      x-examples:
-        Example 1:
-          timestamp: '2023-02-15T06:36:32.418+00:00'
-          status: 415
-          error: Unsupported Media Type
-          path: string
-      properties:
-        timestamp:
-          type: string
-          description: Время ответа сервиса
-          x-description-i18n:
-            eng: Response timestamp
-        status:
-          type: integer
-          description: Код состояния HTTP-запроса
-          x-description-i18n:
-            eng: HTTP-code
-        error:
-          type: string
-          description: Описание ошибки
-          x-description-i18n:
-            eng: Response description
-        path:
-          type: string
-          description: Путь запроса
-          x-description-i18n:
-            eng: Query path
-    response:
-      title: ФФД 1.05 | ФФД 1.2
-      type: object
-      properties:
-        receiptNumber:
-          type: string
-          description: Уникальный номер чека
-          maxLength: 99
-          format: A-Za-z0-9_-
-          example: '3000827351831'
-        orderNumber:
-          type: string
-          description: Номер заказа мерчанта в системе Raif Pay, используется для связывания заказа и чека. Возвращается в ответе, если был передан при создании чека.
-          pattern: ^[A-Za-z0-9_-]{1,200}$
-          maxLength: 40
-          example: order-2024_001
-        receiptType:
-          type: string
-          description: Тип чека (чек прихода, чек возврата)
-          enum:
-          - SELL
-          - REFUND
-          example: SELL
-        status:
-          type: string
-          description: Статус регистрации чека
-          enum:
-          - NEW
-          - IN_PROGRESS
-          - DONE
-          - FAILED
-          - AWAITING
-          example: NEW
-        timezone:
-          type: string
-          description: '`Тег ФФД — 1011` <br/>
-
-            Часовая зона (+02:00, +03:00... +11:00)'
-        onlinePayment:
-          type: boolean
-          description: '`Тег ФФД — 1125` <br/>
-
-            Признак расчета в Интернете'
-        client:
-          type: object
-          description: Данные о покупателе
-          properties:
-            email:
-              type: string
-              description: '`Тег ФФД — 1008` <br/>
-
-                Электронный адрес покупателя для отправки чека'
-              maxLength: 64
-              example: customer@test.ru
-            name:
-              type: string
-              description: '`Тег ФФД — 1227` <br/>
-
-                ФИО покупателя'
-              maxLength: 256
-              example: Иванов Иван Иванович
-            inn:
-              type: string
-              description: '`Тег ФФД — 1228` <br/>
-
-                ИНН покупателя. Может содержать только 10 или 12 цифр'
-              pattern: ^(?:[0-9]{10}|[0-9]{12})$
-              example: '7707083893'
-            extra:
-              type: object
-              description: Дополнительная информация о покупателе
-        items:
-          type: array
-          uniqueItems: true
-          minItems: 1
-          description: Позиции чека
-          items:
-            $ref: '#/components/schemas/receiptItem'
-        payments:
-          type: array
-          uniqueItems: true
-          description: Данные об оплате. Объект payments возвращается в ответе, если ранее был передан в запросе
-          items:
-            $ref: '#/components/schemas/payments'
-        total:
-          type: number
-          description: '`Тег ФФД — 1020` <br/>
-
-            Итоговая сумма чека в рублях'
-          example: 1200
-        additionalUserProperty:
-          $ref: '#/components/schemas/additionalUserProperty'
-        ofdUrl:
-          type: string
-          description: Ссылка на чек<br/>Передается в ответе только для чеков в статусе DONE и при условии, что была получена от ОФД при регистрации чека. Список ОФД, которые поддерживают передачу ссылки на чек, необходимо уточнять у поставщика онлайн-кассы
-          example: https://lk.platformaofd.ru/web/noauth/cheque?fn=7284440500012345&fp=1702712345&i=1234
-        ofdDocumentNumber:
-          type: number
-          description: '`Тег ФФД — 1040` <br/>
-
-            Фискальный номер документа'
-          example: 133
-        ofdDocumentAttribute:
-          type: string
-          description: '`Тег ФФД — 1077` <br/>
-
-            Фискальный признак документа'
-          example: '3449555941'
-        ofdShiftReceiptNumber:
-          type: number
-          description: '`Тег ФФД — 1042` <br/>
-
-            Номер чека в смене'
-          example: 1
-        ofdShiftNumber:
-          type: number
-          description: '`Тег ФФД — 1038` <br/>
-
-            Номер смены'
-          example: 1
-    error:
-      type: object
-      properties:
-        code:
-          type: string
-          description: Код ошибки
-          minLength: 1
-          example: RECEIPT_VALIDATION_FAILED
-        message:
-          type: string
-          description: Описание ошибки
-          minLength: 1
-          example: 'Чек не прошел валидацию. Причина: {value}'
-      title: error
     payments:
       type: object
       title: платежи
@@ -2067,6 +1885,194 @@ components:
       - quantity
       - amount
       - vatType
-x-refined-from:
-- raiffeisen-ru-raif-pay-fiscal-openapi.json
-- raiffeisen-ru-raif-pay-fiscal-openapi.yml
+    additionalUserProperty:
+      type: object
+      required:
+      - name
+      - value
+      description: '`Тег ФФД — 1084` <br/>
+
+        Дополнительный реквизит пользователя'
+      x-description-i18n:
+        eng: '`The tag FDF — 1084` <br/>
+
+          Additional user property'
+      properties:
+        name:
+          type: string
+          description: '`Тег ФФД — 1085` <br/>
+
+            Наименование дополнительного реквизита пользователя'
+          x-description-i18n:
+            eng: '`The tag FDF — 1085` <br/>
+
+              Additional user property name'
+          maxLength: 64
+        value:
+          type: string
+          description: '`Тег ФФД — 1086` <br/>
+
+            Значение дополнительного реквизита пользователя'
+          x-description-i18n:
+            eng: '`The tag FDF — 1086` <br/>
+
+              Additional user property value'
+          maxLength: 256
+    error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки
+          minLength: 1
+          example: RECEIPT_VALIDATION_FAILED
+        message:
+          type: string
+          description: Описание ошибки
+          minLength: 1
+          example: 'Чек не прошел валидацию. Причина: {value}'
+      title: error
+    response:
+      title: ФФД 1.05 | ФФД 1.2
+      type: object
+      properties:
+        receiptNumber:
+          type: string
+          description: Уникальный номер чека
+          maxLength: 99
+          format: A-Za-z0-9_-
+          example: '3000827351831'
+        orderNumber:
+          type: string
+          description: Номер заказа мерчанта в системе Raif Pay, используется для связывания заказа и чека. Возвращается в ответе, если был передан при создании чека.
+          pattern: ^[A-Za-z0-9_-]{1,200}$
+          maxLength: 40
+          example: order-2024_001
+        receiptType:
+          type: string
+          description: Тип чека (чек прихода, чек возврата)
+          enum:
+          - SELL
+          - REFUND
+          example: SELL
+        status:
+          type: string
+          description: Статус регистрации чека
+          enum:
+          - NEW
+          - IN_PROGRESS
+          - DONE
+          - FAILED
+          - AWAITING
+          example: NEW
+        timezone:
+          type: string
+          description: '`Тег ФФД — 1011` <br/>
+
+            Часовая зона (+02:00, +03:00... +11:00)'
+        onlinePayment:
+          type: boolean
+          description: '`Тег ФФД — 1125` <br/>
+
+            Признак расчета в Интернете'
+        client:
+          type: object
+          description: Данные о покупателе
+          properties:
+            email:
+              type: string
+              description: '`Тег ФФД — 1008` <br/>
+
+                Электронный адрес покупателя для отправки чека'
+              maxLength: 64
+              example: customer@test.ru
+            name:
+              type: string
+              description: '`Тег ФФД — 1227` <br/>
+
+                ФИО покупателя'
+              maxLength: 256
+              example: Иванов Иван Иванович
+            inn:
+              type: string
+              description: '`Тег ФФД — 1228` <br/>
+
+                ИНН покупателя. Может содержать только 10 или 12 цифр'
+              pattern: ^(?:[0-9]{10}|[0-9]{12})$
+              example: '7707083893'
+            extra:
+              type: object
+              description: Дополнительная информация о покупателе
+        items:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          description: Позиции чека
+          items:
+            $ref: '#/components/schemas/receiptItem'
+        payments:
+          type: array
+          uniqueItems: true
+          description: Данные об оплате. Объект payments возвращается в ответе, если ранее был передан в запросе
+          items:
+            $ref: '#/components/schemas/payments'
+        total:
+          type: number
+          description: '`Тег ФФД — 1020` <br/>
+
+            Итоговая сумма чека в рублях'
+          example: 1200
+        additionalUserProperty:
+          $ref: '#/components/schemas/additionalUserProperty'
+        ofdUrl:
+          type: string
+          description: Ссылка на чек<br/>Передается в ответе только для чеков в статусе DONE и при условии, что была получена от ОФД при регистрации чека. Список ОФД, которые поддерживают передачу ссылки на чек, необходимо уточнять у поставщика онлайн-кассы
+          example: https://lk.platformaofd.ru/web/noauth/cheque?fn=7284440500012345&fp=1702712345&i=1234
+        ofdDocumentNumber:
+          type: number
+          description: '`Тег ФФД — 1040` <br/>
+
+            Фискальный номер документа'
+          example: 133
+        ofdDocumentAttribute:
+          type: string
+          description: '`Тег ФФД — 1077` <br/>
+
+            Фискальный признак документа'
+          example: '3449555941'
+        ofdShiftReceiptNumber:
+          type: number
+          description: '`Тег ФФД — 1042` <br/>
+
+            Номер чека в смене'
+          example: 1
+        ofdShiftNumber:
+          type: number
+          description: '`Тег ФФД — 1038` <br/>
+
+            Номер смены'
+          example: 1
+x-tagGroups:
+- name: API
+  tags:
+  - authorization
+  - fiscal-controller
+- name: Ошибки
+  tags:
+  - errors
+- name: История изменений
+  tags:
+  - 06.10.2021
+  - 08.12.2021
+  - 18.01.2022
+  - 25.03.2022
+  - 15.04.2022
+  - 26.08.2022
+  - 30.09.2022
+  - 13.02.2023
+  - 22.07.2024
+  - 10.02.2025
+  - 14.02.2025
+  - 01.09.2025
+  - 13.05.2026
+  - 18.05.2026

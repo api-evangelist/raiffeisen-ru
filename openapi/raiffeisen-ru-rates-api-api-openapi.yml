@@ -1,8 +1,10 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Rates API
+  title: Справочная информация. Курсы валют ЦБ РФ Rates API
+  description: '## Описание API
+
+    Это API предназначено для получения курсов валют ЦБ.'
   version: 0.30.0
-  description: 'Operations tagged Rates API across 2 of this provider''s published API definitions: raiffeisen-ru-cbr-exchange-rates-openapi.yml, raiffeisen-ru-cbr-exchange-rates-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/exchange-rate
 tags:
@@ -104,24 +106,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/exchange-rate
 components:
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -131,6 +117,20 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена
   schemas:
     Rate:
       type: object
@@ -212,6 +212,3 @@ components:
       - id
       - source
       - value
-x-refined-from:
-- raiffeisen-ru-cbr-exchange-rates-openapi.yml
-- raiffeisen-ru-cbr-exchange-rates-openapi.yml

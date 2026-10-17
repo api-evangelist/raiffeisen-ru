@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Bills API
+  title: Счета и документы Bills API
+  description: Управление счетами на оплату и закрывающими документами
   version: 1.0.0
-  description: 'Operations tagged bills across 2 of this provider''s published API definitions: raiffeisen-ru-invoices-openapi.yml, raiffeisen-ru-invoices-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/invoices
 tags:
@@ -74,8 +74,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/invoices
   /v4/bills/status:
     put:
       tags:
@@ -102,8 +100,6 @@ paths:
       parameters:
       - $ref: '#/components/parameters/AuthorizationHeader'
       - $ref: '#/components/parameters/IdTokenHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/invoices
   /v4/bills:
     get:
       tags:
@@ -286,8 +282,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/invoices
   /v4/bills/{billId}/document:
     get:
       tags:
@@ -340,8 +334,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/invoices
   /v4/bills/measurements:
     get:
       tags:
@@ -366,8 +358,6 @@ paths:
       parameters:
       - $ref: '#/components/parameters/AuthorizationHeader'
       - $ref: '#/components/parameters/IdTokenHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/invoices
   /v4/bills/doc-number/next:
     get:
       tags:
@@ -393,288 +383,14 @@ paths:
       parameters:
       - $ref: '#/components/parameters/AuthorizationHeader'
       - $ref: '#/components/parameters/IdTokenHeader'
-    servers:
-    - url: https://api.raiffeisen.ru/invoices
 components:
   schemas:
-    AccountResponse:
+    BillUpdateRequest:
       type: object
-      description: Банковский счёт получателя
-      example:
-        name: АО «Банк»
-        num: '51421810026450470886'
-        branchName: Московский филиал АО «Банк»
-        corrAcc: '30101810400000000598'
-        bic: 081395980
-      properties:
-        name:
-          type: string
-          description: Наименование банка
-          example: АО «Банк»
-        num:
-          type: string
-          description: Номер счёта
-          example: '51421810026450470886'
-        branchName:
-          type: string
-          description: Наименование отделения банка
-          example: Московский филиал АО «Банк»
-        corrAcc:
-          type: string
-          description: Корреспондентский счёт
-          example: '30101810400000000598'
-        bic:
-          type: string
-          description: БИК банка
-          example: 081395980
-      required:
-      - bic
-      - branchName
-      - corrAcc
-      - name
-      - num
-    GoodsRequest:
-      type: object
-      description: Товары
-      example:
-        items:
-        - name: Услуги по настройке ПО
-          count: 5
-          price: 1200.5
-          unit: HOUR
-          vat: VAT_20
-      properties:
-        items:
-          type: array
-          description: Список товаров
-          items:
-            $ref: '#/components/schemas/ItemRequest'
-          maxItems: 2147483647
-          minItems: 1
-          example:
-          - name: Услуги по настройке ПО
-            count: 5
-            price: 1200.5
-            unit: HOUR
-            vat: VAT_20
-      required:
-      - items
-    ItemMiniResponse:
-      type: object
-      description: Модель товара
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Идентификатор товара (возвращается в ответах по счетам, у закрывающих документов отсутствует)
-          example: 7c9e6679-7425-40de-944b-e07fc1f90ae7
-        name:
-          type: string
-          description: Наименование единицы товара.
-          example: Услуги по настройке ПО
-        count:
-          type: number
-          description: Количество
-          example: 5
-        price:
-          type: number
-          description: Цена единицы товара
-          example: 1200.5
-        vat:
-          $ref: '#/components/schemas/Unit'
-          description: НДС
-        unit:
-          $ref: '#/components/schemas/Unit'
-          description: Единица измерения
-        sum:
-          type: number
-          description: Итоговая стоимость
-          example: 6002.5
-        vatAmount:
-          type: number
-          description: НДС
-          example: 1000.42
-      required:
-      - count
-      - name
-      - price
-      - sum
-      - unit
-      - vat
-      - vatAmount
-    PayerMiniResponse:
-      type: object
-      description: Плательщик
-      properties:
-        name:
-          type: string
-          description: Наименование плательщика
-          example: ООО Покупатель
-        type:
-          type: string
-          description: Тип плательщика. INDIVIDUAL (ФЛ) / LEGAL (юр. лицо) / NONE (без типа)
-          enum:
-          - INDIVIDUAL
-          - LEGAL
-          - NONE
-          example: LEGAL
-        inn:
-          type: string
-          description: ИНН плательщика
-          example: '394439302723'
-        kpp:
-          type: string
-          description: КПП плательщика
-          example: '637996731'
-        address:
-          type: string
-          description: Адрес плательщика
-          example: г. Москва, ул. Тестовая, д. 1
-    PayerRequest:
-      type: object
-      description: Модель плательщика
-      example:
-        type: LEGAL
-        name: ООО Покупатель
-        inn: '394439302723'
-        kpp: '637996731'
-        address: г. Москва, ул. Тестовая, д. 1
-      properties:
-        type:
-          type: string
-          description: Тип плательщика.
-          enum:
-          - INDIVIDUAL
-          - LEGAL
-          - NONE
-          example: LEGAL
-        name:
-          type: string
-          description: Наименование плательщика.
-          example: ООО Покупатель
-        inn:
-          type: string
-          description: ИНН плательщика.
-          example: '394439302723'
-        kpp:
-          type: string
-          description: КПП плательщика.
-          example: '637996731'
-        address:
-          type: string
-          description: Адрес плательщика.
-          example: г. Москва, ул. Тестовая, д. 1
-      required:
-      - type
-    GoodsResponse:
-      type: object
-      description: Товары
-      example:
-        totalPrice: 6002.5
-        totalVatAmount: 1000.42
-        items:
-        - name: Услуги по настройке ПО
-          count: 5
-          price: 1200.5
-          vat:
-            name: VAT_20
-            abbreviation: НДС 20%
-            value: '20'
-          unit:
-            name: HOUR
-            abbreviation: Часы
-            value: ч
-          sum: 6002.5
-          vatAmount: 1000.42
-      properties:
-        totalVatAmount:
-          type: number
-          description: Итоговый НДС
-          example: 1000.42
-        totalPrice:
-          type: number
-          description: Итоговая сумма
-          example: 6002.5
-        items:
-          type: array
-          description: Товары
-          example:
-          - name: Услуги по настройке ПО
-            count: 5
-            price: 1200.5
-            vat:
-              name: VAT_20
-              abbreviation: НДС 20%
-              value: '20'
-            unit:
-              name: HOUR
-              abbreviation: Часы
-              value: ч
-            sum: 6002.5
-            vatAmount: 1000.42
-          items:
-            $ref: '#/components/schemas/ItemMiniResponse'
-      required:
-      - items
-      - totalPrice
-      - totalVatAmount
-    CDListLinkedDocumentResponse:
-      type: object
-      description: Список связанных документов
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Идентификатор связанного документа
-          example: 60612e6c-d182-4b59-a868-69714a910ee3
-        type:
-          type: string
-          description: Тип связанного документа. Одно из значений BILL, WORK_ACT, CONSIGNMENT_NOTE, INVOICE_FACTURA
-          example: BILL
-        documentNumber:
-          type: string
-          description: Номер связанного документа
-          example: '1'
-      required:
-      - id
-      - type
-    PayeeMiniResponse:
-      type: object
-      description: Получатель платежа
-      properties:
-        name:
-          type: string
-          description: Наименование получателя платежа
-          example: ООО Продавец
-        inn:
-          type: string
-          description: ИНН получателя платежа
-          example: '394439302723'
-        kpp:
-          type: string
-          description: КПП получателя платежа
-          example: '637996731'
-        address:
-          type: string
-          description: Адрес получателя платежа
-          example: 123154, Москва г, ул. Тестовая, д. 2
-    BillResponse:
-      type: object
-      description: Корневая модель исходящего документа.
-      properties:
-        documentId:
-          type: string
-          format: uuid
-          description: Идентификатор сохранённого документа.
-          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
-      required:
-      - documentId
-    BillRequest:
-      type: object
-      description: Корневая модель входящего документа
+      description: Корневая модель обновления документа
       properties:
         goods:
-          $ref: '#/components/schemas/GoodsRequest'
+          $ref: '#/components/schemas/GoodsUpdateRequest'
           description: Модель с товарами
         invoice:
           $ref: '#/components/schemas/Invoice'
@@ -694,111 +410,109 @@ components:
           uniqueItems: true
           example:
           - 3fa85f64-5717-4562-b3fc-2c963f66afa6
-        receipts:
-          type: array
-          description: Связанные со счетом чеки самозанятых
-          items:
-            type: string
-            format: uuid
-          uniqueItems: true
-          example:
-          - 3fa85f64-5717-4562-b3fc-2c963f66afa6
       required:
       - goods
       - invoice
       - payee
       - payer
-    Unit:
+    BillDetailsResponse:
       type: object
-      description: Модель единицы измерения
+      description: Детальная информация о счете на оплату
       properties:
-        name:
+        id:
           type: string
-          description: Кодовое название
-          example: PIECE
-        abbreviation:
+          format: uuid
+          description: Идентификатор счета
+          example: 60612e6c-d182-4b59-a868-69714a910ee3
+        status:
           type: string
-          description: Единица измерения
-          example: Штуки
-        value:
+          description: Статус счета на оплату
+          enum:
+          - PAYMENT_PENDING
+          - PAID
+          example: PAYMENT_PENDING
+        docNumber:
           type: string
-          description: Значение
-          example: шт
-      required:
-      - abbreviation
-      - name
-      - value
-    GoodsUpdateRequest:
-      type: object
-      description: DTO Информация о товарах
-      example:
-        items:
-        - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
-          name: Услуги по настройке ПО
-          count: 5
-          price: 1200.5
-          unit: HOUR
-          vat: VAT_20
-      properties:
-        items:
+          description: Номер документа
+          example: '1'
+        cnum:
+          type: string
+          description: CNUM организации
+          example: UVGASK
+        goods:
+          $ref: '#/components/schemas/GoodsResponse'
+        invoice:
+          $ref: '#/components/schemas/Invoice'
+          description: Счёт на оплату
+        payer:
+          $ref: '#/components/schemas/Payer'
+          description: Плательщик
+        payee:
+          $ref: '#/components/schemas/PayeeResponse'
+          description: Получатель платежа
+        linkedDocuments:
           type: array
-          description: Товары
-          example:
-          - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
-            name: Услуги по настройке ПО
-            count: 5
-            price: 1200.5
-            unit: HOUR
-            vat: VAT_20
+          description: Связанные закрывающие документы
           items:
-            $ref: '#/components/schemas/ItemUpdateRequest'
-      required:
-      - items
-    MeasurementResponse:
-      type: object
-      description: Модель списка единиц измерения
-      properties:
-        vat:
+            $ref: '#/components/schemas/BillDetailsLinkedDocumentResponse'
+          example:
+          - id: 60612e6c-d182-4b59-a868-69714a910ee3
+            type: WORK_ACT
+            documentNumber: '35503799'
+            documentDate: '2026-09-30'
+            totalPrice: 22600.0
+            totalVatAmount: 0.0
+        payments:
           type: array
-          description: Список НДС.
+          description: Оплаты по счету
           items:
-            $ref: '#/components/schemas/Unit'
+            $ref: '#/components/schemas/BillPaymentResponse'
           example:
-          - name: VAT_0
-            abbreviation: НДС 0%
-            value: '0'
-        units:
-          type: array
-          description: Единицы измерения.
-          items:
-            $ref: '#/components/schemas/Unit'
-          example:
-          - name: PIECE
-            abbreviation: Штуки
-            value: шт
-      required:
-      - units
-      - vat
-    Sort:
-      type: object
-      description: Информация о сортировке
-      example:
-        sorted: true
-        unsorted: false
-        empty: false
-      properties:
-        sorted:
+          - transactionKey: 2026-09-30_401900899873_123_6002.50
+            operDate: '2026-09-30'
+            total: 6002.5
+        statusIsUpdating:
           type: boolean
-          description: Признак отсортированного результата
-          example: true
-        unsorted:
-          type: boolean
-          description: Признак неотсортированного результата
+          description: Признак того, что статус счета сейчас обновляется
           example: false
-        empty:
-          type: boolean
-          description: Признак отсутствия сортировки
-          example: false
+        createdOn:
+          type: string
+          format: date-time
+          description: Дата и время создания счета
+          example: '2026-09-30T10:19:26Z'
+        receipts:
+          type: array
+          description: Связанные чеки самозанятых
+          items:
+            type: string
+            format: uuid
+          example:
+          - 3fa85f64-5717-4562-b3fc-2c963f66afa6
+      required:
+      - cnum
+      - createdOn
+      - docNumber
+      - goods
+      - id
+      - invoice
+      - linkedDocuments
+      - payee
+      - payer
+      - payments
+      - receipts
+      - status
+      - statusIsUpdating
+    BillResponse:
+      type: object
+      description: Корневая модель исходящего документа.
+      properties:
+        documentId:
+          type: string
+          format: uuid
+          description: Идентификатор сохранённого документа.
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+      required:
+      - documentId
     AccountRequest:
       type: object
       description: Счёт получателя
@@ -832,16 +546,26 @@ components:
       - bic
       - name
       - num
-    DocNumberResponse:
+    Sort:
       type: object
-      description: Данные по номеру выставляемого счета
+      description: Информация о сортировке
+      example:
+        sorted: true
+        unsorted: false
+        empty: false
       properties:
-        nextDocNumber:
-          type: string
-          description: Следующий доступный номер для выставляемого счета
-          example: '12'
-      required:
-      - nextDocNumber
+        sorted:
+          type: boolean
+          description: Признак отсортированного результата
+          example: true
+        unsorted:
+          type: boolean
+          description: Признак неотсортированного результата
+          example: false
+        empty:
+          type: boolean
+          description: Признак отсутствия сортировки
+          example: false
     PageBillMiniResponse:
       type: object
       description: Страница со списком счетов на оплату
@@ -910,85 +634,134 @@ components:
           type: boolean
           description: Признак пустой страницы
           example: false
-    BillMiniResponse:
+    CDListLinkedDocumentResponse:
       type: object
-      description: Краткая информация о счете на оплату
+      description: Список связанных документов
       properties:
         id:
           type: string
           format: uuid
-          description: Идентификатор счета
+          description: Идентификатор связанного документа
           example: 60612e6c-d182-4b59-a868-69714a910ee3
-        cnum:
+        type:
           type: string
-          description: CNUM организации
-          example: UVGASK
-        status:
+          description: Тип связанного документа. Одно из значений BILL, WORK_ACT, CONSIGNMENT_NOTE, INVOICE_FACTURA
+          example: BILL
+        documentNumber:
           type: string
-          description: Статус счета на оплату
-          enum:
-          - PAYMENT_PENDING
-          - PAID
-          example: PAYMENT_PENDING
-        createdDate:
-          type: number
-          description: Дата и время создания счета (количество секунд с начала эпохи Unix, десятичная дробь с наносекундами)
-          example: 1.790763566E9
-        invoiceDate:
-          type: number
-          description: Дата выставления счета (количество секунд с начала эпохи Unix, десятичная дробь с наносекундами)
-          example: 1.7907264E9
-        docNumber:
-          type: string
-          description: Номер документа
+          description: Номер связанного документа
           example: '1'
-        payer:
-          $ref: '#/components/schemas/PayerMiniResponse'
-          description: Плательщик
-        payee:
-          $ref: '#/components/schemas/PayeeMiniResponse'
-          description: Получатель платежа
-        amount:
-          type: number
-          description: Сумма счета
-          example: 6002.5
-        items:
-          type: array
-          description: Список товаров
-          items:
-            $ref: '#/components/schemas/ItemMiniResponse'
-        linkedDocuments:
-          type: array
-          description: Связанные закрывающие документы
-          items:
-            $ref: '#/components/schemas/CDListLinkedDocumentResponse'
-        numberOfRemainingLinkedDocuments:
-          type: integer
-          format: int32
-          description: Количество связанных документов, которые не вернулись в ответе
-          example: 0
-        receipts:
-          type: array
-          description: Связанные чеки самозанятых
-          items:
-            type: string
-            format: uuid
-          example:
-          - 3fa85f64-5717-4562-b3fc-2c963f66afa6
       required:
-      - amount
-      - cnum
-      - createdDate
-      - docNumber
       - id
-      - invoiceDate
-      - items
-      - linkedDocuments
-      - numberOfRemainingLinkedDocuments
-      - payee
-      - payer
-      - receipts
-      - status
+      - type
+    PayeeMiniResponse:
+      type: object
+      description: Получатель платежа
+      properties:
+        name:
+          type: string
+          description: Наименование получателя платежа
+          example: ООО Продавец
+        inn:
+          type: string
+          description: ИНН получателя платежа
+          example: '394439302723'
+        kpp:
+          type: string
+          description: КПП получателя платежа
+          example: '637996731'
+        address:
+          type: string
+          description: Адрес получателя платежа
+          example: 123154, Москва г, ул. Тестовая, д. 2
+    ItemMiniResponse:
+      type: object
+      description: Модель товара
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор товара (возвращается в ответах по счетам, у закрывающих документов отсутствует)
+          example: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+        name:
+          type: string
+          description: Наименование единицы товара.
+          example: Услуги по настройке ПО
+        count:
+          type: number
+          description: Количество
+          example: 5
+        price:
+          type: number
+          description: Цена единицы товара
+          example: 1200.5
+        vat:
+          $ref: '#/components/schemas/Unit'
+          description: НДС
+        unit:
+          $ref: '#/components/schemas/Unit'
+          description: Единица измерения
+        sum:
+          type: number
+          description: Итоговая стоимость
+          example: 6002.5
+        vatAmount:
+          type: number
+          description: НДС
+          example: 1000.42
+      required:
+      - count
+      - name
+      - price
+      - sum
+      - unit
+      - vat
+      - vatAmount
+    BillDetailsLinkedDocumentResponse:
+      type: object
+      description: Связанный документ в детальной информации о счете
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор связанного документа
+          example: 60612e6c-d182-4b59-a868-69714a910ee3
+        type:
+          type: string
+          description: Тип закрывающего документа
+          enum:
+          - BILL
+          - WORK_ACT
+          - CONSIGNMENT_NOTE
+          - UPD
+          - INVOICE_FACTURA
+          example: WORK_ACT
+        documentNumber:
+          type: string
+          description: Номер связанного документа
+          example: '35503799'
+        documentDate:
+          type: string
+          format: date
+          description: Дата связанного документа
+          example: '2026-09-30'
+        totalPrice:
+          type: number
+          description: Итоговая сумма
+          example: 22600.0
+        totalVatAmount:
+          type: number
+          description: Итоговый НДС
+          example: 0.0
+        payer:
+          $ref: '#/components/schemas/Payer'
+          description: Плательщик
+      required:
+      - documentDate
+      - id
+      - totalPrice
+      - totalVatAmount
+      - type
     ItemUpdateRequest:
       type: object
       description: Модель единицы товара
@@ -1068,29 +841,54 @@ components:
       - price
       - unit
       - vat
-    BillStatusUpdateRequest:
+    Unit:
       type: object
-      description: Запрос на обновление статуса счетов
+      description: Модель единицы измерения
       properties:
-        billIds:
-          type: array
-          description: Список идентификаторов счетов для обновления статуса
-          items:
-            type: string
-            format: uuid
-          minItems: 1
-          example:
-          - 3fa85f64-5717-4562-b3fc-2c963f66afa6
-        status:
+        name:
           type: string
-          description: Новый статус для счетов
-          enum:
-          - PAYMENT_PENDING
-          - PAID
-          example: PAID
+          description: Кодовое название
+          example: PIECE
+        abbreviation:
+          type: string
+          description: Единица измерения
+          example: Штуки
+        value:
+          type: string
+          description: Значение
+          example: шт
       required:
-      - billIds
-      - status
+      - abbreviation
+      - name
+      - value
+    PayerMiniResponse:
+      type: object
+      description: Плательщик
+      properties:
+        name:
+          type: string
+          description: Наименование плательщика
+          example: ООО Покупатель
+        type:
+          type: string
+          description: Тип плательщика. INDIVIDUAL (ФЛ) / LEGAL (юр. лицо) / NONE (без типа)
+          enum:
+          - INDIVIDUAL
+          - LEGAL
+          - NONE
+          example: LEGAL
+        inn:
+          type: string
+          description: ИНН плательщика
+          example: '394439302723'
+        kpp:
+          type: string
+          description: КПП плательщика
+          example: '637996731'
+        address:
+          type: string
+          description: Адрес плательщика
+          example: г. Москва, ул. Тестовая, д. 1
     Pageable:
       type: object
       description: Информация о пагинации
@@ -1131,6 +929,572 @@ components:
         sort:
           $ref: '#/components/schemas/Sort'
           description: Информация о сортировке
+    BillMiniResponse:
+      type: object
+      description: Краткая информация о счете на оплату
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор счета
+          example: 60612e6c-d182-4b59-a868-69714a910ee3
+        cnum:
+          type: string
+          description: CNUM организации
+          example: UVGASK
+        status:
+          type: string
+          description: Статус счета на оплату
+          enum:
+          - PAYMENT_PENDING
+          - PAID
+          example: PAYMENT_PENDING
+        createdDate:
+          type: number
+          description: Дата и время создания счета (количество секунд с начала эпохи Unix, десятичная дробь с наносекундами)
+          example: 1.790763566E9
+        invoiceDate:
+          type: number
+          description: Дата выставления счета (количество секунд с начала эпохи Unix, десятичная дробь с наносекундами)
+          example: 1.7907264E9
+        docNumber:
+          type: string
+          description: Номер документа
+          example: '1'
+        payer:
+          $ref: '#/components/schemas/PayerMiniResponse'
+          description: Плательщик
+        payee:
+          $ref: '#/components/schemas/PayeeMiniResponse'
+          description: Получатель платежа
+        amount:
+          type: number
+          description: Сумма счета
+          example: 6002.5
+        items:
+          type: array
+          description: Список товаров
+          items:
+            $ref: '#/components/schemas/ItemMiniResponse'
+        linkedDocuments:
+          type: array
+          description: Связанные закрывающие документы
+          items:
+            $ref: '#/components/schemas/CDListLinkedDocumentResponse'
+        numberOfRemainingLinkedDocuments:
+          type: integer
+          format: int32
+          description: Количество связанных документов, которые не вернулись в ответе
+          example: 0
+        receipts:
+          type: array
+          description: Связанные чеки самозанятых
+          items:
+            type: string
+            format: uuid
+          example:
+          - 3fa85f64-5717-4562-b3fc-2c963f66afa6
+      required:
+      - amount
+      - cnum
+      - createdDate
+      - docNumber
+      - id
+      - invoiceDate
+      - items
+      - linkedDocuments
+      - numberOfRemainingLinkedDocuments
+      - payee
+      - payer
+      - receipts
+      - status
+    BillRequest:
+      type: object
+      description: Корневая модель входящего документа
+      properties:
+        goods:
+          $ref: '#/components/schemas/GoodsRequest'
+          description: Модель с товарами
+        invoice:
+          $ref: '#/components/schemas/Invoice'
+          description: Модель выставленного счёта
+        payer:
+          $ref: '#/components/schemas/PayerRequest'
+          description: Модель с данными плательщика
+        payee:
+          $ref: '#/components/schemas/PayeeRequest'
+          description: Модель с данными получателя
+        closingDocuments:
+          type: array
+          description: Связанные со счетом закрывающие документы
+          items:
+            type: string
+            format: uuid
+          uniqueItems: true
+          example:
+          - 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        receipts:
+          type: array
+          description: Связанные со счетом чеки самозанятых
+          items:
+            type: string
+            format: uuid
+          uniqueItems: true
+          example:
+          - 3fa85f64-5717-4562-b3fc-2c963f66afa6
+      required:
+      - goods
+      - invoice
+      - payee
+      - payer
+    MeasurementResponse:
+      type: object
+      description: Модель списка единиц измерения
+      properties:
+        vat:
+          type: array
+          description: Список НДС.
+          items:
+            $ref: '#/components/schemas/Unit'
+          example:
+          - name: VAT_0
+            abbreviation: НДС 0%
+            value: '0'
+        units:
+          type: array
+          description: Единицы измерения.
+          items:
+            $ref: '#/components/schemas/Unit'
+          example:
+          - name: PIECE
+            abbreviation: Штуки
+            value: шт
+      required:
+      - units
+      - vat
+    BillStatusUpdateRequest:
+      type: object
+      description: Запрос на обновление статуса счетов
+      properties:
+        billIds:
+          type: array
+          description: Список идентификаторов счетов для обновления статуса
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+          example:
+          - 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        status:
+          type: string
+          description: Новый статус для счетов
+          enum:
+          - PAYMENT_PENDING
+          - PAID
+          example: PAID
+      required:
+      - billIds
+      - status
+    GoodsUpdateRequest:
+      type: object
+      description: DTO Информация о товарах
+      example:
+        items:
+        - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          name: Услуги по настройке ПО
+          count: 5
+          price: 1200.5
+          unit: HOUR
+          vat: VAT_20
+      properties:
+        items:
+          type: array
+          description: Товары
+          example:
+          - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+            name: Услуги по настройке ПО
+            count: 5
+            price: 1200.5
+            unit: HOUR
+            vat: VAT_20
+          items:
+            $ref: '#/components/schemas/ItemUpdateRequest'
+      required:
+      - items
+    PayeeRequest:
+      type: object
+      description: Модель получателя платежа.
+      example:
+        inn: '394439302723'
+        kpp: '637996731'
+        name: ООО Продавец
+        lawType: ООО
+        juridicalAddress: 123154, Москва г, ул. Тестовая, д. 2
+        account:
+          name: АО «Банк»
+          num: '51421810026450470886'
+          bic: 081395980
+          corrAcc: '30101810400000000598'
+      properties:
+        inn:
+          type: string
+          description: ИНН получателя платежа
+          example: '394439302723'
+        kpp:
+          type: string
+          description: КПП получателя платежа
+          example: '637996731'
+        name:
+          type: string
+          description: Наименование получателя платежа
+          example: ООО Продавец
+        lawType:
+          type: string
+          description: Организационно-правовая форма
+          example: ООО
+        juridicalAddress:
+          type: string
+          description: Юридический адрес получателя платежа
+          example: 123154, Москва г, ул. Тестовая, д. 2
+        account:
+          $ref: '#/components/schemas/AccountRequest'
+          description: Банковский счёт получателя платежа.
+      required:
+      - account
+      - inn
+      - juridicalAddress
+    Invoice:
+      type: object
+      description: Счёт на оплату
+      example:
+        num: INV-2024-001
+        date: '2026-09-30'
+        cause: Оплата по договору №123456
+        comment: Платёж по договору №123456
+      properties:
+        num:
+          type: string
+          description: Номер счёта в буквенно-цифровом формате (может содержать латиницу, кириллицу, цифры, дефис и слэш)
+          example: INV-2024-001
+          pattern: ^(?=[A-Za-zА-Яа-я0-9/-]{1,30})(?=.*[1-9]+).*$
+        date:
+          type: string
+          format: date
+          description: Дата выставления счёта
+          example: '2007-12-03'
+        cause:
+          type: string
+          description: Основание для выставления счёта
+          example: Оплата по договору №123456
+        comment:
+          type: string
+          description: Комментарий
+          example: Платёж по договору №123456
+      required:
+      - date
+      - num
+    GoodsResponse:
+      type: object
+      description: Товары
+      example:
+        totalPrice: 6002.5
+        totalVatAmount: 1000.42
+        items:
+        - name: Услуги по настройке ПО
+          count: 5
+          price: 1200.5
+          vat:
+            name: VAT_20
+            abbreviation: НДС 20%
+            value: '20'
+          unit:
+            name: HOUR
+            abbreviation: Часы
+            value: ч
+          sum: 6002.5
+          vatAmount: 1000.42
+      properties:
+        totalVatAmount:
+          type: number
+          description: Итоговый НДС
+          example: 1000.42
+        totalPrice:
+          type: number
+          description: Итоговая сумма
+          example: 6002.5
+        items:
+          type: array
+          description: Товары
+          example:
+          - name: Услуги по настройке ПО
+            count: 5
+            price: 1200.5
+            vat:
+              name: VAT_20
+              abbreviation: НДС 20%
+              value: '20'
+            unit:
+              name: HOUR
+              abbreviation: Часы
+              value: ч
+            sum: 6002.5
+            vatAmount: 1000.42
+          items:
+            $ref: '#/components/schemas/ItemMiniResponse'
+      required:
+      - items
+      - totalPrice
+      - totalVatAmount
+    AccountResponse:
+      type: object
+      description: Банковский счёт получателя
+      example:
+        name: АО «Банк»
+        num: '51421810026450470886'
+        branchName: Московский филиал АО «Банк»
+        corrAcc: '30101810400000000598'
+        bic: 081395980
+      properties:
+        name:
+          type: string
+          description: Наименование банка
+          example: АО «Банк»
+        num:
+          type: string
+          description: Номер счёта
+          example: '51421810026450470886'
+        branchName:
+          type: string
+          description: Наименование отделения банка
+          example: Московский филиал АО «Банк»
+        corrAcc:
+          type: string
+          description: Корреспондентский счёт
+          example: '30101810400000000598'
+        bic:
+          type: string
+          description: БИК банка
+          example: 081395980
+      required:
+      - bic
+      - branchName
+      - corrAcc
+      - name
+      - num
+    ItemRequest:
+      type: object
+      description: Модель единицы товара
+      properties:
+        name:
+          type: string
+          description: Наименование единицы товара
+          example: Услуги по настройке ПО
+        count:
+          type: number
+          description: Количество
+          example: 5
+        price:
+          type: number
+          description: Цена единицы товара
+          example: 1200.5
+        unit:
+          type: string
+          description: Единица измерения товара
+          example: HOUR
+          enum:
+          - PIECE
+          - MINUTE
+          - HOUR
+          - DAY
+          - CENTIMETER
+          - DECIMETER
+          - METER
+          - KILOMETER
+          - SQUARE_METER
+          - HECTARE
+          - CUBIC_METER
+          - LITER
+          - GRAM
+          - KILOGRAM
+          - TON
+          - KIT
+          - BOX
+          - KILOWATT_HOUR
+          - GIGA_CALORIES
+          - STANDARD_UNIT
+          - LINEAR_METER
+          - PACKAGE
+          - SERVICE
+          - PAIR
+          - MACHINE_HOUR
+          - MONTH
+          - EMPTY
+        vat:
+          type: string
+          description: НДС
+          example: VAT_20
+          enum:
+          - VAT_0
+          - NO_VAT
+          - VAT_22
+          - VAT_20
+          - VAT_18
+          - VAT_10
+          - VAT_7
+          - VAT_5
+      required:
+      - count
+      - name
+      - price
+      - unit
+      - vat
+    PayerRequest:
+      type: object
+      description: Модель плательщика
+      example:
+        type: LEGAL
+        name: ООО Покупатель
+        inn: '394439302723'
+        kpp: '637996731'
+        address: г. Москва, ул. Тестовая, д. 1
+      properties:
+        type:
+          type: string
+          description: Тип плательщика.
+          enum:
+          - INDIVIDUAL
+          - LEGAL
+          - NONE
+          example: LEGAL
+        name:
+          type: string
+          description: Наименование плательщика.
+          example: ООО Покупатель
+        inn:
+          type: string
+          description: ИНН плательщика.
+          example: '394439302723'
+        kpp:
+          type: string
+          description: КПП плательщика.
+          example: '637996731'
+        address:
+          type: string
+          description: Адрес плательщика.
+          example: г. Москва, ул. Тестовая, д. 1
+      required:
+      - type
+    GoodsRequest:
+      type: object
+      description: Товары
+      example:
+        items:
+        - name: Услуги по настройке ПО
+          count: 5
+          price: 1200.5
+          unit: HOUR
+          vat: VAT_20
+      properties:
+        items:
+          type: array
+          description: Список товаров
+          items:
+            $ref: '#/components/schemas/ItemRequest'
+          maxItems: 2147483647
+          minItems: 1
+          example:
+          - name: Услуги по настройке ПО
+            count: 5
+            price: 1200.5
+            unit: HOUR
+            vat: VAT_20
+      required:
+      - items
+    Payer:
+      type: object
+      description: Плательщик
+      example:
+        type: LEGAL
+        name: ООО Покупатель
+        inn: '394439302723'
+        kpp: '637996731'
+        address: г. Москва, ул. Тестовая, д. 1
+      properties:
+        type:
+          type: string
+          description: Тип плательщика. INDIVIDUAL (ФЛ) / LEGAL (юр. лицо) / NONE (без типа)
+          enum:
+          - INDIVIDUAL
+          - LEGAL
+          - NONE
+          example: LEGAL
+        name:
+          type: string
+          description: Наименование плательщика
+          example: ООО Покупатель
+        inn:
+          type: string
+          description: ИНН плательщика
+          example: '394439302723'
+        kpp:
+          type: string
+          description: КПП плательщика
+          example: '637996731'
+        address:
+          type: string
+          description: Адрес плательщика
+          example: г. Москва, ул. Тестовая, д. 1
+      required:
+      - type
+    PayeeResponse:
+      type: object
+      description: Получатель платежа
+      example:
+        inn: '394439302723'
+        kpp: '637996731'
+        cnum: UVGASK
+        name: ООО Продавец
+        juridicalAddress: 123154, Москва г, ул. Тестовая, д. 2
+        lawType: ООО
+        account:
+          name: АО «Банк»
+          num: '51421810026450470886'
+          branchName: Московский филиал АО «Банк»
+          corrAcc: '30101810400000000598'
+          bic: 081395980
+      properties:
+        inn:
+          type: string
+          description: ИНН получателя платежа
+          example: '394439302723'
+        kpp:
+          type: string
+          description: КПП получателя платежа
+          example: '637996731'
+        cnum:
+          type: string
+          description: CNUM организации
+          example: UVGASK
+        name:
+          type: string
+          description: Наименование получателя платежа
+          example: ООО Продавец
+        juridicalAddress:
+          type: string
+          description: Юридический адрес получателя платежа
+          example: 123154, Москва г, ул. Тестовая, д. 2
+        lawType:
+          type: string
+          description: Организационно-правовая форма
+          example: ООО
+        account:
+          $ref: '#/components/schemas/AccountResponse'
+          description: Банковский счёт получателя платежа
+      required:
+      - account
+      - cnum
+      - inn
+      - juridicalAddress
     BillPaymentResponse:
       type: object
       description: Оплата по счету
@@ -1476,402 +1840,17 @@ components:
           example: Оплата по счёту №1 от 30.09.2026
       required:
       - transactionKey
-    PayeeRequest:
+    DocNumberResponse:
       type: object
-      description: Модель получателя платежа.
-      example:
-        inn: '394439302723'
-        kpp: '637996731'
-        name: ООО Продавец
-        lawType: ООО
-        juridicalAddress: 123154, Москва г, ул. Тестовая, д. 2
-        account:
-          name: АО «Банк»
-          num: '51421810026450470886'
-          bic: 081395980
-          corrAcc: '30101810400000000598'
+      description: Данные по номеру выставляемого счета
       properties:
-        inn:
+        nextDocNumber:
           type: string
-          description: ИНН получателя платежа
-          example: '394439302723'
-        kpp:
-          type: string
-          description: КПП получателя платежа
-          example: '637996731'
-        name:
-          type: string
-          description: Наименование получателя платежа
-          example: ООО Продавец
-        lawType:
-          type: string
-          description: Организационно-правовая форма
-          example: ООО
-        juridicalAddress:
-          type: string
-          description: Юридический адрес получателя платежа
-          example: 123154, Москва г, ул. Тестовая, д. 2
-        account:
-          $ref: '#/components/schemas/AccountRequest'
-          description: Банковский счёт получателя платежа.
+          description: Следующий доступный номер для выставляемого счета
+          example: '12'
       required:
-      - account
-      - inn
-      - juridicalAddress
-    Invoice:
-      type: object
-      description: Счёт на оплату
-      example:
-        num: INV-2024-001
-        date: '2026-09-30'
-        cause: Оплата по договору №123456
-        comment: Платёж по договору №123456
-      properties:
-        num:
-          type: string
-          description: Номер счёта в буквенно-цифровом формате (может содержать латиницу, кириллицу, цифры, дефис и слэш)
-          example: INV-2024-001
-          pattern: ^(?=[A-Za-zА-Яа-я0-9/-]{1,30})(?=.*[1-9]+).*$
-        date:
-          type: string
-          format: date
-          description: Дата выставления счёта
-          example: '2007-12-03'
-        cause:
-          type: string
-          description: Основание для выставления счёта
-          example: Оплата по договору №123456
-        comment:
-          type: string
-          description: Комментарий
-          example: Платёж по договору №123456
-      required:
-      - date
-      - num
-    BillDetailsResponse:
-      type: object
-      description: Детальная информация о счете на оплату
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Идентификатор счета
-          example: 60612e6c-d182-4b59-a868-69714a910ee3
-        status:
-          type: string
-          description: Статус счета на оплату
-          enum:
-          - PAYMENT_PENDING
-          - PAID
-          example: PAYMENT_PENDING
-        docNumber:
-          type: string
-          description: Номер документа
-          example: '1'
-        cnum:
-          type: string
-          description: CNUM организации
-          example: UVGASK
-        goods:
-          $ref: '#/components/schemas/GoodsResponse'
-        invoice:
-          $ref: '#/components/schemas/Invoice'
-          description: Счёт на оплату
-        payer:
-          $ref: '#/components/schemas/Payer'
-          description: Плательщик
-        payee:
-          $ref: '#/components/schemas/PayeeResponse'
-          description: Получатель платежа
-        linkedDocuments:
-          type: array
-          description: Связанные закрывающие документы
-          items:
-            $ref: '#/components/schemas/BillDetailsLinkedDocumentResponse'
-          example:
-          - id: 60612e6c-d182-4b59-a868-69714a910ee3
-            type: WORK_ACT
-            documentNumber: '35503799'
-            documentDate: '2026-09-30'
-            totalPrice: 22600.0
-            totalVatAmount: 0.0
-        payments:
-          type: array
-          description: Оплаты по счету
-          items:
-            $ref: '#/components/schemas/BillPaymentResponse'
-          example:
-          - transactionKey: 2026-09-30_401900899873_123_6002.50
-            operDate: '2026-09-30'
-            total: 6002.5
-        statusIsUpdating:
-          type: boolean
-          description: Признак того, что статус счета сейчас обновляется
-          example: false
-        createdOn:
-          type: string
-          format: date-time
-          description: Дата и время создания счета
-          example: '2026-09-30T10:19:26Z'
-        receipts:
-          type: array
-          description: Связанные чеки самозанятых
-          items:
-            type: string
-            format: uuid
-          example:
-          - 3fa85f64-5717-4562-b3fc-2c963f66afa6
-      required:
-      - cnum
-      - createdOn
-      - docNumber
-      - goods
-      - id
-      - invoice
-      - linkedDocuments
-      - payee
-      - payer
-      - payments
-      - receipts
-      - status
-      - statusIsUpdating
-    BillUpdateRequest:
-      type: object
-      description: Корневая модель обновления документа
-      properties:
-        goods:
-          $ref: '#/components/schemas/GoodsUpdateRequest'
-          description: Модель с товарами
-        invoice:
-          $ref: '#/components/schemas/Invoice'
-          description: Модель выставленного счёта
-        payer:
-          $ref: '#/components/schemas/PayerRequest'
-          description: Модель с данными плательщика
-        payee:
-          $ref: '#/components/schemas/PayeeRequest'
-          description: Модель с данными получателя
-        closingDocuments:
-          type: array
-          description: Связанные со счетом закрывающие документы
-          items:
-            type: string
-            format: uuid
-          uniqueItems: true
-          example:
-          - 3fa85f64-5717-4562-b3fc-2c963f66afa6
-      required:
-      - goods
-      - invoice
-      - payee
-      - payer
-    Payer:
-      type: object
-      description: Плательщик
-      example:
-        type: LEGAL
-        name: ООО Покупатель
-        inn: '394439302723'
-        kpp: '637996731'
-        address: г. Москва, ул. Тестовая, д. 1
-      properties:
-        type:
-          type: string
-          description: Тип плательщика. INDIVIDUAL (ФЛ) / LEGAL (юр. лицо) / NONE (без типа)
-          enum:
-          - INDIVIDUAL
-          - LEGAL
-          - NONE
-          example: LEGAL
-        name:
-          type: string
-          description: Наименование плательщика
-          example: ООО Покупатель
-        inn:
-          type: string
-          description: ИНН плательщика
-          example: '394439302723'
-        kpp:
-          type: string
-          description: КПП плательщика
-          example: '637996731'
-        address:
-          type: string
-          description: Адрес плательщика
-          example: г. Москва, ул. Тестовая, д. 1
-      required:
-      - type
-    PayeeResponse:
-      type: object
-      description: Получатель платежа
-      example:
-        inn: '394439302723'
-        kpp: '637996731'
-        cnum: UVGASK
-        name: ООО Продавец
-        juridicalAddress: 123154, Москва г, ул. Тестовая, д. 2
-        lawType: ООО
-        account:
-          name: АО «Банк»
-          num: '51421810026450470886'
-          branchName: Московский филиал АО «Банк»
-          corrAcc: '30101810400000000598'
-          bic: 081395980
-      properties:
-        inn:
-          type: string
-          description: ИНН получателя платежа
-          example: '394439302723'
-        kpp:
-          type: string
-          description: КПП получателя платежа
-          example: '637996731'
-        cnum:
-          type: string
-          description: CNUM организации
-          example: UVGASK
-        name:
-          type: string
-          description: Наименование получателя платежа
-          example: ООО Продавец
-        juridicalAddress:
-          type: string
-          description: Юридический адрес получателя платежа
-          example: 123154, Москва г, ул. Тестовая, д. 2
-        lawType:
-          type: string
-          description: Организационно-правовая форма
-          example: ООО
-        account:
-          $ref: '#/components/schemas/AccountResponse'
-          description: Банковский счёт получателя платежа
-      required:
-      - account
-      - cnum
-      - inn
-      - juridicalAddress
-    ItemRequest:
-      type: object
-      description: Модель единицы товара
-      properties:
-        name:
-          type: string
-          description: Наименование единицы товара
-          example: Услуги по настройке ПО
-        count:
-          type: number
-          description: Количество
-          example: 5
-        price:
-          type: number
-          description: Цена единицы товара
-          example: 1200.5
-        unit:
-          type: string
-          description: Единица измерения товара
-          example: HOUR
-          enum:
-          - PIECE
-          - MINUTE
-          - HOUR
-          - DAY
-          - CENTIMETER
-          - DECIMETER
-          - METER
-          - KILOMETER
-          - SQUARE_METER
-          - HECTARE
-          - CUBIC_METER
-          - LITER
-          - GRAM
-          - KILOGRAM
-          - TON
-          - KIT
-          - BOX
-          - KILOWATT_HOUR
-          - GIGA_CALORIES
-          - STANDARD_UNIT
-          - LINEAR_METER
-          - PACKAGE
-          - SERVICE
-          - PAIR
-          - MACHINE_HOUR
-          - MONTH
-          - EMPTY
-        vat:
-          type: string
-          description: НДС
-          example: VAT_20
-          enum:
-          - VAT_0
-          - NO_VAT
-          - VAT_22
-          - VAT_20
-          - VAT_18
-          - VAT_10
-          - VAT_7
-          - VAT_5
-      required:
-      - count
-      - name
-      - price
-      - unit
-      - vat
-    BillDetailsLinkedDocumentResponse:
-      type: object
-      description: Связанный документ в детальной информации о счете
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Идентификатор связанного документа
-          example: 60612e6c-d182-4b59-a868-69714a910ee3
-        type:
-          type: string
-          description: Тип закрывающего документа
-          enum:
-          - BILL
-          - WORK_ACT
-          - CONSIGNMENT_NOTE
-          - UPD
-          - INVOICE_FACTURA
-          example: WORK_ACT
-        documentNumber:
-          type: string
-          description: Номер связанного документа
-          example: '35503799'
-        documentDate:
-          type: string
-          format: date
-          description: Дата связанного документа
-          example: '2026-09-30'
-        totalPrice:
-          type: number
-          description: Итоговая сумма
-          example: 22600.0
-        totalVatAmount:
-          type: number
-          description: Итоговый НДС
-          example: 0.0
-        payer:
-          $ref: '#/components/schemas/Payer'
-          description: Плательщик
-      required:
-      - documentDate
-      - id
-      - totalPrice
-      - totalVatAmount
-      - type
+      - nextDocNumber
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -1881,18 +1860,41 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
   examples:
-    billUpdateRequest:
-      summary: Запрос на обновление счета на оплату
+    billDetailsResponse:
+      summary: Детальная информация о счете на оплату
       value:
+        id: 60612e6c-d182-4b59-a868-69714a910ee3
+        status: PAYMENT_PENDING
+        docNumber: '1'
+        cnum: UVGASK
         goods:
+          totalPrice: 6002.5
+          totalVatAmount: 1000.42
           items:
-          - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          - id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
             name: Услуги по настройке ПО
             count: 5
             price: 1200.5
-            unit: HOUR
-            vat: VAT_20
+            vat:
+              name: VAT_20
+              abbreviation: НДС 20%
+              value: '20'
+            unit:
+              name: HOUR
+              abbreviation: Часы
+              value: ч
+            sum: 6002.5
+            vatAmount: 1000.42
         invoice:
           num: INV-2024-001
           date: '2026-09-30'
@@ -1907,16 +1909,44 @@ components:
         payee:
           inn: '394439302723'
           kpp: '637996731'
+          cnum: UVGASK
           name: ООО Продавец
-          lawType: ООО
           juridicalAddress: 123154, Москва г, ул. Тестовая, д. 2
+          lawType: ООО
           account:
             name: АО «Банк»
             num: '51421810026450470886'
-            bic: 081395980
             branchName: Московский филиал АО «Банк»
             corrAcc: '30101810400000000598'
-        closingDocuments: []
+            bic: 081395980
+        linkedDocuments: []
+        payments: []
+        statusIsUpdating: false
+        createdOn: '2026-09-30T10:19:26'
+        receipts: []
+    measurementResponse:
+      summary: Список единиц измерения и ставок НДС
+      value:
+        vat:
+        - name: VAT_0
+          abbreviation: НДС 0%
+          value: '0'
+        - name: VAT_20
+          abbreviation: НДС 20%
+          value: '20'
+        units:
+        - name: PIECE
+          abbreviation: Штуки
+          value: шт
+        - name: HOUR
+          abbreviation: Часы
+          value: ч
+    billStatusUpdateRequest:
+      summary: Запрос на обновление статуса счетов
+      value:
+        billIds:
+        - 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        status: PAID
     billListResponse:
       summary: Список счетов на оплату
       value:
@@ -1980,64 +2010,6 @@ components:
           unsorted: false
           empty: false
         empty: false
-    billDetailsResponse:
-      summary: Детальная информация о счете на оплату
-      value:
-        id: 60612e6c-d182-4b59-a868-69714a910ee3
-        status: PAYMENT_PENDING
-        docNumber: '1'
-        cnum: UVGASK
-        goods:
-          totalPrice: 6002.5
-          totalVatAmount: 1000.42
-          items:
-          - id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
-            name: Услуги по настройке ПО
-            count: 5
-            price: 1200.5
-            vat:
-              name: VAT_20
-              abbreviation: НДС 20%
-              value: '20'
-            unit:
-              name: HOUR
-              abbreviation: Часы
-              value: ч
-            sum: 6002.5
-            vatAmount: 1000.42
-        invoice:
-          num: INV-2024-001
-          date: '2026-09-30'
-          cause: Оплата по договору №123456
-          comment: Платёж по договору №123456
-        payer:
-          type: LEGAL
-          name: ООО Покупатель
-          inn: '394439302723'
-          kpp: '637996731'
-          address: г. Москва, ул. Тестовая, д. 1
-        payee:
-          inn: '394439302723'
-          kpp: '637996731'
-          cnum: UVGASK
-          name: ООО Продавец
-          juridicalAddress: 123154, Москва г, ул. Тестовая, д. 2
-          lawType: ООО
-          account:
-            name: АО «Банк»
-            num: '51421810026450470886'
-            branchName: Московский филиал АО «Банк»
-            corrAcc: '30101810400000000598'
-            bic: 081395980
-        linkedDocuments: []
-        payments: []
-        statusIsUpdating: false
-        createdOn: '2026-09-30T10:19:26'
-        receipts: []
-    billResponse:
-      summary: Ответ на создание счета на оплату
-      value:
-        documentId: 3fa85f64-5717-4562-b3fc-2c963f66afa6
     billRequest:
       summary: Запрос на создание счета на оплату
       value:
@@ -2073,34 +2045,47 @@ components:
             corrAcc: '30101810400000000598'
         closingDocuments: []
         receipts: []
-    billStatusUpdateRequest:
-      summary: Запрос на обновление статуса счетов
+    billUpdateRequest:
+      summary: Запрос на обновление счета на оплату
       value:
-        billIds:
-        - 3fa85f64-5717-4562-b3fc-2c963f66afa6
-        status: PAID
-    measurementResponse:
-      summary: Список единиц измерения и ставок НДС
+        goods:
+          items:
+          - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+            name: Услуги по настройке ПО
+            count: 5
+            price: 1200.5
+            unit: HOUR
+            vat: VAT_20
+        invoice:
+          num: INV-2024-001
+          date: '2026-09-30'
+          cause: Оплата по договору №123456
+          comment: Платёж по договору №123456
+        payer:
+          type: LEGAL
+          name: ООО Покупатель
+          inn: '394439302723'
+          kpp: '637996731'
+          address: г. Москва, ул. Тестовая, д. 1
+        payee:
+          inn: '394439302723'
+          kpp: '637996731'
+          name: ООО Продавец
+          lawType: ООО
+          juridicalAddress: 123154, Москва г, ул. Тестовая, д. 2
+          account:
+            name: АО «Банк»
+            num: '51421810026450470886'
+            bic: 081395980
+            branchName: Московский филиал АО «Банк»
+            corrAcc: '30101810400000000598'
+        closingDocuments: []
+    billResponse:
+      summary: Ответ на создание счета на оплату
       value:
-        vat:
-        - name: VAT_0
-          abbreviation: НДС 0%
-          value: '0'
-        - name: VAT_20
-          abbreviation: НДС 20%
-          value: '20'
-        units:
-        - name: PIECE
-          abbreviation: Штуки
-          value: шт
-        - name: HOUR
-          abbreviation: Часы
-          value: ч
+        documentId: 3fa85f64-5717-4562-b3fc-2c963f66afa6
   responses:
-    InternalError:
-      description: Внутренняя ошибка
     Unauthorized:
       description: Аутентификация не пройдена
-x-refined-from:
-- raiffeisen-ru-invoices-openapi.yml
-- raiffeisen-ru-invoices-openapi.yml
+    InternalError:
+      description: Внутренняя ошибка

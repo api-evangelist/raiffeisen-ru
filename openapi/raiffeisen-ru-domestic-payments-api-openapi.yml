@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: Raiffeisen Ru Domestic Payments API
   version: '1.0'
-  description: 'Operations tagged domestic-payments across 4 of this provider''s published API definitions: raiffeisen-ru-domestic-payments-import-openapi.yml, raiffeisen-ru-domestic-payments-iso20022-openapi.yml, raiffeisen-ru-domestic-payments-import-openapi.yml, raiffeisen-ru-domestic-payments-iso20022-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged domestic-payments across 2 of this provider''s published API definitions: raiffeisen-ru-domestic-payments-import-openapi.yml, raiffeisen-ru-domestic-payments-iso20022-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/domestic-payments
 tags:
@@ -815,100 +815,7 @@ paths:
     servers:
     - url: https://api.raiffeisen.ru/domestic-payments
 components:
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    Forbidden:
-      description: Ошибка прав
-    ValidationError:
-      description: Ошибки валидации
-      content:
-        application/xml:
-          schema:
-            type: string
-    InternalError:
-      description: Внутренняя ошибка
-    FileIsTooLarge:
-      description: Размер файла превышает допустимый лимит
-    Forbidden_2:
-      description: Доступ запрещён
-    DocumentNotFound:
-      description: Документ не найден
-    Forbidden_3:
-      description: Доступ запрещён
   schemas:
-    ApiShortProcessImportDto:
-      type: object
-      description: Краткая информация о задаче импорта
-      properties:
-        importTaskId:
-          type: string
-          description: Идентификатор процесса импорта
-    ApiMassPaymentStatus:
-      type: string
-      description: Статус массового платежа
-      enum:
-      - IMPORT_PROCESS
-      - IMPORTED
-      - DRAFT
-      - REJECTED
-    ImportDocumentFullInfoDto:
-      type: object
-      description: Информация по одному документу в файле импорта
-      properties:
-        paymentId:
-          type: string
-          description: Уникальный идентификатор импортированного платежа
-        documentNumber:
-          type: integer
-          description: Номер документа
-        documentDate:
-          type: integer
-          description: Дата документа
-        payerAccount:
-          type: string
-          description: Счет плательщика
-        receiverAccount:
-          type: string
-          description: Счет получателя
-        paymentAmount:
-          type: number
-          format: decimal
-          description: Сумма платежа
-        message:
-          type: string
-          description: Сообщение из банка
-        status:
-          $ref: '#/components/schemas/ImportDocumentFullInfoStatus'
-    ProcessImportStatus:
-      type: string
-      description: Статус процесса импорта
-      enum:
-      - IN_PROGRESS
-      - COMPLETED
-      - QUEUED
-      - ERROR
-    ImportDocumentInfoDto:
-      type: object
-      description: Информация по одному документу в файле импорта
-      properties:
-        documentListNumber:
-          type: integer
-          description: Порядковый номер документа (платежного поручения) в файле
-        fileName:
-          type: string
-          description: Имя файла, из которого импортирован платеж
-        paymentId:
-          type: string
-          description: Уникальный идентификатор импортированного платежа. Присваивается только при documentStatus IMPORTED или DRAFT
-        message:
-          type: string
-          description: Сообщение с ошибкой
-        documentNumber:
-          type: integer
-          description: Номер документа
-        documentStatus:
-          $ref: '#/components/schemas/ImportDocumentInfoStatus'
     ApiProcessImportFullDto:
       type: object
       description: Подробная информация о задаче импорта
@@ -939,6 +846,35 @@ components:
           items:
             $ref: '#/components/schemas/ImportDocumentFullInfoDto'
           description: Информация и текущий статус по каждому документу (платежному поручению) в файле
+    ImportDocumentInfoDto:
+      type: object
+      description: Информация по одному документу в файле импорта
+      properties:
+        documentListNumber:
+          type: integer
+          description: Порядковый номер документа (платежного поручения) в файле
+        fileName:
+          type: string
+          description: Имя файла, из которого импортирован платеж
+        paymentId:
+          type: string
+          description: Уникальный идентификатор импортированного платежа. Присваивается только при documentStatus IMPORTED или DRAFT
+        message:
+          type: string
+          description: Сообщение с ошибкой
+        documentNumber:
+          type: integer
+          description: Номер документа
+        documentStatus:
+          $ref: '#/components/schemas/ImportDocumentInfoStatus'
+    ApiMassPaymentStatus:
+      type: string
+      description: Статус массового платежа
+      enum:
+      - IMPORT_PROCESS
+      - IMPORTED
+      - DRAFT
+      - REJECTED
     ImportDocumentFullInfoStatus:
       type: string
       description: Возможные статусы платежа TEMP - черновик,  CREATED/IMPORTED - документ прошел все проверки и ожидает подписи SIGNED/PARTLY_SIGNED - документ частично или полностью подписан,  POSTPONED - отложена отправка, ACCEPTED_BY_ABS - документ подписан и отправлен на процессинг,   IN_PROGRESS_BY_ABS - документ поставлен в рейс на отправку в ЦБ,  INSUFFICIENT_FUNDS - недостаточно средств,  HOLD_ACCEPT_SPM - документ задержан противодействием мошенничеству,  HOLD_ACCEPT_UKK - документ задержан управлением комплаенс контроля,  PDC - документ отправлен в картотеку, т.е. денежные средства не поступили на оплату платежа до COT, нодокумент не отклонился, т.к. является обязательным к исполнению (зарплатный, алиментный итп),  PROCESSED - исполненный документ, INVALID_CHECKS/INVALID_SIGN - отклонен в сервисе из-за не пройденных контролей, DECLINED_BY_ABS - отказанный в банке,  DECLINED_BY_CBR - отказанный ЦБ документ,  REVOKED - отозванный документ,  DELETED - удалённый документ
@@ -992,6 +928,41 @@ components:
           items:
             $ref: '#/components/schemas/ImportDocumentInfoDto'
           description: Информация по ошибкам в документах (платежному поручению) в файле
+    ImportDocumentFullInfoDto:
+      type: object
+      description: Информация по одному документу в файле импорта
+      properties:
+        paymentId:
+          type: string
+          description: Уникальный идентификатор импортированного платежа
+        documentNumber:
+          type: integer
+          description: Номер документа
+        documentDate:
+          type: integer
+          description: Дата документа
+        payerAccount:
+          type: string
+          description: Счет плательщика
+        receiverAccount:
+          type: string
+          description: Счет получателя
+        paymentAmount:
+          type: number
+          format: decimal
+          description: Сумма платежа
+        message:
+          type: string
+          description: Сообщение из банка
+        status:
+          $ref: '#/components/schemas/ImportDocumentFullInfoStatus'
+    ApiShortProcessImportDto:
+      type: object
+      description: Краткая информация о задаче импорта
+      properties:
+        importTaskId:
+          type: string
+          description: Идентификатор процесса импорта
     ImportDocumentInfoStatus:
       type: string
       description: Статус документа
@@ -999,6 +970,14 @@ components:
       - IMPORTED
       - DRAFT
       - REJECTED
+    ProcessImportStatus:
+      type: string
+      description: Статус процесса импорта
+      enum:
+      - IN_PROGRESS
+      - COMPLETED
+      - QUEUED
+      - ERROR
   parameters:
     AuthorizationHeader:
       name: Authorization
@@ -1018,8 +997,25 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    ValidationError:
+      description: Ошибки валидации
+      content:
+        application/xml:
+          schema:
+            type: string
+    Forbidden:
+      description: Ошибка прав
+    Unauthorized:
+      description: Аутентификация не пройдена
+    FileIsTooLarge:
+      description: Размер файла превышает допустимый лимит
+    Forbidden_2:
+      description: Доступ запрещён
+    DocumentNotFound:
+      description: Документ не найден
 x-refined-from:
-- raiffeisen-ru-domestic-payments-import-openapi.yml
-- raiffeisen-ru-domestic-payments-iso20022-openapi.yml
 - raiffeisen-ru-domestic-payments-import-openapi.yml
 - raiffeisen-ru-domestic-payments-iso20022-openapi.yml

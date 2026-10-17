@@ -1,12 +1,22 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Payout Accounts API
   version: '1.0'
+  title: интеграции выплат Payout Accounts API
   contact:
     email: ecom@raiffeisen.ru
     name: Support e-mail
     x-team-id: 933
     x-short-team-name: PPO
+  x-logo:
+    url: images/raifflogo.png
+    backgroundColor: '#FFFFFF'
+    altText: Raiff logo
+  description: 'Свои предложения и идеи о документации можно оставить в репозитории по адресу: https://github.com/Raiffeisen-DGTL/ecom-API/blob/master/payout.yaml
+
+
+    # Описание API
+
+    Взаимодействие осуществляется по протоколу HTTP с использованием методов GET/POST (в описании каждого запроса явно указан требуемый метод и адрес).'
   x-description-i18n:
     eng: 'You can give your comments about current documentation in repository: https://github.com/Raiffeisen-DGTL/ecom-API/blob/master/payout.yaml
 
@@ -55,11 +65,6 @@ info:
 
 
       The list of IPs from which the system will pass requests is also configured.'
-  x-logo:
-    url: images/raifflogo.png
-    backgroundColor: '#FFFFFF'
-    altText: Raiff logo
-  description: 'Operations tagged payout-accounts across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-payouts-openapi.json, raiffeisen-ru-raif-pay-payouts-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://pay-test.raif.ru/api
   description: Sandbox
@@ -113,13 +118,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalServerError'
-    servers:
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
-    - url: https://pay.raif.ru/api
-      description: prod
 components:
   schemas:
+    PayoutAccountsList:
+      type: array
+      description: Список счетов клиента
+      x-description-i18n:
+        eng: List of client accounts
+      items:
+        type: string
+        description: Номер счёта
+        x-description-i18n:
+          eng: Account number
+        example: '40700000000000000000'
     BadRequestErrorResponse:
       required:
       - code
@@ -139,6 +150,25 @@ components:
           type: string
           description: Уникальный идентификатор запроса
           example: 84b19a21e19410b62c30b4cd40c228a1
+    Error401Response:
+      required:
+      - code
+      - message
+      - traceId
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки (`UNAUTHORIZED`)
+          example: UNAUTHORIZED
+        message:
+          type: string
+          description: Текст ошибки (`The operation is not allowed`)
+          example: The operation is not allowed.
+        traceId:
+          type: string
+          example: 84b19a21e19410b62c30b4cd40c228a1
+          description: Уникальный идентификатор запроса
     Error403Response:
       required:
       - code
@@ -177,36 +207,6 @@ components:
           type: string
           description: Уникальный идентификатор запроса
           example: 84b19a21e19410b62c30b4cd40c228a1
-    Error401Response:
-      required:
-      - code
-      - message
-      - traceId
-      type: object
-      properties:
-        code:
-          type: string
-          description: Код ошибки (`UNAUTHORIZED`)
-          example: UNAUTHORIZED
-        message:
-          type: string
-          description: Текст ошибки (`The operation is not allowed`)
-          example: The operation is not allowed.
-        traceId:
-          type: string
-          example: 84b19a21e19410b62c30b4cd40c228a1
-          description: Уникальный идентификатор запроса
-    PayoutAccountsList:
-      type: array
-      description: Список счетов клиента
-      x-description-i18n:
-        eng: List of client accounts
-      items:
-        type: string
-        description: Номер счёта
-        x-description-i18n:
-          eng: Account number
-        example: '40700000000000000000'
   securitySchemes:
     BearerAuth:
       type: http
@@ -223,6 +223,15 @@ components:
       name: X-USER-ACCESS-TOKEN
       type: apiKey
       in: cookie
-x-refined-from:
-- raiffeisen-ru-raif-pay-payouts-openapi.json
-- raiffeisen-ru-raif-pay-payouts-openapi.yml
+x-tagGroups:
+- name: API
+  tags:
+  - payout-controller
+  - Callback
+- name: Сверка
+  x-displayName: Сверка
+  x-x-displayName-i18n:
+    eng: Comparison
+  tags:
+  - Registry
+  - Statement

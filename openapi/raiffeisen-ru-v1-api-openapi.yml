@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Пермиссии V1 API
+  title: Полномочия пользователей Пермиссии V1 API
+  description: Получение полномочий пользователей и ролей сотрудников.
   version: 0.3.0
-  description: 'Operations tagged Пермиссии V1 across 2 of this provider''s published API definitions: raiffeisen-ru-user-permissions-openapi.yml, raiffeisen-ru-user-permissions-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/permissions
 tags:
@@ -69,8 +69,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/permissions
   /api/v1/permissions/{object_path}:
     get:
       tags:
@@ -146,33 +144,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/permissions
 components:
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
-  parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
-    IdTokenHeader:
-      name: Id-Token
-      in: header
-      description: Идентификационный токен пользователя
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
   schemas:
     ContractStatus:
       type: string
@@ -180,18 +152,6 @@ components:
       - ACTIVE
       - BLOCKED
       - TERMINATED
-    PermissionsV1:
-      type: object
-      required:
-      - name
-      - actions
-      properties:
-        name:
-          type: string
-        actions:
-          type: array
-          items:
-            type: string
     ErrorResponseDTO:
       type: object
       description: Стандартизированный ответ с ошибкой
@@ -247,6 +207,39 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ContractContextV1'
-x-refined-from:
-- raiffeisen-ru-user-permissions-openapi.yml
-- raiffeisen-ru-user-permissions-openapi.yml
+    PermissionsV1:
+      type: object
+      required:
+      - name
+      - actions
+      properties:
+        name:
+          type: string
+        actions:
+          type: array
+          items:
+            type: string
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена

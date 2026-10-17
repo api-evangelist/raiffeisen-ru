@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Tariff Plan Controller API
+  title: Система управления тарифами клиента Tariff Plan Controller…
+  description: Платформа для хранения и управления продуктовыми комиссиями и тарифами клиентов ЮЛ
   version: 1.0.0
-  description: 'Operations tagged tariff-plan-controller across 2 of this provider''s published API definitions: raiffeisen-ru-client-tariffs-openapi.yml, raiffeisen-ru-client-tariffs-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/client-tariffs
 tags:
@@ -59,24 +59,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/client-tariffs
 components:
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -86,62 +70,16 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
   schemas:
-    AvailableTariffPlansView:
-      required:
-      - availableSince
-      - tariffPlans
-      type: object
-      properties:
-        availableSince:
-          type: string
-          description: Дата доступности
-          format: date
-        tariffPlans:
-          $ref: '#/components/schemas/PageResponseTariffPlanPublicDataView'
-      description: Публичное представление тарифного плана
-    PageResponseTariffPlanPublicDataView:
-      required:
-      - content
-      - hasNext
-      - hasPrevious
-      - number
-      - size
-      type: object
-      properties:
-        content:
-          type: array
-          items:
-            $ref: '#/components/schemas/TariffPlanPublicDataView'
-        size:
-          type: integer
-          format: int32
-        number:
-          type: integer
-          format: int32
-        hasNext:
-          type: boolean
-        hasPrevious:
-          type: boolean
-      description: Список тарифных планов
-    TariffPlanPublicDataView:
-      required:
-      - code
-      - documentId
-      - publicName
-      type: object
-      properties:
-        code:
-          type: string
-          description: Код тарифного плана
-        publicName:
-          type: string
-          description: Публичное наименование
-        documentId:
-          type: integer
-          description: Идентификатор документа
-          format: int64
-      description: Представление публичных данных тарифного плана
     ApiError4xx:
       required:
       - code
@@ -205,6 +143,63 @@ components:
           - 431 REQUEST_HEADER_FIELDS_TOO_LARGE
           - 451 UNAVAILABLE_FOR_LEGAL_REASONS
       description: Модель ошибки API
-x-refined-from:
-- raiffeisen-ru-client-tariffs-openapi.yml
-- raiffeisen-ru-client-tariffs-openapi.yml
+    AvailableTariffPlansView:
+      required:
+      - availableSince
+      - tariffPlans
+      type: object
+      properties:
+        availableSince:
+          type: string
+          description: Дата доступности
+          format: date
+        tariffPlans:
+          $ref: '#/components/schemas/PageResponseTariffPlanPublicDataView'
+      description: Публичное представление тарифного плана
+    PageResponseTariffPlanPublicDataView:
+      required:
+      - content
+      - hasNext
+      - hasPrevious
+      - number
+      - size
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/TariffPlanPublicDataView'
+        size:
+          type: integer
+          format: int32
+        number:
+          type: integer
+          format: int32
+        hasNext:
+          type: boolean
+        hasPrevious:
+          type: boolean
+      description: Список тарифных планов
+    TariffPlanPublicDataView:
+      required:
+      - code
+      - documentId
+      - publicName
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код тарифного плана
+        publicName:
+          type: string
+          description: Публичное наименование
+        documentId:
+          type: integer
+          description: Идентификатор документа
+          format: int64
+      description: Представление публичных данных тарифного плана
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена

@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru API - Fund API
+  title: УК Raiffeisen API - Fund API
+  description: Описания эндпоинтов для страховой компании
   version: 1.0.1
-  description: 'Operations tagged API - Fund across 2 of this provider''s published API definitions: raiffeisen-ru-rcam-openapi.yml, raiffeisen-ru-rcam-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/rcam-insurance
 tags:
@@ -57,24 +57,8 @@ paths:
       summary: Получение информации о фонде
       tags:
       - API - Fund
-    servers:
-    - url: https://api.raiffeisen.ru/rcam-insurance
 components:
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -84,11 +68,21 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена
   schemas:
-    BadRequestException:
-      type: object
-    NotFoundException:
-      type: object
     FundInfoDto:
       type: object
       properties:
@@ -104,6 +98,7 @@ components:
       required:
       - costShare
       - costDate
-x-refined-from:
-- raiffeisen-ru-rcam-openapi.yml
-- raiffeisen-ru-rcam-openapi.yml
+    BadRequestException:
+      type: object
+    NotFoundException:
+      type: object

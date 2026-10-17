@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Supplier API
+  description: API Факторинга
+  title: Финансирование. Факторинг Supplier API
   version: 1.0.0
-  description: 'Operations tagged Supplier across 2 of this provider''s published API definitions: raiffeisen-ru-factoring-openapi.yml, raiffeisen-ru-factoring-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/factoring
 tags:
@@ -61,10 +61,66 @@ paths:
       summary: Получение поставщика по идентификатору
       tags:
       - Supplier
-    servers:
-    - url: https://api.raiffeisen.ru/factoring
 components:
   schemas:
+    ErrorMessage:
+      properties:
+        code:
+          $ref: '#/components/schemas/RestErrorCodes'
+        message:
+          description: Сообщение
+          example: General service error
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    Supplier:
+      description: Поставщик
+      example:
+        id: 74f36f89-3e28-4291-896f-b76801238e89
+        fullNameRus: АО Ромашка
+        state:
+          status: ACTIVE
+          statusDate: '2025-10-11T13:06:24.761359'
+          errors: []
+          cqrsVersion: 5432123988
+      properties:
+        id:
+          description: Идентификатор поставщика
+          example: 74f36f89-3e28-4291-896f-b76801238e89
+          format: uuid
+          type: string
+        fullNameRus:
+          description: Полное наименование поставщика на русском языке
+          example: АО Ромашка
+          type: string
+        state:
+          allOf:
+          - $ref: '#/components/schemas/SupplierState'
+          description: Состояние поставщика
+          type: object
+      required:
+      - fullNameRus
+      - id
+      - state
+      type: object
+    SupplierState:
+      allOf:
+      - $ref: '#/components/schemas/State'
+      - properties:
+          status:
+            $ref: '#/components/schemas/SupplierStatus'
+        required:
+        - status
+        type: object
+      description: Состояние поставщика
+      example:
+        status: ACTIVE
+        statusDate: '2025-10-11T13:06:24.761359'
+        errors: []
+        cqrsVersion: 5432123988
+      type: object
     RestErrorCodes:
       description: '| code            | description                                          |
 
@@ -127,70 +183,12 @@ components:
       - SELECTED_ORGANIZATION_NOT_ALLOWED
       example: REST_ERROR_5001
       type: string
-    SupplierState:
-      allOf:
-      - $ref: '#/components/schemas/State'
-      - properties:
-          status:
-            $ref: '#/components/schemas/SupplierStatus'
-        required:
-        - status
-        type: object
-      description: Состояние поставщика
-      example:
-        status: ACTIVE
-        statusDate: '2025-10-11T13:06:24.761359'
-        errors: []
-        cqrsVersion: 5432123988
-      type: object
     SupplierStatus:
       description: Статус поставщика
       enum:
       - ACTIVE
       example: ACTIVE
       type: string
-    ErrorMessage:
-      properties:
-        code:
-          $ref: '#/components/schemas/RestErrorCodes'
-        message:
-          description: Сообщение
-          example: General service error
-          type: string
-      required:
-      - code
-      - message
-      type: object
-    Supplier:
-      description: Поставщик
-      example:
-        id: 74f36f89-3e28-4291-896f-b76801238e89
-        fullNameRus: АО Ромашка
-        state:
-          status: ACTIVE
-          statusDate: '2025-10-11T13:06:24.761359'
-          errors: []
-          cqrsVersion: 5432123988
-      properties:
-        id:
-          description: Идентификатор поставщика
-          example: 74f36f89-3e28-4291-896f-b76801238e89
-          format: uuid
-          type: string
-        fullNameRus:
-          description: Полное наименование поставщика на русском языке
-          example: АО Ромашка
-          type: string
-        state:
-          allOf:
-          - $ref: '#/components/schemas/SupplierState'
-          description: Состояние поставщика
-          type: object
-      required:
-      - fullNameRus
-      - id
-      - state
-      type: object
     State:
       description: Состояние объекта
       properties:
@@ -219,16 +217,12 @@ components:
       items:
         $ref: '#/components/schemas/ErrorMessage'
       type: array
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -238,11 +232,12 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
-x-refined-from:
-- raiffeisen-ru-factoring-openapi.yml
-- raiffeisen-ru-factoring-openapi.yml
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=

@@ -1,20 +1,23 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Codes API
+  title: Управление кодами внесения АДМ Codes API
   version: 1.0.0
-  x-refined-note:
-  - x-logo differs across the merged source definitions and was not carried
-  - x-raif-api-description-en differs across the merged source definitions and was not carried
-  - x-raif-api-title-en differs across the merged source definitions and was not carried
-  description: 'Operations tagged Codes across 3 of this provider''s published API definitions: raiffeisen-ru-adm-deposit-codes-openapi.yml, raiffeisen-ru-adm-deposit-codes-openapi.yml, raiffeisen-ru-raif-pay-adm-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: '# Общая информация
+
+
+    Данный раздел описывает методы для просмотра и управления выпущенными кодами внесения АДМ, включая:
+
+    - Получение списка кодов
+
+    - Фильтрация по ключевым атрибутам
+
+    - Получение детальной информации о коде
+
+    - Блокировка кода
+
+    - Изменение электронной почты для получения чеков'
 servers:
 - url: https://api.raiffeisen.ru/adm
-- url: https://ecom-prev-int-balancer.raiffeisen.ru/adm
-  description: prev
-- url: https://ecom-test-int-balancer.raiffeisen.ru/adm
-  description: test
-- url: https://ecom-int-balancer.raiffeisen.ru/adm
-  description: prod
 tags:
 - name: Codes
 paths:
@@ -62,8 +65,6 @@ paths:
           $ref: '#/components/responses/InternalError'
       tags:
       - Codes
-    servers:
-    - url: https://api.raiffeisen.ru/adm
   /v1/codes/{id}:
     get:
       summary: Получение детальной информации о коде
@@ -107,10 +108,214 @@ paths:
           $ref: '#/components/responses/InternalError'
       tags:
       - Codes
-    servers:
-    - url: https://api.raiffeisen.ru/adm
 components:
+  parameters:
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    FullNameQuery:
+      name: fullname
+      in: query
+      required: false
+      description: 'Фильтр по полному имени плательщика. Может содержать фамилию, имя и отчество (частично или полностью).
+
+        '
+      schema:
+        type: string
+        example: Иванов Иван Иванович
+    AvailableFilter:
+      name: available
+      in: query
+      required: false
+      description: Фильтр доступности кода (`true` — активные, `false` — заблокированные)
+      schema:
+        type: boolean
+        example: true
+    CnumsQuery:
+      name: cnums
+      in: query
+      required: false
+      description: Фильтр по идентификаторам компаний в банке (cnum)
+      explode: false
+      style: form
+      schema:
+        type: string
+        example: 123456,111WWW
+    CodeId:
+      name: id
+      in: path
+      required: true
+      description: Идентификатор кода
+      schema:
+        type: string
+        example: '78901211'
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    Offset:
+      name: offset
+      in: query
+      required: false
+      description: Смещение от начала списка
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+        example: 0
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: Максимальное количество возвращаемых записей
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+        example: 35
+  examples:
+    CodeListResponseExample:
+      summary: Пример списка выпущенных кодов
+      value:
+        data:
+        - id: '12345678'
+          available: true
+          createDate: '2025-07-16T08:29:31.93956Z'
+          updateDate: '2025-07-31T19:13:15.331124Z'
+          customer:
+            cnum: '123456'
+            name: Тестовая компания
+            inn: '7701000001'
+          person:
+            surname: Иванов
+            name: Иван
+            patronymic: Иванович
+            birthDate: '2007-07-04'
+            email: test@test.ru
+            cnum: ADWCF1
+        offset: 0
+        limit: 20
+        totalCount: 1
+    NotFoundErrorExample:
+      summary: Пример ошибки "ресурс не найден"
+      value:
+        code: RESOURCE_NOT_FOUND
+        message: The resource not found
+        traceId: 84b19a21e19410b62c30b4cd40c228a1
+    BadRequestErrorExample:
+      summary: Пример ошибки валидации
+      value:
+        code: INVALID_DATA
+        message: The request contains invalid fields or values
+        traceId: 84b19a21e19410b62c30b4cd40c228a1
+    CodeDetailsResponseExample:
+      summary: Пример детальной информации о коде
+      value:
+        id: '12345678'
+        available: true
+        createDate: '2025-07-16T08:29:31.93956Z'
+        updateDate: '2025-07-31T19:13:15.331124Z'
+        customer:
+          cnum: '123456'
+          name: Тестовая компания
+          inn: '7701000001'
+        person:
+          surname: Иванов
+          name: Иван
+          patronymic: Иванович
+          birthDate: '2007-07-04'
+          email: test@test.ru
+          cnum: ADWCF1
+  responses:
+    Unauthorized:
+      description: Аутентификация не пройдена
+    InternalError:
+      description: Внутренняя ошибка
   schemas:
+    NotFoundErrorResponse:
+      required:
+      - code
+      - message
+      - traceId
+      type: object
+      properties:
+        code:
+          type: string
+          example: RESOURCE_NOT_FOUND
+        message:
+          type: string
+          example: The resource not found
+        traceId:
+          type: string
+          example: 84b19a21e19410b62c30b4cd40c228a1
+    Person:
+      type: object
+      required:
+      - surname
+      - name
+      - birthDate
+      - cnum
+      properties:
+        surname:
+          type: string
+          description: Фамилия
+          example: Иванов
+        name:
+          type: string
+          description: Имя
+          example: Иван
+        patronymic:
+          type: string
+          description: Отчество
+          example: Иванович
+        birthDate:
+          type: string
+          format: date
+          description: Дата рождения
+          example: '2007-07-04'
+        email:
+          type:
+          - string
+          - 'null'
+          format: email
+          description: Email плательщика
+          example: test@test.ru
+        cnum:
+          type: string
+          description: Клиентский номер плательщика
+          example: ADWCF1
+    Customer:
+      type: object
+      required:
+      - cnum
+      - name
+      - inn
+      properties:
+        cnum:
+          type: string
+          description: Клиентский номер компании
+          example: '123456'
+        name:
+          type: string
+          description: Наименование компании
+          example: Тестовая компания
+        inn:
+          type: string
+          description: ИНН компании
+          pattern: ^[0-9]{10}$|^$
+          example: '7701000001'
     BadRequestErrorResponse:
       required:
       - code
@@ -159,22 +364,6 @@ components:
           $ref: '#/components/schemas/Customer'
         person:
           $ref: '#/components/schemas/Person'
-    NotFoundErrorResponse:
-      required:
-      - code
-      - message
-      - traceId
-      type: object
-      properties:
-        code:
-          type: string
-          example: RESOURCE_NOT_FOUND
-        message:
-          type: string
-          example: The resource not found
-        traceId:
-          type: string
-          example: 84b19a21e19410b62c30b4cd40c228a1
     GetCodeListResponse:
       type: object
       required:
@@ -199,412 +388,3 @@ components:
           type: integer
           description: Общее количество записей
           example: 35
-    Customer:
-      type: object
-      required:
-      - cnum
-      - name
-      - inn
-      properties:
-        cnum:
-          type: string
-          description: Клиентский номер компании
-          example: '123456'
-        name:
-          type: string
-          description: Наименование компании
-          example: Тестовая компания
-        inn:
-          type: string
-          description: ИНН компании
-          pattern: ^[0-9]{10}$|^$
-          example: '7701000001'
-    Person:
-      type: object
-      required:
-      - surname
-      - name
-      - birthDate
-      - cnum
-      properties:
-        surname:
-          type: string
-          description: Фамилия
-          example: Иванов
-        name:
-          type: string
-          description: Имя
-          example: Иван
-        patronymic:
-          type: string
-          description: Отчество
-          example: Иванович
-        birthDate:
-          type: string
-          format: date
-          description: Дата рождения
-          example: '2007-07-04'
-        email:
-          type:
-          - string
-          - 'null'
-          format: email
-          description: Email плательщика
-          example: test@test.ru
-        cnum:
-          type: string
-          description: Клиентский номер плательщика
-          example: ADWCF1
-    Customer_2:
-      type: object
-      required:
-      - cnum
-      - name
-      - inn
-      properties:
-        cnum:
-          type: string
-          description: Клиентский номер компании
-          x-raif-api-description-en: Company cnum
-          example: '123456'
-        name:
-          type: string
-          description: Наименование компании
-          x-raif-api-description-en: Company name
-          example: Тестовая компания
-        inn:
-          type: string
-          description: ИНН компании
-          x-raif-api-description-en: Company INN
-          pattern: ^[0-9]{10}$|^$
-          example: '7701000001'
-    InternalServerError:
-      required:
-      - code
-      - message
-      - traceId
-      type: object
-      properties:
-        code:
-          type: string
-          example: INTERNAL_ERROR
-        message:
-          type: string
-          example: An internal error occurred
-        traceId:
-          type: string
-          example: 84b19a21e19410b62c30b4cd40c228a1
-    Code_2:
-      type: object
-      required:
-      - id
-      - available
-      - createDate
-      - updateDate
-      - customer
-      - person
-      properties:
-        id:
-          type: string
-          description: Идентификатор кода
-          x-raif-api-description-en: Code id
-          example: '12345678'
-        available:
-          type: boolean
-          description: Доступен ли код
-          x-raif-api-description-en: Code availability
-          example: true
-        createDate:
-          type: string
-          format: date-time
-          description: Дата создания записи
-          x-raif-api-description-en: Creation date
-          example: '2025-07-16T08:29:31.93956Z'
-        updateDate:
-          type: string
-          format: date-time
-          description: Дата последнего обновления
-          x-raif-api-description-en: Update date
-          example: '2025-07-31T19:13:15.331124Z'
-        customer:
-          $ref: '#/components/schemas/Customer_2'
-        person:
-          $ref: '#/components/schemas/Person_2'
-    Person_2:
-      type: object
-      required:
-      - surname
-      - name
-      - birthDate
-      - cnum
-      properties:
-        surname:
-          type: string
-          description: Фамилия
-          x-raif-api-description-en: Last name
-          example: Иванов
-        name:
-          type: string
-          description: Имя
-          x-raif-api-description-en: Name
-          example: Иван
-        patronymic:
-          type: string
-          description: Отчество
-          x-raif-api-description-en: Patronymic
-          example: Иванович
-        birthDate:
-          type: string
-          format: date
-          description: Дата рождения
-          x-raif-api-description-en: Birth date
-          example: '2007-07-04'
-        email:
-          type:
-          - string
-          - 'null'
-          format: email
-          description: Email плательщика
-          x-raif-api-description-en: Payer email
-          example: test@test.ru
-        cnum:
-          type: string
-          description: Клиентский номер плательщика
-          x-raif-api-description-en: Payer cnum
-          example: ADWCF1
-    GetCodeListResponse_2:
-      type: object
-      required:
-      - data
-      - offset
-      - limit
-      - totalCount
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Code_2'
-        offset:
-          type: integer
-          description: Смещение от начала списка
-          x-raif-api-description-en: Offset from the start of the list
-          example: 0
-        limit:
-          type: integer
-          description: Максимальное количество возвращаемых записей
-          x-raif-api-description-en: Maximum number of items
-          example: 35
-        totalCount:
-          type: integer
-          description: Общее количество записей
-          x-raif-api-description-en: The total number of items
-          example: 35
-  examples:
-    BadRequestErrorExample:
-      summary: Пример ошибки валидации
-      value:
-        code: INVALID_DATA
-        message: The request contains invalid fields or values
-        traceId: 84b19a21e19410b62c30b4cd40c228a1
-    CodeDetailsResponseExample:
-      summary: Пример детальной информации о коде
-      value:
-        id: '12345678'
-        available: true
-        createDate: '2025-07-16T08:29:31.93956Z'
-        updateDate: '2025-07-31T19:13:15.331124Z'
-        customer:
-          cnum: '123456'
-          name: Тестовая компания
-          inn: '7701000001'
-        person:
-          surname: Иванов
-          name: Иван
-          patronymic: Иванович
-          birthDate: '2007-07-04'
-          email: test@test.ru
-          cnum: ADWCF1
-    NotFoundErrorExample:
-      summary: Пример ошибки "ресурс не найден"
-      value:
-        code: RESOURCE_NOT_FOUND
-        message: The resource not found
-        traceId: 84b19a21e19410b62c30b4cd40c228a1
-    CodeListResponseExample:
-      summary: Пример списка выпущенных кодов
-      value:
-        data:
-        - id: '12345678'
-          available: true
-          createDate: '2025-07-16T08:29:31.93956Z'
-          updateDate: '2025-07-31T19:13:15.331124Z'
-          customer:
-            cnum: '123456'
-            name: Тестовая компания
-            inn: '7701000001'
-          person:
-            surname: Иванов
-            name: Иван
-            patronymic: Иванович
-            birthDate: '2007-07-04'
-            email: test@test.ru
-            cnum: ADWCF1
-        offset: 0
-        limit: 20
-        totalCount: 1
-    InternalServerErrorExample:
-      summary: Пример внутренней ошибки
-      value:
-        code: INTERNAL_ERROR
-        message: An internal error occurred
-        traceId: 84b19a21e19410b62c30b4cd40c228a1
-  parameters:
-    Offset:
-      name: offset
-      in: query
-      required: false
-      description: Смещение от начала списка
-      schema:
-        type: integer
-        minimum: 0
-        default: 0
-        example: 0
-    CodeId:
-      name: id
-      in: path
-      required: true
-      description: Идентификатор кода
-      schema:
-        type: string
-        example: '78901211'
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
-    CnumsQuery:
-      name: cnums
-      in: query
-      required: false
-      description: Фильтр по идентификаторам компаний в банке (cnum)
-      explode: false
-      style: form
-      schema:
-        type: string
-        example: 123456,111WWW
-    Limit:
-      name: limit
-      in: query
-      required: false
-      description: Максимальное количество возвращаемых записей
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 100
-        default: 20
-        example: 35
-    FullNameQuery:
-      name: fullname
-      in: query
-      required: false
-      description: 'Фильтр по полному имени плательщика. Может содержать фамилию, имя и отчество (частично или полностью).
-
-        '
-      schema:
-        type: string
-        example: Иванов Иван Иванович
-    IdTokenHeader:
-      name: Id-Token
-      in: header
-      description: Идентификационный токен пользователя
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-    AvailableFilter:
-      name: available
-      in: query
-      required: false
-      description: Фильтр доступности кода (`true` — активные, `false` — заблокированные)
-      schema:
-        type: boolean
-        example: true
-    FullNameQuery_2:
-      name: fullname
-      in: query
-      required: false
-      description: 'Фильтр по полному имени плательщика. Может содержать фамилию, имя и отчество (частично или полностью).
-
-        '
-      x-raif-api-description-en: 'Filter by payer''s full name. Can contain last name, first name, and patronymic (partially or completely).
-
-        '
-      schema:
-        type: string
-        example: Иванов Иван Иванович
-    Offset_2:
-      name: offset
-      in: query
-      required: false
-      description: Смещение от начала списка
-      x-raif-api-description-en: Offset from the start of the list
-      schema:
-        type: integer
-        minimum: 0
-        default: 0
-        example: 0
-    AvailableFilter_2:
-      name: available
-      in: query
-      required: false
-      description: Фильтр доступности кода (`true` — активные, `false` — заблокированные)
-      x-raif-api-description-en: Code availability filter ('true'- active, 'false' - blocked)
-      schema:
-        type: boolean
-        example: true
-    CnumsQuery_2:
-      name: cnums
-      in: query
-      required: false
-      description: Фильтр по идентификаторам компаний в банке (cnum)
-      x-raif-api-description-en: Filter by company number (cnum)
-      explode: false
-      style: form
-      schema:
-        type: string
-        example: 123456,111WWW
-    CodeId_2:
-      name: id
-      in: path
-      required: true
-      description: Идентификатор кода
-      x-raif-api-description-en: Code id
-      schema:
-        type: string
-        example: '78901211'
-    Limit_2:
-      name: limit
-      in: query
-      required: false
-      description: Максимальное количество возвращаемых записей
-      x-raif-api-description-en: Maximum number of items
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 100
-        default: 20
-        example: 35
-  responses:
-    InternalError:
-      description: Внутренняя ошибка
-    Unauthorized:
-      description: Аутентификация не пройдена
-x-refined-from:
-- raiffeisen-ru-adm-deposit-codes-openapi.yml
-- raiffeisen-ru-adm-deposit-codes-openapi.yml
-- raiffeisen-ru-raif-pay-adm-openapi.yml

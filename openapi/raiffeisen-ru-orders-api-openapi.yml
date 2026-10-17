@@ -1,12 +1,20 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Orders API
   version: '1.0'
+  title: платежной формы Orders API
   contact:
     email: ecom@raiffeisen.ru
     name: Support e-mail
     x-team-id: 178
     x-short-team-name: PAPAS
+  x-logo:
+    url: images/raifflogo.png
+    backgroundColor: '#FFFFFF'
+    altText: Raiff logo
+  description: '# Подключение к эквайрингу
+
+
+    Для подключения заполните заявку в Онлайн-банке или мобильном приложении.'
   x-description-i18n:
     eng: '# Connection to acquiring
 
@@ -164,11 +172,6 @@ info:
 
 
       Questions regarding solution support can be sent to technical support: ecom@raiffeisen.ru'
-  x-logo:
-    url: images/raifflogo.png
-    backgroundColor: '#FFFFFF'
-    altText: Raiff logo
-  description: 'Operations tagged orders across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-payment-form-openapi.json, raiffeisen-ru-raif-pay-payment-form-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://pay-test.raif.ru/api
   description: Sandbox
@@ -253,11 +256,6 @@ paths:
       x-internal: false
       tags:
       - Orders
-    servers:
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
-    - url: https://pay.raif.ru/api
-      description: Production
   /payments/v2/merchants/{publicId}/orders/{orderId}/clear:
     parameters:
     - $ref: '#/components/parameters/orderId'
@@ -298,39 +296,94 @@ paths:
           Splits that retain the same amount as in the original order do not need to be included.
 
           '
-    servers:
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
-    - url: https://pay.raif.ru/api
-      description: Production
 components:
-  responses:
-    GetOrderResponseV2:
-      description: OK
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/CreatedOrder'
-    Error400Response:
-      description: Bad Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error4xx'
-    ClearCardPaymentResponse:
-      description: OK
-      content:
-        application/json:
-          schema:
+  schemas:
+    Extra:
+      title: Extra
+      type: object
+      description: Дополнительные поля в формате key-value. Отображаются в реестрах.
+      x-description-i18n:
+        eng: Additional fields in key-value format. Displayed in registries
+      additionalProperties:
+        type: string
+    UndefinedOrder:
+      title: UndefinedOrder
+      allOf:
+      - $ref: '#/components/schemas/GetOrderResponseSchema'
+    DigitalRubleOrder:
+      title: DigitalRubleOrder
+      allOf:
+      - $ref: '#/components/schemas/GetOrderResponseSchema'
+    OrderStatus:
+      title: OrderStatus
+      type: object
+      description: Статус заказа
+      x-description-i18n:
+        eng: Order status
+      minProperties: 1
+      properties:
+        value:
+          $ref: '#/components/schemas/OrderStatusValue'
+        date:
+          type: string
+          description: Дата создания заказа
+          x-description-i18n:
+            eng: Order creation date
+          format: date-time
+          example: '2025-01-10T20:10:00+03:00'
+          minLength: 1
+    OrderStatusValue:
+      title: OrderStatusValue
+      type: string
+      enum:
+      - NEW
+      - PAID
+      - EXPIRED
+      - CANCELLED
+    OrderPaymentMethod:
+      title: OrderPaymentMethod
+      type: string
+      enum:
+      - UNDEFINED
+      - ACQUIRING
+      - SBP
+      - DIGITAL_RUBLE
+      description: 'Способ оплаты заказа
+
+        - `UNDEFINED` - Способ оплаты не определен (заказ не оплачен)
+
+        - `SBP` - Оплата по СБП
+
+        - `ACQUIRING` - Оплата по карте
+
+        - `DIGITAL_RUBLE` - Оплата по цифровому рублю'
+      x-description-i18n:
+        eng: 'Order payment method
+
+          - `UNDEFINED` - Payment method not defined (order not paid)
+
+          - `SBP` - Payment via SBP
+
+          - `ACQUIRING` - Payment by card
+
+          - `DIGITAL_RUBLE` - Payment by digital ruble
+
+          '
+    SbpOrder:
+      title: SbpOrder
+      allOf:
+      - $ref: '#/components/schemas/GetOrderResponseSchema'
+      - type: object
+        properties:
+          paymentParameters:
             type: object
             properties:
-              reversalAmount:
-                type: number
-                description: Сумма отмененная в ходе клиринга
-                x-description-i18n:
-                  eng: Reversal amount in rubles
-                example: 1200
-  schemas:
+              qrId:
+                type: string
+                description: Идентификатор QR-кода
+              sbpTransactionId:
+                type: string
+                description: Идентификатор операции в системе НСПК
     OrderComment:
       title: OrderComment
       type: string
@@ -362,47 +415,6 @@ components:
       maxLength: 140
       pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
       example: Тестовый комментарий
-    OrderStatus:
-      title: OrderStatus
-      type: object
-      description: Статус заказа
-      x-description-i18n:
-        eng: Order status
-      minProperties: 1
-      properties:
-        value:
-          $ref: '#/components/schemas/OrderStatusValue'
-        date:
-          type: string
-          description: Дата создания заказа
-          x-description-i18n:
-            eng: Order creation date
-          format: date-time
-          example: '2025-01-10T20:10:00+03:00'
-          minLength: 1
-    DigitalRubleOrder:
-      title: DigitalRubleOrder
-      allOf:
-      - $ref: '#/components/schemas/GetOrderResponseSchema'
-    UndefinedOrder:
-      title: UndefinedOrder
-      allOf:
-      - $ref: '#/components/schemas/GetOrderResponseSchema'
-    SbpOrder:
-      title: SbpOrder
-      allOf:
-      - $ref: '#/components/schemas/GetOrderResponseSchema'
-      - type: object
-        properties:
-          paymentParameters:
-            type: object
-            properties:
-              qrId:
-                type: string
-                description: Идентификатор QR-кода
-              sbpTransactionId:
-                type: string
-                description: Идентификатор операции в системе НСПК
     AcquiringOrder:
       title: AcquiringOrder
       allOf:
@@ -421,14 +433,43 @@ components:
               eci:
                 type: string
                 description: Уровень и тип риска операции в процессе обработки онлайн-платежа
-    Extra:
-      title: Extra
+    GeneralError:
+      title: General Error
       type: object
-      description: Дополнительные поля в формате key-value. Отображаются в реестрах.
-      x-description-i18n:
-        eng: Additional fields in key-value format. Displayed in registries
-      additionalProperties:
-        type: string
+      properties:
+        code:
+          type: string
+          description: Код ошибки запроса
+          x-description-i18n:
+            eng: Request error code
+        message:
+          type: string
+          description: Описание ошибки
+          x-description-i18n:
+            eng: Error description
+        traceId:
+          type: string
+          description: Идентификатор выполнения запроса при наличии ошибки
+          x-description-i18n:
+            eng: Request ID if there is an error
+    CreatedOrder:
+      title: CreatedOrder
+      type: object
+      properties:
+        paymentMethod:
+          $ref: '#/components/schemas/OrderPaymentMethod'
+      oneOf:
+      - $ref: '#/components/schemas/SbpOrder'
+      - $ref: '#/components/schemas/AcquiringOrder'
+      - $ref: '#/components/schemas/DigitalRubleOrder'
+      - $ref: '#/components/schemas/UndefinedOrder'
+      discriminator:
+        propertyName: paymentMethod
+        mapping:
+          SBP: '#/components/schemas/SbpOrder'
+          ACQUIRING: '#/components/schemas/AcquiringOrder'
+          UNDEFINED: '#/components/schemas/UndefinedOrder'
+          DIGITAL_RUBLE: '#/components/schemas/DigitalRubleOrder'
     Error4xx:
       title: Error4xx
       type: object
@@ -537,80 +578,51 @@ components:
         required:
         - accountId
         - amount
-    CreatedOrder:
-      title: CreatedOrder
-      type: object
-      properties:
-        paymentMethod:
-          $ref: '#/components/schemas/OrderPaymentMethod'
-      oneOf:
-      - $ref: '#/components/schemas/SbpOrder'
-      - $ref: '#/components/schemas/AcquiringOrder'
-      - $ref: '#/components/schemas/DigitalRubleOrder'
-      - $ref: '#/components/schemas/UndefinedOrder'
-      discriminator:
-        propertyName: paymentMethod
-        mapping:
-          SBP: '#/components/schemas/SbpOrder'
-          ACQUIRING: '#/components/schemas/AcquiringOrder'
-          UNDEFINED: '#/components/schemas/UndefinedOrder'
-          DIGITAL_RUBLE: '#/components/schemas/DigitalRubleOrder'
-    OrderStatusValue:
-      title: OrderStatusValue
-      type: string
-      enum:
-      - NEW
-      - PAID
-      - EXPIRED
-      - CANCELLED
-    OrderPaymentMethod:
-      title: OrderPaymentMethod
-      type: string
-      enum:
-      - UNDEFINED
-      - ACQUIRING
-      - SBP
-      - DIGITAL_RUBLE
-      description: 'Способ оплаты заказа
-
-        - `UNDEFINED` - Способ оплаты не определен (заказ не оплачен)
-
-        - `SBP` - Оплата по СБП
-
-        - `ACQUIRING` - Оплата по карте
-
-        - `DIGITAL_RUBLE` - Оплата по цифровому рублю'
-      x-description-i18n:
-        eng: 'Order payment method
-
-          - `UNDEFINED` - Payment method not defined (order not paid)
-
-          - `SBP` - Payment via SBP
-
-          - `ACQUIRING` - Payment by card
-
-          - `DIGITAL_RUBLE` - Payment by digital ruble
-
-          '
-    GeneralError:
-      title: General Error
-      type: object
-      properties:
-        code:
-          type: string
-          description: Код ошибки запроса
-          x-description-i18n:
-            eng: Request error code
-        message:
-          type: string
-          description: Описание ошибки
-          x-description-i18n:
-            eng: Error description
-        traceId:
-          type: string
-          description: Идентификатор выполнения запроса при наличии ошибки
-          x-description-i18n:
-            eng: Request ID if there is an error
+  requestBodies:
+    ClearEcomRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Запрос на клиринг по операциям интернет эквайринга со сплитованием
+            x-description-i18n:
+              eng: Clearing request for Internet Acquiring operations with splitting
+            properties:
+              amount:
+                type: number
+                description: Итоговая сумма клиринга
+                x-description-i18n:
+                  eng: Final clearing amount
+                example: 1200
+              splits:
+                $ref: '#/components/schemas/Split'
+  responses:
+    ClearCardPaymentResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              reversalAmount:
+                type: number
+                description: Сумма отмененная в ходе клиринга
+                x-description-i18n:
+                  eng: Reversal amount in rubles
+                example: 1200
+    Error400Response:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error4xx'
+    GetOrderResponseV2:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreatedOrder'
   parameters:
     orderId:
       name: orderId
@@ -631,25 +643,6 @@ components:
       description: Идентификатор мерчанта в системе Банка
       x-description-i18n:
         eng: Merchant ID in the Bank system
-  requestBodies:
-    ClearEcomRequest:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            description: Запрос на клиринг по операциям интернет эквайринга со сплитованием
-            x-description-i18n:
-              eng: Clearing request for Internet Acquiring operations with splitting
-            properties:
-              amount:
-                type: number
-                description: Итоговая сумма клиринга
-                x-description-i18n:
-                  eng: Final clearing amount
-                example: 1200
-              splits:
-                $ref: '#/components/schemas/Split'
   securitySchemes:
     secretKey:
       type: http
@@ -666,6 +659,25 @@ components:
           Detailed information is contained in the [Authorization] section (#section/API/Authorizaciya)
 
           '
-x-refined-from:
-- raiffeisen-ru-raif-pay-payment-form-openapi.json
-- raiffeisen-ru-raif-pay-payment-form-openapi.yml
+x-tagGroups:
+- name: API
+  tags:
+  - payform
+  - subscriptions
+  - pay-controller
+  - Callback
+- name: Сверка
+  x-name-i18n:
+    eng: COMPARISON
+  tags:
+  - Registry
+  - Statement
+  - cashReconciliation
+- name: Справочник
+  x-name-i18n:
+    eng: REFERENCE INFORMATION
+  tags:
+  - Errors
+  - SettlementSchemes
+  - deprecated
+  - Change log

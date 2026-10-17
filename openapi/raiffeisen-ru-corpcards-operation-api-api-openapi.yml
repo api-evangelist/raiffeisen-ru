@@ -1,17 +1,26 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Corpcards Operation API
-  x-refined-note:
-  - x-description-i18n differs across the merged source definitions and was not carried
-  - x-logo differs across the merged source definitions and was not carried
-  version: '1.0'
-  description: 'Operations tagged corpcards-operation-api across 3 of this provider''s published API definitions: raiffeisen-ru-raif-pay-corporate-cards-openapi.json, raiffeisen-ru-corporate-cards-openapi.yml, raiffeisen-ru-raif-pay-corporate-cards-openapi.yml. Each path carries the servers of the definition it was published in.'
+  title: Raiffeisenbank cards Corpcards Operation API
+  contact:
+    email: dcc@raiffeisen.ru
+    name: Support e-mail
+    x-team-id: 228
+    x-short-team-name: Corporate Cards
+  x-logo:
+    url: images/raifflogo.png
+    backgroundColor: '#FFFFFF'
+    altText: Raiff logo
+  description: Автоматизированный выпуск карт с помощью API или реестра.
+  x-description-i18n:
+    eng: "Automated card issuance via API or registry. This allows you to issue corporate cards without documents or passports. Send us a list of cardholders via a registry through your online banking or API—we’ll issue the cards for you.\n\n# Registry\n\n1. Send the list of employees via online banking in XLS, CSV, or XML format. You can fill out the employee list manually or export it from your accounting system.\n\n2. If you order cards at a [bank branch](https://docs.google.com/spreadsheets/d/1lT-qOCGrAW7u9IFn8tDWwO1bnUt_gNPEncINGvVVbKE), delivery takes 3-5 business days.\n   If you order cards to be delivered to cardholders' addresses (only for XLS and CSV formats), delivery takes 5-7 business days, depending on the region. Cardholders will receive an SMS notification when their card is ready.\n\n## Registry Format\n  Template: <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/Заявление на выпуск карт для нерезидентов v2.xlsx'\" color=\"primary\">XLS</Button>\n\n  Examples: <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/xml_registry1.xml'\" color=\"primary\">XML_1</Button> <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/xml_registry2.xml'\" color=\"primary\">XML_2</Button> <span style=\"white-space: pre;\">    </span> <Button onclick=\"document.location='images/csv_registry.csv'\" color=\"primary\">CSV</Button>\n\n   Parameter Name                     | Value\n  ------------------------------------|------------------------------------------------------------------------------------------\n   ИдПервичногоДокумента              | Unique registry identifier on the Company's side\n   РасчетныйСчетОрганизации           | Company account opened with the Bank to which the cards will be linked\n   ВидВклада/КодВидаВклада            | Card type <br> (MIR_CORPORATE/ MIR_CORPORATE_VIRTUAL/ CASH_IN&OUT)\n   Фамилия                            | Last name of the employee-cardholder\n   Имя                                | First name of the employee-cardholder\n   Отчество                           | Middle name of the employee-cardholder\n   ЭмбоссированныйТекст               | First and last name of the employee-cardholder in Latin script (to be printed on the card)\n   ОтделениеБанка/ ФилиалОтделенияБанка | Bank branch code where the cards will be delivered\n   Пол                                | Gender of the employee-cardholder\n   ДатаРождения                       | Date of birth\n   МестоРождения.СтранаНазвание       | Country of birth\n   Серия                              | Passport series (Russian passport)\n   Номер                              | Passport number (Russian passport)\n   ДатаВыдачи                         | Passport issue date\n   КемВыдан                           | Passport issuing authority\n   Гражданство                        | Citizenship\n   АдресПрописки.Страна               | Country of registration\n   АдресПрописки.РегионНазвание       | Region of registration address\n   АдресПрописки.НаселенныйПунктНазвание | Locality of registration address\n   АдресПрописки.УлицаНазвание        | Street of registration address <br> (if absent, specify \"Нет\")\n   АдресПрописки.Дом                  | House number of registration address\n   МобильныйТелефон                   | Employee-cardholder’s mobile phone <br> (79210000001 or 9210000001)\n   Суточный лимит <br> (CSV file)     | Daily cash withdrawal limit\n   Месячный лимит <br> (CSV file)     | Monthly spending limit\n   Секретное слово <br> (CSV file)    | Cardholder’s secret word\n   Индекс доставки <br> (CSV file)    | Delivery postal code\n   Регион доставки <br> (CSV file)    | Delivery region\n   Населенный пункт доставки <br> (CSV file) | Delivery locality\n   Улица доставки <br> (CSV file)     | Delivery street\n   Дом доставки <br> (CSV file)       | Delivery house number\n   Корпус доставки <br> (CSV file)    | Delivery building/block\n\n## Instructions for Exporting Registry from 1С\n[Instructions for Exporting Registry from 1С](https://docs.google.com/document/d/1xk9q9MDW1qx9oqQI64FF9PUBdShuLc-rgYuciY2SbzI)\n\n## List of Bank Branches for Card Pickup\n[List of Bank Branches for Card Pickup](https://docs.google.com/spreadsheets/d/1lT-qOCGrAW7u9IFn8tDWwO1bnUt_gNPEncINGvVVbKE)\n\n# About the API\n\nAfter signing the contract, you will receive an email with authorization details for the service.\n\n1. Integrate our API with your accounting system.\n2. Send the list of employees.\n3. Check card issuance status.\n4. Within 3-5 business days, the cards will be delivered to the bank branch. Cardholders will receive an SMS notification.\n\nCommunication is carried out via HTTP using GET/POST methods (each request description specifies the required method and address).\n   - POST requests use JSON arguments.\n   - GET requests work with query strings.\n\nThe API always returns a response in JSON format, regardless of the request type.\n   - Every response includes a message code (`code`). If a logical error occurs during processing, the API will also return an error description (`message`).\n\n## Authorization\n\nTo authorize requests, the following is required:\n- `secretKey` – a secret key used for inter-service communication.\n\nIMPORTANT: The secret key must be stored securely. Do not publish it on third-party resources or share it with unauthorized parties.\n\nInter-service requests are authorized via the API secret key (`SECRET_KEY`). The authorization parameter is specified in the `Authorization` header, formatted as `\"Bearer SECRET_KEY\"`.\n"
+  version: '0.1'
 servers:
 - url: https://pay-test.raif.ru
   description: Sandbox
 - url: https://pay.raif.ru
   description: Production
-- url: https://api.raiffeisen.ru/corporate-cards
+security:
+- Authorization: []
 tags:
 - name: corpcards-operation-api
   x-displayName: Операции по картам
@@ -98,13 +107,6 @@ paths:
           $ref: '#/components/responses/401_without_traceId'
         '500':
           $ref: '#/components/responses/500_without_traceId'
-      security:
-      - Authorization: []
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/cards/v1/corporate-cards/cards/{cardId}:
     parameters:
     - $ref: '#/components/parameters/CardId'
@@ -133,13 +135,6 @@ paths:
           $ref: '#/components/responses/401_without_traceId'
         '500':
           $ref: '#/components/responses/500_without_traceId'
-      security:
-      - Authorization: []
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/cards/v1/corporate-cards/cards/{cardId}/actions:
     get:
       tags:
@@ -180,13 +175,6 @@ paths:
           $ref: '#/components/responses/401_without_traceId'
         '500':
           $ref: '#/components/responses/500_without_traceId'
-      security:
-      - Authorization: []
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/cards/v1/corporate-cards/cards/{cardId}/requisites:
     get:
       tags:
@@ -218,13 +206,6 @@ paths:
           $ref: '#/components/responses/403'
         '500':
           $ref: '#/components/responses/500_without_traceId'
-      security:
-      - Authorization: []
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/cards/v1/operations/cards/{cardId}/limit:
     post:
       tags:
@@ -282,13 +263,6 @@ paths:
           $ref: '#/components/responses/401_without_traceId'
         '500':
           $ref: '#/components/responses/500_without_traceId'
-      security:
-      - Authorization: []
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/cards/v1/operations/cards/{cardId}/status:
     parameters:
     - $ref: '#/components/parameters/CardId'
@@ -317,13 +291,6 @@ paths:
           $ref: '#/components/responses/401_without_traceId'
         '500':
           $ref: '#/components/responses/500_without_traceId'
-      security:
-      - Authorization: []
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/cards/v1/transactions/cards/{cardId}:
     get:
       tags:
@@ -356,13 +323,6 @@ paths:
           $ref: '#/components/responses/401_without_traceId'
         '500':
           $ref: '#/components/responses/500_without_traceId'
-      security:
-      - Authorization: []
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/cards/v2/transactions/cards/{cardId}:
     get:
       tags:
@@ -399,13 +359,6 @@ paths:
           $ref: '#/components/responses/401_without_traceId'
         '500':
           $ref: '#/components/responses/500_without_traceId'
-      security:
-      - Authorization: []
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/v1/cards:
     get:
       tags:
@@ -446,13 +399,6 @@ paths:
           $ref: '#/components/responses/403'
         '404':
           $ref: '#/components/responses/404'
-      security:
-      - Authorization: []
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/v1/cards/{cardId}:
     get:
       tags:
@@ -483,38 +429,455 @@ paths:
           $ref: '#/components/responses/403'
         '404':
           $ref: '#/components/responses/404'
-      security:
-      - Authorization: []
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
 components:
   schemas:
-    Meta:
-      type: object
-      properties:
-        page:
-          allOf:
-          - $ref: '#/components/schemas/Page'
-        size:
-          allOf:
-          - $ref: '#/components/schemas/Size'
-        hasNext:
-          allOf:
-          - $ref: '#/components/schemas/HasNext'
-        count:
-          allOf:
-          - $ref: '#/components/schemas/Count'
-    EmployeeId:
+    TransactionsCardDtoMaskedNumber:
       type: string
-      description: Табельный номер сотрудника
-      example: 3012345633
+      description: 'Маскированный номер карты. Формат: первые 6 и последние 4 цифры, середина скрыта символами "*".
+
+        '
+      example: 553496******0091
+    CardLimitResponseDto:
+      type: object
+      description: DTO, представляющий лимит по карте
+      x-description-i18n:
+        eng: DTO representing card limit
+        rus: DTO, представляющий лимит по карте
+      properties:
+        name:
+          allOf:
+          - $ref: '#/components/schemas/LimitNameType'
+        period:
+          allOf:
+          - $ref: '#/components/schemas/LimitPeriod'
+        entityType:
+          allOf:
+          - $ref: '#/components/schemas/LimitEntityType'
+        counterType:
+          allOf:
+          - $ref: '#/components/schemas/LimitCounterType'
+        value:
+          type: number
+          format: decimal
+          description: Значение
+          x-description-i18n:
+            eng: Value
+          example: 100000
+        available:
+          type:
+          - number
+          - 'null'
+          format: decimal
+          description: Остаток по лимиту
+          x-description-i18n:
+            eng: Limit remaining value
+            rus: Остаток по лимиту
+          example: 20000
+      required:
+      - name
+      - period
+      - entityType
+      - counterType
+      - value
+    Status:
+      type: string
+      enum:
+      - ACTIVE
+      - CLOSED
+      - BLOCKED
+      description: Статус карты
+      x-description-i18n:
+        eng: Card Status
+      example: CLOSED
+    OperationStatus:
+      type: string
+      description: Статус операции
+      enum:
+      - HOLD
+      - CANCEL
+      - CAPTURE
+    StatusDto:
+      type: object
+      description: Данные о совершенной операции
+      required:
+      - value
+      - dateTime
+      properties:
+        value:
+          allOf:
+          - $ref: '#/components/schemas/OperationStatus'
+        dateTime:
+          allOf:
+          - $ref: '#/components/schemas/DateTime'
+        captureDateTime:
+          allOf:
+          - $ref: '#/components/schemas/CaptureDateTime'
+    HasNext:
+      type: boolean
+      description: Наличие следующей страницы
+      x-description-i18n:
+        eng: Availability of next page
+    Label:
+      type: string
+      description: Расшифровка MCC.
+      example: Различные продовольственные магазины
+    MerchantName:
+      type: string
+      description: Название торговой точки
+      example: YANDEX.TAXI
+    LimitAdjustedBalance:
+      type: number
+      description: Баланс счёта с учётом доступного лимита
+      x-description-i18n:
+        eng: Balance including limit
+      example: 13.37
+    ExpiryDate:
+      type: string
+      description: Срок действия карты
+      x-description-i18n:
+        eng: Card validity period
+      format: YYYY-MM-DD
+      example: '2024-02-01'
     MerchantCountry:
       type: string
       description: Страна торговой точки.
       example: RU
+    CardActivationStatusValue:
+      type: object
+      description: Объект, описывающий текущий статус активации карты и время последнего его обновления
+      required:
+      - value
+      properties:
+        value:
+          allOf:
+          - $ref: '#/components/schemas/ActivationStatus'
+        updatedDate:
+          allOf:
+          - $ref: '#/components/schemas/UpdatedDateTime'
+    LimitValue:
+      type: string
+      description: Значение
+      x-description-i18n:
+        eng: Value
+      example: '100'
+      pattern: '[0-9]+'
+    CardDto:
+      type: object
+      required:
+      - id
+      - maskedNumber
+      - status
+      - createdDate
+      - isActivated
+      - expiryDate
+      - product
+      - account
+      - type
+      - currency
+      - embossedName
+      - person
+      - limits
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/CardId'
+        maskedNumber:
+          allOf:
+          - $ref: '#/components/schemas/MaskedNumber'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status'
+        cardStatusState:
+          allOf:
+          - $ref: '#/components/schemas/CardStatusState'
+        createdDate:
+          allOf:
+          - $ref: '#/components/schemas/CreatedDate'
+        isActivated:
+          allOf:
+          - $ref: '#/components/schemas/IsActivated'
+        expiryDate:
+          allOf:
+          - $ref: '#/components/schemas/ExpiryDate'
+        product:
+          allOf:
+          - $ref: '#/components/schemas/Product'
+        isVirtual:
+          allOf:
+          - $ref: '#/components/schemas/IsVirtual'
+        account:
+          allOf:
+          - $ref: '#/components/schemas/Account'
+        type:
+          allOf:
+          - $ref: '#/components/schemas/Type'
+        currency:
+          allOf:
+          - $ref: '#/components/schemas/Currency'
+        embossedName:
+          allOf:
+          - $ref: '#/components/schemas/EmbossedName'
+        person:
+          allOf:
+          - $ref: '#/components/schemas/PersonDto'
+        limits:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardLimit'
+        processingType:
+          allOf: []
+    Cnum:
+      type: string
+      description: Уникальный банковский идентификатор держателя
+      x-description-i18n:
+        eng: Unique bank identifier of the holder
+      example: CNUM
+    Amount:
+      type: string
+      description: Сумма операции в рублях
+      example: '1000.00'
+    CVV:
+      type: string
+      description: Код CVV
+      x-description-i18n:
+        eng: CVV code
+      example: '123'
+    CardActionLimitDto:
+      type: object
+      properties:
+        limits:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                allOf:
+                - $ref: '#/components/schemas/LimitType'
+              period:
+                allOf:
+                - $ref: '#/components/schemas/Period'
+              oldValue:
+                allOf:
+                - $ref: '#/components/schemas/OldValue'
+              value:
+                allOf:
+                - $ref: '#/components/schemas/LimitValue'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/CardActionStatusDto'
+        phone3ds:
+          allOf:
+          - $ref: '#/components/schemas/CardActionPhone3dsDto'
+    TransactionsCardDtoId:
+      type: string
+      description: Уникальный банковский идентификатор карты
+      example: '1'
+    Size:
+      type: integer
+      description: Количество отображаемых элементов
+      x-description-i18n:
+        eng: Count of pageable elements
+      example: 20
+    LimitNameType:
+      type: string
+      description: Название лимита
+      x-description-i18n:
+        eng: Limit name
+        rus: Название лимита
+      enum:
+      - AUTH_CASH
+      - AUTH_DEBIT
+      - UNKNOWN
+    Name:
+      type: string
+      description: Имя
+      x-description-i18n:
+        eng: Name
+      example: Тест
+    Account:
+      type: string
+      description: Номер счета
+      x-description-i18n:
+        eng: Account number
+      example: '40702810603000060801'
+    Count:
+      type: integer
+      description: Общее количество элементов
+      x-description-i18n:
+        eng: Total count of elements
+      example: 34
+    LimitEntityType:
+      type: string
+      description: Тип сущности лимита
+      x-description-i18n:
+        eng: Limit entity type
+        rus: Тип сущности лимита
+      enum:
+      - CARD
+      - ACCOUNT
+      - CLIENT
+    Currency:
+      type: string
+      description: Валюта карты
+      example: RUB
+    MerchantCity:
+      type: string
+      description: Город, в котором находится торговая точка
+      example: Gorod Moskva
+    CardInfoPageableBff:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/CardInfoDtoBff'
+        offset:
+          type: integer
+          example: 125
+        limit:
+          type: integer
+          example: 25
+        count:
+          type: integer
+          example: 200
+      required:
+      - data
+      - offset
+      - limit
+      - count
+    AccountMovementType:
+      type: string
+      enum:
+      - DEBIT
+      - CREDIT
+    EmbossedName:
+      type: string
+      description: Имя на карте
+      x-description-i18n:
+        eng: Embossed name
+      example: TEST TESTOV
+    MCC:
+      type: string
+      description: Код категории товара или услуги (MCC)
+      example: '1000'
+    Reason:
+      type: string
+      description: Комментарий
+      x-description-i18n:
+        eng: Comment
+    DateTime:
+      type: string
+      description: Дата и время обновления
+      format: date-time
+      example: '2025-08-29T07:29:26.795033'
+    Surname:
+      type: string
+      description: Фамилия
+      x-description-i18n:
+        eng: Surname
+      example: Тестов
+    CardActionType:
+      type: string
+      description: Тип операции
+      x-description-i18n:
+        eng: Operation type
+      enum:
+      - LIMIT
+      - STATUS_CHANGE
+      - PHONE_CHANGE
+      example: STATUS_CHANGE
+    Pan:
+      type: string
+      description: Номер карты
+      x-description-i18n:
+        eng: Primary Account Number
+      example: '2200000000000000'
+    LimitPeriod:
+      type: string
+      description: Период лимита
+      x-description-i18n:
+        eng: Limit period
+        rus: Название лимита
+      enum:
+      - MONTHLY
+      - DAILY
+      - ANNUAL
+    CardId:
+      type: string
+      description: Уникальный банковский идентификатор карты
+      x-description-i18n:
+        eng: Unique bank card identifier
+    CardLimit:
+      type: array
+      items:
+        required:
+        - type
+        - period
+        - value
+        type: object
+        properties:
+          type:
+            allOf:
+            - $ref: '#/components/schemas/LimitType'
+          period:
+            allOf:
+            - $ref: '#/components/schemas/Period'
+          value:
+            allOf:
+            - $ref: '#/components/schemas/LimitValue'
+          available:
+            allOf:
+            - $ref: '#/components/schemas/AvailableLimit'
+    TransactionDto:
+      type: object
+      description: Данные о финальной транзакции (проведённой сумме)
+      required:
+      - amount
+      - currency
+      properties:
+        amount:
+          allOf:
+          - $ref: '#/components/schemas/Amount'
+        currency:
+          allOf:
+          - $ref: '#/components/schemas/Currency'
+          description: Валюта
+          x-description-i18n:
+            eng: Currency
+    CardStatusValue:
+      type: object
+      description: Объект, описывающий текущий статус карты и время последнего его обновления
+      required:
+      - value
+      - updatedDate
+      properties:
+        value:
+          allOf:
+          - $ref: '#/components/schemas/Status'
+        updatedDate:
+          allOf:
+          - $ref: '#/components/schemas/UpdatedDateTime'
+    Phone:
+      type: string
+      description: Номер телефона 3ds
+      x-description-i18n:
+        eng: Phone number 3ds
+    AccountOwnerResponseDtoV1:
+      type: object
+      properties:
+        account:
+          allOf:
+          - $ref: '#/components/schemas/Account'
+        cnum:
+          allOf:
+          - $ref: '#/components/schemas/Cnum'
+        balance:
+          allOf:
+          - $ref: '#/components/schemas/AvailableBalance'
+      required:
+      - account
+      - cnum
     LimitDto:
       type: array
       items:
@@ -533,40 +896,44 @@ components:
           value:
             allOf:
             - $ref: '#/components/schemas/LimitValue'
-    CardProduct:
+    CardStatusState:
       type: object
       properties:
-        id:
+        newValue:
           type: string
-          example: '12345'
-        name:
+        currentState:
           type: string
-          example: MIR_CORPORATE
-        value:
-          type: string
-          example: Универсальная
-        imageUrl:
-          type: string
-          example: http://raif.ru/example/{id}
       required:
-      - id
-      - name
-      - value
-    CardType:
+      - newValue
+      - currentState
+    CardOwner:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: Тест
+        lastName:
+          type: string
+          example: Тестов
+        patronymic:
+          type: string
+          example: Тестович
+        cnum:
+          type: string
+          example: CNUM
+      required:
+      - firstName
+      - lastName
+      - cnum
+    Patronymic:
       type: string
-      description: Тип карты (именная/мгновенная)
+      description: Отчество
       x-description-i18n:
-        eng: Card type (named/instant)
-        rus: Тип карты (именная/мгновенная)
-      enum:
-      - NAMED
-      - INSTANT
-      example: NAMED
-    IsActivated:
+        eng: Patronymic
+      example: Тестович
+    IsVirtual:
       type: boolean
-      description: Признак активации карты
-      x-description-i18n:
-        eng: Card activation sign
+      description: Признак вирутальной карты
       example: true
     OperationDtoV2:
       type: object
@@ -625,317 +992,15 @@ components:
               merchant:
                 allOf:
                 - $ref: '#/components/schemas/MerchantDto'
-    CardActionStatusDto:
-      type: object
-      properties:
-        oldStatus:
-          type: string
-          description: Старое значение статуса
-          x-description-i18n:
-            eng: Old status
-        status:
-          type: string
-          description: Новое значение статуса
-          x-description-i18n:
-            eng: New status
-        reason:
-          allOf:
-          - $ref: '#/components/schemas/Reason'
-    EmbossedName:
+    LimitType:
       type: string
-      description: Имя на карте
+      description: Тип лимита (Общерасходный (AUTH) / Снятие наличных (CASH))
       x-description-i18n:
-        eng: Embossed name
-      example: TEST TESTOV
-    MaskedNumber:
-      type: string
-      description: Маскированный номер карты
-      x-description-i18n:
-        eng: Masked card number
-      example: 1***56
-    Page:
-      type: integer
-      description: Номер страницы
-      x-description-i18n:
-        eng: Page number
-      example: 1
-    DateTime:
-      type: string
-      description: Дата и время обновления
-      format: date-time
-      example: '2025-08-29T07:29:26.795033'
-    Amount:
-      type: string
-      description: Сумма операции в рублях
-      example: '1000.00'
-    ExpiryDateWithMmYy:
-      type: string
-      description: Срок действия карты
-      x-description-i18n:
-        eng: Card expiry date
-      example: 12/12
-    Pan:
-      type: string
-      description: Номер карты
-      x-description-i18n:
-        eng: Primary Account Number
-      example: '2200000000000000'
-    Status:
-      type: string
+        eng: Limit type (General spending (AUTH) / Cash withdrawal (CASH))
       enum:
-      - ACTIVE
-      - CLOSED
-      - BLOCKED
-      description: Статус карты
-      x-description-i18n:
-        eng: Card Status
-      example: CLOSED
-    LimitPeriod:
-      type: string
-      description: Период лимита
-      x-description-i18n:
-        eng: Limit period
-        rus: Название лимита
-      enum:
-      - MONTHLY
-      - DAILY
-      - ANNUAL
-    Name:
-      type: string
-      description: Имя
-      x-description-i18n:
-        eng: Name
-      example: Тест
-    OperationStatus:
-      type: string
-      description: Статус операции
-      enum:
-      - HOLD
-      - CANCEL
-      - CAPTURE
-    CardStatusValue:
-      type: object
-      description: Объект, описывающий текущий статус карты и время последнего его обновления
-      required:
-      - value
-      - updatedDate
-      properties:
-        value:
-          allOf:
-          - $ref: '#/components/schemas/Status'
-        updatedDate:
-          allOf:
-          - $ref: '#/components/schemas/UpdatedDateTime'
-    CardInfoPageableBff:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            allOf:
-            - $ref: '#/components/schemas/CardInfoDtoBff'
-        offset:
-          type: integer
-          example: 125
-        limit:
-          type: integer
-          example: 25
-        count:
-          type: integer
-          example: 200
-      required:
-      - data
-      - offset
-      - limit
-      - count
-    CardStatus:
-      type: string
-      description: Статус для установки
-      x-description-i18n:
-        eng: Status for installation
-      enum:
-      - CLOSED
-      - BLOCKED
-      - ACTIVE
-    LimitEntityType:
-      type: string
-      description: Тип сущности лимита
-      x-description-i18n:
-        eng: Limit entity type
-        rus: Тип сущности лимита
-      enum:
-      - CARD
-      - ACCOUNT
-      - CLIENT
-    AccountMovementType:
-      type: string
-      enum:
-      - DEBIT
-      - CREDIT
-    CardActivationStatusValue:
-      type: object
-      description: Объект, описывающий текущий статус активации карты и время последнего его обновления
-      required:
-      - value
-      properties:
-        value:
-          allOf:
-          - $ref: '#/components/schemas/ActivationStatus'
-        updatedDate:
-          allOf:
-          - $ref: '#/components/schemas/UpdatedDateTime'
-    Label:
-      type: string
-      description: Расшифровка MCC.
-      example: Различные продовольственные магазины
-    LimitCounterType:
-      type: string
-      description: Тип счётчика лимита
-      x-description-i18n:
-        eng: Limit counter type
-        rus: Тип счётчика лимита
-      enum:
-      - QUANTITY
-      - AMOUNT
-    AccountOwnerResponseDtoV1:
-      type: object
-      properties:
-        account:
-          allOf:
-          - $ref: '#/components/schemas/Account'
-        cnum:
-          allOf:
-          - $ref: '#/components/schemas/Cnum'
-        balance:
-          allOf:
-          - $ref: '#/components/schemas/AvailableBalance'
-      required:
-      - account
-      - cnum
-    MCC:
-      type: string
-      description: Код категории товара или услуги (MCC)
-      example: '1000'
-    Created:
-      type: string
-      description: Дата и время обработки операции.
-      x-description-i18n:
-        eng: Transaction processing date and time
-      example: '2020-01-15T16:01:49.043924+03:00'
-    Phone:
-      type: string
-      description: Номер телефона 3ds
-      x-description-i18n:
-        eng: Phone number 3ds
-    CardActionPhone3dsDto:
-      type: object
-      properties:
-        oldValue:
-          type: string
-        value:
-          type: string
-        holderCnum:
-          type: string
-      required:
-      - oldValue
-      - value
-      - holderCnum
-    AvailableLimit:
-      type: number
-      description: Доступный лимит
-      x-description-i18n:
-        eng: Available limit
-      example: 70.76
-    CardLimitResponseDto:
-      type: object
-      description: DTO, представляющий лимит по карте
-      x-description-i18n:
-        eng: DTO representing card limit
-        rus: DTO, представляющий лимит по карте
-      properties:
-        name:
-          allOf:
-          - $ref: '#/components/schemas/LimitNameType'
-        period:
-          allOf:
-          - $ref: '#/components/schemas/LimitPeriod'
-        entityType:
-          allOf:
-          - $ref: '#/components/schemas/LimitEntityType'
-        counterType:
-          allOf:
-          - $ref: '#/components/schemas/LimitCounterType'
-        value:
-          type: number
-          format: decimal
-          description: Значение
-          x-description-i18n:
-            eng: Value
-          example: 100000
-        available:
-          type:
-          - number
-          - 'null'
-          format: decimal
-          description: Остаток по лимиту
-          x-description-i18n:
-            eng: Limit remaining value
-            rus: Остаток по лимиту
-          example: 20000
-      required:
-      - name
-      - period
-      - entityType
-      - counterType
-      - value
-    Reason:
-      type: string
-      description: Комментарий
-      x-description-i18n:
-        eng: Comment
-    CreatedDate:
-      type: string
-      description: Дата выпуска
-      x-description-i18n:
-        eng: Issue date
-      format: YYYY-MM-DD
-      example: '2020-02-01'
-    LimitValue:
-      type: string
-      description: Значение
-      x-description-i18n:
-        eng: Value
-      example: '100'
-      pattern: '[0-9]+'
-    MerchantCity:
-      type: string
-      description: Город, в котором находится торговая точка
-      example: Gorod Moskva
-    Surname:
-      type: string
-      description: Фамилия
-      x-description-i18n:
-        eng: Surname
-      example: Тестов
-    TransactionsCardDto:
-      type: object
-      description: Данные карты
-      required:
-      - id
-      - maskedNumber
-      properties:
-        id:
-          allOf:
-          - $ref: '#/components/schemas/TransactionsCardDtoId'
-        maskedNumber:
-          allOf:
-          - $ref: '#/components/schemas/TransactionsCardDtoMaskedNumber'
-    Cnum:
-      type: string
-      description: Уникальный банковский идентификатор держателя
-      x-description-i18n:
-        eng: Unique bank identifier of the holder
-      example: CNUM
+      - AUTH
+      - CASH
+      example: CASH
     CardChangeStatusRequestDto:
       type: object
       required:
@@ -947,6 +1012,12 @@ components:
         reason:
           allOf:
           - $ref: '#/components/schemas/Reason'
+    AvailableLimit:
+      type: number
+      description: Доступный лимит
+      x-description-i18n:
+        eng: Available limit
+      example: 70.76
     PersonDto:
       type: object
       description: Информация по держателю карты
@@ -965,145 +1036,14 @@ components:
         cnum:
           allOf:
           - $ref: '#/components/schemas/Cnum'
-    Currency:
+    PaymentSystem:
       type: string
-      description: Валюта карты
-      example: RUB
-    TransactionsCardDtoId:
-      type: string
-      description: Уникальный банковский идентификатор карты
-      example: '1'
-    OperationDto:
-      type: object
-      properties:
-        id:
-          type: string
-          description: Порядковый номер
-          x-description-i18n:
-            eng: Ordinal number
-        accountMovementType:
-          allOf:
-          - $ref: '#/components/schemas/AccountMovementType'
-        extendedNarrative:
-          type: string
-          description: Общая информация о карте
-          x-description-i18n:
-            eng: Card details
-        authorization:
-          allOf:
-          - $ref: '#/components/schemas/AuthorizationDto'
-        status:
-          allOf:
-          - $ref: '#/components/schemas/StatusDto'
-        transaction:
-          allOf:
-          - $ref: '#/components/schemas/TransactionDto'
-        card:
-          allOf:
-          - $ref: '#/components/schemas/TransactionsCardDto'
-        merchant:
-          allOf:
-          - $ref: '#/components/schemas/MerchantDto'
-    CardLimit:
-      type: array
-      items:
-        required:
-        - type
-        - period
-        - value
-        type: object
-        properties:
-          type:
-            allOf:
-            - $ref: '#/components/schemas/LimitType'
-          period:
-            allOf:
-            - $ref: '#/components/schemas/Period'
-          value:
-            allOf:
-            - $ref: '#/components/schemas/LimitValue'
-          available:
-            allOf:
-            - $ref: '#/components/schemas/AvailableLimit'
-    CardActionType:
-      type: string
-      description: Тип операции
-      x-description-i18n:
-        eng: Operation type
+      description: Тип платежной системы
       enum:
-      - LIMIT
-      - STATUS_CHANGE
-      - PHONE_CHANGE
-      example: STATUS_CHANGE
-    CardStatusState:
-      type: object
-      properties:
-        newValue:
-          type: string
-        currentState:
-          type: string
-      required:
-      - newValue
-      - currentState
-    StatusDto:
-      type: object
-      description: Данные о совершенной операции
-      required:
-      - value
-      - dateTime
-      properties:
-        value:
-          allOf:
-          - $ref: '#/components/schemas/OperationStatus'
-        dateTime:
-          allOf:
-          - $ref: '#/components/schemas/DateTime'
-        captureDateTime:
-          allOf:
-          - $ref: '#/components/schemas/CaptureDateTime'
-    OldValue:
-      type: string
-      description: Старое значение
-      x-description-i18n:
-        eng: Old value
-      example: '100'
-      pattern: '[0-9]+'
-    Product:
-      type: string
-      description: Карточный продукт
-      x-description-i18n:
-        eng: Card product
-      enum:
-      - MIR_CORPORATE
-      - MIR_CORPORATE_VIRTUAL
-      - CASH_IN&OUT
-    ActivationStatus:
-      type: string
-      enum:
-      - ACTIVATED
-      - NOT_ACTIVATED
-      description: Статус активации карты
-      x-description-i18n:
-        eng: Card activation Status
-      example: ACTIVATED
-    IsVirtual:
-      type: boolean
-      description: Признак вирутальной карты
-      example: true
-    CardId:
-      type: string
-      description: Уникальный банковский идентификатор карты
-      x-description-i18n:
-        eng: Unique bank card identifier
-    Type:
-      type: string
-      description: Тип карты
-      x-description-i18n:
-        eng: Card type
-      enum:
-      - DEBIT
-      - CREDIT
-      example: DEBIT
+      - MIR
+      - VISA
+      - MASTERCARD
+      example: MASTERCARD
     AuthorizationDto:
       type: object
       description: Данные о предварительной авторизации операции
@@ -1117,57 +1057,112 @@ components:
         currency:
           allOf:
           - $ref: '#/components/schemas/Currency'
-    TransactionDto:
+    Created:
+      type: string
+      description: Дата и время обработки операции.
+      x-description-i18n:
+        eng: Transaction processing date and time
+      example: '2020-01-15T16:01:49.043924+03:00'
+    OldValue:
+      type: string
+      description: Старое значение
+      x-description-i18n:
+        eng: Old value
+      example: '100'
+      pattern: '[0-9]+'
+    Page:
+      type: integer
+      description: Номер страницы
+      x-description-i18n:
+        eng: Page number
+      example: 1
+    RequisitesDto:
       type: object
-      description: Данные о финальной транзакции (проведённой сумме)
-      required:
-      - amount
-      - currency
       properties:
-        amount:
+        pan:
           allOf:
-          - $ref: '#/components/schemas/Amount'
-        currency:
+          - $ref: '#/components/schemas/Pan'
+        expiryDate:
           allOf:
-          - $ref: '#/components/schemas/Currency'
-          description: Валюта
+          - $ref: '#/components/schemas/ExpiryDateWithMmYy'
+        cvv:
+          allOf:
+          - $ref: '#/components/schemas/CVV'
+    CardStatus:
+      type: string
+      description: Статус для установки
+      x-description-i18n:
+        eng: Status for installation
+      enum:
+      - CLOSED
+      - BLOCKED
+      - ACTIVE
+    MerchantDto:
+      type: object
+      description: Данные торговой точки
+      required:
+      - mcc
+      - label
+      - name
+      - city
+      - country
+      properties:
+        mcc:
+          allOf:
+          - $ref: '#/components/schemas/MCC'
+        label:
+          allOf:
+          - $ref: '#/components/schemas/Label'
+        name:
+          allOf:
+          - $ref: '#/components/schemas/MerchantName'
+        city:
+          allOf:
+          - $ref: '#/components/schemas/MerchantCity'
+        country:
+          allOf:
+          - $ref: '#/components/schemas/MerchantCountry'
+    CardActionStatusDto:
+      type: object
+      properties:
+        oldStatus:
+          type: string
+          description: Старое значение статуса
           x-description-i18n:
-            eng: Currency
-    CardActionDto:
+            eng: Old status
+        status:
+          type: string
+          description: Новое значение статуса
+          x-description-i18n:
+            eng: New status
+        reason:
+          allOf:
+          - $ref: '#/components/schemas/Reason'
+    CardProduct:
       type: object
       properties:
         id:
           type: string
-          description: Порядковый номер
-          x-description-i18n:
-            eng: Ordinal number
-        cardId:
-          allOf:
-          - $ref: '#/components/schemas/CardId'
-          example: '123'
-        createdDate:
-          allOf:
-          - $ref: '#/components/schemas/Created'
-        type:
-          allOf:
-          - $ref: '#/components/schemas/CardActionType'
-        author:
-          allOf:
-          - $ref: '#/components/schemas/Name'
-        action:
-          allOf:
-          - $ref: '#/components/schemas/CardActionLimitDto'
-    HasNext:
-      type: boolean
-      description: Наличие следующей страницы
-      x-description-i18n:
-        eng: Availability of next page
-    TransactionsCardDtoMaskedNumber:
+          example: '12345'
+        name:
+          type: string
+          example: MIR_CORPORATE
+        value:
+          type: string
+          example: Универсальная
+        imageUrl:
+          type: string
+          example: http://raif.ru/example/{id}
+      required:
+      - id
+      - name
+      - value
+    MaskedNumber:
       type: string
-      description: 'Маскированный номер карты. Формат: первые 6 и последние 4 цифры, середина скрыта символами "*".
-
-        '
-      example: 553496******0091
+      description: Маскированный номер карты
+      x-description-i18n:
+        eng: Masked card number
+      example: 1***56
     CardInfoDtoBff:
       type: object
       properties:
@@ -1259,245 +1254,154 @@ components:
       - product
       - cardOwner
       - paymentSystem
-    CardOwner:
+    EmployeeId:
+      type: string
+      description: Табельный номер сотрудника
+      example: 3012345633
+    LimitCounterType:
+      type: string
+      description: Тип счётчика лимита
+      x-description-i18n:
+        eng: Limit counter type
+        rus: Тип счётчика лимита
+      enum:
+      - QUANTITY
+      - AMOUNT
+    CardType:
+      type: string
+      description: Тип карты (именная/мгновенная)
+      x-description-i18n:
+        eng: Card type (named/instant)
+        rus: Тип карты (именная/мгновенная)
+      enum:
+      - NAMED
+      - INSTANT
+      example: NAMED
+    CardActionPhone3dsDto:
       type: object
       properties:
-        firstName:
+        oldValue:
           type: string
-          example: Тест
-        lastName:
+        value:
           type: string
-          example: Тестов
-        patronymic:
+        holderCnum:
           type: string
-          example: Тестович
-        cnum:
-          type: string
-          example: CNUM
       required:
-      - firstName
-      - lastName
-      - cnum
-    LimitNameType:
+      - oldValue
+      - value
+      - holderCnum
+    ActivationStatus:
       type: string
-      description: Название лимита
-      x-description-i18n:
-        eng: Limit name
-        rus: Название лимита
       enum:
-      - AUTH_CASH
-      - AUTH_DEBIT
-      - UNKNOWN
-    CardDto:
+      - ACTIVATED
+      - NOT_ACTIVATED
+      description: Статус активации карты
+      x-description-i18n:
+        eng: Card activation Status
+      example: ACTIVATED
+    OperationDto:
       type: object
-      required:
-      - id
-      - maskedNumber
-      - status
-      - createdDate
-      - isActivated
-      - expiryDate
-      - product
-      - account
-      - type
-      - currency
-      - embossedName
-      - person
-      - limits
       properties:
         id:
+          type: string
+          description: Порядковый номер
+          x-description-i18n:
+            eng: Ordinal number
+        accountMovementType:
           allOf:
-          - $ref: '#/components/schemas/CardId'
-        maskedNumber:
+          - $ref: '#/components/schemas/AccountMovementType'
+        extendedNarrative:
+          type: string
+          description: Общая информация о карте
+          x-description-i18n:
+            eng: Card details
+        authorization:
           allOf:
-          - $ref: '#/components/schemas/MaskedNumber'
+          - $ref: '#/components/schemas/AuthorizationDto'
         status:
           allOf:
-          - $ref: '#/components/schemas/Status'
-        cardStatusState:
+          - $ref: '#/components/schemas/StatusDto'
+        transaction:
           allOf:
-          - $ref: '#/components/schemas/CardStatusState'
-        createdDate:
+          - $ref: '#/components/schemas/TransactionDto'
+        card:
           allOf:
-          - $ref: '#/components/schemas/CreatedDate'
-        isActivated:
+          - $ref: '#/components/schemas/TransactionsCardDto'
+        merchant:
           allOf:
-          - $ref: '#/components/schemas/IsActivated'
-        expiryDate:
-          allOf:
-          - $ref: '#/components/schemas/ExpiryDate'
-        product:
-          allOf:
-          - $ref: '#/components/schemas/Product'
-        isVirtual:
-          allOf:
-          - $ref: '#/components/schemas/IsVirtual'
-        account:
-          allOf:
-          - $ref: '#/components/schemas/Account'
-        type:
-          allOf:
-          - $ref: '#/components/schemas/Type'
-        currency:
-          allOf:
-          - $ref: '#/components/schemas/Currency'
-        embossedName:
-          allOf:
-          - $ref: '#/components/schemas/EmbossedName'
-        person:
-          allOf:
-          - $ref: '#/components/schemas/PersonDto'
-        limits:
-          type: array
-          items:
-            $ref: '#/components/schemas/CardLimit'
-        processingType:
-          allOf: []
-    LimitType:
+          - $ref: '#/components/schemas/MerchantDto'
+    CaptureDateTime:
       type: string
-      description: Тип лимита (Общерасходный (AUTH) / Снятие наличных (CASH))
-      x-description-i18n:
-        eng: Limit type (General spending (AUTH) / Cash withdrawal (CASH))
-      enum:
-      - AUTH
-      - CASH
-      example: CASH
-    RequisitesDto:
-      type: object
-      properties:
-        pan:
-          allOf:
-          - $ref: '#/components/schemas/Pan'
-        expiryDate:
-          allOf:
-          - $ref: '#/components/schemas/ExpiryDateWithMmYy'
-        cvv:
-          allOf:
-          - $ref: '#/components/schemas/CVV'
-    Size:
-      type: integer
-      description: Количество отображаемых элементов
-      x-description-i18n:
-        eng: Count of pageable elements
-      example: 20
-    CardActionLimitDto:
-      type: object
-      properties:
-        limits:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                allOf:
-                - $ref: '#/components/schemas/LimitType'
-              period:
-                allOf:
-                - $ref: '#/components/schemas/Period'
-              oldValue:
-                allOf:
-                - $ref: '#/components/schemas/OldValue'
-              value:
-                allOf:
-                - $ref: '#/components/schemas/LimitValue'
-        status:
-          allOf:
-          - $ref: '#/components/schemas/CardActionStatusDto'
-        phone3ds:
-          allOf:
-          - $ref: '#/components/schemas/CardActionPhone3dsDto'
-    MerchantName:
-      type: string
-      description: Название торговой точки
-      example: YANDEX.TAXI
-    PaymentSystem:
-      type: string
-      description: Тип платежной системы
-      enum:
-      - MIR
-      - VISA
-      - MASTERCARD
-      example: MASTERCARD
-    Patronymic:
-      type: string
-      description: Отчество
-      x-description-i18n:
-        eng: Patronymic
-      example: Тестович
-    MerchantDto:
-      type: object
-      description: Данные торговой точки
-      required:
-      - mcc
-      - label
-      - name
-      - city
-      - country
-      properties:
-        mcc:
-          allOf:
-          - $ref: '#/components/schemas/MCC'
-        label:
-          allOf:
-          - $ref: '#/components/schemas/Label'
-        name:
-          allOf:
-          - $ref: '#/components/schemas/MerchantName'
-        city:
-          allOf:
-          - $ref: '#/components/schemas/MerchantCity'
-        country:
-          allOf:
-          - $ref: '#/components/schemas/MerchantCountry'
-    UpdatedDateTime:
-      type: string
-      description: Дата обновления
-      x-description-i18n:
-        eng: Update date
+      description: Дата и время фиксации транзакции
       format: date-time
       example: '2025-08-29T07:29:26.795033'
-    ExpiryDate:
+    Meta:
+      type: object
+      properties:
+        page:
+          allOf:
+          - $ref: '#/components/schemas/Page'
+        size:
+          allOf:
+          - $ref: '#/components/schemas/Size'
+        hasNext:
+          allOf:
+          - $ref: '#/components/schemas/HasNext'
+        count:
+          allOf:
+          - $ref: '#/components/schemas/Count'
+    Type:
       type: string
-      description: Срок действия карты
+      description: Тип карты
       x-description-i18n:
-        eng: Card validity period
-      format: YYYY-MM-DD
-      example: '2024-02-01'
-    Account:
-      type: string
-      description: Номер счета
-      x-description-i18n:
-        eng: Account number
-      example: '40702810603000060801'
+        eng: Card type
+      enum:
+      - DEBIT
+      - CREDIT
+      example: DEBIT
     AvailableBalance:
       type: number
       description: Доступный баланс
       x-description-i18n:
         eng: Available balance
       example: 70.76
-    CaptureDateTime:
+    ExpiryDateWithMmYy:
       type: string
-      description: Дата и время фиксации транзакции
-      format: date-time
-      example: '2025-08-29T07:29:26.795033'
-    Count:
-      type: integer
-      description: Общее количество элементов
+      description: Срок действия карты
       x-description-i18n:
-        eng: Total count of elements
-      example: 34
-    LimitAdjustedBalance:
-      type: number
-      description: Баланс счёта с учётом доступного лимита
-      x-description-i18n:
-        eng: Balance including limit
-      example: 13.37
-    CVV:
+        eng: Card expiry date
+      example: 12/12
+    CardActionDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Порядковый номер
+          x-description-i18n:
+            eng: Ordinal number
+        cardId:
+          allOf:
+          - $ref: '#/components/schemas/CardId'
+          example: '123'
+        createdDate:
+          allOf:
+          - $ref: '#/components/schemas/Created'
+        type:
+          allOf:
+          - $ref: '#/components/schemas/CardActionType'
+        author:
+          allOf:
+          - $ref: '#/components/schemas/Name'
+        action:
+          allOf:
+          - $ref: '#/components/schemas/CardActionLimitDto'
+    CreatedDate:
       type: string
-      description: Код CVV
+      description: Дата выпуска
       x-description-i18n:
-        eng: CVV code
-      example: '123'
+        eng: Issue date
+      format: YYYY-MM-DD
+      example: '2020-02-01'
     Period:
       type: string
       description: Периодичность
@@ -1507,9 +1411,18 @@ components:
       - MONTHLY
       - DAILY
       example: DAILY
-    TransactionsCardDto_2:
+    Product:
+      type: string
+      description: Карточный продукт
+      x-description-i18n:
+        eng: Card product
+      enum:
+      - MIR_CORPORATE
+      - MIR_CORPORATE_VIRTUAL
+      - CASH_IN&OUT
+    TransactionsCardDto:
       type: object
-      description: Данные карты, по который была совершена транзакция
+      description: Данные карты
       required:
       - id
       - maskedNumber
@@ -1520,85 +1433,208 @@ components:
         maskedNumber:
           allOf:
           - $ref: '#/components/schemas/TransactionsCardDtoMaskedNumber'
-    TransactionDto_2:
-      type: object
-      description: Данные о финальной транзакции (проведённой сумме)
-      required:
-      - amount
-      - currency
-      properties:
-        amount:
-          allOf:
-          - $ref: '#/components/schemas/Amount'
-        currency:
-          allOf:
-          - $ref: '#/components/schemas/Currency'
-          description: Валюта
-  parameters:
-    Offset:
-      name: offset
-      in: query
-      example: 60
-      description: Количество записей для смещения
-      required: false
-      schema:
-        type: integer
-        default: 0
-    FromDate:
-      name: fromDate
-      in: query
-      example: '2025-11-18'
-      description: 'Начальное время (YYYY-MM-DD). По умолчанию текущая дата - 7 дней
-
-        '
-      schema:
-        type: string
-        format: date
-    ExpiryEndDate:
-      in: query
-      name: expiryEndDate
-      description: Конец срока действия карты
+    IsActivated:
+      type: boolean
+      description: Признак активации карты
       x-description-i18n:
-        eng: Ending of the card validity period
-      allowEmptyValue: true
-      schema:
-        type: string
-        format: YYYY-MM-DD
-    ToDate:
-      name: toDate
-      in: query
-      description: 'Конечное время (YYYY-MM-DD) По умолчанию текущая дата
-
-        '
-      example: '2025-11-25'
-      schema:
-        type: string
-        format: date
-    MerchantName:
-      name: merchantName
-      in: query
-      description: Имя мерчанта
-      schema:
-        type: string
-    AmountMin:
-      name: amountMin
-      in: query
-      description: Сумма минимальная в рублях
-      example: 0
-      schema:
-        type: integer
-    SortBy:
-      name: sortBy
-      in: query
-      description: Поля для сортировки. Передаётся повторяющимися параметрами query.
-      style: form
-      explode: true
-      schema:
-        type: array
-        items:
-          type: string
-      example:
-      - createTime
+        eng: Card activation sign
+      example: true
+    UpdatedDateTime:
+      type: string
+      description: Дата обновления
+      x-description-i18n:
+        eng: Update date
+      format: date-time
+      example: '2025-08-29T07:29:26.795033'
+  responses:
+    400_invalid_data:
+      description: Бизнес-ошибка
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Код ошибки
+                example: ERROR.INVALID_DATA
+              message:
+                type: string
+                description: Текст ошибки
+                example: Некорректные данные
+          examples:
+            Карта не найдена:
+              $ref: '#/components/examples/CardNotFoundExample'
+    '403':
+      description: Среда клиента не соответствует стандартам PCI DSS
+      x-description-i18n:
+        eng: The client environment does not comply with PCI DSS standards."
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Объект ошибки
+            x-description-i18n:
+              eng: Error object
+            properties:
+              timestamp:
+                type: string
+                description: Дата и время операции
+                x-description-i18n:
+                  eng: Transaction date and time
+                example: '2021-01-01T12:00:27.87+00:20'
+                format: date-time
+              status:
+                type: integer
+                description: HTTP-код
+                x-description-i18n:
+                  eng: HTTP-code
+                example: 403
+              error:
+                type: string
+                description: Ошибка
+                x-description-i18n:
+                  eng: Error
+                example: Forbidden
+              message:
+                type: string
+                description: Описание ошибки
+                x-description-i18n:
+                  eng: Error description
+                example: some exception
+              path:
+                type: string
+                description: URL, по которому была вызвана ошибка.
+                x-description-i18n:
+                  eng: Transaction date and time
+                example: /api/cards/v1/corporate-cards/cards/1/requisites
+    401_without_traceId:
+      description: Неверный токен аутентификации
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Объект ошибки
+            properties:
+              timestamp:
+                type: string
+                description: Дата и время операции
+                example: '2021-01-01T12:00:27.87+00:20'
+                format: date-time
+              status:
+                type: integer
+                description: HTTP-код
+                example: 401
+              error:
+                type: string
+                description: Ошибка
+                example: Unauthorized
+              message:
+                type: string
+                description: Описание ошибки
+                example: some exception
+              path:
+                type: string
+                description: URL, по которому была вызвана ошибка.
+    400_business_exception:
+      description: Бизнес-ошибка
+      x-description-i18n:
+        eng: Business-error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Код ошибки
+                x-description-i18n:
+                  eng: Error code
+                example: ERROR.INVALID_DATA
+              message:
+                type: string
+                description: Текст ошибки
+                x-description-i18n:
+                  eng: Error text
+                example: Некорректные данные
+    '401':
+      description: Неверный токен аутентификации
+      x-description-i18n:
+        eng: Invalid authentication token
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Код ошибки
+                x-description-i18n:
+                  eng: Error code
+                example: Unauthorized
+              message:
+                type: string
+                description: Описание ошибки
+                x-description-i18n:
+                  eng: Error description
+                example: some exception
+              traceId:
+                type: string
+                description: Trace id запроса
+                x-description-i18n:
+                  eng: Trace id request
+            required:
+            - code
+            - message
+    '404':
+      description: Информация не найдена
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Код ошибки
+                example: Not Found
+              message:
+                type: string
+                description: Описание ошибки
+                example: Информация не найдена
+              traceId:
+                type: string
+                description: Trace id запроса
+            required:
+            - code
+            - message
+    500_without_traceId:
+      description: Внутренняя ошибка
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              timestamp:
+                type: string
+                description: Дата и время операции
+                example: '2021-01-01T12:00:27.87+00:20'
+                format: date-time
+              status:
+                type: integer
+                description: HTTP-код
+                example: 500
+              error:
+                type: string
+                description: Ошибка
+                example: Internal Server Error
+              message:
+                type: string
+                description: Описание ошибки
+                example: Internal Server Error
+              path:
+                type: string
+                description: URL, по которому была вызвана ошибка
+  parameters:
     Status:
       in: query
       name: status
@@ -1614,6 +1650,110 @@ components:
           - ACTIVE
           - CLOSED
           - BLOCKED
+    AccountInQuery:
+      in: query
+      name: account
+      description: Номер счета
+      x-description-i18n:
+        eng: Account number
+      allowEmptyValue: true
+      schema:
+        type: string
+    CardStatuses:
+      name: statuses
+      in: query
+      description: Статус карты
+      x-description-i18n:
+        eng: Card status
+      required: false
+      example: ACTIVE
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+          - CLOSED
+          - BLOCKED
+          - ACTIVE
+    ExpiryEndDate:
+      in: query
+      name: expiryEndDate
+      description: Конец срока действия карты
+      x-description-i18n:
+        eng: Ending of the card validity period
+      allowEmptyValue: true
+      schema:
+        type: string
+        format: YYYY-MM-DD
+    LimitSelectionType:
+      in: query
+      name: limitSelectionType
+      description: Тип выборки
+      x-description-i18n:
+        eng: Limit selection type
+      schema:
+        type: string
+        enum:
+        - WITH_LIMIT,
+        - WITH_BALANCE
+    FullNameParam:
+      name: fullName
+      in: query
+      example: Петров Пётр Петрович
+      description: ФИО держателя карты
+      required: false
+      schema:
+        type: string
+    MerchantName:
+      name: merchantName
+      in: query
+      description: Имя мерчанта
+      schema:
+        type: string
+    CardIdParam:
+      name: cardId
+      in: query
+      example: 123456
+      description: Идентификатор карты в банке
+      required: false
+      schema:
+        type: string
+    SortBy:
+      name: sortBy
+      in: query
+      description: Поля для сортировки. Передаётся повторяющимися параметрами query.
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+      example:
+      - createTime
+    Page:
+      in: query
+      name: page
+      description: Номер страницы
+      x-description-i18n:
+        eng: Page number
+      schema:
+        type: integer
+        format: int32
+        default: 1
+    CardId:
+      name: cardId
+      in: path
+      required: true
+      description: Уникальный банковский идентификатор карты
+      schema:
+        type: string
+    AmountMin:
+      name: amountMin
+      in: query
+      description: Сумма минимальная в рублях
+      example: 0
+      schema:
+        type: integer
     Size:
       in: query
       name: size
@@ -1633,16 +1773,23 @@ components:
       schema:
         type: string
         format: YYYY-MM-DD
-    Page:
+    ToDate:
+      name: toDate
       in: query
-      name: page
-      description: Номер страницы
-      x-description-i18n:
-        eng: Page number
+      description: 'Конечное время (YYYY-MM-DD) По умолчанию текущая дата
+
+        '
+      example: '2025-11-25'
+      schema:
+        type: string
+        format: date
+    AmountMax:
+      name: amountMax
+      in: query
+      description: Сумма максимальная в рублях
+      example: 0
       schema:
         type: integer
-        format: int32
-        default: 1
     Product-2:
       name: product
       in: query
@@ -1653,21 +1800,15 @@ components:
         type: array
         items:
           type: string
-    CardId:
-      name: cardId
-      in: path
-      required: true
-      description: Уникальный банковский идентификатор карты
-      schema:
-        type: string
-    FullNameParam:
-      name: fullName
+    Limit:
+      name: limit
       in: query
-      example: Петров Пётр Петрович
-      description: ФИО держателя карты
+      example: 30
+      description: Количество записей для запроса
       required: false
       schema:
-        type: string
+        type: integer
+        default: 30
     Sort:
       name: sort
       in: query
@@ -1681,6 +1822,16 @@ components:
         - DESC
         - ASC
         default: DESC
+    FromDate:
+      name: fromDate
+      in: query
+      example: '2025-11-18'
+      description: 'Начальное время (YYYY-MM-DD). По умолчанию текущая дата - 7 дней
+
+        '
+      schema:
+        type: string
+        format: date
     Product:
       in: query
       name: product
@@ -1693,85 +1844,80 @@ components:
         - MIR_CORPORATE
         - MIR_CORPORATE_VIRTUAL
         - CASH_IN&OUT
-    LimitSelectionType:
+    Offset:
+      name: offset
       in: query
-      name: limitSelectionType
-      description: Тип выборки
-      x-description-i18n:
-        eng: Limit selection type
-      schema:
-        type: string
-        enum:
-        - WITH_LIMIT,
-        - WITH_BALANCE
-    CardStatuses:
-      name: statuses
-      in: query
-      description: Статус карты
-      x-description-i18n:
-        eng: Card status
-      required: false
-      example: ACTIVE
-      schema:
-        type: array
-        items:
-          type: string
-          enum:
-          - CLOSED
-          - BLOCKED
-          - ACTIVE
-    CardIdParam:
-      name: cardId
-      in: query
-      example: 123456
-      description: Идентификатор карты в банке
-      required: false
-      schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      example: 30
-      description: Количество записей для запроса
+      example: 60
+      description: Количество записей для смещения
       required: false
       schema:
         type: integer
-        default: 30
-    AmountMax:
-      name: amountMax
-      in: query
-      description: Сумма максимальная в рублях
-      example: 0
-      schema:
-        type: integer
-    AccountInQuery:
-      in: query
-      name: account
-      description: Номер счета
-      x-description-i18n:
-        eng: Account number
-      allowEmptyValue: true
-      schema:
-        type: string
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
-    IdTokenHeader:
-      name: Id-Token
-      in: header
-      description: Идентификационный токен пользователя
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+        default: 0
   examples:
+    CardInfoExampleBff:
+      summary: Список информации о карте
+      value:
+        data:
+        - id: string
+          maskedNumber: 220000******1111
+          status:
+            value: ACTIVE
+            updatedDate: '2020-02-01T00:00:00'
+          activationStatus:
+            value: ACTIVATED
+            updatedDate: '2020-02-01T00:00:00'
+          createdDate: '2020-02-01T00:00:00'
+          mediaType: VIRTUAL
+          cardType: NAMED
+          pinSetDate: '2025-05-05T23:43:43'
+          expiryDate: '2030-12-31'
+          accountOwner:
+            account: '40702810603000060801'
+            cnum: CNUM123
+            balance: 500000
+          currency: RUB
+          usageProfileId: profile-001
+          embossedName: TEST TESTOV
+          employeeId: EMP123456
+          phone3DS: '79131442314'
+          type: DEBIT
+          product:
+            id: '123456'
+            name: MIR_CORPORATE
+            value: Универсальная
+            imageUrl: https://example.com/1.png
+          cardOwner:
+            firstName: Тест
+            lastName: Тестов
+            patronymic: Тестович
+            cnum: CNUM123
+          limits:
+          - name: AUTH_CASH
+            period: DAILY
+            counterType: AMOUNT
+            value: 100000
+            entityType: CARD
+            available: 50000
+          limitAdjustedBalance: 500000
+          paymentSystem: MIR
+        limit: 25
+        offset: 125
+        count: 200
+    CardLimitDaily:
+      value:
+        period: DAILY
+        type: CASH
+        value: '1000'
+    CardNotFoundExample:
+      summary: Карта не найдена
+      value:
+        code: ERROR.CARD_NOT_FOUND
+        message: Карта не найдена
+    CardLimitMonthly:
+      value:
+        period: MONTHLY
+        type: AUTH
+        value: '10000'
     OperationDtoV2Example:
       summary: Страница операций
       value:
@@ -1896,262 +2042,6 @@ components:
         limit: 25
         offset: 0
         count: 0
-    CardLimitMonthly:
-      value:
-        period: MONTHLY
-        type: AUTH
-        value: '10000'
-    CardNotFoundExample:
-      summary: Карта не найдена
-      value:
-        code: ERROR.CARD_NOT_FOUND
-        message: Карта не найдена
-    CardInfoExampleBff:
-      summary: Список информации о карте
-      value:
-        data:
-        - id: string
-          maskedNumber: 220000******1111
-          status:
-            value: ACTIVE
-            updatedDate: '2020-02-01T00:00:00'
-          activationStatus:
-            value: ACTIVATED
-            updatedDate: '2020-02-01T00:00:00'
-          createdDate: '2020-02-01T00:00:00'
-          mediaType: VIRTUAL
-          cardType: NAMED
-          pinSetDate: '2025-05-05T23:43:43'
-          expiryDate: '2030-12-31'
-          accountOwner:
-            account: '40702810603000060801'
-            cnum: CNUM123
-            balance: 500000
-          currency: RUB
-          usageProfileId: profile-001
-          embossedName: TEST TESTOV
-          employeeId: EMP123456
-          phone3DS: '79131442314'
-          type: DEBIT
-          product:
-            id: '123456'
-            name: MIR_CORPORATE
-            value: Универсальная
-            imageUrl: https://example.com/1.png
-          cardOwner:
-            firstName: Тест
-            lastName: Тестов
-            patronymic: Тестович
-            cnum: CNUM123
-          limits:
-          - name: AUTH_CASH
-            period: DAILY
-            counterType: AMOUNT
-            value: 100000
-            entityType: CARD
-            available: 50000
-          limitAdjustedBalance: 500000
-          paymentSystem: MIR
-        limit: 25
-        offset: 125
-        count: 200
-    CardLimitDaily:
-      value:
-        period: DAILY
-        type: CASH
-        value: '1000'
-  responses:
-    401_without_traceId:
-      description: Неверный токен аутентификации
-      content:
-        application/json:
-          schema:
-            type: object
-            description: Объект ошибки
-            properties:
-              timestamp:
-                type: string
-                description: Дата и время операции
-                example: '2021-01-01T12:00:27.87+00:20'
-                format: date-time
-              status:
-                type: integer
-                description: HTTP-код
-                example: 401
-              error:
-                type: string
-                description: Ошибка
-                example: Unauthorized
-              message:
-                type: string
-                description: Описание ошибки
-                example: some exception
-              path:
-                type: string
-                description: URL, по которому была вызвана ошибка.
-    500_without_traceId:
-      description: Внутренняя ошибка
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              timestamp:
-                type: string
-                description: Дата и время операции
-                example: '2021-01-01T12:00:27.87+00:20'
-                format: date-time
-              status:
-                type: integer
-                description: HTTP-код
-                example: 500
-              error:
-                type: string
-                description: Ошибка
-                example: Internal Server Error
-              message:
-                type: string
-                description: Описание ошибки
-                example: Internal Server Error
-              path:
-                type: string
-                description: URL, по которому была вызвана ошибка
-    400_business_exception:
-      description: Бизнес-ошибка
-      x-description-i18n:
-        eng: Business-error
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              code:
-                type: string
-                description: Код ошибки
-                x-description-i18n:
-                  eng: Error code
-                example: ERROR.INVALID_DATA
-              message:
-                type: string
-                description: Текст ошибки
-                x-description-i18n:
-                  eng: Error text
-                example: Некорректные данные
-    '401':
-      description: Неверный токен аутентификации
-      x-description-i18n:
-        eng: Invalid authentication token
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              code:
-                type: string
-                description: Код ошибки
-                x-description-i18n:
-                  eng: Error code
-                example: Unauthorized
-              message:
-                type: string
-                description: Описание ошибки
-                x-description-i18n:
-                  eng: Error description
-                example: some exception
-              traceId:
-                type: string
-                description: Trace id запроса
-                x-description-i18n:
-                  eng: Trace id request
-            required:
-            - code
-            - message
-    '404':
-      description: Информация не найдена
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              code:
-                type: string
-                description: Код ошибки
-                example: Not Found
-              message:
-                type: string
-                description: Описание ошибки
-                example: Информация не найдена
-              traceId:
-                type: string
-                description: Trace id запроса
-            required:
-            - code
-            - message
-    '403':
-      description: Среда клиента не соответствует стандартам PCI DSS
-      x-description-i18n:
-        eng: The client environment does not comply with PCI DSS standards."
-      content:
-        application/json:
-          schema:
-            type: object
-            description: Объект ошибки
-            x-description-i18n:
-              eng: Error object
-            properties:
-              timestamp:
-                type: string
-                description: Дата и время операции
-                x-description-i18n:
-                  eng: Transaction date and time
-                example: '2021-01-01T12:00:27.87+00:20'
-                format: date-time
-              status:
-                type: integer
-                description: HTTP-код
-                x-description-i18n:
-                  eng: HTTP-code
-                example: 403
-              error:
-                type: string
-                description: Ошибка
-                x-description-i18n:
-                  eng: Error
-                example: Forbidden
-              message:
-                type: string
-                description: Описание ошибки
-                x-description-i18n:
-                  eng: Error description
-                example: some exception
-              path:
-                type: string
-                description: URL, по которому была вызвана ошибка.
-                x-description-i18n:
-                  eng: Transaction date and time
-                example: /api/cards/v1/corporate-cards/cards/1/requisites
-    400_invalid_data:
-      description: Бизнес-ошибка
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              code:
-                type: string
-                description: Код ошибки
-                example: ERROR.INVALID_DATA
-              message:
-                type: string
-                description: Текст ошибки
-                example: Некорректные данные
-          examples:
-            Карта не найдена:
-              $ref: '#/components/examples/CardNotFoundExample'
-    InternalError:
-      description: Внутренняя ошибка
-    Unauthorized:
-      description: Аутентификация не пройдена
   securitySchemes:
     Authorization:
       type: http
@@ -2159,7 +2049,3 @@ components:
       bearerFormat: JWT
       description: Bearer secret key
       x-internal: false
-x-refined-from:
-- raiffeisen-ru-raif-pay-corporate-cards-openapi.json
-- raiffeisen-ru-corporate-cards-openapi.yml
-- raiffeisen-ru-raif-pay-corporate-cards-openapi.yml

@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Contracts API
+  title: Внешнеэкономические контракты Contracts API
+  description: Внешнеэкономические контракты регулируются инструкцией Банка России от 16.08.2017 N 181-И
   version: 1.0.0
-  description: 'Operations tagged Contracts across 2 of this provider''s published API definitions: raiffeisen-ru-foreign-trade-contracts-openapi.yml, raiffeisen-ru-foreign-trade-contracts-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/foreign-trade
 tags:
@@ -91,8 +91,6 @@ paths:
           $ref: '#/components/responses/InternalError'
       tags:
       - Contracts
-    servers:
-    - url: https://api.raiffeisen.ru/foreign-trade
   /v1/contracts/export:
     get:
       operationId: exportForeignTradeContracts
@@ -175,8 +173,6 @@ paths:
           $ref: '#/components/responses/InternalError'
       tags:
       - Contracts
-    servers:
-    - url: https://api.raiffeisen.ru/foreign-trade
 components:
   schemas:
     ForeignTradeContractStatus:
@@ -201,34 +197,6 @@ components:
           type: string
           description: "### Код страны контрагента\n\nФормат: [ISO 3166, UPPER ALPHA-2](https://en.wikipedia.org/wiki/ISO_3166-1)\n\nПредставление в справочнике контрактов и кредитных договоров RBO: *Страна контрагента*\n\nПредставление в ведомости банковского контроля:\n- Раздел I. Учетная информация\n  - Подраздел 2. Реквизиты нерезидента (нерезидентов)\n    - [Страна](https://www.consultant.ru/document/cons_doc_LAW_282089/f1da4fd5f48a0bf822637fbccb9fca007a83442b/)\n"
           example: CN
-    ForeignTradeContractType:
-      type: string
-      description: "Тип учетного контракта, который соответствует коду вида контракта, присвоенному банком УК при принятии его на учет:\n  * EXPORT - Экспортный. [Код вида контракта 1, 3](https://www.consultant.ru/document/cons_doc_LAW_282089/b635b2110e70ade16c201e301ef6a530e54ef0ae/)\n  * IMPORT - Импортный. [Код вида контракта 2, 4](https://www.consultant.ru/document/cons_doc_LAW_282089/b635b2110e70ade16c201e301ef6a530e54ef0ae/)\n  * MIXED - Смешанный. [Код вида контракта 9](https://www.consultant.ru/document/cons_doc_LAW_282089/b635b2110e70ade16c201e301ef6a530e54ef0ae/)\n  * CREDIT - Кредитный. [Код вида контракта 5, 6](https://www.consultant.ru/document/cons_doc_LAW_282089/9f68760b7e765c35ee0d80316de721713d8afb19/)\n"
-      enum:
-      - EXPORT
-      - IMPORT
-      - MIXED
-      - CREDIT
-    ErrorResponse:
-      type: object
-      description: Ответ с ошибками
-      required:
-      - code
-      - message
-      - traceId
-      properties:
-        code:
-          type: string
-          description: Код ошибки
-        message:
-          type: string
-          description: Описание ошибки
-        traceId:
-          type: string
-          description: Уникальный идентификатор запроса в системе трейсинга, который позволяет в деталях проследить за историей выполнения запроса. Используется при поиске ошибок в распределенных системах
-        errors:
-          type: object
-          description: Детализация ошибок
     ForeignTradeContract:
       required:
       - id
@@ -389,9 +357,98 @@ components:
 
             '
           example: Текст пользовательской заметки
+    ErrorResponse:
+      type: object
+      description: Ответ с ошибками
+      required:
+      - code
+      - message
+      - traceId
+      properties:
+        code:
+          type: string
+          description: Код ошибки
+        message:
+          type: string
+          description: Описание ошибки
+        traceId:
+          type: string
+          description: Уникальный идентификатор запроса в системе трейсинга, который позволяет в деталях проследить за историей выполнения запроса. Используется при поиске ошибок в распределенных системах
+        errors:
+          type: object
+          description: Детализация ошибок
+    ForeignTradeContractType:
+      type: string
+      description: "Тип учетного контракта, который соответствует коду вида контракта, присвоенному банком УК при принятии его на учет:\n  * EXPORT - Экспортный. [Код вида контракта 1, 3](https://www.consultant.ru/document/cons_doc_LAW_282089/b635b2110e70ade16c201e301ef6a530e54ef0ae/)\n  * IMPORT - Импортный. [Код вида контракта 2, 4](https://www.consultant.ru/document/cons_doc_LAW_282089/b635b2110e70ade16c201e301ef6a530e54ef0ae/)\n  * MIXED - Смешанный. [Код вида контракта 9](https://www.consultant.ru/document/cons_doc_LAW_282089/b635b2110e70ade16c201e301ef6a530e54ef0ae/)\n  * CREDIT - Кредитный. [Код вида контракта 5, 6](https://www.consultant.ru/document/cons_doc_LAW_282089/9f68760b7e765c35ee0d80316de721713d8afb19/)\n"
+      enum:
+      - EXPORT
+      - IMPORT
+      - MIXED
+      - CREDIT
+  parameters:
+    cnumParam:
+      name: cnum
+      description: Уникальных идентификатор клиента (CNUM), по которому нужно отфильтровать список
+      in: query
+      required: false
+      schema:
+        type: string
+    passportStatusParam:
+      name: passportStatus
+      description: Список статусов учетных контрактов, по которым нужно отфильтровать список
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/ForeignTradeContractStatus'
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    limitParam:
+      name: limit
+      description: Максимальное количество контрактов в ответе
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 100
+    passportTypeParam:
+      name: passportType
+      description: Список типов учетных контрактов, по которым нужно отфильтровать список
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/ForeignTradeContractType'
+    offsetParam:
+      name: offset
+      description: Позиция курсора, с которой нужно начать выборку
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
   responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
     BadRequest:
       description: Bad request
       content:
@@ -412,69 +469,5 @@ components:
                   passportType[0]: должно соответствовать "EXPORT|IMPORT|MIXED|CREDIT"
     InternalError:
       description: Внутренняя ошибка
-  parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
-    cnumParam:
-      name: cnum
-      description: Уникальных идентификатор клиента (CNUM), по которому нужно отфильтровать список
-      in: query
-      required: false
-      schema:
-        type: string
-    offsetParam:
-      name: offset
-      description: Позиция курсора, с которой нужно начать выборку
-      in: query
-      required: false
-      schema:
-        type: integer
-        minimum: 0
-        default: 0
-    passportStatusParam:
-      name: passportStatus
-      description: Список статусов учетных контрактов, по которым нужно отфильтровать список
-      in: query
-      required: false
-      schema:
-        type: array
-        items:
-          $ref: '#/components/schemas/ForeignTradeContractStatus'
-    passportTypeParam:
-      name: passportType
-      description: Список типов учетных контрактов, по которым нужно отфильтровать список
-      in: query
-      required: false
-      schema:
-        type: array
-        items:
-          $ref: '#/components/schemas/ForeignTradeContractType'
-    limitParam:
-      name: limit
-      description: Максимальное количество контрактов в ответе
-      in: query
-      required: false
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 1000
-        default: 100
-    IdTokenHeader:
-      name: Id-Token
-      in: header
-      description: Идентификационный токен пользователя
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-foreign-trade-contracts-openapi.yml
-- raiffeisen-ru-foreign-trade-contracts-openapi.yml
+    Unauthorized:
+      description: Аутентификация не пройдена

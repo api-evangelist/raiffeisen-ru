@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Конвертация MX и MT сообщений API
+  title: Loro Конвертация MX и MT сообщений API
+  description: API для лоро клиентов банка
   version: 1.0.0
-  description: 'Operations tagged Конвертация MX и MT сообщений across 2 of this provider''s published API definitions: raiffeisen-ru-loro-openapi.yml, raiffeisen-ru-loro-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/loro
 tags:
@@ -52,8 +52,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/loro
   /v1/payment/convert/mt:
     post:
       tags:
@@ -97,24 +95,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/loro
 components:
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -124,6 +106,20 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена
   schemas:
     ApiErrorDto:
       type: object
@@ -138,6 +134,3 @@ components:
           type: array
           items:
             type: string
-x-refined-from:
-- raiffeisen-ru-loro-openapi.yml
-- raiffeisen-ru-loro-openapi.yml

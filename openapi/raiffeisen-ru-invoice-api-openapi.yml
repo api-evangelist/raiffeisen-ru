@@ -1,17 +1,19 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Invoice API
-  version: '0.1'
+  title: интеграции Системы быстрых платежей (СБП) для B2B Invoice…
   contact:
     email: ecom@raiffeisen.ru
     name: Support e-mail
     x-team-id: 932
     x-short-team-name: FPS B2B
+  description: '# Подключение к СБП
+
+    Для приёма и / или отправки СБП-платежей оставьте заявку в РБО → Продукты → В2В-платежи по СБП.'
   x-logo:
     url: images/raifflogo.png
     backgroundColor: '#FFFFFF'
     altText: Raiff logo
-  description: 'Operations tagged invoice across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-sbp-b2b-openapi.json, raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml. Each path carries the servers of the definition it was published in.'
+  version: '0.1'
 servers:
 - url: https://pay-test.raif.ru
   description: Sandbox
@@ -53,11 +55,6 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/v2/merchants/{publicId}/b2b/orders/{id}:
     get:
       tags:
@@ -109,11 +106,6 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/v2/merchants/{publicId}/b2b/orders/{id}/pdf:
     get:
       tags:
@@ -143,11 +135,6 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
 webhooks:
   IncomingInvoicePayment:
     post:
@@ -163,44 +150,72 @@ webhooks:
           application/json:
             schema:
               $ref: '#/components/schemas/InvoicePaymentCallback'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
 components:
   schemas:
-    Sender:
+    Extra:
       type: object
-      description: Информация о плательщике
-      required:
-      - legalName
-      - inn
-      - account
-      - bank
-      properties:
-        legalName:
-          $ref: '#/components/schemas/LegalName'
-        inn:
-          $ref: '#/components/schemas/Inn'
-        account:
-          allOf:
-          - $ref: '#/components/schemas/Account'
-          description: Банковский счёт ЮЛ или ИП, с которого списаны средства
-        bank:
-          allOf:
-          - $ref: '#/components/schemas/BankInfo-2'
-          description: Информация о банке плательщика
-    Kpp:
+      description: Дополнительные поля
+      additionalProperties:
+        type: string
+      example:
+        additionalInfo: testing operation
+    RedirectUrl:
       type: string
-      description: КПП юридического лица
-      example: '123456789'
-      minLength: 9
-      maxLength: 9
-    ImageUrl:
+      maxLength: 1024
+      description: Ссылка для автоматического возврата плательщика из приложения банка в приложение или на сайт ТСП
+      example: https://exampletsp.io/qwertyui
+    SenderPaymentPurpose:
       type: string
-      description: URL с изображением зарегистрированного QR-кода в СБП
-      example: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
+      maxLength: 210
+      description: 'Назначение платежа, которое увидит плательщик при оплате. Поле обязательное.
+
+        <br>Может содержать:
+
+        <br>• Символы латиницы (A–Z и a–z)
+
+        <br>• Символы кириллицы (А-Я и а-я)
+
+        <br>• Цифры 0-9
+
+        <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
+
+        '
+      example: Какое-то назначение платежа
+    Account:
+      type: string
+      minLength: 20
+      maxLength: 20
+      description: Банковский счёт ЮЛ или ИП для зачисления средств
+      example: '40817810601002630020'
+    SbpTransactionId:
+      type: string
+      minLength: 32
+      maxLength: 32
+      description: Уникальный идентификатор операции на уровне всей системы СБП
+      example: PMSHT0BYVSYE7LDXMCXJSGIUHJLQWZXY
+    Count:
+      type: number
+      description: Количество товара
+      example: 10
+    Address:
+      type: string
+      description: Адрес плательщика
+      example: ул. Ленина, д. Калатушника, г. Москва
+    ExpirationDate-2:
+      type: string
+      format: yyyy-MM-ddTHH:mm:ss±HH:mm / +nM / +nm
+      description: 'Срок жизни выставленного счета
+
+        <br>Может содержать точную дату и время или количество минут. Передача срока в минутах удобна для торговых точек, которые не привязываются к точному времени или часовому поясу
+
+        <br>Параметр не может быть меньше текущей даты и времени. Если указывается в минутах, то не может быть меньше 1 минуты. Максимальное значение — 129600 минут (90 суток). Если параметр не передан, то по умолчанию будет действителен 4320 минут (3 суток)
+
+        <br>После истечения срока действия выставленного счета на оплату по нему провести нельзя
+
+        <br>При передачи количества минут указываете в таком виде (например, + 60 минут): "expirationDate": "+60m"
+
+        '
+      example: '2024-08-12T20:35:55+03:00'
     Qr:
       type: object
       description: Информация о платёжной ссылке по заказу
@@ -226,27 +241,269 @@ components:
         imageUrl:
           allOf:
           - $ref: '#/components/schemas/ImageUrl'
-    ExpirationDate-2:
+    ReceiverPaymentPurpose:
       type: string
-      format: yyyy-MM-ddTHH:mm:ss±HH:mm / +nM / +nm
-      description: 'Срок жизни выставленного счета
+      maxLength: 150
+      description: 'Назначение платежа, которое увидит получатель в выписке в поле «Основание операции» вместе с инн плательщика.
 
-        <br>Может содержать точную дату и время или количество минут. Передача срока в минутах удобна для торговых точек, которые не привязываются к точному времени или часовому поясу
+        <br>Например, "ИНН плательщика: 231150869432. Какое-то ваше назначение"
 
-        <br>Параметр не может быть меньше текущей даты и времени. Если указывается в минутах, то не может быть меньше 1 минуты. Максимальное значение — 129600 минут (90 суток). Если параметр не передан, то по умолчанию будет действителен 4320 минут (3 суток)
+        <br>Если поле не заполнено, то поле «Основание операции» заполнится по шаблону, в который будет передан идентификатор заказа, наименование плательщика и инн плательщика.
 
-        <br>После истечения срока действия выставленного счета на оплату по нему провести нельзя
+        <br>Например, «Перевод по идентификатору nM43NFfqiaAh04QdSmCoI5u4S2YrWU2ikHJ. Плательщик: ООО Ромашка, ИНН: 231150869432. Осуществлен через СБП B2В».
 
-        <br>При передачи количества минут указываете в таком виде (например, + 60 минут): "expirationDate": "+60m"
+        <br>Может содержать:
+
+        <br>• Символы латиницы (A–Z и a–z)
+
+        <br>• Символы кириллицы (А-Я и а-я)
+
+        <br>• Цифры 0-9
+
+        <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
 
         '
-      example: '2024-08-12T20:35:55+03:00'
+      example: Какое-то назначение платежа
+    PaymentStatus:
+      type: object
+      description: Статус входящего платежа
+      required:
+      - value
+      - date
+      properties:
+        value:
+          type: string
+          description: Статус платежа, возможен только "SUCCESS"
+          enum:
+          - SUCCESS
+          example: SUCCESS
+        date:
+          type: string
+          format: date-time
+          description: Время проведения платежа
+          example: '2024-06-12T19:36:55+03:00'
+    PaymentLinkId:
+      type: string
+      maxLength: 32
+      description: Уникальный идентификатор платёжной ссылки
+      example: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
     QrType:
       type: string
       enum:
       - DYNAMIC
       - STATIC
       description: Тип платёжной ссылки
+    InvoicePaymentCallback:
+      type: object
+      required:
+      - event
+      - data
+      properties:
+        event:
+          type: string
+          description: Тип операции
+          example: B2B_INVOICE_PAYMENT
+          enum:
+          - B2B_INVOICE_PAYMENT
+        data:
+          type: object
+          required:
+          - payments
+          allOf:
+          - $ref: '#/components/schemas/InvoiceResponse'
+    Inn:
+      type: string
+      minLength: 10
+      maxLength: 12
+      description: ИНН ЮЛ или ИП Плательщика
+      example: '123456789012'
+    ProductName:
+      type: string
+      description: Наименование единицы товара или услуги
+      example: Разработка API
+    VatRate:
+      type: string
+      enum:
+      - VAT_0
+      - VAT_5
+      - VAT_7
+      - VAT_10
+      - VAT_18
+      - VAT_20
+      - VAT_22
+      description: Ставка НДС. Используется для расчёта totalTaxAmount.
+      example: VAT_20
+    UnitName:
+      type: string
+      description: Краткое наименование из Общероссийского классификатора единиц измерения
+      example: шт
+    Unit:
+      type: string
+      description: Код из Общероссийского классификатора единиц измерения
+      example: 355
+    PaymentLinkName:
+      type: string
+      description: Наименование платёжной ссылки
+      example: QR на оплату 14.10.2024 в 15:12
+    BankBic:
+      type: string
+      description: БИК банка
+      example: '044525700'
+    Receiver:
+      type: object
+      description: Данные получателя средств
+      required:
+      - legalName
+      - inn
+      - kpp
+      - address
+      - bank
+      properties:
+        legalName:
+          $ref: '#/components/schemas/LegalName'
+        inn:
+          $ref: '#/components/schemas/Inn'
+        kpp:
+          $ref: '#/components/schemas/Kpp'
+        address:
+          $ref: '#/components/schemas/Address'
+        bank:
+          $ref: '#/components/schemas/BankInfo-2'
+    CreationDate:
+      type: string
+      format: date-time
+      description: Дата создания
+      example: '2024-06-12T19:35:55+03:00'
+    PaymentMethods:
+      type: array
+      description: Методы оплаты выставленного счета
+      items:
+        type: string
+        enum:
+        - SBP_B2B
+        - PAYMENT_ORDERS
+    Kpp:
+      type: string
+      description: КПП юридического лица
+      example: '123456789'
+      minLength: 9
+      maxLength: 9
+    Price:
+      type: number
+      description: Цена за единицу товара
+      example: 5000
+    ExpirationDate:
+      type: string
+      format: date-time
+      description: Срок жизни
+      example: '2024-08-12T20:35:55+03:00'
+    ItemsResponse:
+      type: array
+      description: Список товаров или услуг. Обязательно к заполнению, если не указан amount
+      items:
+        required:
+        - name
+        - count
+        - price
+        - unit
+        - unitName
+        type:
+        - object
+        - 'null'
+        title: Информация о товаре
+        properties:
+          name:
+            allOf:
+            - $ref: '#/components/schemas/ProductName'
+          count:
+            allOf:
+            - $ref: '#/components/schemas/Count'
+          price:
+            allOf:
+            - $ref: '#/components/schemas/Price'
+          unit:
+            allOf:
+            - $ref: '#/components/schemas/Unit'
+          unitName:
+            allOf:
+            - $ref: '#/components/schemas/UnitName'
+          vat:
+            allOf:
+            - $ref: '#/components/schemas/VatRate'
+    Items:
+      type: array
+      description: Список товаров или услуг. Обязательно к заполнению, если не указан amount
+      items:
+        required:
+        - name
+        - count
+        - price
+        - unit
+        type:
+        - object
+        - 'null'
+        title: Информация о товаре
+        properties:
+          name:
+            allOf:
+            - $ref: '#/components/schemas/ProductName'
+          count:
+            allOf:
+            - $ref: '#/components/schemas/Count'
+          price:
+            allOf:
+            - $ref: '#/components/schemas/Price'
+          unit:
+            allOf:
+            - $ref: '#/components/schemas/Unit'
+          vat:
+            allOf:
+            - $ref: '#/components/schemas/VatRate'
+    Payload:
+      type: string
+      maxLength: 999
+      description: Функциональная ссылка
+      example: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+    Sender:
+      type: object
+      description: Информация о плательщике
+      required:
+      - legalName
+      - inn
+      - account
+      - bank
+      properties:
+        legalName:
+          $ref: '#/components/schemas/LegalName'
+        inn:
+          $ref: '#/components/schemas/Inn'
+        account:
+          allOf:
+          - $ref: '#/components/schemas/Account'
+          description: Банковский счёт ЮЛ или ИП, с которого списаны средства
+        bank:
+          allOf:
+          - $ref: '#/components/schemas/BankInfo-2'
+          description: Информация о банке плательщика
+    ImageUrl:
+      type: string
+      description: URL с изображением зарегистрированного QR-кода в СБП
+      example: https://pay.raif.ru/api/b2b/sbp/v1/qrs/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5/image
+    LegalName:
+      type: string
+      maxLength: 512
+      description: Сокращённое наименование ЮЛ или ИП Плательщика
+      example: ООО Ромашка
+    Amount:
+      type: number
+      format: float
+      maximum: 1000000
+      description: Сумма операции в рублях
+      example: 8573.79
+    PaymentId:
+      type: string
+      description: Идентификатор платежа
+      example: '123456789012345678'
     InvoiceResponse:
       type: object
       title: Данные выставленного счета
@@ -317,164 +574,11 @@ components:
         payments:
           allOf:
           - $ref: '#/components/schemas/Payments'
-    ExpirationDate:
-      type: string
-      format: date-time
-      description: Срок жизни
-      example: '2024-08-12T20:35:55+03:00'
-    Receiver:
-      type: object
-      description: Данные получателя средств
-      required:
-      - legalName
-      - inn
-      - kpp
-      - address
-      - bank
-      properties:
-        legalName:
-          $ref: '#/components/schemas/LegalName'
-        inn:
-          $ref: '#/components/schemas/Inn'
-        kpp:
-          $ref: '#/components/schemas/Kpp'
-        address:
-          $ref: '#/components/schemas/Address'
-        bank:
-          $ref: '#/components/schemas/BankInfo-2'
-    PayerType:
-      type: string
-      enum:
-      - INDIVIDUAL
-      - LEGAL
-      - NONE
-      description: Тип плательщика
-      example: LEGAL
-    Unit:
-      type: string
-      description: Код из Общероссийского классификатора единиц измерения
-      example: 355
-    VatRate:
-      type: string
-      enum:
-      - VAT_0
-      - VAT_5
-      - VAT_7
-      - VAT_10
-      - VAT_18
-      - VAT_20
-      - VAT_22
-      description: Ставка НДС. Используется для расчёта totalTaxAmount.
-      example: VAT_20
-    BankName:
-      type: string
-      description: Наименование банка
-      example: Райффайзенбанк
-    PaymentLinkName:
-      type: string
-      description: Наименование платёжной ссылки
-      example: QR на оплату 14.10.2024 в 15:12
-    ItemsResponse:
-      type: array
-      description: Список товаров или услуг. Обязательно к заполнению, если не указан amount
-      items:
-        required:
-        - name
-        - count
-        - price
-        - unit
-        - unitName
-        type:
-        - object
-        - 'null'
-        title: Информация о товаре
-        properties:
-          name:
-            allOf:
-            - $ref: '#/components/schemas/ProductName'
-          count:
-            allOf:
-            - $ref: '#/components/schemas/Count'
-          price:
-            allOf:
-            - $ref: '#/components/schemas/Price'
-          unit:
-            allOf:
-            - $ref: '#/components/schemas/Unit'
-          unitName:
-            allOf:
-            - $ref: '#/components/schemas/UnitName'
-          vat:
-            allOf:
-            - $ref: '#/components/schemas/VatRate'
-    TotalTaxAmount:
-      type: number
-      format: float
-      maximum: 1000000
-      description: Сумма НДС в рублях
-      example: 2.41
-    ReceiverPaymentPurpose:
-      type: string
-      maxLength: 150
-      description: 'Назначение платежа, которое увидит получатель в выписке в поле «Основание операции» вместе с инн плательщика.
-
-        <br>Например, "ИНН плательщика: 231150869432. Какое-то ваше назначение"
-
-        <br>Если поле не заполнено, то поле «Основание операции» заполнится по шаблону, в который будет передан идентификатор заказа, наименование плательщика и инн плательщика.
-
-        <br>Например, «Перевод по идентификатору nM43NFfqiaAh04QdSmCoI5u4S2YrWU2ikHJ. Плательщик: ООО Ромашка, ИНН: 231150869432. Осуществлен через СБП B2В».
-
-        <br>Может содержать:
-
-        <br>• Символы латиницы (A–Z и a–z)
-
-        <br>• Символы кириллицы (А-Я и а-я)
-
-        <br>• Цифры 0-9
-
-        <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
-
-        '
-      example: Какое-то назначение платежа
     OrderId:
       type: string
       description: Идентификатор заказа, переданный клиентом или сгенерированный банком
       maxLength: 35
       example: '100001'
-    PaymentId:
-      type: string
-      description: Идентификатор платежа
-      example: '123456789012345678'
-    InvoicePaymentCallback:
-      type: object
-      required:
-      - event
-      - data
-      properties:
-        event:
-          type: string
-          description: Тип операции
-          example: B2B_INVOICE_PAYMENT
-          enum:
-          - B2B_INVOICE_PAYMENT
-        data:
-          type: object
-          required:
-          - payments
-          allOf:
-          - $ref: '#/components/schemas/InvoiceResponse'
-    LegalName:
-      type: string
-      maxLength: 512
-      description: Сокращённое наименование ЮЛ или ИП Плательщика
-      example: ООО Ромашка
-    Extra:
-      type: object
-      description: Дополнительные поля
-      additionalProperties:
-        type: string
-      example:
-        additionalInfo: testing operation
     Status-2:
       type: string
       description: 'Статус выставленного счета:
@@ -494,166 +598,6 @@ components:
       - PAID
       - CANCELLED
       example: ACTIVE
-    BankInfo-2:
-      type: object
-      description: Информация о банке
-      required:
-      - name
-      - bic
-      properties:
-        name:
-          $ref: '#/components/schemas/BankName'
-        bic:
-          $ref: '#/components/schemas/BankBic'
-    PaymentStatus:
-      type: object
-      description: Статус входящего платежа
-      required:
-      - value
-      - date
-      properties:
-        value:
-          type: string
-          description: Статус платежа, возможен только "SUCCESS"
-          enum:
-          - SUCCESS
-          example: SUCCESS
-        date:
-          type: string
-          format: date-time
-          description: Время проведения платежа
-          example: '2024-06-12T19:36:55+03:00'
-    Items:
-      type: array
-      description: Список товаров или услуг. Обязательно к заполнению, если не указан amount
-      items:
-        required:
-        - name
-        - count
-        - price
-        - unit
-        type:
-        - object
-        - 'null'
-        title: Информация о товаре
-        properties:
-          name:
-            allOf:
-            - $ref: '#/components/schemas/ProductName'
-          count:
-            allOf:
-            - $ref: '#/components/schemas/Count'
-          price:
-            allOf:
-            - $ref: '#/components/schemas/Price'
-          unit:
-            allOf:
-            - $ref: '#/components/schemas/Unit'
-          vat:
-            allOf:
-            - $ref: '#/components/schemas/VatRate'
-    ProductName:
-      type: string
-      description: Наименование единицы товара или услуги
-      example: Разработка API
-    Price:
-      type: number
-      description: Цена за единицу товара
-      example: 5000
-    Payments:
-      description: Список платежей
-      type:
-      - array
-      - 'null'
-      items:
-        description: Информация о платеже
-        type: object
-        required:
-        - id
-        - status
-        - amount
-        - totalTaxAmount
-        - sender
-        properties:
-          id:
-            allOf:
-            - $ref: '#/components/schemas/PaymentId'
-          sbpTransactionId:
-            allOf:
-            - $ref: '#/components/schemas/SbpTransactionId'
-          status:
-            allOf:
-            - $ref: '#/components/schemas/PaymentStatus'
-          amount:
-            allOf:
-            - $ref: '#/components/schemas/Amount'
-          totalTaxAmount:
-            allOf:
-            - $ref: '#/components/schemas/TotalTaxAmount'
-          sender:
-            allOf:
-            - $ref: '#/components/schemas/Sender'
-    Address:
-      type: string
-      description: Адрес плательщика
-      example: ул. Ленина, д. Калатушника, г. Москва
-    SenderPaymentPurpose:
-      type: string
-      maxLength: 210
-      description: 'Назначение платежа, которое увидит плательщик при оплате. Поле обязательное.
-
-        <br>Может содержать:
-
-        <br>• Символы латиницы (A–Z и a–z)
-
-        <br>• Символы кириллицы (А-Я и а-я)
-
-        <br>• Цифры 0-9
-
-        <br>• Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`,`№`
-
-        '
-      example: Какое-то назначение платежа
-    Payload:
-      type: string
-      maxLength: 999
-      description: Функциональная ссылка
-      example: https://b2b.cbrpay.ru/AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
-    DeliveryInfo:
-      type: object
-      title: Данные для доставки информации о выставленном счете плательщику
-      description: По данным полям мы автоматически отправим выставленный счет плательщику (Функционал на данный момент в разработке)
-      properties:
-        email:
-          allOf:
-          - $ref: '#/components/schemas/Email'
-    Email:
-      type: string
-      format: email
-      description: Email для доставки
-      example: test@test.ru
-    PaymentLinkId:
-      type: string
-      maxLength: 32
-      description: Уникальный идентификатор платёжной ссылки
-      example: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
-    RedirectUrl:
-      type: string
-      maxLength: 1024
-      description: Ссылка для автоматического возврата плательщика из приложения банка в приложение или на сайт ТСП
-      example: https://exampletsp.io/qwertyui
-    Account:
-      type: string
-      minLength: 20
-      maxLength: 20
-      description: Банковский счёт ЮЛ или ИП для зачисления средств
-      example: '40817810601002630020'
-    SbpTransactionId:
-      type: string
-      minLength: 32
-      maxLength: 32
-      description: Уникальный идентификатор операции на уровне всей системы СБП
-      example: PMSHT0BYVSYE7LDXMCXJSGIUHJLQWZXY
     Payer:
       type: object
       title: Данные плательщика
@@ -674,6 +618,17 @@ components:
         address:
           allOf:
           - $ref: '#/components/schemas/Address'
+    TotalTaxAmount:
+      type: number
+      format: float
+      maximum: 1000000
+      description: Сумма НДС в рублях
+      example: 2.41
+    Email:
+      type: string
+      format: email
+      description: Email для доставки
+      example: test@test.ru
     ErrorResponseDto:
       type: object
       properties:
@@ -683,20 +638,37 @@ components:
         message:
           type: string
           description: Описание ошибки
-    UnitName:
+    PayerType:
       type: string
-      description: Краткое наименование из Общероссийского классификатора единиц измерения
-      example: шт
-    BankBic:
+      enum:
+      - INDIVIDUAL
+      - LEGAL
+      - NONE
+      description: Тип плательщика
+      example: LEGAL
+    BankInfo-2:
+      type: object
+      description: Информация о банке
+      required:
+      - name
+      - bic
+      properties:
+        name:
+          $ref: '#/components/schemas/BankName'
+        bic:
+          $ref: '#/components/schemas/BankBic'
+    DeliveryInfo:
+      type: object
+      title: Данные для доставки информации о выставленном счете плательщику
+      description: По данным полям мы автоматически отправим выставленный счет плательщику (Функционал на данный момент в разработке)
+      properties:
+        email:
+          allOf:
+          - $ref: '#/components/schemas/Email'
+    BankName:
       type: string
-      description: БИК банка
-      example: '044525700'
-    Amount:
-      type: number
-      format: float
-      maximum: 1000000
-      description: Сумма операции в рублях
-      example: 8573.79
+      description: Наименование банка
+      example: Райффайзенбанк
     InvoiceRequest:
       required:
       - account
@@ -775,37 +747,40 @@ components:
         delivery:
           allOf:
           - $ref: '#/components/schemas/DeliveryInfo'
-    PaymentMethods:
-      type: array
-      description: Методы оплаты выставленного счета
+    Payments:
+      description: Список платежей
+      type:
+      - array
+      - 'null'
       items:
-        type: string
-        enum:
-        - SBP_B2B
-        - PAYMENT_ORDERS
-    Count:
-      type: number
-      description: Количество товара
-      example: 10
-    CreationDate:
-      type: string
-      format: date-time
-      description: Дата создания
-      example: '2024-06-12T19:35:55+03:00'
-    Inn:
-      type: string
-      minLength: 10
-      maxLength: 12
-      description: ИНН ЮЛ или ИП Плательщика
-      example: '123456789012'
+        description: Информация о платеже
+        type: object
+        required:
+        - id
+        - status
+        - amount
+        - totalTaxAmount
+        - sender
+        properties:
+          id:
+            allOf:
+            - $ref: '#/components/schemas/PaymentId'
+          sbpTransactionId:
+            allOf:
+            - $ref: '#/components/schemas/SbpTransactionId'
+          status:
+            allOf:
+            - $ref: '#/components/schemas/PaymentStatus'
+          amount:
+            allOf:
+            - $ref: '#/components/schemas/Amount'
+          totalTaxAmount:
+            allOf:
+            - $ref: '#/components/schemas/TotalTaxAmount'
+          sender:
+            allOf:
+            - $ref: '#/components/schemas/Sender'
   parameters:
-    OrderIdWithoutGenerating:
-      in: path
-      description: Идентификатор заказа
-      required: true
-      name: id
-      schema:
-        type: string
     PublicId-2:
       name: publicId
       in: path
@@ -814,29 +789,14 @@ components:
       description: Идентификатор мерчанта в системе Банка
       schema:
         type: string
+    OrderIdWithoutGenerating:
+      in: path
+      description: Идентификатор заказа
+      required: true
+      name: id
+      schema:
+        type: string
   responses:
-    Forbidden:
-      description: Forbidden
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
-          examples:
-            default:
-              value:
-                code: FORBIDDEN
-                message: Доступ запрещен
-    InternalServerError:
-      description: Internal Server Error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
-          examples:
-            default:
-              value:
-                code: SYSTEM_ERROR
-                message: Возникла системная ошибка
     BadRequest:
       description: Bad Request
       content:
@@ -848,6 +808,28 @@ components:
               value:
                 code: INVALID_DATA
                 message: Некорректные данные
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: SYSTEM_ERROR
+                message: Возникла системная ошибка
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: FORBIDDEN
+                message: Доступ запрещен
     NotFound:
       description: Not Found
       content:
@@ -871,6 +853,26 @@ components:
       scheme: bearer
       bearerFormat: JWT
       x-internal: false
-x-refined-from:
-- raiffeisen-ru-raif-pay-sbp-b2b-openapi.json
-- raiffeisen-ru-raif-pay-sbp-b2b-openapi.yml
+x-tagGroups:
+- name: Тестирование
+  tags:
+  - testing
+- name: API Стандартная схема
+  tags:
+  - order
+  - reusable-payment-link
+  - invoice
+  - report-standard
+- name: API Транзитная схема
+  tags:
+  - splits
+  - applications
+  - rp-accounting
+  - report-transit
+- name: Выписки
+  tags:
+  - incoming-statements
+  - outgoing-statements
+- name: Уведомления
+  tags:
+  - callback

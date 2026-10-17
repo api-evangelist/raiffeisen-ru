@@ -1,12 +1,20 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Subscriptions API
   version: '1.0'
+  title: платежной формы Subscriptions API
   contact:
     email: ecom@raiffeisen.ru
     name: Support e-mail
     x-team-id: 178
     x-short-team-name: PAPAS
+  x-logo:
+    url: images/raifflogo.png
+    backgroundColor: '#FFFFFF'
+    altText: Raiff logo
+  description: '# Подключение к эквайрингу
+
+
+    Для подключения заполните заявку в Онлайн-банке или мобильном приложении.'
   x-description-i18n:
     eng: '# Connection to acquiring
 
@@ -164,11 +172,6 @@ info:
 
 
       Questions regarding solution support can be sent to technical support: ecom@raiffeisen.ru'
-  x-logo:
-    url: images/raifflogo.png
-    backgroundColor: '#FFFFFF'
-    altText: Raiff logo
-  description: 'Operations tagged subscriptions across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-payment-form-openapi.json, raiffeisen-ru-raif-pay-payment-form-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://pay-test.raif.ru/api
   description: Sandbox
@@ -257,11 +260,6 @@ paths:
       - secretKey: []
       parameters: []
       x-internal: false
-    servers:
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
-    - url: https://pay.raif.ru/api
-      description: Production
   /payments/v1/merchants/{publicId}/payments/{id}:
     parameters:
     - $ref: '#/components/parameters/publicId'
@@ -320,11 +318,6 @@ paths:
 
           '
       x-internal: false
-    servers:
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
-    - url: https://pay.raif.ru/api
-      description: Production
   /v1/merchants/{publicId}/subscriptions/{id}:
     parameters:
     - $ref: '#/components/parameters/publicId'
@@ -435,11 +428,6 @@ paths:
       - Subscriptions
       security:
       - secretKey: []
-    servers:
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
-    - url: https://pay.raif.ru/api
-      description: Production
   /v2/merchants/{publicId}/subscriptions/{id}:
     parameters:
     - $ref: '#/components/parameters/publicId'
@@ -506,140 +494,224 @@ paths:
       - Subscriptions
       security:
       - secretKey: []
-    servers:
-    - url: https://pay-test.raif.ru/api
-      description: Sandbox
-    - url: https://pay.raif.ru/api
-      description: Production
 components:
   schemas:
-    ClearingStatus:
-      title: ClearingStatus
-      type: string
-      enum:
-      - PENDING
-      - COMPLETED
-      - FAILED
-    PaymentDeclineReason:
-      type: string
-      description: Код причины отклонения платежа. Описание значений приведено в разделе [Справочник ошибок](#tag/Errors).
-      x-description-i18n:
-        eng: Payment decline reason code. Values are described in [List of errors](#tag/Errors).
-      enum:
-      - PAYMENT_DECLINED
-      - INSUFFICIENT_FUNDS
-      - LIMIT_EXCEEDED
-      - PAYER_LIMIT_EXCEEDED
-      - CARD_UNAVAILABLE
-      - FRAUD_SUSPECTED
-      - TIMEOUT
-      - INVALID_DATA
-      - OPERATION_NOT_SUPPORTED
-      - ACCOUNT_NOT_FOUND
-      - AUTHENTICATION_FAILED
-      - PROCESSING_ERROR
-      - USER_CANCELLED
-      - SUBSCRIPTION_TERMINATED
-    SubscriptionAutoCharge:
-      title: SubscriptionAutoCharge
+    Extra:
+      title: Extra
       type: object
-      description: Данные автоматического списания по подписке. Объект передается, если по подписке необходимо взимать деньги на регулярной основе.
+      description: Дополнительные поля в формате key-value. Отображаются в реестрах.
       x-description-i18n:
-        eng: Automatic subscription debit data. This item is passed if the subscription requires recurring payments.
-      properties:
-        frequency:
-          type: string
-          description: 'Периодичность списания по подписке<br>
+        eng: Additional fields in key-value format. Displayed in registries
+      additionalProperties:
+        type: string
+    CardBinding:
+      title: CardBinding
+      description: Запрос на привязку банковской карты.
+      x-description-i18n:
+        eng: 'Card binding request.
 
-            Если параметр передан, то банк будет автоматически проводить ежемесячное списание средств.'
-          x-description-i18n:
-            eng: 'Subscription debit frequency<br>
+          '
+      allOf:
+      - properties:
+          id:
+            type: string
+            description: 'Идентификатор платежа. Если не передан, будет сформирован на стороне Банка.
 
-              If this parameter is passed, the bank will automatically debit funds monthly.'
-          enum:
-          - MONTHLY
-        firstChargeDate:
-          type: string
-          format: date
-          description: 'Дата первого списания по подписке<br>
+              Рекомендуем использовать [UUID v4](https://ru.wikipedia.org/wiki/UUID)'
+            x-description-i18n:
+              eng: Payment identifier. If not transmitted, it will be generated on the Bank side. We recommend using UUID v4.
+            maxLength: 40
+            pattern: ^[A-Za-z0-9-_.]+$
+            example: payment-binding-123
+          flow:
+            $ref: '#/components/schemas/PaymentFlow'
+          subscription:
+            $ref: '#/components/schemas/Subscription'
+          parameters:
+            type: object
+            description: Данные карты плательщика
+            x-description-i18n:
+              eng: Payer card details
+            required:
+            - pan
+            - month
+            - year
+            - browserData
+            properties:
+              cvv:
+                type: string
+                description: CVV-код карты
+                x-description-i18n:
+                  eng: Three-digit security code
+                example: '880'
+              pan:
+                type: string
+                description: Номер карты
+                x-description-i18n:
+                  eng: Card number
+                example: '4000001000000018'
+              month:
+                type: integer
+                description: Месяц срока действия карты
+                x-description-i18n:
+                  eng: Card validity period, month, MM
+                example: 1
+              year:
+                type: integer
+                description: Год срока действия карты
+                x-description-i18n:
+                  eng: Card validity period, year, YYYY
+                example: 2030
+              cardHolder:
+                type: string
+                description: Фамилия и имя держателя карты
+                x-description-i18n:
+                  eng: Cardholder's first and last name
+                example: Ivan Ivanov
+              browserData:
+                type: object
+                description: Данные браузера плательщика
+                x-description-i18n:
+                  eng: Payer browser data
+                required:
+                - userAgent
+                - colorDepth
+                - javaEnabled
+                - javaScriptEnabled
+                - language
+                - screenHeight
+                - screenWidth
+                - timezone
+                - ipAddress
+                properties:
+                  userAgent:
+                    type: string
+                    description: Содержимое http заголовка User-Agent
+                    x-description-i18n:
+                      eng: Content of the HTTP User-Agent header
+                  colorDepth:
+                    type: string
+                    description: Глубина цвета палитры для отображения изображений в битах. Допустимые значения 1-99.
+                    x-description-i18n:
+                      eng: The color depth of the palette for displaying images in bits. Valid values are 1-99.
+                    example: '24'
+                    maxLength: 2
+                    minLength: 1
+                    pattern: ^[1-9][0-9]?$
+                  javaEnabled:
+                    type: boolean
+                    description: Параметр указывает, включена ли в браузере плательщика поддержка Java
+                    x-description-i18n:
+                      eng: The parameter specifies whether Java support is enabled in the payer browser.
+                  javaScriptEnabled:
+                    type: boolean
+                    description: Параметр указывает, включена ли в браузере плательщика поддержка JavaScript
+                    x-description-i18n:
+                      eng: The parameter specifies whether JavaScript support is enabled in the payer browser.
+                  language:
+                    type: string
+                    description: Язык браузера
+                    x-description-i18n:
+                      eng: Browser language
+                    example: ru
+                    enum:
+                    - ru
+                    - en
+                    - zh
+                  screenHeight:
+                    type: string
+                    description: Высота экрана браузера плательщика в пикселях
+                    x-description-i18n:
+                      eng: Payer browser screen height in pixels
+                    example: '1760'
+                  screenWidth:
+                    type: string
+                    description: Ширина экрана браузера плательщика в пикселях
+                    x-description-i18n:
+                      eng: Payer browser screen width in pixels
+                    example: '1800'
+                  timezone:
+                    type: string
+                    description: 'Смещение временной зоны браузера держателя карты по сравнению с зоной UTC в минутах.
 
-            Списание в указанную дату произойдет автоматически, далее – с заданной периодичностью начиная с этой даты. Переданное значение должно быть не меньше 7 дней от текущей даты. Например, при создании подписки 1 января firstChargeDate может быть 8 января или позже.<br>
+                      Со знаком "плюс", если локальное время отстает от UTC.
 
-            Если параметр не передан, то при `frequency` равен `MONTHLY` первое списание по подписке произойдет через месяц после привязки счета клиентом.'
-          x-description-i18n:
-            eng: 'Date of first subscription charge<br>
+                      Со знаком "минус", если локальное время опережает UTC.
 
-              The debit will be automatically debited on the specified date. Then, it will be debited at the specified frequency starting from that date. The value passed must be at least 7 days old. For example, if you create a subscription on January 1st, firstChargeDate could be January 8th or later.
+                      Например 300, если UTC-5'
+                    x-description-i18n:
+                      eng: 'The offset of the cardholder''s browser time zone from the UTC zone in minutes.
 
-              If the parameter is not passed, then if `frequency` is equal to `MONTHLY`, the first subscription charge will occur one month after the client links the account.'
-        amount:
-          type: number
-          description: Сумма платежа в рублях. Для копеек доступно два знака после точки.
-          x-description-i18n:
-            eng: Payment amount in rubles. For kopecks, two decimal places are allowed.
-          minimum: 1
-      required:
-      - frequency
-      - amount
-    GeneralWLPayment:
+                        With a plus sign if local time is behind UTC.
+
+                        With a minus sign if local time is ahead of UTC.
+
+                        For example 300 if UTC-5.
+
+                        '
+                    example: '300'
+                  ipAddress:
+                    type: string
+                    description: IP-адрес плательщика
+                    x-description-i18n:
+                      eng: Payer IP address
+                    example: 77.77.77.77
+                    format: ipv4
+        required:
+        - flow
+        - subscription
+        - parameters
       type: object
+    CreatedWLPayment3DS2:
+      title: Необходимо прохождение 3DS Method
+      allOf:
+      - $ref: '#/components/schemas/GeneralWLPayment'
+      - type: object
+        properties:
+          stage:
+            $ref: '#/components/schemas/PaymentStage'
+          flow:
+            $ref: '#/components/schemas/PaymentFlow'
+          subscription:
+            $ref: '#/components/schemas/Subscription'
+          parameters:
+            type: object
+            description: Данные, необходимые для проведения платежа
+            x-description-i18n:
+              eng: Data required to make a payment
+            properties:
+              threeDSVersion:
+                $ref: '#/components/schemas/ThreeDSVersion'
+              threeDS:
+                type: object
+                description: Данные для проведения 3DS
+                x-description-i18n:
+                  eng: Data for conducting 3DS
+                properties:
+                  acsUrl:
+                    type: string
+                    description: Адрес Банка-эмитента для сбора данных браузера плательщика. Используется при прохождении 3DS2 аутентификации.
+                    x-description-i18n:
+                      eng: The address of the Issuing Bank for collecting the payer browser data. Used when passing 3DS2 authentication.
+                  threeDSMethodData:
+                    type: string
+                    description: Данные необходимые для прохождения 3DS2 аутентификации
+                    x-description-i18n:
+                      eng: Data required to pass 3DS2 authentication
+        required:
+        - stage
+        - flow
       x-examples: {}
-      properties:
-        id:
-          type: string
-          description: Идентификатор платежа. Если не передан будет сформирован на стороне Банка. Рекомендуем использовать [UUID v4](https://ru.wikipedia.org/wiki/UUID)
-          x-description-i18n:
-            eng: Payment id
-          maxLength: 40
-          pattern: ^[A-Za-z0-9-_.]+$
-        amount:
-          type: number
-          description: Сумма платежа в рублях. Для копеек доступно два знака после точки.
-          x-description-i18n:
-            eng: Payment amount in rubles. For kopecks, two signs after the dot are available.
-          exclusiveMinimum: 0
-        order:
-          type: object
-          description: Заказ
-          x-description-i18n:
-            eng: Order
-          properties:
-            id:
-              type: string
-              description: Идентификатор заказа. Если не передан будет сформирован на стороне Банка. Рекомендуем использовать [UUID v4](https://ru.wikipedia.org/wiki/UUID)
-              x-description-i18n:
-                eng: Order id
-              maxLength: 40
-              pattern: ^[A-Za-z0-9-_.]+$
-            comment:
-              $ref: '#/components/schemas/OrderComment'
-        extra:
-          $ref: '#/components/schemas/Extra'
-        status:
-          type: object
-          description: Статус платежа
-          x-description-i18n:
-            eng: Payment status
-          required:
-          - value
-          - date
-          properties:
-            value:
-              $ref: '#/components/schemas/WLPaymentStatus'
-            date:
-              type: string
-              description: Дата и время создания платежа
-              x-description-i18n:
-                eng: Date and time of payment update
-              format: date-time
-            declineReason:
-              $ref: '#/components/schemas/PaymentDeclineReason'
-        splits:
-          $ref: '#/components/schemas/Split'
-      required:
-      - id
-      - amount
-      - status
+    PaymentStage:
+      title: PaymentStage
+      type: string
+      enum:
+      - CREATED_PAYMENT_3DS1
+      - CREATED_PAYMENT_3DS2
+      - CONTINUE_PAYMENT_3DS1
+      - CONTINUE_PAYMENT_3DS2
+      - FINAL_CARD_PAYMENT
+      - CREATED_SUBSCRIPTION_PAYMENT
     Subscription:
       title: Subscription
       type: object
@@ -707,388 +779,6 @@ components:
               '
       required:
       - purpose
-    CreatedPayment:
-      title: CreatedPayment
-      properties:
-        stage:
-          $ref: '#/components/schemas/PaymentStage'
-      oneOf:
-      - $ref: '#/components/schemas/PostCreatedSubscriptionPayment'
-      - $ref: '#/components/schemas/CreatedWLPayment3DS1'
-      - $ref: '#/components/schemas/CreatedWLPayment3DS2'
-      discriminator:
-        propertyName: stage
-        mapping:
-          CREATED_SUBSCRIPTION_PAYMENT: '#/components/schemas/PostCreatedSubscriptionPayment'
-          CREATED_PAYMENT_3DS1: '#/components/schemas/CreatedWLPayment3DS1'
-          CREATED_PAYMENT_3DS2: '#/components/schemas/CreatedWLPayment3DS2'
-      x-examples:
-        Example 1:
-          value:
-            id: payment-test
-            amount: 540
-            order:
-              id: order-test
-              comment: Оплата молока
-            extra:
-              email: pavel@mail.ru
-            flow: SUBSCRIPTION
-            status:
-              value: SUCCESS
-              date: '2025-11-29T19:43:54+03:00'
-            stage: CREATED_SUBSCRIPTION_PAYMENT
-            paymentDetails: Оплата молока на Фрунзе 1
-            subscriptionId: subscription-test
-            recurringType: UNSCHEDULED
-            parameters:
-              paymentMethod: ACQUIRING
-              eci: '02'
-              rrn: '935014591810'
-              authCode: 259AA
-    OrderComment:
-      title: OrderComment
-      type: string
-      description: 'Комментарий. Доступен в реестрах и Онлайн-Банке. Не может быть пустым или содержать только пробелы. Может содержать:<br>
-
-        • Символы латиницы (A–Z и a–z) <br>
-
-        • Символы кириллицы (А-Я и а-я) <br>
-
-        • Цифры 0-9 <br>
-
-        • Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`<br>
-
-        • Спецсимвол `№`'
-      x-description-i18n:
-        eng: 'Comment. Cannot be empty or contain only spaces. May contain:<br>
-
-          • Latin symbols (A–Z и a–z); <br>
-
-          • Cyrillic symbols (А-Я и а-я); <br>
-
-          • Digits 0-9;<br>
-
-          • Special symbols: spaces and `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`<br>
-
-          • Special symbol №
-
-          '
-      maxLength: 140
-      pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
-      example: Тестовый комментарий
-    FinalWLCardPayment:
-      title: Успешный / неуспешный платеж
-      allOf:
-      - $ref: '#/components/schemas/GeneralWLPayment'
-      - type: object
-        properties:
-          stage:
-            $ref: '#/components/schemas/PaymentStage'
-          flow:
-            $ref: '#/components/schemas/PaymentFlow'
-          clearing:
-            $ref: '#/components/schemas/Clearing'
-          parameters:
-            type: object
-            description: Данные платежа
-            x-description-i18n:
-              eng: Payment details
-            properties:
-              rrn:
-                type: string
-                description: Идентификатор транзакции в системе Банка
-                x-description-i18n:
-                  eng: Transaction ID in the Bank system
-              authCode:
-                type: string
-                description: Код авторизации, полученный от Банка-эмитента
-                x-description-i18n:
-                  eng: Authorization code received from the Issuing Bank
-              eci:
-                type: string
-                description: Уровень и тип риска операции в процессе обработки онлайн-платежа
-                x-description-i18n:
-                  eng: The level and type of risk of the transaction during the online payment processing process
-        required:
-        - stage
-        - flow
-    FiscalReceiptBasic:
-      title: Receipt
-      type: object
-      x-description-i18n:
-        eng: Receipt data
-      description: Данные чека. Объект должен быть передан, если подключена фискализация чеков. При отсутствии объекта receipt чек не будет создан. Если объект receipt был передан, но заполнен некорректно, сервис вернет ошибку.
-      properties:
-        customer:
-          type: object
-          description: Данные покупателя
-          x-description-i18n:
-            eng: Buyer details
-          properties:
-            email:
-              type: string
-              description: '`Тег ФФД — 1008` <br>
-
-                E-mail покупателя для отправки чека. Если объект customer не передан, то чек отправляется на электронную почту мерчанта'
-              x-description-i18n:
-                eng: '`Tag FFD - 1008` <br>
-
-                  Buyer''s email for sending a receipt. If the customer object is not passed, the receipt is sent to the merchant''s email
-
-                  '
-              example: customer@test.ru
-              maxLength: 64
-              format: email
-            name:
-              type: string
-              description: '`Тег ФФД — 1227` <br>
-
-                ФИО покупателя (ФФД 1.05)'
-              x-description-i18n:
-                eng: '`Tag FFD - 1227` <br>
-
-                  Full name of the buyer (FFD 1.05)
-
-                  '
-              example: Иванов Иван Иванович
-              maxLength: 256
-            inn:
-              type: string
-              description: '`Тег ФФД — 1228` <br>
-
-                ИНН покупателя. Может содержать только 10 или 12 цифр'
-              x-description-i18n:
-                eng: '`Tag FFD - 1228` <br>
-
-                  Buyer''s tax identification number of 10 or 12 digits'
-              pattern: ^(?:[0-9]{10}|[0-9]{12})$
-              example: '7707083893'
-            extra:
-              type: object
-              description: Дополнительная информация о покупателе (ФФД 1.2)<br>Объект свободного наполнения, передается в ОФД без изменений. Если Вам необходимо передать доп. данные покупателя в extra, то сверьтесь с протоколом Вашего ОФД
-              x-description-i18n:
-                eng: Additional information about the buyer (FFD 1.2)<br>An object of free filling, transferred to the OFD without changes. If you need to transfer additional buyer data to extra, then check with the protocol of your OFD
-              additionalProperties:
-                type: string
-          required:
-          - email
-        timezone:
-          type: string
-          description: '`Тег ФФД — 1011` <br/>
-
-            Часовая зона (+02:00, +03:00... +11:00). Только для ФФД 1.2'
-          x-description-i18n:
-            eng: '`Tag FFD - 1011` <br>
-
-              Time zone (+02:00, +03:00... +11:00). Only for FFD 1.2
-
-              '
-        onlinePayment:
-          type: boolean
-          description: '`Тег ФФД — 1125` <br/>
-
-            Признак расчета в Интернете'
-          x-description-i18n:
-            eng: '`Tag FFD - 1125` <br>
-
-              Internet settlement flag
-
-              '
-        items:
-          type: array
-          uniqueItems: true
-          minItems: 1
-          maxItems: 100
-          description: Позиции чека
-          x-description-i18n:
-            eng: Receipt items
-          items:
-            $ref: '#/components/schemas/receiptItem'
-        payments:
-          type: array
-          uniqueItems: true
-          minItems: 1
-          description: Данные об оплате<br>Объект заполняется только для чеков с зачетом аванса или частичной предоплаты. Если чек содержит только безналичный вид оплаты (без зачета аванса/частичной предоплаты), то объект payments не заполняется.<br>Если payments не передан, то по умолчанию заполняется безналичным видом оплаты и ее суммой, которая равна сумме чека
-          x-description-i18n:
-            eng: Payment types info. Object must be passed only for receipts that include prepaid amount (either advance or partial prepayment receipts)<br> If null, then value E_PAYMENT is set by default, with the total receipt amount
-          items:
-            $ref: '#/components/schemas/payments'
-        additionalUserProperty:
-          $ref: '#/components/schemas/additionalUserProperty'
-      required:
-      - items
-    CreatedSubscriptionPayment:
-      title: CreatedSubscriptionPayment
-      allOf:
-      - $ref: '#/components/schemas/GeneralPayment'
-      - type: object
-        properties:
-          status:
-            type: object
-            description: Статус платежа
-            x-description-i18n:
-              eng: Payment status
-            required:
-            - value
-            - date
-            properties:
-              value:
-                $ref: '#/components/schemas/SubscriptionPaymentStatus'
-              date:
-                type: string
-                description: Дата и время создания платежа
-                x-description-i18n:
-                  eng: Date and time of payment update
-                format: date-time
-              declineReason:
-                $ref: '#/components/schemas/PaymentDeclineReason'
-          stage:
-            $ref: '#/components/schemas/PaymentStage'
-          flow:
-            $ref: '#/components/schemas/PaymentFlow'
-          paymentDetails:
-            type: string
-            description: Назначение платежа. Используется для оплаты по подписке СБП.
-            x-description-i18n:
-              eng: Payment purpose. Used for payment under the SBP subscription.
-            maxLength: 140
-          subscriptionId:
-            type: string
-            description: Идентификатор подписки
-            x-description-i18n:
-              eng: Subscription ID
-            pattern: ^[A-Za-z0-9-_.]+$
-          recurringType:
-            $ref: '#/components/schemas/SubscriptionRecurringType'
-          parameters:
-            $ref: '#/components/schemas/SubsriptionPaymentParameters'
-          splits:
-            $ref: '#/components/schemas/Split'
-          clearing:
-            $ref: '#/components/schemas/Clearing'
-        required:
-        - status
-        - stage
-        - flow
-    Status:
-      title: Status
-      type: object
-      description: Статус
-      x-description-i18n:
-        eng: Status
-      properties:
-        value:
-          type: string
-          description: Статус подписки
-          x-description-i18n:
-            eng: Subscription status
-          enum:
-          - INACTIVE
-          - SUBSCRIBED
-          - UNSUBSCRIBED
-          - REVOKED_BY_ISSUER
-          - CANCELLED
-        date:
-          type: string
-          description: Дата формирования подписки
-          x-description-i18n:
-            eng: Subscription formation date
-          format: date-time
-    AutoCharge:
-      title: AutoCharge
-      type: object
-      description: Данные автоматического списания по подписке. Объект передается, если по подписке необходимо взимать деньги на регулярной основе.
-      x-description-i18n:
-        eng: Automatic subscription debit data. This item is passed if the subscription requires recurring payments.
-      properties:
-        frequency:
-          type: string
-          description: 'Периодичность списания по подписке<br>
-
-            Если параметр передан, то банк будет автоматически проводить ежемесячное списание средств.'
-          x-description-i18n:
-            eng: 'Subscription debit frequency<br>
-
-              If this parameter is passed, the bank will automatically debit funds monthly.'
-          enum:
-          - MONTHLY
-        firstChargeDate:
-          type: string
-          format: date
-          description: 'Дата первого списания по подписке<br>
-
-            Списание в указанную дату произойдет автоматически, далее – с заданной периодичностью начиная с этой даты. Переданное значение должно быть не меньше 7 дней от текущей даты. Например, при создании подписки 1 января firstChargeDate может быть 8 января или позже.<br>
-
-            Если параметр не передан, то при `frequency` равен `MONTHLY` первое списание по подписке произойдет через месяц после привязки счета клиентом.'
-          x-description-i18n:
-            eng: 'Date of first subscription charge<br>
-
-              The debit will be automatically debited on the specified date. Then, it will be debited at the specified frequency starting from that date. The value passed must be at least 7 days old. For example, if you create a subscription on January 1st, firstChargeDate could be January 8th or later.
-
-              If the parameter is not passed, then if `frequency` is equal to `MONTHLY`, the first subscription charge will occur one month after the client links the account.'
-        amount:
-          type: number
-          description: Сумма платежа в рублях. Для копеек доступно два знака после точки.
-          x-description-i18n:
-            eng: Payment amount in rubles. For kopecks, two decimal places are allowed.
-          exclusiveMinimum: 0
-    PaymentInfo:
-      title: PaymentInfo
-      properties:
-        stage:
-          $ref: '#/components/schemas/PaymentStage'
-      oneOf:
-      - $ref: '#/components/schemas/CreatedWLPayment3DS1'
-      - $ref: '#/components/schemas/CreatedWLPayment3DS2'
-      - $ref: '#/components/schemas/ContinueWLPayment3DS1'
-      - $ref: '#/components/schemas/ContinueWLPayment3DS2'
-      - $ref: '#/components/schemas/FinalWLCardPayment'
-      - $ref: '#/components/schemas/CreatedSubscriptionPayment'
-      discriminator:
-        propertyName: stage
-        mapping:
-          CREATED_SUBSCRIPTION_PAYMENT: '#/components/schemas/CreatedSubscriptionPayment'
-          CREATED_PAYMENT_3DS1: '#/components/schemas/CreatedWLPayment3DS1'
-          CREATED_PAYMENT_3DS2: '#/components/schemas/CreatedWLPayment3DS2'
-          CONTINUE_PAYMENT_3DS1: '#/components/schemas/ContinueWLPayment3DS1'
-          CONTINUE_PAYMENT_3DS2: '#/components/schemas/ContinueWLPayment3DS2'
-          FINAL_CARD_PAYMENT: '#/components/schemas/FinalWLCardPayment'
-    ContinueWLPayment:
-      title: ContinueWLPayment
-      allOf:
-      - $ref: '#/components/schemas/GeneralWLPayment'
-      - type: object
-        properties:
-          stage:
-            type: string
-    Order:
-      title: Order
-      type: object
-      description: Заказ
-      x-description-i18n:
-        eng: Order
-      properties:
-        id:
-          type: string
-          pattern: ^[A-Za-z0-9-_.]+$
-          description: Идентификатор заказа. Если не передан будет сформирован на стороне Банка. Рекомендуем использовать [UUID v4](https://ru.wikipedia.org/wiki/UUID)
-          x-description-i18n:
-            eng: Order ID. If not provided, it will be generated by the Bank. We recommend using [UUID v4](https://ru.wikipedia.org/wiki/UUID)
-          maxLength: 40
-        comment:
-          $ref: '#/components/schemas/OrderComment'
-    GeneralSubscription:
-      title: GeneralSubscription
-      oneOf:
-      - $ref: '#/components/schemas/SbpSubscription'
-      - $ref: '#/components/schemas/CardSubscription'
-      - $ref: '#/components/schemas/UndefinedSubscription'
-      discriminator:
-        propertyName: paymentMethod
-        mapping:
-          ACQUIRING: '#/components/schemas/CardSubscription'
-          SBP: '#/components/schemas/SbpSubscription'
-          UNDEFINED: '#/components/schemas/UndefinedSubscription'
     CardSubscription:
       title: CardSubscription
       allOf:
@@ -1127,210 +817,58 @@ components:
               eng: Card validity period
             example: 2025-10
             pattern: ^(20\d{2})-(0[1-9]|1[0-2])$
-    SubscriptionPayment:
-      title: SubscriptionPayment
-      allOf:
-      - $ref: '#/components/schemas/GeneralPayment'
-      - type: object
-        properties:
-          flow:
-            $ref: '#/components/schemas/PaymentFlow'
-          paymentDetails:
-            type: string
-            description: Назначение платежа. Используется для оплаты по подписке СБП.
-            x-description-i18n:
-              eng: Payment purpose. Used for payment under the SBP subscription.
-            maxLength: 140
-          subscriptionId:
-            type: string
-            description: Идентификатор подписки
-            x-description-i18n:
-              eng: Subscription ID
-            pattern: ^[A-Za-z0-9-_.]+$
-            maxLength: 40
-          recurringType:
-            $ref: '#/components/schemas/SubscriptionRecurringType'
-          receipt:
-            allOf:
-            - type: object
-              properties:
-                receiptNumber:
-                  type: string
-                  pattern: ^[A-Za-z0-9-_.]+$
-                  description: Идентификатор чека. Если не передан будет соответствовать идентификатору заказа. Рекомендуем использовать [UUID v4](https://ru.wikipedia.org/wiki/UUID)
-                  x-description-i18n:
-                    eng: Receipt ID. If not passed, it will match the order ID. We recommend using [UUID v4](https://ru.wikipedia.org/wiki/UUID)
-            - $ref: '#/components/schemas/FiscalReceiptBasic'
-          splits:
-            $ref: '#/components/schemas/Split'
-        required:
-        - flow
-        - subscriptionId
-        - recurringType
-    Extra:
-      title: Extra
+    SubscriptionAutoCharge:
+      title: SubscriptionAutoCharge
       type: object
-      description: Дополнительные поля в формате key-value. Отображаются в реестрах.
+      description: Данные автоматического списания по подписке. Объект передается, если по подписке необходимо взимать деньги на регулярной основе.
       x-description-i18n:
-        eng: Additional fields in key-value format. Displayed in registries
-      additionalProperties:
-        type: string
-    WLPaymentStatus:
-      title: WhitelabelPaymentStatus
-      type: string
-      description: "Статус платежа\n  - `NEW` - Платеж создан успешно, необходимо продолжение платежа\n  - `3DS_PENDING` - Требуется подтверждение аутентификации 3DS\n  - `SUCCESS` - Платеж проведен\n  - `DECLINED` - Платеж отклонен"
-      x-description-i18n:
-        eng: 'Payment status
+        eng: Automatic subscription debit data. This item is passed if the subscription requires recurring payments.
+      properties:
+        frequency:
+          type: string
+          description: 'Периодичность списания по подписке<br>
 
-          - `NEW` - Payment created successfully, payment continuation required
+            Если параметр передан, то банк будет автоматически проводить ежемесячное списание средств.'
+          x-description-i18n:
+            eng: 'Subscription debit frequency<br>
 
-          - `3DS_PENDING` - 3DS authentication confirmation required
+              If this parameter is passed, the bank will automatically debit funds monthly.'
+          enum:
+          - MONTHLY
+        firstChargeDate:
+          type: string
+          format: date
+          description: 'Дата первого списания по подписке<br>
 
-          - `SUCCESS` - Payment completed
+            Списание в указанную дату произойдет автоматически, далее – с заданной периодичностью начиная с этой даты. Переданное значение должно быть не меньше 7 дней от текущей даты. Например, при создании подписки 1 января firstChargeDate может быть 8 января или позже.<br>
 
-          - `DECLINED` - Payment declined
+            Если параметр не передан, то при `frequency` равен `MONTHLY` первое списание по подписке произойдет через месяц после привязки счета клиентом.'
+          x-description-i18n:
+            eng: 'Date of first subscription charge<br>
 
-          '
-      enum:
-      - NEW
-      - 3DS_PENDING
-      - SUCCESS
-      - DECLINED
-    PaymentStage:
-      title: PaymentStage
-      type: string
-      enum:
-      - CREATED_PAYMENT_3DS1
-      - CREATED_PAYMENT_3DS2
-      - CONTINUE_PAYMENT_3DS1
-      - CONTINUE_PAYMENT_3DS2
-      - FINAL_CARD_PAYMENT
-      - CREATED_SUBSCRIPTION_PAYMENT
-    SbpSubscription:
-      title: SbpSubscription
-      allOf:
-      - $ref: '#/components/schemas/schemas-Subscription'
-      - type: object
-        properties:
-          paymentMethod:
-            type: string
-            description: Способ оплаты
-            x-description-i18n:
-              eng: Payment method
-          groupId:
-            $ref: '#/components/schemas/SubscriptionGroup'
-          bank:
-            type: object
-            description: Банк
-            x-description-i18n:
-              eng: Bank
-            properties:
-              name:
-                type: string
-                description: Наименование банка в котором оформлена подписка. Будет заполнен в случае успешной подписки.
-                x-description-i18n:
-                  eng: The name of the bank where the subscription was made. This will be populated if the subscription is successful.
-              memberId:
-                type: string
-                description: Идентификатор банка в котором оформлена подписка. Будет заполнен в случае успешной подписки.
-                x-description-i18n:
-                  eng: The identifier of the bank where the subscription was issued.. This will be populated if the subscription is successful.
-          qr:
-            type: object
-            description: QR-код используемый для оформления подписки
-            x-description-i18n:
-              eng: QR code used to subscribe
-            properties:
-              id:
-                type: string
-                description: Идентификатор QR-кода
-                x-description-i18n:
-                  eng: QR ID
-              payload:
-                type: string
-                description: Данные для самостоятельной генерации изображения зарегистрированного QR-кода в СБП. При открытии с мобильного устройства, запускает банковское приложение клиента или список выбора банка
-                x-description-i18n:
-                  eng: Data for independently generating an image of a registered QR code in the SBP. When opened from a mobile device, it launches the client's banking app or a bank selection list.
-              url:
-                type: string
-                description: URL с изображением зарегистрированного QR-кода в СБП
-                x-description-i18n:
-                  eng: URL with an image of the QR code registered in the SBP
-    PaymentFlow:
-      title: PaymentFlow
-      type: string
-      description: 'Сценарий проведения платежа<br>
+              The debit will be automatically debited on the specified date. Then, it will be debited at the specified frequency starting from that date. The value passed must be at least 7 days old. For example, if you create a subscription on January 1st, firstChargeDate could be January 8th or later.
 
-        * `SUBSCRIPTION` - [Только для сценария оплата по подписке](./ecom.html#tag/subscriptions)<br>
-
-        * `CARD` - [Только для клиентов с PCI DSS](./wl-ecom.html#section/Shema-raboty/Provedenie-platezha-na-forme-klienta)<br>
-
-        * `CARD_BINDING` - [Привязка карты](./wl-ecom.html#section/Shema-raboty/Privyazka-karty)'
-      x-description-i18n:
-        eng: 'Payment scenario<br>
-
-          * `SUBSCRIPTION` - [Only for the subscription payment scenario](./ecom.html#tag/subscriptions)<br>
-
-          * `CARD` - [Only for clients with PCI DSS](./wl-ecom.html#section/Shema-raboty/Provedenie-platezha-na-forme-klienta)<br>
-
-          * `CARD_BINDING` - [Card binding](./wl-ecom.html#section/Shema-raboty/Privyazka-karty)'
-      enum:
-      - CARD
-      - SUBSCRIPTION
-      - CARD_BINDING
-    ContinueWLPayment3DS2:
-      title: Необходимо подтверждение 3DS v.2
-      allOf:
-      - $ref: '#/components/schemas/ContinueWLPayment'
-      - type: object
-        properties:
-          flow:
-            $ref: '#/components/schemas/PaymentFlow'
-          stage:
-            $ref: '#/components/schemas/PaymentStage'
-          parameters:
-            type: object
-            description: Данные, необходимые для проведения платежа
-            x-description-i18n:
-              eng: Data required to make a payment
-            properties:
-              threeDSVersion:
-                $ref: '#/components/schemas/ThreeDSVersion'
-              threeDS:
-                type: object
-                description: Данные для проведения 3DS
-                x-description-i18n:
-                  eng: Data for conducting 3DS
-                properties:
-                  acsUrl:
-                    type: string
-                    description: Адрес Банка-Эмитента для прохождения 3DS аутентификации
-                    x-description-i18n:
-                      eng: Issuing Bank address for 3DS authentication
-                  creq:
-                    type: string
-                    description: Параметр, необходимый для продолжения платежа по 3DS2
-                    x-description-i18n:
-                      eng: Parameter required to proceed with 3DS2 payment
-                  cresNotificationUrl:
-                    type: string
-                    description: URL-адрес на стороне мерчанта, на который ACS вернет ответ после прохождения 3DS. Также на данный адрес будет перенаправлен плательщик после успешного ввода OTP-кода.
-                    x-description-i18n:
-                      eng: The URL on the merchant side to which ACS will return a response after passing 3DS. The payer will also be redirected to this address after successfully entering the OTP code.
-        required:
-        - flow
-        - stage
-    UndefinedSubscription:
-      title: UndefinedSubscription
-      allOf:
-      - $ref: '#/components/schemas/schemas-Subscription'
-      - type: object
-        properties:
-          paymentMethod:
-            type: string
-            description: Способ оплаты
-            x-description-i18n:
-              eng: Payment method
+              If the parameter is not passed, then if `frequency` is equal to `MONTHLY`, the first subscription charge will occur one month after the client links the account.'
+        amount:
+          type: number
+          description: Сумма платежа в рублях. Для копеек доступно два знака после точки.
+          x-description-i18n:
+            eng: Payment amount in rubles. For kopecks, two decimal places are allowed.
+          minimum: 1
+      required:
+      - frequency
+      - amount
+    SbpPaymentParameters:
+      title: SbpPaymentParameters
+      type: object
+      properties:
+        paymentMethod:
+          $ref: '#/components/schemas/SubscriptionPaymentMethod'
+        sbpTransactionId:
+          type: string
+          description: Уникальный идентификатор операции на уровне всей системы СБП
+          x-description-i18n:
+            eng: Unique transaction ID at the entire SBP system level
     CardPaymentParameters:
       title: CardPaymentParameters
       type: object
@@ -1352,251 +890,6 @@ components:
           description: Код авторизации, полученный от Банка-эмитента
           x-description-i18n:
             eng: Authorization code received from the Issuing Bank
-    ThreeDSVersion:
-      title: threeDSVersion
-      type: string
-      enum:
-      - V1
-      - V2
-      description: Версия 3DS
-      x-description-i18n:
-        eng: 3DS version
-    CardPayment:
-      title: CardPayment
-      allOf:
-      - $ref: '#/components/schemas/GeneralPayment'
-      - type: object
-        properties:
-          flow:
-            $ref: '#/components/schemas/PaymentFlow'
-          subscription:
-            $ref: '#/components/schemas/Subscription'
-          splits:
-            $ref: '#/components/schemas/Split'
-          parameters:
-            type: object
-            description: Данные плательщика
-            x-description-i18n:
-              eng: Payer details
-            required:
-            - pan
-            - month
-            - year
-            - browserData
-            properties:
-              cvv:
-                type: string
-                description: Трехзначный защитный код
-                x-description-i18n:
-                  eng: Three-digit security code
-                example: '880'
-              pan:
-                type: string
-                description: Номер карты
-                x-description-i18n:
-                  eng: Card number
-                example: '4000001000000018'
-              month:
-                type: integer
-                description: Срок действия карты, месяц, MM
-                x-description-i18n:
-                  eng: Card validity period, month, MM
-                example: 1
-              year:
-                type: integer
-                description: Срок действия карты, год, YYYY
-                x-description-i18n:
-                  eng: Card validity period, year, YYYY
-                example: 2030
-              cardHolder:
-                type: string
-                description: Фамилия и имя держателя карты
-                x-description-i18n:
-                  eng: Cardholder's first and last name
-                example: Ivan Ivanov
-              browserData:
-                type: object
-                description: Данные браузера плательщика
-                x-description-i18n:
-                  eng: Payer browser data
-                required:
-                - userAgent
-                - colorDepth
-                - javaEnabled
-                - javaScriptEnabled
-                - language
-                - screenHeight
-                - screenWidth
-                - timezone
-                - ipAddress
-                properties:
-                  userAgent:
-                    type: string
-                    description: Содержимое http заголовкa User-Agent
-                    x-description-i18n:
-                      eng: Content of the HTTP User-Agent header
-                  colorDepth:
-                    type: string
-                    description: Глубина цвета палитры для отображения изображений в битах. Допустимые значения 1-99.
-                    x-description-i18n:
-                      eng: The color depth of the palette for displaying images in bits. Valid values ​are 1-99.
-                    example: '24'
-                    maxLength: 2
-                    minLength: 1
-                    pattern: ^[1-9][0-9]?$
-                  javaEnabled:
-                    type: boolean
-                    description: Параметр указывает, включена ли в браузере плательщика поддержка Java
-                    x-description-i18n:
-                      eng: The parameter specifies whether Java support is enabled in the payer browser.
-                  javaScriptEnabled:
-                    type: boolean
-                    description: Параметр указывает, включена ли в браузере плательщика поддержка JavaScript
-                    x-description-i18n:
-                      eng: The parameter specifies whether JavaScript support is enabled in the payer browser.
-                  language:
-                    type: string
-                    description: Язык браузера
-                    x-description-i18n:
-                      eng: Browser language
-                    enum:
-                    - ru
-                    - en
-                    - zh
-                    example: ru
-                  screenHeight:
-                    type: string
-                    description: Высота экрана браузера плательщика в пикселях
-                    x-description-i18n:
-                      eng: Payer browser screen height in pixels
-                    example: '1760'
-                  screenWidth:
-                    type: string
-                    description: Ширина экрана браузера плательщика в пикселях
-                    x-description-i18n:
-                      eng: Payer browser screen width in pixels
-                    example: '1800'
-                  timezone:
-                    type: string
-                    description: 'Смещение временной зоны
-
-                      браузера держателя карты по сравнению с
-
-                      зоной UTC в минутах. <br> • Со знаком "плюс", если локальное время отстает от UTC <br> • Со знаком "минус", если локальное время опережает UTC <br> Например 300, если UTC-5'
-                    x-description-i18n:
-                      eng: 'The offset of the cardholder''s
-
-                        browser time zone from the UTC zone in minutes. <br> • With a plus sign if local time is behind UTC <br> • With a minus sign if local time is ahead of UTC <br> For example 300 if UTC-5
-
-                        '
-                    example: '300'
-                  ipAddress:
-                    type: string
-                    description: IP-адрес плательщика
-                    x-description-i18n:
-                      eng: Payer IP address
-                    example: 77.77.77.77
-        required:
-        - flow
-        - parameters
-    SbpPaymentParameters:
-      title: SbpPaymentParameters
-      type: object
-      properties:
-        paymentMethod:
-          $ref: '#/components/schemas/SubscriptionPaymentMethod'
-        sbpTransactionId:
-          type: string
-          description: Уникальный идентификатор операции на уровне всей системы СБП
-          x-description-i18n:
-            eng: Unique transaction ID at the entire SBP system level
-    Split:
-      title: Split
-      type: array
-      description: 'Набор параметров для сплитования платежа.<br>
-
-        Сплитование позволяет ТСП передавать параметры распределения суммы платежа или возврата между контрагентами.<br>
-
-        Сумма всех объектов сплита должна быть равна сумме операции.<br>
-
-        При взаиморасчетах суммы платежей, указанные в сплите, увеличивают суммы к перечислению контрагентам, а суммы возвратов — уменьшают их.<br>
-
-        Сплитование доступно только при агрегированной схеме взаиморасчетов. Чтобы настроить агрегированную схему, обратитесь в техническую поддержку банка: ecom@raiffeisen.ru. Подробнее см. в разделе [Схема взаиморасчетов](#tag/SettlementSchemes).'
-      x-description-i18n:
-        eng: 'Set of parameters for payment splitting.<br>
-
-          Payment splitting allows the merchant to pass parameters for distributing a payment or refund amount among counterparties.<br>
-
-          The total amount of all split objects must be equal to the operation amount.<br>
-
-          In settlements, payment amounts specified in the split increase the amounts to be transferred to counterparties, while refund amounts decrease them.<br>
-
-          Payment splitting is available only with the aggregated settlement scheme. To set up the aggregated scheme, contact bank technical support: ecom@raiffeisen.ru. See [Settlement schemes](#tag/SettlementSchemes).'
-      items:
-        type: object
-        properties:
-          accountId:
-            type: string
-            description: "\t\nstring\nИдентификтор реквизитов, которые были получены от поддержки."
-            x-description-i18n:
-              eng: ID of the bank account details obtained from support
-          amount:
-            type: number
-            description: Сумма зачисления
-            x-description-i18n:
-              eng: Crediting amount
-            format: float
-            exclusiveMinimum: 0
-        required:
-        - accountId
-        - amount
-    payments:
-      type: object
-      title: платежи
-      x-title-i18n:
-        eng: payments
-      required:
-      - type
-      - amount
-      description: Данные об оплате и ее видах
-      x-description-i18n:
-        eng: Info on payment and its types
-      properties:
-        type:
-          type: string
-          description: Вид оплаты. Возможные значения:<br/>• E_PAYMENT – безналичная оплата<br/>• PREPAID – предварительная оплата (зачет аванса и/или предыдущих платежей)
-          x-description-i18n:
-            eng: Payment type. Valid values:<br/>• E_PAYMENT – electronic payment<br/>• PREPAID – prepaid amount (advance payment and/or previous payments)
-          example: PREPAID
-          enum:
-          - E_PAYMENT
-          - PREPAID
-        amount:
-          type: number
-          description: '`Тег ФФД — 1081. Сумма по чеку безналичными` <br/>
-
-            `Тег ФФД — 1251. Сумма по чеку предоплатой (зачетом аванса и(или) предыдущих платежей)` <br/>
-
-            Сумма оплаты<br/>Сумма всех переданных amount должна равняться итоговой сумме чека'
-          x-description-i18n:
-            eng: '`The tag FDF — 1081. Receipt amount non-cash payment` <br/>
-
-              `The tag FDF — 1251. Receipt amount prepayment (advance payment and(or) previous payment)` <br/>
-
-              Amount paid'
-          example: 1200
-    SubscriptionPaymentMethod:
-      description: '- `SBP` - Оплата привязанному счету СБП
-
-        - `ACQUIRING` - Оплата по привязанной карте'
-      x-description-i18n:
-        eng: '- `SBP` - Payment from a linked SBP account
-
-          - `ACQUIRING` - Payment from a linked card'
-      type: string
-      enum:
-      - ACQUIRING
-      - SBP
     receiptItem:
       type: object
       title: ФФД 1.05 | ФФД 1.2
@@ -2280,76 +1573,6 @@ components:
       - quantity
       - amount
       - vatType
-    SubscriptionRecurringType:
-      title: SubscriptionRecurringType
-      type: string
-      enum:
-      - SCHEDULED
-      - UNSCHEDULED
-      description: "Тип повторяющегося платежа<br>\n * `SCHEDULED` - плата за подписку на услугу / сервис, инициированная ТСП на регулярной основе<br>\n * `UNSCHEDULED` - покупка без графика"
-      x-description-i18n:
-        eng: 'Recurring payment type<br>
-
-          * `SCHEDULED` - a subscription fee for a service initiated by the merchant on a regular basis<br>
-
-          * `UNSCHEDULED` - a purchase without a schedule, initiated by the payer'
-    ChangeSubscription:
-      title: ChangeSubscription
-      type: object
-      properties:
-        purpose:
-          $ref: '#/components/schemas/SubscriptionPurpose'
-        autoCharge:
-          $ref: '#/components/schemas/AutoCharge'
-        customer:
-          $ref: '#/components/schemas/SubscriptionCustomer'
-    PostCreatedSubscriptionPayment:
-      title: PostCreatedSubscriptionPayment
-      allOf:
-      - $ref: '#/components/schemas/CreatedSubscriptionPayment'
-      - type: object
-        properties:
-          receipt:
-            allOf:
-            - type: object
-              properties:
-                receiptNumber:
-                  type: string
-                  description: Идентификатор чека
-                  x-description-i18n:
-                    eng: Receipt ID
-                  pattern: ^[A-Za-z0-9-_.]+$
-            - $ref: '#/components/schemas/FiscalReceiptBasic'
-    SubscriptionGroup:
-      title: SubscriptionGroup
-      type: string
-      description: Идентификатор группы подписок, объединенных общим методом оплаты рамках мерчанта. Используется для дедупликации однотипных подписок.
-      x-description-i18n:
-        eng: Subscription hash for client-side uniqueness verification
-    GeneralPayment:
-      title: GeneralPayment
-      type: object
-      properties:
-        id:
-          type: string
-          description: Идентификатор платежа. Если не передан будет сформирован на стороне Банка. Рекомендуем использовать [UUID v4](https://ru.wikipedia.org/wiki/UUID)
-          x-description-i18n:
-            eng: Payment identifier. If not transmitted, it will be generated on the Bank side. We recommend using UUID v4.
-          maxLength: 40
-          pattern: ^[A-Za-z0-9-_.]+$
-        amount:
-          type: number
-          description: 'Сумма платежа в рублях. Для копеек доступно два знака после точки. Для сценария `flow: CARD_BINDING` используется фиксированная сумма, которая автоматически возвращается на карту клиента после успешной оплаты.'
-          x-description-i18n:
-            eng: 'Payment amount in rubles. For kopecks, two signs after the dot are available. For the `flow: CARD_BINDING` scenario, a fixed amount is used, which is automatically refunded to the customer''s card after a successful payment.'
-          example: 540
-          exclusiveMinimum: 0
-        order:
-          $ref: '#/components/schemas/Order'
-        extra:
-          $ref: '#/components/schemas/Extra'
-      required:
-      - amount
     additionalUserProperty:
       type: object
       required:
@@ -2383,34 +1606,373 @@ components:
 
               Additional user property value'
           maxLength: 256
-    CardBinding:
-      title: CardBinding
-      description: Запрос на привязку банковской карты.
+    SubscriptionRecurringType:
+      title: SubscriptionRecurringType
+      type: string
+      enum:
+      - SCHEDULED
+      - UNSCHEDULED
+      description: "Тип повторяющегося платежа<br>\n * `SCHEDULED` - плата за подписку на услугу / сервис, инициированная ТСП на регулярной основе<br>\n * `UNSCHEDULED` - покупка без графика"
       x-description-i18n:
-        eng: 'Card binding request.
+        eng: 'Recurring payment type<br>
 
-          '
+          * `SCHEDULED` - a subscription fee for a service initiated by the merchant on a regular basis<br>
+
+          * `UNSCHEDULED` - a purchase without a schedule, initiated by the payer'
+    PaymentDeclineReason:
+      type: string
+      description: Код причины отклонения платежа. Описание значений приведено в разделе [Справочник ошибок](#tag/Errors).
+      x-description-i18n:
+        eng: Payment decline reason code. Values are described in [List of errors](#tag/Errors).
+      enum:
+      - PAYMENT_DECLINED
+      - INSUFFICIENT_FUNDS
+      - LIMIT_EXCEEDED
+      - PAYER_LIMIT_EXCEEDED
+      - CARD_UNAVAILABLE
+      - FRAUD_SUSPECTED
+      - TIMEOUT
+      - INVALID_DATA
+      - OPERATION_NOT_SUPPORTED
+      - ACCOUNT_NOT_FOUND
+      - AUTHENTICATION_FAILED
+      - PROCESSING_ERROR
+      - USER_CANCELLED
+      - SUBSCRIPTION_TERMINATED
+    Status:
+      title: Status
+      type: object
+      description: Статус
+      x-description-i18n:
+        eng: Status
+      properties:
+        value:
+          type: string
+          description: Статус подписки
+          x-description-i18n:
+            eng: Subscription status
+          enum:
+          - INACTIVE
+          - SUBSCRIBED
+          - UNSUBSCRIBED
+          - REVOKED_BY_ISSUER
+          - CANCELLED
+        date:
+          type: string
+          description: Дата формирования подписки
+          x-description-i18n:
+            eng: Subscription formation date
+          format: date-time
+    SbpSubscription:
+      title: SbpSubscription
       allOf:
-      - properties:
-          id:
+      - $ref: '#/components/schemas/schemas-Subscription'
+      - type: object
+        properties:
+          paymentMethod:
             type: string
-            description: 'Идентификатор платежа. Если не передан, будет сформирован на стороне Банка.
-
-              Рекомендуем использовать [UUID v4](https://ru.wikipedia.org/wiki/UUID)'
+            description: Способ оплаты
             x-description-i18n:
-              eng: Payment identifier. If not transmitted, it will be generated on the Bank side. We recommend using UUID v4.
-            maxLength: 40
-            pattern: ^[A-Za-z0-9-_.]+$
-            example: payment-binding-123
+              eng: Payment method
+          groupId:
+            $ref: '#/components/schemas/SubscriptionGroup'
+          bank:
+            type: object
+            description: Банк
+            x-description-i18n:
+              eng: Bank
+            properties:
+              name:
+                type: string
+                description: Наименование банка в котором оформлена подписка. Будет заполнен в случае успешной подписки.
+                x-description-i18n:
+                  eng: The name of the bank where the subscription was made. This will be populated if the subscription is successful.
+              memberId:
+                type: string
+                description: Идентификатор банка в котором оформлена подписка. Будет заполнен в случае успешной подписки.
+                x-description-i18n:
+                  eng: The identifier of the bank where the subscription was issued.. This will be populated if the subscription is successful.
+          qr:
+            type: object
+            description: QR-код используемый для оформления подписки
+            x-description-i18n:
+              eng: QR code used to subscribe
+            properties:
+              id:
+                type: string
+                description: Идентификатор QR-кода
+                x-description-i18n:
+                  eng: QR ID
+              payload:
+                type: string
+                description: Данные для самостоятельной генерации изображения зарегистрированного QR-кода в СБП. При открытии с мобильного устройства, запускает банковское приложение клиента или список выбора банка
+                x-description-i18n:
+                  eng: Data for independently generating an image of a registered QR code in the SBP. When opened from a mobile device, it launches the client's banking app or a bank selection list.
+              url:
+                type: string
+                description: URL с изображением зарегистрированного QR-кода в СБП
+                x-description-i18n:
+                  eng: URL with an image of the QR code registered in the SBP
+    FinalWLCardPayment:
+      title: Успешный / неуспешный платеж
+      allOf:
+      - $ref: '#/components/schemas/GeneralWLPayment'
+      - type: object
+        properties:
+          stage:
+            $ref: '#/components/schemas/PaymentStage'
+          flow:
+            $ref: '#/components/schemas/PaymentFlow'
+          clearing:
+            $ref: '#/components/schemas/Clearing'
+          parameters:
+            type: object
+            description: Данные платежа
+            x-description-i18n:
+              eng: Payment details
+            properties:
+              rrn:
+                type: string
+                description: Идентификатор транзакции в системе Банка
+                x-description-i18n:
+                  eng: Transaction ID in the Bank system
+              authCode:
+                type: string
+                description: Код авторизации, полученный от Банка-эмитента
+                x-description-i18n:
+                  eng: Authorization code received from the Issuing Bank
+              eci:
+                type: string
+                description: Уровень и тип риска операции в процессе обработки онлайн-платежа
+                x-description-i18n:
+                  eng: The level and type of risk of the transaction during the online payment processing process
+        required:
+        - stage
+        - flow
+    SubsriptionPaymentParameters:
+      title: SubsriptionParameters
+      properties:
+        paymentMethod:
+          $ref: '#/components/schemas/SubscriptionPaymentMethod'
+      oneOf:
+      - $ref: '#/components/schemas/CardPaymentParameters'
+      - $ref: '#/components/schemas/SbpPaymentParameters'
+      discriminator:
+        propertyName: paymentMethod
+        mapping:
+          ACQUIRING: '#/components/schemas/CardPaymentParameters'
+          SBP: '#/components/schemas/SbpPaymentParameters'
+    FiscalReceiptBasic:
+      title: Receipt
+      type: object
+      x-description-i18n:
+        eng: Receipt data
+      description: Данные чека. Объект должен быть передан, если подключена фискализация чеков. При отсутствии объекта receipt чек не будет создан. Если объект receipt был передан, но заполнен некорректно, сервис вернет ошибку.
+      properties:
+        customer:
+          type: object
+          description: Данные покупателя
+          x-description-i18n:
+            eng: Buyer details
+          properties:
+            email:
+              type: string
+              description: '`Тег ФФД — 1008` <br>
+
+                E-mail покупателя для отправки чека. Если объект customer не передан, то чек отправляется на электронную почту мерчанта'
+              x-description-i18n:
+                eng: '`Tag FFD - 1008` <br>
+
+                  Buyer''s email for sending a receipt. If the customer object is not passed, the receipt is sent to the merchant''s email
+
+                  '
+              example: customer@test.ru
+              maxLength: 64
+              format: email
+            name:
+              type: string
+              description: '`Тег ФФД — 1227` <br>
+
+                ФИО покупателя (ФФД 1.05)'
+              x-description-i18n:
+                eng: '`Tag FFD - 1227` <br>
+
+                  Full name of the buyer (FFD 1.05)
+
+                  '
+              example: Иванов Иван Иванович
+              maxLength: 256
+            inn:
+              type: string
+              description: '`Тег ФФД — 1228` <br>
+
+                ИНН покупателя. Может содержать только 10 или 12 цифр'
+              x-description-i18n:
+                eng: '`Tag FFD - 1228` <br>
+
+                  Buyer''s tax identification number of 10 or 12 digits'
+              pattern: ^(?:[0-9]{10}|[0-9]{12})$
+              example: '7707083893'
+            extra:
+              type: object
+              description: Дополнительная информация о покупателе (ФФД 1.2)<br>Объект свободного наполнения, передается в ОФД без изменений. Если Вам необходимо передать доп. данные покупателя в extra, то сверьтесь с протоколом Вашего ОФД
+              x-description-i18n:
+                eng: Additional information about the buyer (FFD 1.2)<br>An object of free filling, transferred to the OFD without changes. If you need to transfer additional buyer data to extra, then check with the protocol of your OFD
+              additionalProperties:
+                type: string
+          required:
+          - email
+        timezone:
+          type: string
+          description: '`Тег ФФД — 1011` <br/>
+
+            Часовая зона (+02:00, +03:00... +11:00). Только для ФФД 1.2'
+          x-description-i18n:
+            eng: '`Tag FFD - 1011` <br>
+
+              Time zone (+02:00, +03:00... +11:00). Only for FFD 1.2
+
+              '
+        onlinePayment:
+          type: boolean
+          description: '`Тег ФФД — 1125` <br/>
+
+            Признак расчета в Интернете'
+          x-description-i18n:
+            eng: '`Tag FFD - 1125` <br>
+
+              Internet settlement flag
+
+              '
+        items:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          maxItems: 100
+          description: Позиции чека
+          x-description-i18n:
+            eng: Receipt items
+          items:
+            $ref: '#/components/schemas/receiptItem'
+        payments:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          description: Данные об оплате<br>Объект заполняется только для чеков с зачетом аванса или частичной предоплаты. Если чек содержит только безналичный вид оплаты (без зачета аванса/частичной предоплаты), то объект payments не заполняется.<br>Если payments не передан, то по умолчанию заполняется безналичным видом оплаты и ее суммой, которая равна сумме чека
+          x-description-i18n:
+            eng: Payment types info. Object must be passed only for receipts that include prepaid amount (either advance or partial prepayment receipts)<br> If null, then value E_PAYMENT is set by default, with the total receipt amount
+          items:
+            $ref: '#/components/schemas/payments'
+        additionalUserProperty:
+          $ref: '#/components/schemas/additionalUserProperty'
+      required:
+      - items
+    ContinueWLPayment3DS2:
+      title: Необходимо подтверждение 3DS v.2
+      allOf:
+      - $ref: '#/components/schemas/ContinueWLPayment'
+      - type: object
+        properties:
+          flow:
+            $ref: '#/components/schemas/PaymentFlow'
+          stage:
+            $ref: '#/components/schemas/PaymentStage'
+          parameters:
+            type: object
+            description: Данные, необходимые для проведения платежа
+            x-description-i18n:
+              eng: Data required to make a payment
+            properties:
+              threeDSVersion:
+                $ref: '#/components/schemas/ThreeDSVersion'
+              threeDS:
+                type: object
+                description: Данные для проведения 3DS
+                x-description-i18n:
+                  eng: Data for conducting 3DS
+                properties:
+                  acsUrl:
+                    type: string
+                    description: Адрес Банка-Эмитента для прохождения 3DS аутентификации
+                    x-description-i18n:
+                      eng: Issuing Bank address for 3DS authentication
+                  creq:
+                    type: string
+                    description: Параметр, необходимый для продолжения платежа по 3DS2
+                    x-description-i18n:
+                      eng: Parameter required to proceed with 3DS2 payment
+                  cresNotificationUrl:
+                    type: string
+                    description: URL-адрес на стороне мерчанта, на который ACS вернет ответ после прохождения 3DS. Также на данный адрес будет перенаправлен плательщик после успешного ввода OTP-кода.
+                    x-description-i18n:
+                      eng: The URL on the merchant side to which ACS will return a response after passing 3DS. The payer will also be redirected to this address after successfully entering the OTP code.
+        required:
+        - flow
+        - stage
+    SubscriptionPurpose:
+      title: SubscriptionPurpose
+      type: string
+      pattern: ^[A-Za-zА-Яа-я0-9 ()!@\[\]#+=_\|.,-]+$
+      description: 'Описание подписки<br>
+
+        Может содержать:<br>
+
+        * Символы латиницы (A-Z и a-z)
+
+        * Символы кириллицы (А-Я и а-я)
+
+        * Цифры 0-9
+
+        * Спецсимволы: `(`, `)`, `!`, `@`, `[`, `]`, `#`, `+`, `=`, `-`, `|`, `.`, `,`'
+      x-description-i18n:
+        eng: 'Subscription description<br>
+
+          May contain:<br>
+
+          * Latin characters (A-Z и a-z)
+
+          * Cyrillic symbols (А-Я и а-я)
+
+          * Numbers 0-9
+
+          * Special characters: `(`, `)`, `!`, `@`, `[`, `]`, `#`, `+`, `=`, `-`, `|`, `.`, `,`'
+    Payment:
+      title: Payment
+      description: Полиморфный платеж
+      x-description-i18n:
+        eng: Polymorphic payment
+      properties:
+        flow:
+          $ref: '#/components/schemas/PaymentFlow'
+      oneOf:
+      - $ref: '#/components/schemas/SubscriptionPayment'
+      - $ref: '#/components/schemas/CardPayment'
+      - $ref: '#/components/schemas/CardBinding'
+      discriminator:
+        propertyName: flow
+        mapping:
+          SUBSCRIPTION: '#/components/schemas/SubscriptionPayment'
+          CARD: '#/components/schemas/CardPayment'
+          CARD_BINDING: '#/components/schemas/CardBinding'
+      type: object
+      x-examples: {}
+    CardPayment:
+      title: CardPayment
+      allOf:
+      - $ref: '#/components/schemas/GeneralPayment'
+      - type: object
+        properties:
           flow:
             $ref: '#/components/schemas/PaymentFlow'
           subscription:
             $ref: '#/components/schemas/Subscription'
+          splits:
+            $ref: '#/components/schemas/Split'
           parameters:
             type: object
-            description: Данные карты плательщика
+            description: Данные плательщика
             x-description-i18n:
-              eng: Payer card details
+              eng: Payer details
             required:
             - pan
             - month
@@ -2419,7 +1981,7 @@ components:
             properties:
               cvv:
                 type: string
-                description: CVV-код карты
+                description: Трехзначный защитный код
                 x-description-i18n:
                   eng: Three-digit security code
                 example: '880'
@@ -2431,13 +1993,13 @@ components:
                 example: '4000001000000018'
               month:
                 type: integer
-                description: Месяц срока действия карты
+                description: Срок действия карты, месяц, MM
                 x-description-i18n:
                   eng: Card validity period, month, MM
                 example: 1
               year:
                 type: integer
-                description: Год срока действия карты
+                description: Срок действия карты, год, YYYY
                 x-description-i18n:
                   eng: Card validity period, year, YYYY
                 example: 2030
@@ -2465,14 +2027,14 @@ components:
                 properties:
                   userAgent:
                     type: string
-                    description: Содержимое http заголовка User-Agent
+                    description: Содержимое http заголовкa User-Agent
                     x-description-i18n:
                       eng: Content of the HTTP User-Agent header
                   colorDepth:
                     type: string
                     description: Глубина цвета палитры для отображения изображений в битах. Допустимые значения 1-99.
                     x-description-i18n:
-                      eng: The color depth of the palette for displaying images in bits. Valid values are 1-99.
+                      eng: The color depth of the palette for displaying images in bits. Valid values ​are 1-99.
                     example: '24'
                     maxLength: 2
                     minLength: 1
@@ -2492,11 +2054,11 @@ components:
                     description: Язык браузера
                     x-description-i18n:
                       eng: Browser language
-                    example: ru
                     enum:
                     - ru
                     - en
                     - zh
+                    example: ru
                   screenHeight:
                     type: string
                     description: Высота экрана браузера плательщика в пикселях
@@ -2511,21 +2073,15 @@ components:
                     example: '1800'
                   timezone:
                     type: string
-                    description: 'Смещение временной зоны браузера держателя карты по сравнению с зоной UTC в минутах.
+                    description: 'Смещение временной зоны
 
-                      Со знаком "плюс", если локальное время отстает от UTC.
+                      браузера держателя карты по сравнению с
 
-                      Со знаком "минус", если локальное время опережает UTC.
-
-                      Например 300, если UTC-5'
+                      зоной UTC в минутах. <br> • Со знаком "плюс", если локальное время отстает от UTC <br> • Со знаком "минус", если локальное время опережает UTC <br> Например 300, если UTC-5'
                     x-description-i18n:
-                      eng: 'The offset of the cardholder''s browser time zone from the UTC zone in minutes.
+                      eng: 'The offset of the cardholder''s
 
-                        With a plus sign if local time is behind UTC.
-
-                        With a minus sign if local time is ahead of UTC.
-
-                        For example 300 if UTC-5.
+                        browser time zone from the UTC zone in minutes. <br> • With a plus sign if local time is behind UTC <br> • With a minus sign if local time is ahead of UTC <br> For example 300 if UTC-5
 
                         '
                     example: '300'
@@ -2535,123 +2091,9 @@ components:
                     x-description-i18n:
                       eng: Payer IP address
                     example: 77.77.77.77
-                    format: ipv4
         required:
         - flow
-        - subscription
         - parameters
-      type: object
-    CreatedWLPayment3DS1:
-      title: Платеж создан
-      allOf:
-      - $ref: '#/components/schemas/GeneralWLPayment'
-      - type: object
-        properties:
-          stage:
-            $ref: '#/components/schemas/PaymentStage'
-          flow:
-            $ref: '#/components/schemas/PaymentFlow'
-          subscription:
-            $ref: '#/components/schemas/Subscription'
-        required:
-        - stage
-        - flow
-    SubscriptionCustomer:
-      title: SubscriptionCustomer
-      type: object
-      description: Данные покупателя по подписке
-      x-description-i18n:
-        eng: Subscription customer data
-      properties:
-        email:
-          type: string
-          description: Email покупателя
-          x-description-i18n:
-            eng: Customer email
-          example: customer@test.ru
-          maxLength: 64
-          format: email
-      required:
-      - email
-    CreatedWLPayment3DS2:
-      title: Необходимо прохождение 3DS Method
-      allOf:
-      - $ref: '#/components/schemas/GeneralWLPayment'
-      - type: object
-        properties:
-          stage:
-            $ref: '#/components/schemas/PaymentStage'
-          flow:
-            $ref: '#/components/schemas/PaymentFlow'
-          subscription:
-            $ref: '#/components/schemas/Subscription'
-          parameters:
-            type: object
-            description: Данные, необходимые для проведения платежа
-            x-description-i18n:
-              eng: Data required to make a payment
-            properties:
-              threeDSVersion:
-                $ref: '#/components/schemas/ThreeDSVersion'
-              threeDS:
-                type: object
-                description: Данные для проведения 3DS
-                x-description-i18n:
-                  eng: Data for conducting 3DS
-                properties:
-                  acsUrl:
-                    type: string
-                    description: Адрес Банка-эмитента для сбора данных браузера плательщика. Используется при прохождении 3DS2 аутентификации.
-                    x-description-i18n:
-                      eng: The address of the Issuing Bank for collecting the payer browser data. Used when passing 3DS2 authentication.
-                  threeDSMethodData:
-                    type: string
-                    description: Данные необходимые для прохождения 3DS2 аутентификации
-                    x-description-i18n:
-                      eng: Data required to pass 3DS2 authentication
-        required:
-        - stage
-        - flow
-      x-examples: {}
-    GeneralError:
-      title: General Error
-      type: object
-      properties:
-        code:
-          type: string
-          description: Код ошибки запроса
-          x-description-i18n:
-            eng: Request error code
-        message:
-          type: string
-          description: Описание ошибки
-          x-description-i18n:
-            eng: Error description
-        traceId:
-          type: string
-          description: Идентификатор выполнения запроса при наличии ошибки
-          x-description-i18n:
-            eng: Request ID if there is an error
-    Payment:
-      title: Payment
-      description: Полиморфный платеж
-      x-description-i18n:
-        eng: Polymorphic payment
-      properties:
-        flow:
-          $ref: '#/components/schemas/PaymentFlow'
-      oneOf:
-      - $ref: '#/components/schemas/SubscriptionPayment'
-      - $ref: '#/components/schemas/CardPayment'
-      - $ref: '#/components/schemas/CardBinding'
-      discriminator:
-        propertyName: flow
-        mapping:
-          SUBSCRIPTION: '#/components/schemas/SubscriptionPayment'
-          CARD: '#/components/schemas/CardPayment'
-          CARD_BINDING: '#/components/schemas/CardBinding'
-      type: object
-      x-examples: {}
     schemas-Subscription:
       title: Subscription
       type: object
@@ -2676,6 +2118,496 @@ components:
           description: Ссылка на платёжную форму для оформления подписки
           x-description-i18n:
             eng: URL to the payment form for subscription registration
+    UndefinedSubscription:
+      title: UndefinedSubscription
+      allOf:
+      - $ref: '#/components/schemas/schemas-Subscription'
+      - type: object
+        properties:
+          paymentMethod:
+            type: string
+            description: Способ оплаты
+            x-description-i18n:
+              eng: Payment method
+    GeneralWLPayment:
+      type: object
+      x-examples: {}
+      properties:
+        id:
+          type: string
+          description: Идентификатор платежа. Если не передан будет сформирован на стороне Банка. Рекомендуем использовать [UUID v4](https://ru.wikipedia.org/wiki/UUID)
+          x-description-i18n:
+            eng: Payment id
+          maxLength: 40
+          pattern: ^[A-Za-z0-9-_.]+$
+        amount:
+          type: number
+          description: Сумма платежа в рублях. Для копеек доступно два знака после точки.
+          x-description-i18n:
+            eng: Payment amount in rubles. For kopecks, two signs after the dot are available.
+          exclusiveMinimum: 0
+        order:
+          type: object
+          description: Заказ
+          x-description-i18n:
+            eng: Order
+          properties:
+            id:
+              type: string
+              description: Идентификатор заказа. Если не передан будет сформирован на стороне Банка. Рекомендуем использовать [UUID v4](https://ru.wikipedia.org/wiki/UUID)
+              x-description-i18n:
+                eng: Order id
+              maxLength: 40
+              pattern: ^[A-Za-z0-9-_.]+$
+            comment:
+              $ref: '#/components/schemas/OrderComment'
+        extra:
+          $ref: '#/components/schemas/Extra'
+        status:
+          type: object
+          description: Статус платежа
+          x-description-i18n:
+            eng: Payment status
+          required:
+          - value
+          - date
+          properties:
+            value:
+              $ref: '#/components/schemas/WLPaymentStatus'
+            date:
+              type: string
+              description: Дата и время создания платежа
+              x-description-i18n:
+                eng: Date and time of payment update
+              format: date-time
+            declineReason:
+              $ref: '#/components/schemas/PaymentDeclineReason'
+        splits:
+          $ref: '#/components/schemas/Split'
+      required:
+      - id
+      - amount
+      - status
+    PaymentFlow:
+      title: PaymentFlow
+      type: string
+      description: 'Сценарий проведения платежа<br>
+
+        * `SUBSCRIPTION` - [Только для сценария оплата по подписке](./ecom.html#tag/subscriptions)<br>
+
+        * `CARD` - [Только для клиентов с PCI DSS](./wl-ecom.html#section/Shema-raboty/Provedenie-platezha-na-forme-klienta)<br>
+
+        * `CARD_BINDING` - [Привязка карты](./wl-ecom.html#section/Shema-raboty/Privyazka-karty)'
+      x-description-i18n:
+        eng: 'Payment scenario<br>
+
+          * `SUBSCRIPTION` - [Only for the subscription payment scenario](./ecom.html#tag/subscriptions)<br>
+
+          * `CARD` - [Only for clients with PCI DSS](./wl-ecom.html#section/Shema-raboty/Provedenie-platezha-na-forme-klienta)<br>
+
+          * `CARD_BINDING` - [Card binding](./wl-ecom.html#section/Shema-raboty/Privyazka-karty)'
+      enum:
+      - CARD
+      - SUBSCRIPTION
+      - CARD_BINDING
+    ThreeDSVersion:
+      title: threeDSVersion
+      type: string
+      enum:
+      - V1
+      - V2
+      description: Версия 3DS
+      x-description-i18n:
+        eng: 3DS version
+    ContinueWLPayment:
+      title: ContinueWLPayment
+      allOf:
+      - $ref: '#/components/schemas/GeneralWLPayment'
+      - type: object
+        properties:
+          stage:
+            type: string
+    GeneralSubscription:
+      title: GeneralSubscription
+      oneOf:
+      - $ref: '#/components/schemas/SbpSubscription'
+      - $ref: '#/components/schemas/CardSubscription'
+      - $ref: '#/components/schemas/UndefinedSubscription'
+      discriminator:
+        propertyName: paymentMethod
+        mapping:
+          ACQUIRING: '#/components/schemas/CardSubscription'
+          SBP: '#/components/schemas/SbpSubscription'
+          UNDEFINED: '#/components/schemas/UndefinedSubscription'
+    CreatedSubscriptionPayment:
+      title: CreatedSubscriptionPayment
+      allOf:
+      - $ref: '#/components/schemas/GeneralPayment'
+      - type: object
+        properties:
+          status:
+            type: object
+            description: Статус платежа
+            x-description-i18n:
+              eng: Payment status
+            required:
+            - value
+            - date
+            properties:
+              value:
+                $ref: '#/components/schemas/SubscriptionPaymentStatus'
+              date:
+                type: string
+                description: Дата и время создания платежа
+                x-description-i18n:
+                  eng: Date and time of payment update
+                format: date-time
+              declineReason:
+                $ref: '#/components/schemas/PaymentDeclineReason'
+          stage:
+            $ref: '#/components/schemas/PaymentStage'
+          flow:
+            $ref: '#/components/schemas/PaymentFlow'
+          paymentDetails:
+            type: string
+            description: Назначение платежа. Используется для оплаты по подписке СБП.
+            x-description-i18n:
+              eng: Payment purpose. Used for payment under the SBP subscription.
+            maxLength: 140
+          subscriptionId:
+            type: string
+            description: Идентификатор подписки
+            x-description-i18n:
+              eng: Subscription ID
+            pattern: ^[A-Za-z0-9-_.]+$
+          recurringType:
+            $ref: '#/components/schemas/SubscriptionRecurringType'
+          parameters:
+            $ref: '#/components/schemas/SubsriptionPaymentParameters'
+          splits:
+            $ref: '#/components/schemas/Split'
+          clearing:
+            $ref: '#/components/schemas/Clearing'
+        required:
+        - status
+        - stage
+        - flow
+    Order:
+      title: Order
+      type: object
+      description: Заказ
+      x-description-i18n:
+        eng: Order
+      properties:
+        id:
+          type: string
+          pattern: ^[A-Za-z0-9-_.]+$
+          description: Идентификатор заказа. Если не передан будет сформирован на стороне Банка. Рекомендуем использовать [UUID v4](https://ru.wikipedia.org/wiki/UUID)
+          x-description-i18n:
+            eng: Order ID. If not provided, it will be generated by the Bank. We recommend using [UUID v4](https://ru.wikipedia.org/wiki/UUID)
+          maxLength: 40
+        comment:
+          $ref: '#/components/schemas/OrderComment'
+    CreatedPayment:
+      title: CreatedPayment
+      properties:
+        stage:
+          $ref: '#/components/schemas/PaymentStage'
+      oneOf:
+      - $ref: '#/components/schemas/PostCreatedSubscriptionPayment'
+      - $ref: '#/components/schemas/CreatedWLPayment3DS1'
+      - $ref: '#/components/schemas/CreatedWLPayment3DS2'
+      discriminator:
+        propertyName: stage
+        mapping:
+          CREATED_SUBSCRIPTION_PAYMENT: '#/components/schemas/PostCreatedSubscriptionPayment'
+          CREATED_PAYMENT_3DS1: '#/components/schemas/CreatedWLPayment3DS1'
+          CREATED_PAYMENT_3DS2: '#/components/schemas/CreatedWLPayment3DS2'
+      x-examples:
+        Example 1:
+          value:
+            id: payment-test
+            amount: 540
+            order:
+              id: order-test
+              comment: Оплата молока
+            extra:
+              email: pavel@mail.ru
+            flow: SUBSCRIPTION
+            status:
+              value: SUCCESS
+              date: '2025-11-29T19:43:54+03:00'
+            stage: CREATED_SUBSCRIPTION_PAYMENT
+            paymentDetails: Оплата молока на Фрунзе 1
+            subscriptionId: subscription-test
+            recurringType: UNSCHEDULED
+            parameters:
+              paymentMethod: ACQUIRING
+              eci: '02'
+              rrn: '935014591810'
+              authCode: 259AA
+    SubscriptionPayment:
+      title: SubscriptionPayment
+      allOf:
+      - $ref: '#/components/schemas/GeneralPayment'
+      - type: object
+        properties:
+          flow:
+            $ref: '#/components/schemas/PaymentFlow'
+          paymentDetails:
+            type: string
+            description: Назначение платежа. Используется для оплаты по подписке СБП.
+            x-description-i18n:
+              eng: Payment purpose. Used for payment under the SBP subscription.
+            maxLength: 140
+          subscriptionId:
+            type: string
+            description: Идентификатор подписки
+            x-description-i18n:
+              eng: Subscription ID
+            pattern: ^[A-Za-z0-9-_.]+$
+            maxLength: 40
+          recurringType:
+            $ref: '#/components/schemas/SubscriptionRecurringType'
+          receipt:
+            allOf:
+            - type: object
+              properties:
+                receiptNumber:
+                  type: string
+                  pattern: ^[A-Za-z0-9-_.]+$
+                  description: Идентификатор чека. Если не передан будет соответствовать идентификатору заказа. Рекомендуем использовать [UUID v4](https://ru.wikipedia.org/wiki/UUID)
+                  x-description-i18n:
+                    eng: Receipt ID. If not passed, it will match the order ID. We recommend using [UUID v4](https://ru.wikipedia.org/wiki/UUID)
+            - $ref: '#/components/schemas/FiscalReceiptBasic'
+          splits:
+            $ref: '#/components/schemas/Split'
+        required:
+        - flow
+        - subscriptionId
+        - recurringType
+    SubscriptionCustomer:
+      title: SubscriptionCustomer
+      type: object
+      description: Данные покупателя по подписке
+      x-description-i18n:
+        eng: Subscription customer data
+      properties:
+        email:
+          type: string
+          description: Email покупателя
+          x-description-i18n:
+            eng: Customer email
+          example: customer@test.ru
+          maxLength: 64
+          format: email
+      required:
+      - email
+    SubscriptionPaymentMethod:
+      description: '- `SBP` - Оплата привязанному счету СБП
+
+        - `ACQUIRING` - Оплата по привязанной карте'
+      x-description-i18n:
+        eng: '- `SBP` - Payment from a linked SBP account
+
+          - `ACQUIRING` - Payment from a linked card'
+      type: string
+      enum:
+      - ACQUIRING
+      - SBP
+    GeneralPayment:
+      title: GeneralPayment
+      type: object
+      properties:
+        id:
+          type: string
+          description: Идентификатор платежа. Если не передан будет сформирован на стороне Банка. Рекомендуем использовать [UUID v4](https://ru.wikipedia.org/wiki/UUID)
+          x-description-i18n:
+            eng: Payment identifier. If not transmitted, it will be generated on the Bank side. We recommend using UUID v4.
+          maxLength: 40
+          pattern: ^[A-Za-z0-9-_.]+$
+        amount:
+          type: number
+          description: 'Сумма платежа в рублях. Для копеек доступно два знака после точки. Для сценария `flow: CARD_BINDING` используется фиксированная сумма, которая автоматически возвращается на карту клиента после успешной оплаты.'
+          x-description-i18n:
+            eng: 'Payment amount in rubles. For kopecks, two signs after the dot are available. For the `flow: CARD_BINDING` scenario, a fixed amount is used, which is automatically refunded to the customer''s card after a successful payment.'
+          example: 540
+          exclusiveMinimum: 0
+        order:
+          $ref: '#/components/schemas/Order'
+        extra:
+          $ref: '#/components/schemas/Extra'
+      required:
+      - amount
+    payments:
+      type: object
+      title: платежи
+      x-title-i18n:
+        eng: payments
+      required:
+      - type
+      - amount
+      description: Данные об оплате и ее видах
+      x-description-i18n:
+        eng: Info on payment and its types
+      properties:
+        type:
+          type: string
+          description: Вид оплаты. Возможные значения:<br/>• E_PAYMENT – безналичная оплата<br/>• PREPAID – предварительная оплата (зачет аванса и/или предыдущих платежей)
+          x-description-i18n:
+            eng: Payment type. Valid values:<br/>• E_PAYMENT – electronic payment<br/>• PREPAID – prepaid amount (advance payment and/or previous payments)
+          example: PREPAID
+          enum:
+          - E_PAYMENT
+          - PREPAID
+        amount:
+          type: number
+          description: '`Тег ФФД — 1081. Сумма по чеку безналичными` <br/>
+
+            `Тег ФФД — 1251. Сумма по чеку предоплатой (зачетом аванса и(или) предыдущих платежей)` <br/>
+
+            Сумма оплаты<br/>Сумма всех переданных amount должна равняться итоговой сумме чека'
+          x-description-i18n:
+            eng: '`The tag FDF — 1081. Receipt amount non-cash payment` <br/>
+
+              `The tag FDF — 1251. Receipt amount prepayment (advance payment and(or) previous payment)` <br/>
+
+              Amount paid'
+          example: 1200
+    OrderComment:
+      title: OrderComment
+      type: string
+      description: 'Комментарий. Доступен в реестрах и Онлайн-Банке. Не может быть пустым или содержать только пробелы. Может содержать:<br>
+
+        • Символы латиницы (A–Z и a–z) <br>
+
+        • Символы кириллицы (А-Я и а-я) <br>
+
+        • Цифры 0-9 <br>
+
+        • Спецсимволы: пробел и `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`<br>
+
+        • Спецсимвол `№`'
+      x-description-i18n:
+        eng: 'Comment. Cannot be empty or contain only spaces. May contain:<br>
+
+          • Latin symbols (A–Z и a–z); <br>
+
+          • Cyrillic symbols (А-Я и а-я); <br>
+
+          • Digits 0-9;<br>
+
+          • Special symbols: spaces and `!`, `"`, `#`, `$`, `%`, `''`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, `~`<br>
+
+          • Special symbol №
+
+          '
+      maxLength: 140
+      pattern: ^(?=.*\S)[A-Za-zА-Яа-яЁё0-9 !"#$%''()*+,\-./:;=>?@\[\\\]\^_`{\|}~№]+$
+      example: Тестовый комментарий
+    PaymentInfo:
+      title: PaymentInfo
+      properties:
+        stage:
+          $ref: '#/components/schemas/PaymentStage'
+      oneOf:
+      - $ref: '#/components/schemas/CreatedWLPayment3DS1'
+      - $ref: '#/components/schemas/CreatedWLPayment3DS2'
+      - $ref: '#/components/schemas/ContinueWLPayment3DS1'
+      - $ref: '#/components/schemas/ContinueWLPayment3DS2'
+      - $ref: '#/components/schemas/FinalWLCardPayment'
+      - $ref: '#/components/schemas/CreatedSubscriptionPayment'
+      discriminator:
+        propertyName: stage
+        mapping:
+          CREATED_SUBSCRIPTION_PAYMENT: '#/components/schemas/CreatedSubscriptionPayment'
+          CREATED_PAYMENT_3DS1: '#/components/schemas/CreatedWLPayment3DS1'
+          CREATED_PAYMENT_3DS2: '#/components/schemas/CreatedWLPayment3DS2'
+          CONTINUE_PAYMENT_3DS1: '#/components/schemas/ContinueWLPayment3DS1'
+          CONTINUE_PAYMENT_3DS2: '#/components/schemas/ContinueWLPayment3DS2'
+          FINAL_CARD_PAYMENT: '#/components/schemas/FinalWLCardPayment'
+    PostCreatedSubscriptionPayment:
+      title: PostCreatedSubscriptionPayment
+      allOf:
+      - $ref: '#/components/schemas/CreatedSubscriptionPayment'
+      - type: object
+        properties:
+          receipt:
+            allOf:
+            - type: object
+              properties:
+                receiptNumber:
+                  type: string
+                  description: Идентификатор чека
+                  x-description-i18n:
+                    eng: Receipt ID
+                  pattern: ^[A-Za-z0-9-_.]+$
+            - $ref: '#/components/schemas/FiscalReceiptBasic'
+    GeneralError:
+      title: General Error
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код ошибки запроса
+          x-description-i18n:
+            eng: Request error code
+        message:
+          type: string
+          description: Описание ошибки
+          x-description-i18n:
+            eng: Error description
+        traceId:
+          type: string
+          description: Идентификатор выполнения запроса при наличии ошибки
+          x-description-i18n:
+            eng: Request ID if there is an error
+    CreatedWLPayment3DS1:
+      title: Платеж создан
+      allOf:
+      - $ref: '#/components/schemas/GeneralWLPayment'
+      - type: object
+        properties:
+          stage:
+            $ref: '#/components/schemas/PaymentStage'
+          flow:
+            $ref: '#/components/schemas/PaymentFlow'
+          subscription:
+            $ref: '#/components/schemas/Subscription'
+        required:
+        - stage
+        - flow
+    WLPaymentStatus:
+      title: WhitelabelPaymentStatus
+      type: string
+      description: "Статус платежа\n  - `NEW` - Платеж создан успешно, необходимо продолжение платежа\n  - `3DS_PENDING` - Требуется подтверждение аутентификации 3DS\n  - `SUCCESS` - Платеж проведен\n  - `DECLINED` - Платеж отклонен"
+      x-description-i18n:
+        eng: 'Payment status
+
+          - `NEW` - Payment created successfully, payment continuation required
+
+          - `3DS_PENDING` - 3DS authentication confirmation required
+
+          - `SUCCESS` - Payment completed
+
+          - `DECLINED` - Payment declined
+
+          '
+      enum:
+      - NEW
+      - 3DS_PENDING
+      - SUCCESS
+      - DECLINED
+    ChangeSubscription:
+      title: ChangeSubscription
+      type: object
+      properties:
+        purpose:
+          $ref: '#/components/schemas/SubscriptionPurpose'
+        autoCharge:
+          $ref: '#/components/schemas/AutoCharge'
+        customer:
+          $ref: '#/components/schemas/SubscriptionCustomer'
     Clearing:
       title: Clearing
       type: object
@@ -2736,46 +2668,46 @@ components:
         required:
         - flow
         - stage
-    SubsriptionPaymentParameters:
-      title: SubsriptionParameters
-      properties:
-        paymentMethod:
-          $ref: '#/components/schemas/SubscriptionPaymentMethod'
-      oneOf:
-      - $ref: '#/components/schemas/CardPaymentParameters'
-      - $ref: '#/components/schemas/SbpPaymentParameters'
-      discriminator:
-        propertyName: paymentMethod
-        mapping:
-          ACQUIRING: '#/components/schemas/CardPaymentParameters'
-          SBP: '#/components/schemas/SbpPaymentParameters'
-    SubscriptionPurpose:
-      title: SubscriptionPurpose
-      type: string
-      pattern: ^[A-Za-zА-Яа-я0-9 ()!@\[\]#+=_\|.,-]+$
-      description: 'Описание подписки<br>
+    Split:
+      title: Split
+      type: array
+      description: 'Набор параметров для сплитования платежа.<br>
 
-        Может содержать:<br>
+        Сплитование позволяет ТСП передавать параметры распределения суммы платежа или возврата между контрагентами.<br>
 
-        * Символы латиницы (A-Z и a-z)
+        Сумма всех объектов сплита должна быть равна сумме операции.<br>
 
-        * Символы кириллицы (А-Я и а-я)
+        При взаиморасчетах суммы платежей, указанные в сплите, увеличивают суммы к перечислению контрагентам, а суммы возвратов — уменьшают их.<br>
 
-        * Цифры 0-9
-
-        * Спецсимволы: `(`, `)`, `!`, `@`, `[`, `]`, `#`, `+`, `=`, `-`, `|`, `.`, `,`'
+        Сплитование доступно только при агрегированной схеме взаиморасчетов. Чтобы настроить агрегированную схему, обратитесь в техническую поддержку банка: ecom@raiffeisen.ru. Подробнее см. в разделе [Схема взаиморасчетов](#tag/SettlementSchemes).'
       x-description-i18n:
-        eng: 'Subscription description<br>
+        eng: 'Set of parameters for payment splitting.<br>
 
-          May contain:<br>
+          Payment splitting allows the merchant to pass parameters for distributing a payment or refund amount among counterparties.<br>
 
-          * Latin characters (A-Z и a-z)
+          The total amount of all split objects must be equal to the operation amount.<br>
 
-          * Cyrillic symbols (А-Я и а-я)
+          In settlements, payment amounts specified in the split increase the amounts to be transferred to counterparties, while refund amounts decrease them.<br>
 
-          * Numbers 0-9
-
-          * Special characters: `(`, `)`, `!`, `@`, `[`, `]`, `#`, `+`, `=`, `-`, `|`, `.`, `,`'
+          Payment splitting is available only with the aggregated settlement scheme. To set up the aggregated scheme, contact bank technical support: ecom@raiffeisen.ru. See [Settlement schemes](#tag/SettlementSchemes).'
+      items:
+        type: object
+        properties:
+          accountId:
+            type: string
+            description: "\t\nstring\nИдентификтор реквизитов, которые были получены от поддержки."
+            x-description-i18n:
+              eng: ID of the bank account details obtained from support
+          amount:
+            type: number
+            description: Сумма зачисления
+            x-description-i18n:
+              eng: Crediting amount
+            format: float
+            exclusiveMinimum: 0
+        required:
+        - accountId
+        - amount
     SubscriptionPaymentStatus:
       title: SubscriptionPaymentStatus
       type: string
@@ -2794,11 +2726,75 @@ components:
       - SUCCESS
       - DECLINED
       - IN_PROGRESS
+    SubscriptionGroup:
+      title: SubscriptionGroup
+      type: string
+      description: Идентификатор группы подписок, объединенных общим методом оплаты рамках мерчанта. Используется для дедупликации однотипных подписок.
+      x-description-i18n:
+        eng: Subscription hash for client-side uniqueness verification
+    AutoCharge:
+      title: AutoCharge
+      type: object
+      description: Данные автоматического списания по подписке. Объект передается, если по подписке необходимо взимать деньги на регулярной основе.
+      x-description-i18n:
+        eng: Automatic subscription debit data. This item is passed if the subscription requires recurring payments.
+      properties:
+        frequency:
+          type: string
+          description: 'Периодичность списания по подписке<br>
+
+            Если параметр передан, то банк будет автоматически проводить ежемесячное списание средств.'
+          x-description-i18n:
+            eng: 'Subscription debit frequency<br>
+
+              If this parameter is passed, the bank will automatically debit funds monthly.'
+          enum:
+          - MONTHLY
+        firstChargeDate:
+          type: string
+          format: date
+          description: 'Дата первого списания по подписке<br>
+
+            Списание в указанную дату произойдет автоматически, далее – с заданной периодичностью начиная с этой даты. Переданное значение должно быть не меньше 7 дней от текущей даты. Например, при создании подписки 1 января firstChargeDate может быть 8 января или позже.<br>
+
+            Если параметр не передан, то при `frequency` равен `MONTHLY` первое списание по подписке произойдет через месяц после привязки счета клиентом.'
+          x-description-i18n:
+            eng: 'Date of first subscription charge<br>
+
+              The debit will be automatically debited on the specified date. Then, it will be debited at the specified frequency starting from that date. The value passed must be at least 7 days old. For example, if you create a subscription on January 1st, firstChargeDate could be January 8th or later.
+
+              If the parameter is not passed, then if `frequency` is equal to `MONTHLY`, the first subscription charge will occur one month after the client links the account.'
+        amount:
+          type: number
+          description: Сумма платежа в рублях. Для копеек доступно два знака после точки.
+          x-description-i18n:
+            eng: Payment amount in rubles. For kopecks, two decimal places are allowed.
+          exclusiveMinimum: 0
+    ClearingStatus:
+      title: ClearingStatus
+      type: string
+      enum:
+      - PENDING
+      - COMPLETED
+      - FAILED
   examples:
-    FORBIDDEN_ERROR_403:
+    SUBSCRIPTION.CREATE_SUBSCRIPTION_PAYMENT:
       value:
-        code: ERROR.FORBIDDEN
-        message: Доступ запрещен
+        id: payment-test
+        amount: 540
+        order:
+          id: order-test
+          comment: Оплата молока
+        extra:
+          email: pavel@mail.ru
+        flow: SUBSCRIPTION
+        recurringType: UNSCHEDULED
+        paymentDetails: Оплата молока на Фрунзе 1
+        subscriptionId: subscription-test
+    SUBSCRIPTION.DELETE_SUBSCRIPTION:
+      value:
+        code: ERROR.BAD_REQUEST
+        message: Действие недопустимо
         traceId: abb066c61a7c8b74af83f245c7706813
     GET_SUBSCRIPTION_INFO_SBP:
       value:
@@ -2817,70 +2813,6 @@ components:
           id: AD100004BAL7227F9BNP6KNE007J9B3K
           payload: https://sub.nspk.ru/AS3D33FC7B034DEEA8A365142E1DE737?type=03&bank=10000001&crc=C08B
           url: https://pay-test.raif.ru/api/sbp/v1/qr/AS3D33FC7B034DEEA8A365142E1DE737/image
-    WL_ERROR_403_FORBIDDEN:
-      value:
-        code: ERROR.FORBIDDEN
-        message: Доступ запрещен
-        traceId: abb066c61a7c8b74af83f245c7706813
-    SUBSCRIPTION.CREATE_SUBSCRIPTION_PAYMENT_WITH_SPLITS_REQUEST:
-      value:
-        id: payment-test
-        amount: 1000
-        order:
-          id: order-test
-          comment: Оплата по подписке с разделением
-        extra:
-          email: pavel@mail.ru
-        flow: SUBSCRIPTION
-        subscriptionId: subscription-test
-        recurringType: UNSCHEDULED
-        paymentDetails: Оплата по подписке с разделением суммы
-        splits:
-        - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
-          amount: 600
-        - accountId: 226f0738-d5d8-4ee6-afff-71e05836820a
-          amount: 400
-    SUBSCRIPTION.DELETE_SUBSCRIPTION:
-      value:
-        code: ERROR.BAD_REQUEST
-        message: Действие недопустимо
-        traceId: abb066c61a7c8b74af83f245c7706813
-    SUBSCRIPTION_NOT_FOUND:
-      value:
-        code: ERROR.BAD_REQUEST
-        message: Подписка не найдена
-        traceId: abb066c61a7c8b74af83f245c7706813
-    SUBSCRIPTION.CREATE_SUBSCRIPTION_PAYMENT:
-      value:
-        id: payment-test
-        amount: 540
-        order:
-          id: order-test
-          comment: Оплата молока
-        extra:
-          email: pavel@mail.ru
-        flow: SUBSCRIPTION
-        recurringType: UNSCHEDULED
-        paymentDetails: Оплата молока на Фрунзе 1
-        subscriptionId: subscription-test
-    GENERAL_INTERNAL_ERROR_500:
-      value:
-        code: ERROR.INTERNAL_ERROR
-        message: Внутренняя ошибка сервиса
-        traceId: abb066c61a7c8b74af83f245c7706813
-    GET_SUBSCRIPTION_INFO_ACQUIRING:
-      value:
-        id: subscription-test
-        status:
-          value: SUBSCRIBED
-          date: '2024-12-31T10:00:00+03:00'
-        purpose: Подписка на интернет магазин
-        customer:
-          email: customer@test.ru
-        paymentMethod: ACQUIRING
-        paymentSystem: MIR
-        cardNumber: 22013311****3339
-        expirationDate: 2035-10
     SUBSCRIPTION.CREATED_SUBSCRIPTION_PAYMENT:
       value:
         id: payment-test
@@ -2903,6 +2835,47 @@ components:
           eci: '02'
           rrn: '935014591810'
           authCode: 259AA
+    GET_SUBSCRIPTION_INFO_ACQUIRING:
+      value:
+        id: subscription-test
+        status:
+          value: SUBSCRIBED
+          date: '2024-12-31T10:00:00+03:00'
+        purpose: Подписка на интернет магазин
+        customer:
+          email: customer@test.ru
+        paymentMethod: ACQUIRING
+        paymentSystem: MIR
+        cardNumber: 22013311****3339
+        expirationDate: 2035-10
+    GENERAL_INTERNAL_ERROR_500:
+      value:
+        code: ERROR.INTERNAL_ERROR
+        message: Внутренняя ошибка сервиса
+        traceId: abb066c61a7c8b74af83f245c7706813
+    SUBSCRIPTION.CREATE_SUBSCRIPTION_PAYMENT_WITH_SPLITS_REQUEST:
+      value:
+        id: payment-test
+        amount: 1000
+        order:
+          id: order-test
+          comment: Оплата по подписке с разделением
+        extra:
+          email: pavel@mail.ru
+        flow: SUBSCRIPTION
+        subscriptionId: subscription-test
+        recurringType: UNSCHEDULED
+        paymentDetails: Оплата по подписке с разделением суммы
+        splits:
+        - accountId: ea6f870f-debd-48cc-a83f-b87e7cee8582
+          amount: 600
+        - accountId: 226f0738-d5d8-4ee6-afff-71e05836820a
+          amount: 400
+    WL_ERROR_403_FORBIDDEN:
+      value:
+        code: ERROR.FORBIDDEN
+        message: Доступ запрещен
+        traceId: abb066c61a7c8b74af83f245c7706813
     WL_ERROR_400_ERROR_VALID_TO_CREATE_PAYMENT:
       value:
         code: ERROR.BAD_REQUEST
@@ -2918,6 +2891,16 @@ components:
         code: ERROR.BAD_REQUEST
         message: Платёж с данным идентификатором уже существует
         traceId: abb066c61a7c8b74af83f245c7706813
+    FORBIDDEN_ERROR_403:
+      value:
+        code: ERROR.FORBIDDEN
+        message: Доступ запрещен
+        traceId: abb066c61a7c8b74af83f245c7706813
+    SUBSCRIPTION_NOT_FOUND:
+      value:
+        code: ERROR.BAD_REQUEST
+        message: Подписка не найдена
+        traceId: abb066c61a7c8b74af83f245c7706813
   requestBodies:
     CreatePaymentRequest:
       required: true
@@ -2931,6 +2914,17 @@ components:
             Платеж по подписке со сплитованием:
               $ref: '#/components/examples/SUBSCRIPTION.CREATE_SUBSCRIPTION_PAYMENT_WITH_SPLITS_REQUEST'
   responses:
+    GetSubscriptionResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralSubscription'
+          examples:
+            ACQUIRING:
+              $ref: '#/components/examples/GET_SUBSCRIPTION_INFO_ACQUIRING'
+            SBP:
+              $ref: '#/components/examples/GET_SUBSCRIPTION_INFO_SBP'
     CreatePaymentResponse:
       description: OK
       content:
@@ -2950,17 +2944,6 @@ components:
           examples:
             Example 1:
               $ref: '#/components/examples/SUBSCRIPTION.CREATED_SUBSCRIPTION_PAYMENT'
-    GetSubscriptionResponse:
-      description: OK
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/GeneralSubscription'
-          examples:
-            ACQUIRING:
-              $ref: '#/components/examples/GET_SUBSCRIPTION_INFO_ACQUIRING'
-            SBP:
-              $ref: '#/components/examples/GET_SUBSCRIPTION_INFO_SBP'
   parameters:
     publicId:
       name: publicId
@@ -2987,6 +2970,25 @@ components:
           Detailed information is contained in the [Authorization] section (#section/API/Authorizaciya)
 
           '
-x-refined-from:
-- raiffeisen-ru-raif-pay-payment-form-openapi.json
-- raiffeisen-ru-raif-pay-payment-form-openapi.yml
+x-tagGroups:
+- name: API
+  tags:
+  - payform
+  - subscriptions
+  - pay-controller
+  - Callback
+- name: Сверка
+  x-name-i18n:
+    eng: COMPARISON
+  tags:
+  - Registry
+  - Statement
+  - cashReconciliation
+- name: Справочник
+  x-name-i18n:
+    eng: REFERENCE INFORMATION
+  tags:
+  - Errors
+  - SettlementSchemes
+  - deprecated
+  - Change log

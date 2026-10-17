@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Funds Distribution Order API
+  title: Распоряжения о распределении валютной выручки Funds…
+  description: Спецификация API для импорта распоряжений о распределении валютной выручки в формате ISO 20022.
   version: 1.10.1
-  description: 'Operations tagged funds-distribution-order across 2 of this provider''s published API definitions: raiffeisen-ru-currency-proceeds-distribution-openapi.yml, raiffeisen-ru-currency-proceeds-distribution-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/foreign-trade
 tags:
@@ -52,8 +52,6 @@ paths:
           description: The message id or document id is duplicated
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/foreign-trade
   /v2/funds-distribution-orders/iso20022/signed:
     post:
       tags:
@@ -97,8 +95,6 @@ paths:
           $ref: '#/components/responses/DuplicateMessage'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/foreign-trade
   /v2/funds-distribution-orders/iso20022/{msgId}/status:
     get:
       tags:
@@ -159,8 +155,6 @@ paths:
           $ref: '#/components/responses/DocumentNotFound'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/foreign-trade
   /v2/funds-distribution-orders/iso20022/{msgId}/documents/{pmtInfId}/status:
     get:
       tags:
@@ -243,8 +237,6 @@ paths:
           $ref: '#/components/responses/DocumentNotFound'
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/foreign-trade
 components:
   responses:
     Unauthorized:
@@ -257,8 +249,6 @@ components:
             type: string
             description: Сообщение об ошибке
           example: Duplicate message id or payment id
-    Forbidden:
-      description: Доступ запрещён
     ValidationError:
       description: Ошибки валидации
       content:
@@ -267,6 +257,10 @@ components:
             type: string
             description: Сообщение об ошибке
           example: XML validation error
+    InternalError:
+      description: Внутренняя ошибка
+    Forbidden:
+      description: Доступ запрещён
     DocumentNotFound:
       description: Документ не найден
       content:
@@ -275,18 +269,7 @@ components:
             type: string
             description: Сообщение об ошибке
           example: Message not found with id = ... for current user
-    InternalError:
-      description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -296,6 +279,12 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-x-refined-from:
-- raiffeisen-ru-currency-proceeds-distribution-openapi.yml
-- raiffeisen-ru-currency-proceeds-distribution-openapi.yml
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=

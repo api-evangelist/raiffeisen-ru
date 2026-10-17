@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: Raiffeisen Ru Аутентификация API
   version: '1.0'
-  description: 'Operations tagged Аутентификация across 14 of this provider''s published API definitions: raiffeisen-ru-authorization-openapi.yml, raiffeisen-ru-content-interactions-openapi.yml, raiffeisen-ru-content-macroeconomic-reviews-openapi.yml, raiffeisen-ru-content-product-news-openapi.yml, raiffeisen-ru-content-webinars-openapi.yml, raiffeisen-ru-loro-openapi.yml, raiffeisen-ru-user-permissions-openapi.yml, raiffeisen-ru-authorization-openapi.yml, raiffeisen-ru-content-interactions-openapi.yml…'
+  description: 'Operations tagged Аутентификация across 7 of this provider''s published API definitions: raiffeisen-ru-authorization-openapi.yml, raiffeisen-ru-content-interactions-openapi.yml, raiffeisen-ru-content-macroeconomic-reviews-openapi.yml, raiffeisen-ru-content-product-news-openapi.yml, raiffeisen-ru-content-webinars-openapi.yml, raiffeisen-ru-loro-openapi.yml, raiffeisen-ru-user-permissions-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://id.business.raiffeisen.ru
 - url: https://api.raiffeisen.ru/media-content
@@ -1816,6 +1816,37 @@ paths:
     - url: https://api.raiffeisen.ru/permissions
 components:
   schemas:
+    TokenRevocationRequestDTO:
+      type: object
+      required:
+      - token
+      properties:
+        token:
+          type: string
+          description: Access Token или Refresh Token, который нужно отозвать.
+        token_type_hint:
+          type: string
+          enum:
+          - access_token
+          - refresh_token
+          description: Подсказка о типе переданного токена.
+        client_id:
+          type: string
+          description: Идентификатор клиента (выдается Райффайзен Банком после подачи заявления на подключение).
+        client_secret:
+          type: string
+          description: Пароль клиента (указывается при подключении системы клиента к Райффайзен Банку).
+    OAuth2ErrorDTO:
+      type: object
+      required:
+      - error
+      properties:
+        error:
+          type: string
+          description: Код ошибки.
+        error_description:
+          type: string
+          description: Описание ошибки.
     PublicJwksResponseDTO:
       type: object
       required:
@@ -1856,17 +1887,6 @@ components:
                 type: string
                 description: Публичная экспонента RSA в формате Base64url.
                 example: AQAB
-    OAuth2ErrorDTO:
-      type: object
-      required:
-      - error
-      properties:
-        error:
-          type: string
-          description: Код ошибки.
-        error_description:
-          type: string
-          description: Описание ошибки.
     TokenResponseDTO:
       type: object
       required:
@@ -1934,184 +1954,6 @@ components:
         refresh_token:
           type: string
           description: Refresh токен (обязательный параметр для grant_type=refresh_token).
-    TokenRevocationRequestDTO:
-      type: object
-      required:
-      - token
-      properties:
-        token:
-          type: string
-          description: Access Token или Refresh Token, который нужно отозвать.
-        token_type_hint:
-          type: string
-          enum:
-          - access_token
-          - refresh_token
-          description: Подсказка о типе переданного токена.
-        client_id:
-          type: string
-          description: Идентификатор клиента (выдается Райффайзен Банком после подачи заявления на подключение).
-        client_secret:
-          type: string
-          description: Пароль клиента (указывается при подключении системы клиента к Райффайзен Банку).
-    SupportDrawerSectionDTO:
-      type: object
-      properties:
-        title:
-          type:
-          - string
-          - 'null'
-          example: Малый бизнес
-        subtitle:
-          type:
-          - string
-          - 'null'
-          example: Подзаголовок
-        items:
-          type:
-          - array
-          - 'null'
-          example:
-          - icon: phone
-            title: Для бесплатных звонков по России
-            value: 8 800 700-99-95
-          items:
-            $ref: '#/components/schemas/SupportDrawerItemDTO'
-    UsernamePasswordStepViewDataDTO:
-      type: object
-      additionalProperties: false
-      required:
-      - stepType
-      properties:
-        stepType:
-          type: string
-          const: username-password
-        viewType:
-          type: string
-          enum:
-          - default
-          - phoneDuplicated
-        phoneNumberView:
-          type:
-          - string
-          - 'null'
-          description: Номер телефона для отображения на форме логина и пароля.
-        principal:
-          type:
-          - string
-          - 'null'
-          description: Ранее введённый идентификатор пользователя.
-        captchaRequired:
-          type: boolean
-          description: Требуется ли CAPTCHA для текущей формы.
-    LoginFormErrorDetails:
-      type:
-      - object
-      - 'null'
-      description: Коды ошибок формы входа, распределённые по месту отображения.
-      properties:
-        principalError:
-          type:
-          - string
-          - 'null'
-          description: Код ошибки, связанный с principal (идентификатором пользователя)
-          example: challenge.username-password.wrong-credentials
-        credentialsError:
-          type:
-          - string
-          - 'null'
-          description: Код ошибки, связанный с credentials (паролем или OTP кодом)
-          example: challenge.sms-otp.wrong-credentials
-        otherError:
-          type:
-          - string
-          - 'null'
-          description: Код прочих ошибок (например, серверные ошибки или лимиты)
-          example: authentication.sms-otp.process-limit-exceeded
-    SupportDrawerByLocaleDTO:
-      type:
-      - object
-      - 'null'
-      description: 'Мапа локалей на конфигурацию дровера поддержки.
-
-        Ключи соответствуют локалям (`ru`, `en`).'
-      properties:
-        ru:
-          $ref: '#/components/schemas/SupportDrawerDTO'
-        en:
-          $ref: '#/components/schemas/SupportDrawerDTO'
-    EmailOtpStepViewDataDTO:
-      type: object
-      additionalProperties: false
-      required:
-      - stepType
-      properties:
-        stepType:
-          type: string
-          const: email-otp
-        viewType:
-          type: string
-          enum:
-          - secondFactor
-        emailOtpProcessId:
-          type:
-          - string
-          - 'null'
-          format: uuid
-          description: Идентификатор email OTP процесса.
-    SupportDrawerDTO:
-      type: object
-      description: Конфигурация дровера поддержки для одной локали.
-      allOf:
-      - $ref: '#/components/schemas/SupportDrawerHeaderDTO'
-      - $ref: '#/components/schemas/SupportDrawerContentDTO'
-    SupportedLocale:
-      type: string
-      description: Допустимая локаль аутентификационного сценария. Остальные значения не поддерживаются.
-      enum:
-      - ru
-      - en
-      example: ru
-    SupportDrawerHeaderDTO:
-      type: object
-      properties:
-        title:
-          type:
-          - string
-          - 'null'
-          example: Служба поддержки
-        description:
-          type:
-          - string
-          - 'null'
-          example: Чтобы мы вас узнали, понадобится сказать ИНН и сумму последней операции по счету
-        chatButtonText:
-          type:
-          - string
-          - 'null'
-          example: Написать в чат
-    LoginStepRequestDTO:
-      type: object
-      required:
-      - _csrf
-      description: Поля формы зависят от текущего stepType. CSRF токен передаётся в обязательном поле _csrf.
-      properties:
-        principal:
-          type: string
-          description: Логин для шага username-password или номер телефона для шага phone.
-        credentials:
-          type: string
-          format: password
-          description: Пароль для шагов username-password/password или код для sms-otp/email-otp.
-        selected_scope_groups:
-          type: string
-          description: Выбранные группы scopes для consent, через запятую.
-        smart-token:
-          type: string
-          description: Токен CAPTCHA, когда stepViewData.captchaRequired равен true.
-        _csrf:
-          type: string
-          description: CSRF токен из viewData.pageData.authenticationFlowContext.csrf.
     LoginViewDataDTO:
       type: object
       required:
@@ -2204,7 +2046,7 @@ components:
           - $ref: '#/components/schemas/SupportedLocale'
           - type: 'null'
           example: en
-    PasswordStepViewDataDTO:
+    EmailOtpStepViewDataDTO:
       type: object
       additionalProperties: false
       required:
@@ -2212,162 +2054,17 @@ components:
       properties:
         stepType:
           type: string
-          const: password
+          const: email-otp
         viewType:
           type: string
           enum:
-          - default
-          - phoneAuthNotAllowed
-          - unknownDevice
-        captchaRequired:
-          type: boolean
-          description: Требуется ли CAPTCHA для текущей формы.
-    SmsOtpStepViewDataDTO:
-      type: object
-      additionalProperties: false
-      required:
-      - stepType
-      properties:
-        stepType:
-          type: string
-          const: sms-otp
-        viewType:
-          type: string
-          enum:
-          - default
           - secondFactor
-        smsOtpAddressView:
-          type:
-          - string
-          - 'null'
-          description: Маскированный или полный номер телефона для SMS OTP.
-        smsOtpProcessId:
+        emailOtpProcessId:
           type:
           - string
           - 'null'
           format: uuid
-          description: Идентификатор SMS OTP процесса.
-        emailDeliveryAvailable:
-          type: boolean
-          description: Доступна ли переключение резервной доставки кода на верифицированный email.
-    SystemMessagesByLocaleDTO:
-      type:
-      - object
-      - 'null'
-      description: 'Активные системные сообщения, сгруппированные по локалям.
-
-        Значение `null` передаётся, когда активных сообщений нет или сервис системных сообщений недоступен.'
-      properties:
-        ru:
-          type: array
-          items:
-            $ref: '#/components/schemas/SystemMessageDTO'
-        en:
-          type: array
-          items:
-            $ref: '#/components/schemas/SystemMessageDTO'
-    SupportDrawerContentDTO:
-      type: object
-      properties:
-        sections:
-          type:
-          - array
-          - 'null'
-          example:
-          - title: Малый бизнес
-            subtitle: Подзаголовок
-            items:
-            - icon: phone
-              title: Для бесплатных звонков по России
-              value: 8 800 700-99-95
-          items:
-            $ref: '#/components/schemas/SupportDrawerSectionDTO'
-        infoBannerText:
-          type:
-          - string
-          - 'null'
-          example: Поддержка работает в будни с 5:00 до 20:00 (Время московское)
-    ConsentStepViewDataDTO:
-      type: object
-      additionalProperties: false
-      required:
-      - stepType
-      properties:
-        stepType:
-          type: string
-          const: consent
-        viewType:
-          type: string
-          enum:
-          - default
-        clientName:
-          type:
-          - string
-          - 'null'
-          description: Имя клиентского приложения для consent-формы.
-        availableScopeGroups:
-          type:
-          - string
-          - 'null'
-          description: Доступные группы scope для consent-формы в comma-separated формате.
-    SystemMessageDTO:
-      type: object
-      required:
-      - id
-      properties:
-        id:
-          type: string
-          format: uuid
-          example: 550e8400-e29b-41d4-a716-446655440000
-        title:
-          type:
-          - string
-          - 'null'
-          example: Важное уведомление
-        message:
-          type:
-          - string
-          - 'null'
-          example: Система будет недоступна с 22:00 до 23:00
-    SupportDrawerItemDTO:
-      type: object
-      properties:
-        icon:
-          type:
-          - string
-          - 'null'
-          example: phone
-        title:
-          type:
-          - string
-          - 'null'
-          example: Для бесплатных звонков по России
-        value:
-          type:
-          - string
-          - 'null'
-          example: 8 800 700-99-95
-    PhoneStepViewDataDTO:
-      type: object
-      additionalProperties: false
-      required:
-      - stepType
-      properties:
-        stepType:
-          type: string
-          const: phone
-        viewType:
-          type: string
-          enum:
-          - default
-        principal:
-          type:
-          - string
-          - 'null'
-          description: Ранее введённый идентификатор пользователя.
-        captchaRequired:
-          type: boolean
-          description: Требуется ли CAPTCHA для текущей формы.
+          description: Идентификатор email OTP процесса.
     ErrorPageDataDTO:
       type: object
       required:
@@ -2426,6 +2123,27 @@ components:
                   description: Список действий, доступных пользователю на странице ошибки.
                   items:
                     $ref: '#/components/schemas/ErrorActionItemDTO'
+    PhoneStepViewDataDTO:
+      type: object
+      additionalProperties: false
+      required:
+      - stepType
+      properties:
+        stepType:
+          type: string
+          const: phone
+        viewType:
+          type: string
+          enum:
+          - default
+        principal:
+          type:
+          - string
+          - 'null'
+          description: Ранее введённый идентификатор пользователя.
+        captchaRequired:
+          type: boolean
+          description: Требуется ли CAPTCHA для текущей формы.
     ErrorActionItemDTO:
       type: object
       required:
@@ -2454,13 +2172,288 @@ components:
           - 'null'
           description: URL для действия. Обязателен для RELOAD, RETRY_LOGIN и REDIRECT.
           example: /login/restart
-    Version:
+    SmsOtpStepViewDataDTO:
+      type: object
+      additionalProperties: false
+      required:
+      - stepType
+      properties:
+        stepType:
+          type: string
+          const: sms-otp
+        viewType:
+          type: string
+          enum:
+          - default
+          - secondFactor
+        smsOtpAddressView:
+          type:
+          - string
+          - 'null'
+          description: Маскированный или полный номер телефона для SMS OTP.
+        smsOtpProcessId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Идентификатор SMS OTP процесса.
+        emailDeliveryAvailable:
+          type: boolean
+          description: Доступна ли переключение резервной доставки кода на верифицированный email.
+    ConsentStepViewDataDTO:
+      type: object
+      additionalProperties: false
+      required:
+      - stepType
+      properties:
+        stepType:
+          type: string
+          const: consent
+        viewType:
+          type: string
+          enum:
+          - default
+        clientName:
+          type:
+          - string
+          - 'null'
+          description: Имя клиентского приложения для consent-формы.
+        availableScopeGroups:
+          type:
+          - string
+          - 'null'
+          description: Доступные группы scope для consent-формы в comma-separated формате.
+    SupportDrawerHeaderDTO:
       type: object
       properties:
-        version:
-          type: string
+        title:
+          type:
+          - string
+          - 'null'
+          example: Служба поддержки
+        description:
+          type:
+          - string
+          - 'null'
+          example: Чтобы мы вас узнали, понадобится сказать ИНН и сумму последней операции по счету
+        chatButtonText:
+          type:
+          - string
+          - 'null'
+          example: Написать в чат
+    SystemMessageDTO:
+      type: object
       required:
-      - version
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440000
+        title:
+          type:
+          - string
+          - 'null'
+          example: Важное уведомление
+        message:
+          type:
+          - string
+          - 'null'
+          example: Система будет недоступна с 22:00 до 23:00
+    UsernamePasswordStepViewDataDTO:
+      type: object
+      additionalProperties: false
+      required:
+      - stepType
+      properties:
+        stepType:
+          type: string
+          const: username-password
+        viewType:
+          type: string
+          enum:
+          - default
+          - phoneDuplicated
+        phoneNumberView:
+          type:
+          - string
+          - 'null'
+          description: Номер телефона для отображения на форме логина и пароля.
+        principal:
+          type:
+          - string
+          - 'null'
+          description: Ранее введённый идентификатор пользователя.
+        captchaRequired:
+          type: boolean
+          description: Требуется ли CAPTCHA для текущей формы.
+    LoginFormErrorDetails:
+      type:
+      - object
+      - 'null'
+      description: Коды ошибок формы входа, распределённые по месту отображения.
+      properties:
+        principalError:
+          type:
+          - string
+          - 'null'
+          description: Код ошибки, связанный с principal (идентификатором пользователя)
+          example: challenge.username-password.wrong-credentials
+        credentialsError:
+          type:
+          - string
+          - 'null'
+          description: Код ошибки, связанный с credentials (паролем или OTP кодом)
+          example: challenge.sms-otp.wrong-credentials
+        otherError:
+          type:
+          - string
+          - 'null'
+          description: Код прочих ошибок (например, серверные ошибки или лимиты)
+          example: authentication.sms-otp.process-limit-exceeded
+    SystemMessagesByLocaleDTO:
+      type:
+      - object
+      - 'null'
+      description: 'Активные системные сообщения, сгруппированные по локалям.
+
+        Значение `null` передаётся, когда активных сообщений нет или сервис системных сообщений недоступен.'
+      properties:
+        ru:
+          type: array
+          items:
+            $ref: '#/components/schemas/SystemMessageDTO'
+        en:
+          type: array
+          items:
+            $ref: '#/components/schemas/SystemMessageDTO'
+    SupportDrawerDTO:
+      type: object
+      description: Конфигурация дровера поддержки для одной локали.
+      allOf:
+      - $ref: '#/components/schemas/SupportDrawerHeaderDTO'
+      - $ref: '#/components/schemas/SupportDrawerContentDTO'
+    SupportDrawerByLocaleDTO:
+      type:
+      - object
+      - 'null'
+      description: 'Мапа локалей на конфигурацию дровера поддержки.
+
+        Ключи соответствуют локалям (`ru`, `en`).'
+      properties:
+        ru:
+          $ref: '#/components/schemas/SupportDrawerDTO'
+        en:
+          $ref: '#/components/schemas/SupportDrawerDTO'
+    PasswordStepViewDataDTO:
+      type: object
+      additionalProperties: false
+      required:
+      - stepType
+      properties:
+        stepType:
+          type: string
+          const: password
+        viewType:
+          type: string
+          enum:
+          - default
+          - phoneAuthNotAllowed
+          - unknownDevice
+        captchaRequired:
+          type: boolean
+          description: Требуется ли CAPTCHA для текущей формы.
+    SupportDrawerItemDTO:
+      type: object
+      properties:
+        icon:
+          type:
+          - string
+          - 'null'
+          example: phone
+        title:
+          type:
+          - string
+          - 'null'
+          example: Для бесплатных звонков по России
+        value:
+          type:
+          - string
+          - 'null'
+          example: 8 800 700-99-95
+    LoginStepRequestDTO:
+      type: object
+      required:
+      - _csrf
+      description: Поля формы зависят от текущего stepType. CSRF токен передаётся в обязательном поле _csrf.
+      properties:
+        principal:
+          type: string
+          description: Логин для шага username-password или номер телефона для шага phone.
+        credentials:
+          type: string
+          format: password
+          description: Пароль для шагов username-password/password или код для sms-otp/email-otp.
+        selected_scope_groups:
+          type: string
+          description: Выбранные группы scopes для consent, через запятую.
+        smart-token:
+          type: string
+          description: Токен CAPTCHA, когда stepViewData.captchaRequired равен true.
+        _csrf:
+          type: string
+          description: CSRF токен из viewData.pageData.authenticationFlowContext.csrf.
+    SupportDrawerContentDTO:
+      type: object
+      properties:
+        sections:
+          type:
+          - array
+          - 'null'
+          example:
+          - title: Малый бизнес
+            subtitle: Подзаголовок
+            items:
+            - icon: phone
+              title: Для бесплатных звонков по России
+              value: 8 800 700-99-95
+          items:
+            $ref: '#/components/schemas/SupportDrawerSectionDTO'
+        infoBannerText:
+          type:
+          - string
+          - 'null'
+          example: Поддержка работает в будни с 5:00 до 20:00 (Время московское)
+    SupportedLocale:
+      type: string
+      description: Допустимая локаль аутентификационного сценария. Остальные значения не поддерживаются.
+      enum:
+      - ru
+      - en
+      example: ru
+    SupportDrawerSectionDTO:
+      type: object
+      properties:
+        title:
+          type:
+          - string
+          - 'null'
+          example: Малый бизнес
+        subtitle:
+          type:
+          - string
+          - 'null'
+          example: Подзаголовок
+        items:
+          type:
+          - array
+          - 'null'
+          example:
+          - icon: phone
+            title: Для бесплатных звонков по России
+            value: 8 800 700-99-95
+          items:
+            $ref: '#/components/schemas/SupportDrawerItemDTO'
     NewsContentCounterResource:
       type: object
       description: ''
@@ -2520,45 +2513,13 @@ components:
           description: Статус прочитанности
       required:
       - read
-    DigestStatResource:
+    Version:
       type: object
-      description: ''
-      example:
-        read: true
-        rating: 1
       properties:
-        read:
-          type: boolean
-          description: Статус прочитанности
-        rating:
-          type: integer
-          format: int32
-          description: Оценка контента
-    DigestTopicResource:
-      type: object
-      description: ''
-      properties:
-        id:
+        version:
           type: string
-          description: Id темы обзора
-        title:
-          type: string
-          description: Заголовок
-        body:
-          type: string
-          description: Описание
-        link:
-          $ref: '#/components/schemas/LinkResource'
-          description: Ссылка на исходный текст
-        order:
-          type: integer
-          format: int64
-          description: Порядковый номер темы
       required:
-      - body
-      - link
-      - order
-      - title
+      - version
     DigestV2Resources:
       type: object
       description: ''
@@ -2614,6 +2575,70 @@ components:
       - limit
       - offset
       - totalCount
+    LinkResource:
+      type: object
+      description: ''
+      properties:
+        url:
+          type: string
+          description: Ссылка на статью
+        label:
+          type: string
+          description: Текст для гиперссылки
+      required:
+      - label
+      - url
+    DigestTopicResource:
+      type: object
+      description: ''
+      properties:
+        id:
+          type: string
+          description: Id темы обзора
+        title:
+          type: string
+          description: Заголовок
+        body:
+          type: string
+          description: Описание
+        link:
+          $ref: '#/components/schemas/LinkResource'
+          description: Ссылка на исходный текст
+        order:
+          type: integer
+          format: int64
+          description: Порядковый номер темы
+      required:
+      - body
+      - link
+      - order
+      - title
+    DigestPromoResource:
+      type: object
+      description: ''
+      properties:
+        id:
+          type: string
+          description: Id рекламы вебинара
+        webinarId:
+          type: string
+          description: Id вебинара
+      required:
+      - webinarId
+    DigestStatResource:
+      type: object
+      description: ''
+      example:
+        read: true
+        rating: 1
+      properties:
+        read:
+          type: boolean
+          description: Статус прочитанности
+        rating:
+          type: integer
+          format: int32
+          description: Оценка контента
     DigestResource:
       type: object
       description: ''
@@ -2684,31 +2709,38 @@ components:
       - subtitle
       - title
       - topics
-    LinkResource:
-      type: object
-      description: ''
-      properties:
-        url:
-          type: string
-          description: Ссылка на статью
-        label:
-          type: string
-          description: Текст для гиперссылки
-      required:
-      - label
-      - url
-    DigestPromoResource:
+    ProductNewsSlideResource:
       type: object
       description: ''
       properties:
         id:
           type: string
-          description: Id рекламы вебинара
-        webinarId:
+          description: Id контента
+        body:
           type: string
-          description: Id вебинара
+          description: Текст слайда
+        button:
+          $ref: '#/components/schemas/ButtonResource'
+          description: Информация о кнопке
+        order:
+          type: integer
+          format: int64
+          description: Номер порядка слайда
+        contactForm:
+          $ref: '#/components/schemas/ContactFormResource'
+          description: Информация для контактной формы
       required:
-      - webinarId
+      - body
+      - order
+    ContactFormResource:
+      type: object
+      description: ''
+      properties:
+        label:
+          type: string
+          description: Заголовок для контактной формы
+      required:
+      - label
     ProductNewsV2Resources:
       type: object
       description: ''
@@ -2760,29 +2792,51 @@ components:
       - limit
       - offset
       - totalCount
-    ProductNewsSlideResource:
+    ColorStyleOpenApi:
       type: object
       description: ''
       properties:
-        id:
+        backgroundColor:
           type: string
-          description: Id контента
-        body:
+          description: Цвет слайдов
+        contentBackgroundColor:
           type: string
-          description: Текст слайда
-        button:
-          $ref: '#/components/schemas/ButtonResource'
-          description: Информация о кнопке
-        order:
-          type: integer
-          format: int64
-          description: Номер порядка слайда
-        contactForm:
-          $ref: '#/components/schemas/ContactFormResource'
-          description: Информация для контактной формы
+          description: Цвет фона для текста
+        accentColor:
+          type: string
+          description: Цвет текста
       required:
-      - body
-      - order
+      - accentColor
+      - backgroundColor
+      - contentBackgroundColor
+    ButtonResource:
+      type: object
+      description: ''
+      properties:
+        label:
+          type: string
+          description: Название кнопки
+        url:
+          type: string
+          description: URL адрес, на который ссылается кнопка
+      required:
+      - label
+      - url
+    ProductNewsMediaResource:
+      type: object
+      description: ''
+      properties:
+        url:
+          type: string
+          description: Ссылка для скачивания
+        type:
+          type: string
+          description: Тип медиа
+          enum:
+          - IMAGE
+      required:
+      - type
+      - url
     ProductNewsV2Resource:
       type: object
       description: ''
@@ -2857,60 +2911,6 @@ components:
       - style
       - subtitle
       - title
-    ProductNewsMediaResource:
-      type: object
-      description: ''
-      properties:
-        url:
-          type: string
-          description: Ссылка для скачивания
-        type:
-          type: string
-          description: Тип медиа
-          enum:
-          - IMAGE
-      required:
-      - type
-      - url
-    ContactFormResource:
-      type: object
-      description: ''
-      properties:
-        label:
-          type: string
-          description: Заголовок для контактной формы
-      required:
-      - label
-    ButtonResource:
-      type: object
-      description: ''
-      properties:
-        label:
-          type: string
-          description: Название кнопки
-        url:
-          type: string
-          description: URL адрес, на который ссылается кнопка
-      required:
-      - label
-      - url
-    ColorStyleOpenApi:
-      type: object
-      description: ''
-      properties:
-        backgroundColor:
-          type: string
-          description: Цвет слайдов
-        contentBackgroundColor:
-          type: string
-          description: Цвет фона для текста
-        accentColor:
-          type: string
-          description: Цвет текста
-      required:
-      - accentColor
-      - backgroundColor
-      - contentBackgroundColor
     WebinarAttachmentResource:
       type: object
       description: ''
@@ -2937,92 +2937,21 @@ components:
       required:
       - name
       - type
-    WebinarsV2Resources:
+    WebinarMediaResource:
       type: object
       description: ''
-      example:
-        content:
-        - id: id
-          new: true
-          status: PUBLISHED
-          eventStatus: STARTED
-          eventStatusLabel: В эфире
-          title: Ключевую ставку, вероятно, не снизят до конца года
-          body: '**Центробанк не изменил ключевую ставку, но ужесточил риторику**
-
-
-            7 июня прошло заседание Центробанка по ключевой ставке. Регулятор, как мы и ожидали, решил оставить ее на уровне 16%. На пресс-конференции Эльвира Набиуллина отметила, что также были рассмотрены варианты повышения на 100 и 200 базисных пунктов. 
-
-
-            По нашим оценкам, Центробанк ужесточил риторику. Во-первых, он «допускает возможность повышения ключевой ставки на ближайшем заседании» — для прошлых заседаний такое указание не публиковалось. Во-вторых, регулятор выделил, что жесткие денежно-кредитные условия необходимо поддерживать существенно дольше, чем планировалось раньше.
-
-
-            Такая риторика связана с ценовой динамикой, которая, видимо, не позволяет в этом году приблизить инфляцию к целевому уровню. Так, в апреле регулятор планировал замедление до диапазона 4,3–4,8% в 2024 году и до 4% в 2025 году. Но в этот раз цель на 2024 год была убрана из пресс-релиза.
-
-
-            **Регулятор отложил вопрос о необходимости повысить ключевую ставку до конца июля**
-
-
-            До заседания в конце июля Центробанк планирует анализировать соответствие основных показателей базовому сценарию. 
-
-
-            Мы полагаем, что отклонение от него будет означать необходимость дополнительно повысить ключевую ставку. Эльвира Набиуллина заявила, что шаг в таком случае будет существенным — от 1 процентного пункта. Сейчас Центробанк считает этот сценарий альтернативным. Риски его реализации высоки. 
-
-
-            Вместе с тем вопрос о возможном снижении ключевой ставки временно снят с обсуждения. Вряд ли регулятор вернется к его рассмотрению до конца года.
-
-
-            **Больше о трендах экономики расскажем на вебинаре**
-
-
-            25 июня, 11:00–12:30 по Москве
-
-
-            [Заявление об ограничении ответственности](https://www.raiffeisen.ru/about/analytics/?active_tab=tab-5) '
-          publishDate: '2024-09-18T09:53:03+03:00'
-          startEventDate: '2025-01-11T13:00:00+03:00'
-          finishEventDate: '2025-01-11T15:00:00+03:00'
-          image:
-            url: https://cdn.rbo.raiffeisen.ru/offerpics/cdm/01.png
-            type: IMAGE
-          button:
-            label: Зарегистрироваться
-            url: https://ya.ru
-          style:
-            accentColor: PastelAccent.sochi1
-            backgroundColor: PastelSurface.sochi1
-            contentBackgroundColor: PastelSurface.sochi2
-          attachments:
-          - id: id-1
-            name: Иллюстрация к вебинару
-            url: https://cdn.rbo.raiffeisen.ru/offerpics/cdm/testPDF.pdf
-            type: PDF
-        offset: 0
-        limit: 100
-        totalCount: 1
       properties:
-        content:
-          type: array
-          description: Список вебинаров
-          items:
-            $ref: '#/components/schemas/WebinarV2Resource'
-        offset:
-          type: integer
-          format: int32
-          description: Смещение относительно начала списка
-        limit:
-          type: integer
-          format: int32
-          description: Максимальное количество записей
-        totalCount:
-          type: integer
-          format: int64
-          description: Общее количество записей
+        url:
+          type: string
+          description: Ссылка для скачивания
+        type:
+          type: string
+          description: Тип медиа
+          enum:
+          - IMAGE
       required:
-      - content
-      - limit
-      - offset
-      - totalCount
+      - type
+      - url
     WebinarV2Resource:
       type: object
       description: ''
@@ -3150,21 +3079,92 @@ components:
       - status
       - style
       - title
-    WebinarMediaResource:
+    WebinarsV2Resources:
       type: object
       description: ''
+      example:
+        content:
+        - id: id
+          new: true
+          status: PUBLISHED
+          eventStatus: STARTED
+          eventStatusLabel: В эфире
+          title: Ключевую ставку, вероятно, не снизят до конца года
+          body: '**Центробанк не изменил ключевую ставку, но ужесточил риторику**
+
+
+            7 июня прошло заседание Центробанка по ключевой ставке. Регулятор, как мы и ожидали, решил оставить ее на уровне 16%. На пресс-конференции Эльвира Набиуллина отметила, что также были рассмотрены варианты повышения на 100 и 200 базисных пунктов. 
+
+
+            По нашим оценкам, Центробанк ужесточил риторику. Во-первых, он «допускает возможность повышения ключевой ставки на ближайшем заседании» — для прошлых заседаний такое указание не публиковалось. Во-вторых, регулятор выделил, что жесткие денежно-кредитные условия необходимо поддерживать существенно дольше, чем планировалось раньше.
+
+
+            Такая риторика связана с ценовой динамикой, которая, видимо, не позволяет в этом году приблизить инфляцию к целевому уровню. Так, в апреле регулятор планировал замедление до диапазона 4,3–4,8% в 2024 году и до 4% в 2025 году. Но в этот раз цель на 2024 год была убрана из пресс-релиза.
+
+
+            **Регулятор отложил вопрос о необходимости повысить ключевую ставку до конца июля**
+
+
+            До заседания в конце июля Центробанк планирует анализировать соответствие основных показателей базовому сценарию. 
+
+
+            Мы полагаем, что отклонение от него будет означать необходимость дополнительно повысить ключевую ставку. Эльвира Набиуллина заявила, что шаг в таком случае будет существенным — от 1 процентного пункта. Сейчас Центробанк считает этот сценарий альтернативным. Риски его реализации высоки. 
+
+
+            Вместе с тем вопрос о возможном снижении ключевой ставки временно снят с обсуждения. Вряд ли регулятор вернется к его рассмотрению до конца года.
+
+
+            **Больше о трендах экономики расскажем на вебинаре**
+
+
+            25 июня, 11:00–12:30 по Москве
+
+
+            [Заявление об ограничении ответственности](https://www.raiffeisen.ru/about/analytics/?active_tab=tab-5) '
+          publishDate: '2024-09-18T09:53:03+03:00'
+          startEventDate: '2025-01-11T13:00:00+03:00'
+          finishEventDate: '2025-01-11T15:00:00+03:00'
+          image:
+            url: https://cdn.rbo.raiffeisen.ru/offerpics/cdm/01.png
+            type: IMAGE
+          button:
+            label: Зарегистрироваться
+            url: https://ya.ru
+          style:
+            accentColor: PastelAccent.sochi1
+            backgroundColor: PastelSurface.sochi1
+            contentBackgroundColor: PastelSurface.sochi2
+          attachments:
+          - id: id-1
+            name: Иллюстрация к вебинару
+            url: https://cdn.rbo.raiffeisen.ru/offerpics/cdm/testPDF.pdf
+            type: PDF
+        offset: 0
+        limit: 100
+        totalCount: 1
       properties:
-        url:
-          type: string
-          description: Ссылка для скачивания
-        type:
-          type: string
-          description: Тип медиа
-          enum:
-          - IMAGE
+        content:
+          type: array
+          description: Список вебинаров
+          items:
+            $ref: '#/components/schemas/WebinarV2Resource'
+        offset:
+          type: integer
+          format: int32
+          description: Смещение относительно начала списка
+        limit:
+          type: integer
+          format: int32
+          description: Максимальное количество записей
+        totalCount:
+          type: integer
+          format: int64
+          description: Общее количество записей
       required:
-      - type
-      - url
+      - content
+      - limit
+      - offset
+      - totalCount
     ApiErrorDto:
       type: object
       properties:
@@ -3178,63 +3178,49 @@ components:
           type: array
           items:
             type: string
-    DebtLoroReportModelRs:
+    PeriodRs:
       required:
-      - accounts
-      - clientName
-      - cnum
-      - period
-      - reportDetails
-      - reportType
-      - totalDueAmount
+      - from
+      - to
       type: object
       properties:
-        cnum:
+        from:
           type: string
-          description: Уникальный идентификатор клиента (CNUM)
-          example: Z12345
-        period:
-          $ref: '#/components/schemas/PeriodRs'
-        clientName:
+          description: Дата, с которой идёт выборка отчётов
+          format: date
+          example: '2025-07-24'
+        to:
           type: string
-          description: Имя клиента
-          example: RAIFFEISEN BANK INTERNATIONAL
-        accounts:
+          description: Дата, по которую идёт выборка отчётов
+          format: date
+          example: '2025-07-25'
+    OffsetPageDebtLoroReportModelRs:
+      required:
+      - data
+      - limit
+      - offset
+      - totalCount
+      type: object
+      properties:
+        data:
           type: array
-          description: Расчётные счета
-          example:
-          - '30111810500000100004'
-          - '30111810500000100001'
           items:
-            type: string
-            description: Расчётные счета
-            example: '["30111810500000100004","30111810500000100001"]'
-        totalDueAmount:
-          type: number
-          description: Общая сумма задолженности
-          example: 100.0
-        reportDetails:
-          type: array
-          description: Детальные отчёты по дебиторской задолженности
-          items:
-            $ref: '#/components/schemas/DebtLoroReportRowRs'
-        reportType:
-          type: string
-          description: Тип отчёта
-          example: RUB_BALANCES
-          enum:
-          - AVIZO_MT900_MT910
-          - CURRENCY_PAYMENT
-          - NON_STP
-          - RUB_BALANCES
-          - FCY_BALANCES
-          - INTEREST_LORO_MONTHLY
-          - OVERDRAFT_LORO_MONTHLY
-          - DEBT_LORO_MONTHLY
-          - DEBT_NFI_MONTHLY
-          - RUB_FEE_LORO_MONTHLY
-          - ARREST_LORO_DAILY
-      description: Отчёт о дебиторской задолженности
+            $ref: '#/components/schemas/DebtLoroReportModelRs'
+        offset:
+          type: integer
+          description: Смещение, с которого взяты элементы
+          format: int32
+          example: 0
+        limit:
+          type: integer
+          description: Количество переданных элементов
+          format: int32
+          example: 10
+        totalCount:
+          type: integer
+          description: Общее количество элементов
+          format: int64
+          example: 10
     DebtLoroReportRowRs:
       required:
       - creationDate
@@ -3432,49 +3418,63 @@ components:
           format: date
           example: '2025-07-01'
       description: Детали отчёта о дебиторской задолженности
-    OffsetPageDebtLoroReportModelRs:
+    DebtLoroReportModelRs:
       required:
-      - data
-      - limit
-      - offset
-      - totalCount
+      - accounts
+      - clientName
+      - cnum
+      - period
+      - reportDetails
+      - reportType
+      - totalDueAmount
       type: object
       properties:
-        data:
+        cnum:
+          type: string
+          description: Уникальный идентификатор клиента (CNUM)
+          example: Z12345
+        period:
+          $ref: '#/components/schemas/PeriodRs'
+        clientName:
+          type: string
+          description: Имя клиента
+          example: RAIFFEISEN BANK INTERNATIONAL
+        accounts:
           type: array
+          description: Расчётные счета
+          example:
+          - '30111810500000100004'
+          - '30111810500000100001'
           items:
-            $ref: '#/components/schemas/DebtLoroReportModelRs'
-        offset:
-          type: integer
-          description: Смещение, с которого взяты элементы
-          format: int32
-          example: 0
-        limit:
-          type: integer
-          description: Количество переданных элементов
-          format: int32
-          example: 10
-        totalCount:
-          type: integer
-          description: Общее количество элементов
-          format: int64
-          example: 10
-    PeriodRs:
-      required:
-      - from
-      - to
-      type: object
-      properties:
-        from:
+            type: string
+            description: Расчётные счета
+            example: '["30111810500000100004","30111810500000100001"]'
+        totalDueAmount:
+          type: number
+          description: Общая сумма задолженности
+          example: 100.0
+        reportDetails:
+          type: array
+          description: Детальные отчёты по дебиторской задолженности
+          items:
+            $ref: '#/components/schemas/DebtLoroReportRowRs'
+        reportType:
           type: string
-          description: Дата, с которой идёт выборка отчётов
-          format: date
-          example: '2025-07-24'
-        to:
-          type: string
-          description: Дата, по которую идёт выборка отчётов
-          format: date
-          example: '2025-07-25'
+          description: Тип отчёта
+          example: RUB_BALANCES
+          enum:
+          - AVIZO_MT900_MT910
+          - CURRENCY_PAYMENT
+          - NON_STP
+          - RUB_BALANCES
+          - FCY_BALANCES
+          - INTEREST_LORO_MONTHLY
+          - OVERDRAFT_LORO_MONTHLY
+          - DEBT_LORO_MONTHLY
+          - DEBT_NFI_MONTHLY
+          - RUB_FEE_LORO_MONTHLY
+          - ARREST_LORO_DAILY
+      description: Отчёт о дебиторской задолженности
     BicDto:
       type: object
       properties:
@@ -3577,6 +3577,17 @@ components:
           type:
           - string
           - 'null'
+    EmployeeRoleRequest:
+      type: object
+      required:
+      - userId
+      - cnum
+      properties:
+        userId:
+          type: string
+          format: uuid
+        cnum:
+          type: string
     EmployeeRoleResponse:
       type: object
       required:
@@ -3593,22 +3604,23 @@ components:
           type:
           - string
           - 'null'
-    EmployeeRoleRequest:
-      type: object
-      required:
-      - userId
-      - cnum
-      properties:
-        userId:
-          type: string
-          format: uuid
-        cnum:
-          type: string
   parameters:
+    CsrfHeader:
+      name: X-XSRF-TOKEN
+      in: header
+      description: CSRF токен из viewData; можно передать вместо поля _csrf в теле формы.
+      schema:
+        type: string
     FailedAuthenticationFlowCookie:
       name: failed_authentication_flow_id
       in: cookie
       description: Идентификатор процесса входа, завершившегося ошибкой; используется для повтора входа и смены языка.
+      schema:
+        type: string
+    CsrfCookie:
+      name: XSRF-TOKEN
+      in: cookie
+      description: Служебная CSRF cookie. Браузер сохраняет её и отправляет вместе с запросами формы.
       schema:
         type: string
     AuthenticationFlowCookie:
@@ -3619,33 +3631,12 @@ components:
         Состояние процесса хранится на сервере. Для отправки форм нужен действующий процесс входа.'
       schema:
         type: string
-    CsrfCookie:
-      name: XSRF-TOKEN
-      in: cookie
-      description: Служебная CSRF cookie. Браузер сохраняет её и отправляет вместе с запросами формы.
-      schema:
-        type: string
     LoginClientEntryCookie:
       name: login_client_entry
       in: cookie
       description: Подписанная HttpOnly cookie для возврата на зарегистрированный адрес клиентской системы.
       schema:
         type: string
-    CsrfHeader:
-      name: X-XSRF-TOKEN
-      in: header
-      description: CSRF токен из viewData; можно передать вместо поля _csrf в теле формы.
-      schema:
-        type: string
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -3655,12 +3646,16 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
-  headers:
-    RedirectLocation:
-      description: Адрес следующего GET запроса браузера.
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
       schema:
         type: string
-        format: uri-reference
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+  headers:
     UiCookies:
       description: 'Служебные cookies процесса входа, CSRF и пользовательских настроек.
 
@@ -3669,6 +3664,11 @@ components:
         XSRF-TOKEN, step_error_details, error_page_details и failed_authentication_flow_id.'
       schema:
         type: string
+    RedirectLocation:
+      description: Адрес следующего GET запроса браузера.
+      schema:
+        type: string
+        format: uri-reference
   responses:
     UiErrorRedirect:
       description: Редирект на /error; данные ошибки передаются в служебной cookie error_page_details.
@@ -3680,10 +3680,10 @@ components:
             const: /error
         Set-Cookie:
           $ref: '#/components/headers/UiCookies'
-    Unauthorized:
-      description: Аутентификация не пройдена
     InternalError:
       description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена
   securitySchemes:
     bearerAuth:
       type: http
@@ -3691,13 +3691,6 @@ components:
       bearerFormat: JWT
       description: Access Token, полученный в ответе /oauth2/token.
 x-refined-from:
-- raiffeisen-ru-authorization-openapi.yml
-- raiffeisen-ru-content-interactions-openapi.yml
-- raiffeisen-ru-content-macroeconomic-reviews-openapi.yml
-- raiffeisen-ru-content-product-news-openapi.yml
-- raiffeisen-ru-content-webinars-openapi.yml
-- raiffeisen-ru-loro-openapi.yml
-- raiffeisen-ru-user-permissions-openapi.yml
 - raiffeisen-ru-authorization-openapi.yml
 - raiffeisen-ru-content-interactions-openapi.yml
 - raiffeisen-ru-content-macroeconomic-reviews-openapi.yml

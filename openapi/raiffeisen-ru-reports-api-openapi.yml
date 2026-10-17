@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Reports API
   version: 0.0.17
-  description: 'Operations tagged reports across 2 of this provider''s published API definitions: raiffeisen-ru-treasury-balance-reports-openapi.yml, raiffeisen-ru-treasury-balance-reports-openapi.yml. Each path carries the servers of the definition it was published in.'
+  title: Единое казначейство.
 servers:
 - url: https://api.raiffeisen.ru/treasury
 tags:
@@ -71,8 +70,6 @@ paths:
           $ref: '#/components/responses/InternalError'
       tags:
       - Reports
-    servers:
-    - url: https://api.raiffeisen.ru/treasury
   /v1/treasuries/{id}/reports:
     get:
       summary: Получить список отчетов
@@ -125,8 +122,6 @@ paths:
           $ref: '#/components/responses/InternalError'
       tags:
       - Reports
-    servers:
-    - url: https://api.raiffeisen.ru/treasury
   /v1/treasuries/{id}/reports/{reportId}:
     get:
       summary: Скачать отчет
@@ -174,15 +169,35 @@ paths:
           $ref: '#/components/responses/InternalError'
       tags:
       - Reports
-    servers:
-    - url: https://api.raiffeisen.ru/treasury
 components:
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
+  examples:
+    ReportResponseExample:
+      summary: Пример ответа при заказе отчета
+      value:
+        id: b3bbb456-dd0d-489d-9bc7-8b250e7808c9
+    TreasuryReportsResponseExample:
+      summary: Пример ответа для получения списка заказанных отчетов пользователем
+      value:
+        reports:
+        - id: b3bbb456-dd0d-489d-9bc7-8b250e7808c9
+          createdAt: '2025-01-01'
+          status: COMPLETED
+        - id: e20a4fa3-1457-4984-8dfa-c543209f40c1
+          createdAt: '2025-01-02'
+          status: COMPLETED
+        offset: 0
+        limit: 10
+        totalCount: 2
   parameters:
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
     AuthorizationHeader:
       name: Authorization
       in: header
@@ -201,16 +216,46 @@ components:
         type: string
       description: Валюта счетов
       example: RUB
-    IdTokenHeader:
-      name: Id-Token
-      in: header
-      description: Идентификационный токен пользователя
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
   schemas:
+    Period:
+      type: object
+      required:
+      - dateFrom
+      - dateTo
+      description: За какой период сформирован отчет
+      properties:
+        dateFrom:
+          format: date
+          type: string
+          example: '2023-10-01'
+          description: Дата начала отчета в формате yyyy-MM-dd
+        dateTo:
+          format: date
+          type: string
+          example: '2023-10-31'
+          description: Дата окончания отчета в формате yyyy-MM-dd
+    TreasuryReportsResponse:
+      type: object
+      required:
+      - reports
+      - offset
+      - limit
+      - totalCount
+      properties:
+        reports:
+          items:
+            $ref: '#/components/schemas/ReportFullResponse'
+          type: array
+          description: Отчеты
+        offset:
+          type: integer
+          format: int32
+        limit:
+          type: integer
+          format: int32
+        totalCount:
+          type: integer
+          format: int64
     ReportFullResponse:
       type: object
       required:
@@ -247,63 +292,8 @@ components:
           type: string
           description: Version 4 UUID
           format: UUID
-    TreasuryReportsResponse:
-      type: object
-      required:
-      - reports
-      - offset
-      - limit
-      - totalCount
-      properties:
-        reports:
-          items:
-            $ref: '#/components/schemas/ReportFullResponse'
-          type: array
-          description: Отчеты
-        offset:
-          type: integer
-          format: int32
-        limit:
-          type: integer
-          format: int32
-        totalCount:
-          type: integer
-          format: int64
-    Period:
-      type: object
-      required:
-      - dateFrom
-      - dateTo
-      description: За какой период сформирован отчет
-      properties:
-        dateFrom:
-          format: date
-          type: string
-          example: '2023-10-01'
-          description: Дата начала отчета в формате yyyy-MM-dd
-        dateTo:
-          format: date
-          type: string
-          example: '2023-10-31'
-          description: Дата окончания отчета в формате yyyy-MM-dd
-  examples:
-    TreasuryReportsResponseExample:
-      summary: Пример ответа для получения списка заказанных отчетов пользователем
-      value:
-        reports:
-        - id: b3bbb456-dd0d-489d-9bc7-8b250e7808c9
-          createdAt: '2025-01-01'
-          status: COMPLETED
-        - id: e20a4fa3-1457-4984-8dfa-c543209f40c1
-          createdAt: '2025-01-02'
-          status: COMPLETED
-        offset: 0
-        limit: 10
-        totalCount: 2
-    ReportResponseExample:
-      summary: Пример ответа при заказе отчета
-      value:
-        id: b3bbb456-dd0d-489d-9bc7-8b250e7808c9
-x-refined-from:
-- raiffeisen-ru-treasury-balance-reports-openapi.yml
-- raiffeisen-ru-treasury-balance-reports-openapi.yml
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена

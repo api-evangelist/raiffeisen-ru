@@ -1,17 +1,19 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Transfers V2 API
-  version: '0.1'
+  title: интеграции B2B оплат через СБП Transfers V2 API
   contact:
     email: ecom@raiffeisen.ru
     name: Support e-mail
     x-team-id: 932
     x-short-team-name: FPS B2B
+  description: '# Подключение к СБП
+
+    Для отправки СБП-платежей оставьте заявку в RBO → Продукты → В2В-платежи по СБП.'
   x-logo:
     url: images/raifflogo.png
     backgroundColor: '#FFFFFF'
     altText: Raiff logo
-  description: 'Operations tagged transfers-v2 across 2 of this provider''s published API definitions: raiffeisen-ru-raif-pay-sbp-b2b-transfers-openapi.json, raiffeisen-ru-raif-pay-sbp-b2b-transfers-openapi.yml. Each path carries the servers of the definition it was published in.'
+  version: '0.1'
 servers:
 - url: https://pay-test.raif.ru
   description: Sandbox
@@ -84,11 +86,6 @@ paths:
           $ref: '#/components/responses/Error404ResponseDto'
         '500':
           $ref: '#/components/responses/InternalServerErrorDto'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/v2/b2b/transfers/{id}:
     get:
       tags:
@@ -114,11 +111,6 @@ paths:
           $ref: '#/components/responses/Error404ResponseDto'
         '500':
           $ref: '#/components/responses/InternalServerErrorDto'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/v2/b2b/transfers/bundles:
     post:
       tags:
@@ -178,11 +170,6 @@ paths:
           $ref: '#/components/responses/Error404ResponseDto'
         '500':
           $ref: '#/components/responses/InternalServerErrorDto'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
   /api/v2/b2b/transfers/bundles/{id}:
     get:
       tags:
@@ -213,47 +200,205 @@ paths:
           $ref: '#/components/responses/Error404ResponseDto'
         '500':
           $ref: '#/components/responses/InternalServerErrorDto'
-    servers:
-    - url: https://pay-test.raif.ru
-      description: Sandbox
-    - url: https://pay.raif.ru
-      description: Production
 components:
   schemas:
-    Kpp:
+    Extra:
+      type: object
+      description: Дополнительные поля в json-формате
+      example:
+        additionalInfo: Тестовая операция
+    CreatePaymentBundleV2ReqRequest:
+      required:
+      - type
+      - id
+      - amount
+      - paymentPurpose
+      - receiver
+      type: object
+      description: Запрос на создание платежа по реквизитам в составе пакета
+      properties:
+        type:
+          type: string
+          description: Тип платежа
+        id:
+          allOf:
+          - $ref: '#/components/schemas/Id'
+        receiver:
+          $ref: '#/components/schemas/ReqReceiverRequestDto'
+        amount:
+          allOf:
+          - $ref: '#/components/schemas/Amount'
+        paymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/PaymentPurpose'
+        totalTaxAmount:
+          allOf:
+          - $ref: '#/components/schemas/TotalTaxAmount'
+        statementPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/StatementPaymentPurpose'
+        extra:
+          allOf:
+          - $ref: '#/components/schemas/Extra'
+    CreatePaymentBundleV2QrRequest:
+      required:
+      - type
+      - id
+      - qrId
+      type: object
+      description: Запрос на создание платежа по QR-коду в составе пакета
+      properties:
+        type:
+          type: string
+          description: Тип платежа
+        id:
+          allOf:
+          - $ref: '#/components/schemas/Id'
+        qrId:
+          allOf:
+          - $ref: '#/components/schemas/QrId'
+        amount:
+          allOf:
+          - $ref: '#/components/schemas/Amount'
+        paymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/PaymentPurpose'
+        totalTaxAmount:
+          allOf:
+          - $ref: '#/components/schemas/TotalTaxAmount'
+        statementPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/StatementPaymentPurpose'
+        extra:
+          allOf:
+          - $ref: '#/components/schemas/Extra'
+    Account:
       type: string
-      minLength: 9
-      maxLength: 9
-      description: КПП получателя. Обязательное если получатель ЮЛ (не ИП)
-      example: '123456789'
-    CreateDate:
+      minLength: 20
+      maxLength: 20
+      pattern: ^[0-9]+$
+      description: Банковский счёт ЮЛ или ИП для списания средств
+      example: '40817810601002630020'
+    SbpTransactionId:
       type: string
-      format: date-time
-      description: Дата и время создания платежа
-    MccTitle:
+      minLength: 10
+      maxLength: 40
+      description: Идентификатор транзакции NSPK, внесен в требование к экранным формам
+      example: '40817810601002630020'
+    QrReceiverDto:
+      required:
+      - inn
+      - legalName
+      - bank
+      - brandName
+      - address
+      type: object
+      description: Данные получателя для платежа по QR-коду
+      properties:
+        inn:
+          allOf:
+          - $ref: '#/components/schemas/Inn'
+        legalName:
+          allOf:
+          - $ref: '#/components/schemas/LegalName'
+        brandName:
+          allOf:
+          - $ref: '#/components/schemas/BrandName'
+        address:
+          allOf:
+          - $ref: '#/components/schemas/Address'
+        mcc:
+          allOf:
+          - $ref: '#/components/schemas/MccCodeDto'
+        bank:
+          allOf:
+          - $ref: '#/components/schemas/QrBankDto'
+    MccCodeDto:
+      type: object
+      description: Данные mcc-кода получателя
+      properties:
+        code:
+          $ref: '#/components/schemas/MccCode'
+        title:
+          $ref: '#/components/schemas/MccTitle'
+    Address:
       type: string
-      description: Описание MCC-кода получателя
-      example: Лимузины и такси
+      maxLength: 140
+      description: Фактический адрес ТСП
+      example: г. Москва, ул. Б.Татарская, д.133, стр.1
     ContentDigest:
       type: string
       description: Дайджест, подписываемый клиентом, является строкой в формате base64, в которой хранится результат хеш-функции sha256, представленный массивом байт. Подробности создания можно найти в <a href='https://help.pay.raif.ru/ru/sbp-b2b/sign' target='_blank'>инструкции</a>.
       example: yxlZv97...
       x-exclude-for-generate-front: true
-    ReqBankDto:
-      required:
-      - bic
+    QrId:
+      type: string
+      maxLength: 32
+      description: Уникальный идентификатор платёжной ссылки
+      example: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
+    PaymentStatus:
       type: object
-      description: Данные банка получателя
+      description: Статус платежа
+      allOf: []
+      required:
+      - updateDate
+      - value
       properties:
-        id:
+        value:
+          $ref: '#/components/schemas/SignedPaymentStatusesEnum'
+          x-exclude-for-generate-front: true
+        updateDate:
+          type: string
+          format: date-time
+          description: Дата и время обновления статуса
+          example: '2024-06-12T19:36:55+03:00'
+        failReason:
+          type: string
+          description: Причина отклонения. Указывается в случае отклонения платежа.
+    ReqReceiverRequestDto:
+      required:
+      - account
+      - inn
+      - bankBic
+      type: object
+      description: Данные получателя
+      properties:
+        account:
           allOf:
-          - $ref: '#/components/schemas/BankId'
-        name:
+          - $ref: '#/components/schemas/Account'
+          description: Банковский счёт ЮЛ или ИП получателя
+        inn:
           allOf:
-          - $ref: '#/components/schemas/BankName'
-        bic:
+          - $ref: '#/components/schemas/Inn'
+          description: ИНН ЮЛ или ИП получателя
+        kpp:
+          allOf:
+          - $ref: '#/components/schemas/Kpp'
+        bankBic:
           allOf:
           - $ref: '#/components/schemas/BankBic'
+          description: БИК банка получателя
+    MccCode:
+      type: string
+      minLength: 4
+      maxLength: 4
+      description: MCC-код получателя
+      example: '4121'
+    Inn:
+      type: string
+      minLength: 10
+      maxLength: 12
+      description: ИНН ЮЛ или ИП
+      example: '4285733785'
+    CreatePaymentBundleV2TransferRequest:
+      discriminator:
+        propertyName: type
+        mapping:
+          QR: '#/components/schemas/CreatePaymentBundleV2QrRequest'
+          REQUISITES: '#/components/schemas/CreatePaymentBundleV2ReqRequest'
+      oneOf:
+      - $ref: '#/components/schemas/CreatePaymentBundleV2QrRequest'
+      - $ref: '#/components/schemas/CreatePaymentBundleV2ReqRequest'
     StatementPaymentPurpose:
       type: string
       maxLength: 150
@@ -271,11 +416,46 @@ components:
 
         '
       example: Какое-то назначение платежа
-    Signature:
+    CreatePaymentBundleV2Request:
+      required:
+      - id
+      - account
+      - transfers
+      type: object
+      description: Запрос на создание пакета платежей
+      properties:
+        id:
+          $ref: '#/components/schemas/BundleId'
+        account:
+          $ref: '#/components/schemas/Account'
+        transfers:
+          type: array
+          description: Массив платежей по QR-коду или реквизитам
+          items:
+            $ref: '#/components/schemas/CreatePaymentBundleV2TransferRequest'
+    BankBic:
       type: string
-      description: Подпись в формате base64, созданная при использовании RBO-сертификата. Подробности создания можно найти в <a href='https://help.pay.raif.ru/ru/sbp-b2b/sign' target='_blank'>инструкции</a>.
-      example: MIAGCSqGSIb3D...
-      x-exclude-for-generate-front: true
+      description: БИК банка получателя
+      example: '044525700'
+    PaymentV2Response:
+      discriminator:
+        propertyName: type
+        mapping:
+          QR: '#/components/schemas/PaymentV2QrResponse'
+          REQUISITES: '#/components/schemas/PaymentV2ReqResponse'
+      oneOf:
+      - $ref: '#/components/schemas/PaymentV2QrResponse'
+      - $ref: '#/components/schemas/PaymentV2ReqResponse'
+    BankId:
+      type: string
+      description: Идентификатор банка получателя
+      example: '100000000007'
+    Kpp:
+      type: string
+      minLength: 9
+      maxLength: 9
+      description: КПП получателя. Обязательное если получатель ЮЛ (не ИП)
+      example: '123456789'
     BundleId:
       type: string
       minLength: 1
@@ -283,35 +463,161 @@ components:
       pattern: ^[A-z0-9-_.]+$
       description: Уникальный идентификатор пакета
       example: ee64d393836241dcb557
-    BrandName:
-      type: string
-      maxLength: 35
-      description: Торговое наименование ТСП
-      example: ООО Торг на Б.Татарской
-    ReqReceiverDto:
+    PaymentV2QrResponse:
       required:
+      - type
+      - id
+      - qrId
       - account
-      - inn
-      - bank
+      - createdDate
+      - status
+      - amount
+      - receiver
+      - sender
       type: object
-      description: Данные получателя для платежа по реквизитам
+      description: Ответ на создание платежа по QR-коду
       properties:
+        type:
+          type: string
+          description: Тип платежа
+        id:
+          allOf:
+          - $ref: '#/components/schemas/Id'
+        qrId:
+          allOf:
+          - $ref: '#/components/schemas/QrId'
         account:
           allOf:
           - $ref: '#/components/schemas/Account'
-          description: Банковский счёт ЮЛ или ИП получателя
-        inn:
+        createdDate:
           allOf:
-          - $ref: '#/components/schemas/Inn'
-        kpp:
+          - $ref: '#/components/schemas/CreateDate'
+        status:
           allOf:
-          - $ref: '#/components/schemas/Kpp'
-        legalName:
+          - $ref: '#/components/schemas/PaymentStatus'
+        amount:
           allOf:
-          - $ref: '#/components/schemas/LegalName'
-        bank:
+          - $ref: '#/components/schemas/Amount'
+        totalTaxAmount:
           allOf:
-          - $ref: '#/components/schemas/ReqBankDto'
+          - $ref: '#/components/schemas/TotalTaxAmount'
+        paymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/PaymentPurpose'
+        statementPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/StatementPaymentPurpose'
+        receiver:
+          allOf:
+          - $ref: '#/components/schemas/QrReceiverDto'
+        sender:
+          allOf:
+          - $ref: '#/components/schemas/SenderDto-2'
+        sbpTransactionId:
+          allOf:
+          - $ref: '#/components/schemas/SbpTransactionId'
+        extra:
+          allOf:
+          - $ref: '#/components/schemas/Extra'
+    CreatePaymentV2ReqRequest:
+      required:
+      - type
+      - id
+      - account
+      - amount
+      - paymentPurpose
+      - receiver
+      type: object
+      description: Запрос на создание платежа по реквизитам
+      properties:
+        type:
+          type: string
+          description: Тип платежа
+        id:
+          allOf:
+          - $ref: '#/components/schemas/Id'
+        account:
+          allOf:
+          - $ref: '#/components/schemas/Account'
+        receiver:
+          $ref: '#/components/schemas/ReqReceiverRequestDto'
+        amount:
+          allOf:
+          - $ref: '#/components/schemas/Amount'
+        paymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/PaymentPurpose'
+        totalTaxAmount:
+          allOf:
+          - $ref: '#/components/schemas/TotalTaxAmount'
+        statementPaymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/StatementPaymentPurpose'
+        extra:
+          allOf:
+          - $ref: '#/components/schemas/Extra'
+    PaymentBundleStatus:
+      type: object
+      description: Статус пакета
+      required:
+      - value
+      - updateDate
+      properties:
+        value:
+          type: string
+          description: Статус
+          enum:
+          - SUCCESS
+          - FAILED
+          - IN_PROGRESS
+          example: SUCCESS
+        updateDate:
+          type: string
+          format: date-time
+          description: Дата и время обновления статуса
+          example: '2024-06-12T19:36:55+03:00'
+      x-exclude-for-generate-front: true
+    PaymentV2Status:
+      type: object
+      description: Статус платежа
+      required:
+      - updateDate
+      - value
+      properties:
+        value:
+          anyOf:
+          - $ref: '#/components/schemas/SignedPaymentStatusesEnum'
+            x-exclude-for-generate-front: true
+        updateDate:
+          type: string
+          format: date-time
+          description: Дата и время обновления статуса
+          example: '2024-06-12T19:36:55+03:00'
+        failReason:
+          type: string
+          description: Причина отклонения. Указывается в случае отклонения платежа.
+    PaymentPurpose:
+      type: string
+      maxLength: 210
+      description: Назначение платежа для получателя
+      example: Какое-то назначение платежа
+    QrBankDto:
+      type: object
+      description: Данные банка получателя
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/BankId'
+        name:
+          allOf:
+          - $ref: '#/components/schemas/BankName'
+        bic:
+          allOf:
+          - $ref: '#/components/schemas/BankBic'
+    CreateDate:
+      type: string
+      format: date-time
+      description: Дата и время создания платежа
     CreatePaymentV2QrRequest:
       required:
       - type
@@ -400,13 +706,22 @@ components:
         extra:
           allOf:
           - $ref: '#/components/schemas/Extra'
-    ReqReceiverRequestDto:
+    PaymentBundleV2TransferResponse:
+      discriminator:
+        propertyName: type
+        mapping:
+          QR: '#/components/schemas/PaymentBundleV2QrResponse'
+          REQUISITES: '#/components/schemas/PaymentBundleV2ReqResponse'
+      oneOf:
+      - $ref: '#/components/schemas/PaymentBundleV2QrResponse'
+      - $ref: '#/components/schemas/PaymentBundleV2ReqResponse'
+    ReqReceiverDto:
       required:
       - account
       - inn
-      - bankBic
+      - bank
       type: object
-      description: Данные получателя
+      description: Данные получателя для платежа по реквизитам
       properties:
         account:
           allOf:
@@ -415,115 +730,50 @@ components:
         inn:
           allOf:
           - $ref: '#/components/schemas/Inn'
-          description: ИНН ЮЛ или ИП получателя
         kpp:
           allOf:
           - $ref: '#/components/schemas/Kpp'
-        bankBic:
+        legalName:
           allOf:
-          - $ref: '#/components/schemas/BankBic'
-          description: БИК банка получателя
-    BankName:
+          - $ref: '#/components/schemas/LegalName'
+        bank:
+          allOf:
+          - $ref: '#/components/schemas/ReqBankDto'
+    Signature:
       type: string
-      description: Наименование банка получателя
-      example: Райффайзенбанк
-    PaymentBundleStatus:
-      type: object
-      description: Статус пакета
-      required:
-      - value
-      - updateDate
-      properties:
-        value:
-          type: string
-          description: Статус
-          enum:
-          - SUCCESS
-          - FAILED
-          - IN_PROGRESS
-          example: SUCCESS
-        updateDate:
-          type: string
-          format: date-time
-          description: Дата и время обновления статуса
-          example: '2024-06-12T19:36:55+03:00'
+      description: Подпись в формате base64, созданная при использовании RBO-сертификата. Подробности создания можно найти в <a href='https://help.pay.raif.ru/ru/sbp-b2b/sign' target='_blank'>инструкции</a>.
+      example: MIAGCSqGSIb3D...
       x-exclude-for-generate-front: true
-    PaymentBundleV2ReqResponse:
-      required:
-      - type
-      - id
-      - createdDate
-      - status
-      - amount
-      - paymentPurpose
-      - receiver
-      - sender
-      type: object
-      description: Платёж по реквизитам в составе пакета
-      properties:
-        type:
-          type: string
-          description: Тип платежа
-        id:
-          allOf:
-          - $ref: '#/components/schemas/Id'
-        createdDate:
-          allOf:
-          - $ref: '#/components/schemas/CreateDate'
-        status:
-          allOf:
-          - $ref: '#/components/schemas/PaymentV2Status'
-        amount:
-          allOf:
-          - $ref: '#/components/schemas/Amount'
-        totalTaxAmount:
-          allOf:
-          - $ref: '#/components/schemas/TotalTaxAmount'
-        paymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/PaymentPurpose'
-        statementPaymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/StatementPaymentPurpose'
-        receiver:
-          allOf:
-          - $ref: '#/components/schemas/ReqReceiverDto'
-        sender:
-          allOf:
-          - $ref: '#/components/schemas/SenderDto-2'
-        sbpTransactionId:
-          allOf:
-          - $ref: '#/components/schemas/SbpTransactionId'
-        extra:
-          allOf:
-          - $ref: '#/components/schemas/Extra'
-    TotalTaxAmount:
+    LegalName:
+      type: string
+      maxLength: 512
+      description: Сокращённое наименование ЮЛ или ИП
+      example: ООО Торг
+    Amount:
       type: number
       format: float
-      maximum: 1000000
-      description: Сумма НДС в рублях
-      example: 2.41
-    MccCodeDto:
+      description: Сумма платежа
+      example: 8573.79
+    PaymentBundleV2Response:
+      required:
+      - id
+      - account
+      - status
+      - transfers
       type: object
-      description: Данные mcc-кода получателя
-      properties:
-        code:
-          $ref: '#/components/schemas/MccCode'
-        title:
-          $ref: '#/components/schemas/MccTitle'
-    QrBankDto:
-      type: object
-      description: Данные банка получателя
+      description: Информация о пакете платежей
       properties:
         id:
-          allOf:
-          - $ref: '#/components/schemas/BankId'
-        name:
-          allOf:
-          - $ref: '#/components/schemas/BankName'
-        bic:
-          allOf:
-          - $ref: '#/components/schemas/BankBic'
+          $ref: '#/components/schemas/BundleId'
+        account:
+          $ref: '#/components/schemas/Account'
+        status:
+          $ref: '#/components/schemas/PaymentBundleStatus'
+        transfers:
+          type: array
+          description: Массив платежей по QR-коду или реквизитам
+          items:
+            $ref: '#/components/schemas/PaymentBundleV2TransferResponse'
     PaymentV2ReqResponse:
       required:
       - type
@@ -577,214 +827,62 @@ components:
         extra:
           allOf:
           - $ref: '#/components/schemas/Extra'
-    LegalName:
-      type: string
-      maxLength: 512
-      description: Сокращённое наименование ЮЛ или ИП
-      example: ООО Торг
-    Extra:
+    TotalTaxAmount:
+      type: number
+      format: float
+      maximum: 1000000
+      description: Сумма НДС в рублях
+      example: 2.41
+    ErrorResponseDto:
       type: object
-      description: Дополнительные поля в json-формате
-      example:
-        additionalInfo: Тестовая операция
-    CreatePaymentV2ReqRequest:
       required:
-      - type
-      - id
-      - account
-      - amount
-      - paymentPurpose
-      - receiver
-      type: object
-      description: Запрос на создание платежа по реквизитам
+      - code
+      - message
+      - traceId
       properties:
-        type:
+        code:
           type: string
-          description: Тип платежа
+          description: Код ошибки запроса.
+          example: INTERNAL_ERROR
+        message:
+          type: string
+          description: Описание ошибки
+          example: An internal error occurred.
+        traceId:
+          type: string
+          example: 84b19a21e19410b62c30b4cd40c228a1
+          description: Уникальный идентификатор запроса
+    ReqBankDto:
+      required:
+      - bic
+      type: object
+      description: Данные банка получателя
+      properties:
         id:
           allOf:
-          - $ref: '#/components/schemas/Id'
-        account:
+          - $ref: '#/components/schemas/BankId'
+        name:
           allOf:
-          - $ref: '#/components/schemas/Account'
-        receiver:
-          $ref: '#/components/schemas/ReqReceiverRequestDto'
-        amount:
+          - $ref: '#/components/schemas/BankName'
+        bic:
           allOf:
-          - $ref: '#/components/schemas/Amount'
-        paymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/PaymentPurpose'
-        totalTaxAmount:
-          allOf:
-          - $ref: '#/components/schemas/TotalTaxAmount'
-        statementPaymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/StatementPaymentPurpose'
-        extra:
-          allOf:
-          - $ref: '#/components/schemas/Extra'
-    PaymentBundleV2Response:
-      required:
-      - id
-      - account
-      - status
-      - transfers
-      type: object
-      description: Информация о пакете платежей
-      properties:
-        id:
-          $ref: '#/components/schemas/BundleId'
-        account:
-          $ref: '#/components/schemas/Account'
-        status:
-          $ref: '#/components/schemas/PaymentBundleStatus'
-        transfers:
-          type: array
-          description: Массив платежей по QR-коду или реквизитам
-          items:
-            $ref: '#/components/schemas/PaymentBundleV2TransferResponse'
-    PaymentV2QrResponse:
-      required:
-      - type
-      - id
-      - qrId
-      - account
-      - createdDate
-      - status
-      - amount
-      - receiver
-      - sender
-      type: object
-      description: Ответ на создание платежа по QR-коду
-      properties:
-        type:
-          type: string
-          description: Тип платежа
-        id:
-          allOf:
-          - $ref: '#/components/schemas/Id'
-        qrId:
-          allOf:
-          - $ref: '#/components/schemas/QrId'
-        account:
-          allOf:
-          - $ref: '#/components/schemas/Account'
-        createdDate:
-          allOf:
-          - $ref: '#/components/schemas/CreateDate'
-        status:
-          allOf:
-          - $ref: '#/components/schemas/PaymentStatus'
-        amount:
-          allOf:
-          - $ref: '#/components/schemas/Amount'
-        totalTaxAmount:
-          allOf:
-          - $ref: '#/components/schemas/TotalTaxAmount'
-        paymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/PaymentPurpose'
-        statementPaymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/StatementPaymentPurpose'
-        receiver:
-          allOf:
-          - $ref: '#/components/schemas/QrReceiverDto'
-        sender:
-          allOf:
-          - $ref: '#/components/schemas/SenderDto-2'
-        sbpTransactionId:
-          allOf:
-          - $ref: '#/components/schemas/SbpTransactionId'
-        extra:
-          allOf:
-          - $ref: '#/components/schemas/Extra'
-    PaymentBundleV2TransferResponse:
-      discriminator:
-        propertyName: type
-        mapping:
-          QR: '#/components/schemas/PaymentBundleV2QrResponse'
-          REQUISITES: '#/components/schemas/PaymentBundleV2ReqResponse'
-      oneOf:
-      - $ref: '#/components/schemas/PaymentBundleV2QrResponse'
-      - $ref: '#/components/schemas/PaymentBundleV2ReqResponse'
-    QrReceiverDto:
-      required:
-      - inn
-      - legalName
-      - bank
-      - brandName
-      - address
-      type: object
-      description: Данные получателя для платежа по QR-коду
-      properties:
-        inn:
-          allOf:
-          - $ref: '#/components/schemas/Inn'
-        legalName:
-          allOf:
-          - $ref: '#/components/schemas/LegalName'
-        brandName:
-          allOf:
-          - $ref: '#/components/schemas/BrandName'
-        address:
-          allOf:
-          - $ref: '#/components/schemas/Address'
-        mcc:
-          allOf:
-          - $ref: '#/components/schemas/MccCodeDto'
-        bank:
-          allOf:
-          - $ref: '#/components/schemas/QrBankDto'
-    MccCode:
+          - $ref: '#/components/schemas/BankBic'
+    BrandName:
       type: string
-      minLength: 4
-      maxLength: 4
-      description: MCC-код получателя
-      example: '4121'
-    PaymentStatus:
-      type: object
-      description: Статус платежа
-      allOf: []
-      required:
-      - updateDate
-      - value
-      properties:
-        value:
-          $ref: '#/components/schemas/SignedPaymentStatusesEnum'
-          x-exclude-for-generate-front: true
-        updateDate:
-          type: string
-          format: date-time
-          description: Дата и время обновления статуса
-          example: '2024-06-12T19:36:55+03:00'
-        failReason:
-          type: string
-          description: Причина отклонения. Указывается в случае отклонения платежа.
-    CreatePaymentV2Request:
-      discriminator:
-        propertyName: type
-        mapping:
-          QR: '#/components/schemas/CreatePaymentV2QrRequest'
-          REQUISITES: '#/components/schemas/CreatePaymentV2ReqRequest'
-      oneOf:
-      - $ref: '#/components/schemas/CreatePaymentV2QrRequest'
-      - $ref: '#/components/schemas/CreatePaymentV2ReqRequest'
-    CreatePaymentBundleV2TransferRequest:
-      discriminator:
-        propertyName: type
-        mapping:
-          QR: '#/components/schemas/CreatePaymentBundleV2QrRequest'
-          REQUISITES: '#/components/schemas/CreatePaymentBundleV2ReqRequest'
-      oneOf:
-      - $ref: '#/components/schemas/CreatePaymentBundleV2QrRequest'
-      - $ref: '#/components/schemas/CreatePaymentBundleV2ReqRequest'
-    Address:
+      maxLength: 35
+      description: Торговое наименование ТСП
+      example: ООО Торг на Б.Татарской
+    MccTitle:
       type: string
-      maxLength: 140
-      description: Фактический адрес ТСП
-      example: г. Москва, ул. Б.Татарская, д.133, стр.1
+      description: Описание MCC-кода получателя
+      example: Лимузины и такси
+    Id:
+      type: string
+      pattern: ^[A-z0-9-_.]+$
+      description: Уникальный идентификатор операции в вашей системе, используется как номер документа в выписке
+      example: 1a5cbc843b2742be9093
+      minLength: 1
+      maxLength: 40
     SenderDto-2:
       type: object
       description: Данные отправителя
@@ -805,159 +903,31 @@ components:
       - FAILED
       - IN_PROGRESS
       example: SUCCESS
-    BankId:
+    BankName:
       type: string
-      description: Идентификатор банка получателя
-      example: '100000000007'
-    PaymentV2Status:
-      type: object
-      description: Статус платежа
-      required:
-      - updateDate
-      - value
-      properties:
-        value:
-          anyOf:
-          - $ref: '#/components/schemas/SignedPaymentStatusesEnum'
-            x-exclude-for-generate-front: true
-        updateDate:
-          type: string
-          format: date-time
-          description: Дата и время обновления статуса
-          example: '2024-06-12T19:36:55+03:00'
-        failReason:
-          type: string
-          description: Причина отклонения. Указывается в случае отклонения платежа.
-    CreatePaymentBundleV2ReqRequest:
-      required:
-      - type
-      - id
-      - amount
-      - paymentPurpose
-      - receiver
-      type: object
-      description: Запрос на создание платежа по реквизитам в составе пакета
-      properties:
-        type:
-          type: string
-          description: Тип платежа
-        id:
-          allOf:
-          - $ref: '#/components/schemas/Id'
-        receiver:
-          $ref: '#/components/schemas/ReqReceiverRequestDto'
-        amount:
-          allOf:
-          - $ref: '#/components/schemas/Amount'
-        paymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/PaymentPurpose'
-        totalTaxAmount:
-          allOf:
-          - $ref: '#/components/schemas/TotalTaxAmount'
-        statementPaymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/StatementPaymentPurpose'
-        extra:
-          allOf:
-          - $ref: '#/components/schemas/Extra'
-    Id:
-      type: string
-      pattern: ^[A-z0-9-_.]+$
-      description: Уникальный идентификатор операции в вашей системе, используется как номер документа в выписке
-      example: 1a5cbc843b2742be9093
-      minLength: 1
-      maxLength: 40
-    Account:
-      type: string
-      minLength: 20
-      maxLength: 20
-      pattern: ^[0-9]+$
-      description: Банковский счёт ЮЛ или ИП для списания средств
-      example: '40817810601002630020'
-    ErrorResponseDto:
-      type: object
-      required:
-      - code
-      - message
-      - traceId
-      properties:
-        code:
-          type: string
-          description: Код ошибки запроса.
-          example: INTERNAL_ERROR
-        message:
-          type: string
-          description: Описание ошибки
-          example: An internal error occurred.
-        traceId:
-          type: string
-          example: 84b19a21e19410b62c30b4cd40c228a1
-          description: Уникальный идентификатор запроса
-    SbpTransactionId:
-      type: string
-      minLength: 10
-      maxLength: 40
-      description: Идентификатор транзакции NSPK, внесен в требование к экранным формам
-      example: '40817810601002630020'
-    QrId:
-      type: string
-      maxLength: 32
-      description: Уникальный идентификатор платёжной ссылки
-      example: AS1B001K33DNHAKV2KNBJRQK6KHNQKJ5
-    PaymentPurpose:
-      type: string
-      maxLength: 210
-      description: Назначение платежа для получателя
-      example: Какое-то назначение платежа
-    BankBic:
-      type: string
-      description: БИК банка получателя
-      example: '044525700'
-    Amount:
-      type: number
-      format: float
-      description: Сумма платежа
-      example: 8573.79
-    PaymentV2Response:
+      description: Наименование банка получателя
+      example: Райффайзенбанк
+    CreatePaymentV2Request:
       discriminator:
         propertyName: type
         mapping:
-          QR: '#/components/schemas/PaymentV2QrResponse'
-          REQUISITES: '#/components/schemas/PaymentV2ReqResponse'
+          QR: '#/components/schemas/CreatePaymentV2QrRequest'
+          REQUISITES: '#/components/schemas/CreatePaymentV2ReqRequest'
       oneOf:
-      - $ref: '#/components/schemas/PaymentV2QrResponse'
-      - $ref: '#/components/schemas/PaymentV2ReqResponse'
-    CreatePaymentBundleV2Request:
-      required:
-      - id
-      - account
-      - transfers
-      type: object
-      description: Запрос на создание пакета платежей
-      properties:
-        id:
-          $ref: '#/components/schemas/BundleId'
-        account:
-          $ref: '#/components/schemas/Account'
-        transfers:
-          type: array
-          description: Массив платежей по QR-коду или реквизитам
-          items:
-            $ref: '#/components/schemas/CreatePaymentBundleV2TransferRequest'
-    Inn:
-      type: string
-      minLength: 10
-      maxLength: 12
-      description: ИНН ЮЛ или ИП
-      example: '4285733785'
-    CreatePaymentBundleV2QrRequest:
+      - $ref: '#/components/schemas/CreatePaymentV2QrRequest'
+      - $ref: '#/components/schemas/CreatePaymentV2ReqRequest'
+    PaymentBundleV2ReqResponse:
       required:
       - type
       - id
-      - qrId
+      - createdDate
+      - status
+      - amount
+      - paymentPurpose
+      - receiver
+      - sender
       type: object
-      description: Запрос на создание платежа по QR-коду в составе пакета
+      description: Платёж по реквизитам в составе пакета
       properties:
         type:
           type: string
@@ -965,74 +935,128 @@ components:
         id:
           allOf:
           - $ref: '#/components/schemas/Id'
-        qrId:
+        createdDate:
           allOf:
-          - $ref: '#/components/schemas/QrId'
+          - $ref: '#/components/schemas/CreateDate'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/PaymentV2Status'
         amount:
           allOf:
           - $ref: '#/components/schemas/Amount'
-        paymentPurpose:
-          allOf:
-          - $ref: '#/components/schemas/PaymentPurpose'
         totalTaxAmount:
           allOf:
           - $ref: '#/components/schemas/TotalTaxAmount'
+        paymentPurpose:
+          allOf:
+          - $ref: '#/components/schemas/PaymentPurpose'
         statementPaymentPurpose:
           allOf:
           - $ref: '#/components/schemas/StatementPaymentPurpose'
+        receiver:
+          allOf:
+          - $ref: '#/components/schemas/ReqReceiverDto'
+        sender:
+          allOf:
+          - $ref: '#/components/schemas/SenderDto-2'
+        sbpTransactionId:
+          allOf:
+          - $ref: '#/components/schemas/SbpTransactionId'
         extra:
           allOf:
           - $ref: '#/components/schemas/Extra'
-  responses:
-    InternalServerErrorDto:
-      description: Внутренняя ошибка сервера
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
-          examples:
-            default:
-              value:
-                code: INTERNAL_ERROR
-                message: An internal error occurred
-                example: 84b19a21e19410b62c30b4cd40c228a1
-    Error400ResponseDto:
-      description: Неверный запрос
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
-          examples:
-            default:
-              value:
-                code: INVALID_DATA
-                message: The request contains invalid fields or values.
-                traceId: 84b19a21e19410b62c30b4cd40c228a
-    Error403ResponseDto:
-      description: Операция запрещена
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
-          examples:
-            default:
-              value:
-                code: OPERATION_FORBIDDEN
-                message: The operation is not allowed.
-                traceId: 84b19a21e19410b62c30b4cd40c228a
-    Error404ResponseDto:
-      description: Ресурс не найден
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseDto'
-          examples:
-            default:
-              value:
-                code: QR_NOT_FOUND
-                message: The specified QR code was not found.
-                example: 84b19a21e19410b62c30b4cd40c228a1
   examples:
+    PaymentBundleV2ReqExample:
+      summary: Пакет платежей по реквизитам
+      value:
+        id: bundle-requisites-2026-001
+        account: '40702810900000001234'
+        status:
+          value: IN_PROGRESS
+          updateDate: '2026-08-20T15:30:00+03:00'
+        transfers:
+        - type: REQUISITES
+          id: payment-req-001
+          createdDate: '2026-08-20T15:30:00+03:00'
+          status:
+            value: IN_PROGRESS
+            updateDate: '2026-08-20T15:30:00+03:00'
+          amount: 25000
+          totalTaxAmount: 4166.67
+          paymentPurpose: Оплата услуг по договору №456
+          statementPaymentPurpose: Оплата по реквизитам
+          receiver:
+            account: '40702810400000005678'
+            inn: '7707083893'
+            kpp: '773601001'
+            legalName: ООО Получатель
+            bank:
+              id: '100000000007'
+              name: Райффайзенбанк
+              bic: '044525700'
+          sender:
+            cnum: '123456'
+            legalName: ООО Плательщик
+            inn: '7712345678'
+          extra:
+            invoiceId: invoice-456
+        - type: REQUISITES
+          id: payment-req-002
+          createdDate: '2026-08-20T15:30:01+03:00'
+          status:
+            value: IN_PROGRESS
+            updateDate: '2026-08-20T15:30:01+03:00'
+          amount: 18000
+          totalTaxAmount: 3000
+          paymentPurpose: Оплата услуг по договору №457
+          statementPaymentPurpose: Оплата по реквизитам
+          receiver:
+            account: '40702810900000008765'
+            inn: '7712345678'
+            kpp: '771201001'
+            legalName: ООО Второй получатель
+            bank:
+              id: '100000000009'
+              name: Банк получателя
+              bic: '044525225'
+          sender:
+            cnum: '123456'
+            legalName: ООО Плательщик
+            inn: '7712345678'
+          extra:
+            invoiceId: invoice-457
+    CreatePaymentBundleV2ReqExample:
+      summary: Пакет платежей по реквизитам
+      value:
+        id: bundle-requisites-2026-001
+        account: '40702810900000001234'
+        transfers:
+        - type: REQUISITES
+          id: payment-req-001
+          receiver:
+            account: '40702810400000005678'
+            inn: '7707083893'
+            kpp: '773601001'
+            bankBic: '044525700'
+          amount: 25000
+          paymentPurpose: Оплата услуг по договору №456
+          totalTaxAmount: 4166.67
+          statementPaymentPurpose: Оплата по реквизитам
+          extra:
+            invoiceId: invoice-456
+        - type: REQUISITES
+          id: payment-req-002
+          receiver:
+            account: '40702810900000008765'
+            inn: '7712345678'
+            kpp: '771201001'
+            bankBic: '044525225'
+          amount: 18000
+          paymentPurpose: Оплата услуг по договору №457
+          totalTaxAmount: 3000
+          statementPaymentPurpose: Оплата по реквизитам
+          extra:
+            invoiceId: invoice-457
     PaymentBundleV2QrExample:
       summary: Пакет платежей по QR-коду
       value:
@@ -1118,97 +1142,6 @@ components:
           statementPaymentPurpose: Оплата по QR
           extra:
             orderId: order-002
-    CreatePaymentBundleV2ReqExample:
-      summary: Пакет платежей по реквизитам
-      value:
-        id: bundle-requisites-2026-001
-        account: '40702810900000001234'
-        transfers:
-        - type: REQUISITES
-          id: payment-req-001
-          receiver:
-            account: '40702810400000005678'
-            inn: '7707083893'
-            kpp: '773601001'
-            bankBic: '044525700'
-          amount: 25000
-          paymentPurpose: Оплата услуг по договору №456
-          totalTaxAmount: 4166.67
-          statementPaymentPurpose: Оплата по реквизитам
-          extra:
-            invoiceId: invoice-456
-        - type: REQUISITES
-          id: payment-req-002
-          receiver:
-            account: '40702810900000008765'
-            inn: '7712345678'
-            kpp: '771201001'
-            bankBic: '044525225'
-          amount: 18000
-          paymentPurpose: Оплата услуг по договору №457
-          totalTaxAmount: 3000
-          statementPaymentPurpose: Оплата по реквизитам
-          extra:
-            invoiceId: invoice-457
-    PaymentBundleV2ReqExample:
-      summary: Пакет платежей по реквизитам
-      value:
-        id: bundle-requisites-2026-001
-        account: '40702810900000001234'
-        status:
-          value: IN_PROGRESS
-          updateDate: '2026-08-20T15:30:00+03:00'
-        transfers:
-        - type: REQUISITES
-          id: payment-req-001
-          createdDate: '2026-08-20T15:30:00+03:00'
-          status:
-            value: IN_PROGRESS
-            updateDate: '2026-08-20T15:30:00+03:00'
-          amount: 25000
-          totalTaxAmount: 4166.67
-          paymentPurpose: Оплата услуг по договору №456
-          statementPaymentPurpose: Оплата по реквизитам
-          receiver:
-            account: '40702810400000005678'
-            inn: '7707083893'
-            kpp: '773601001'
-            legalName: ООО Получатель
-            bank:
-              id: '100000000007'
-              name: Райффайзенбанк
-              bic: '044525700'
-          sender:
-            cnum: '123456'
-            legalName: ООО Плательщик
-            inn: '7712345678'
-          extra:
-            invoiceId: invoice-456
-        - type: REQUISITES
-          id: payment-req-002
-          createdDate: '2026-08-20T15:30:01+03:00'
-          status:
-            value: IN_PROGRESS
-            updateDate: '2026-08-20T15:30:01+03:00'
-          amount: 18000
-          totalTaxAmount: 3000
-          paymentPurpose: Оплата услуг по договору №457
-          statementPaymentPurpose: Оплата по реквизитам
-          receiver:
-            account: '40702810900000008765'
-            inn: '7712345678'
-            kpp: '771201001'
-            legalName: ООО Второй получатель
-            bank:
-              id: '100000000009'
-              name: Банк получателя
-              bic: '044525225'
-          sender:
-            cnum: '123456'
-            legalName: ООО Плательщик
-            inn: '7712345678'
-          extra:
-            invoiceId: invoice-457
   parameters:
     BundleId:
       name: id
@@ -1228,6 +1161,55 @@ components:
       description: Уникальный идентификатор операции
       schema:
         type: string
+  responses:
+    Error400ResponseDto:
+      description: Неверный запрос
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: INVALID_DATA
+                message: The request contains invalid fields or values.
+                traceId: 84b19a21e19410b62c30b4cd40c228a
+    InternalServerErrorDto:
+      description: Внутренняя ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: INTERNAL_ERROR
+                message: An internal error occurred
+                example: 84b19a21e19410b62c30b4cd40c228a1
+    Error403ResponseDto:
+      description: Операция запрещена
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: OPERATION_FORBIDDEN
+                message: The operation is not allowed.
+                traceId: 84b19a21e19410b62c30b4cd40c228a
+    Error404ResponseDto:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseDto'
+          examples:
+            default:
+              value:
+                code: QR_NOT_FOUND
+                message: The specified QR code was not found.
+                example: 84b19a21e19410b62c30b4cd40c228a1
   securitySchemes:
     BearerAuth:
       type: http
@@ -1240,6 +1222,20 @@ components:
       scheme: bearer
       bearerFormat: JWT
       x-internal: false
-x-refined-from:
-- raiffeisen-ru-raif-pay-sbp-b2b-transfers-openapi.json
-- raiffeisen-ru-raif-pay-sbp-b2b-transfers-openapi.yml
+x-tagGroups:
+- name: Схема работы
+  tags:
+  - single-transfer
+  - bundle-transfer
+- name: API
+  tags:
+  - authorization
+  - qr-sender
+  - transfers-v2
+- name: Выписки
+  tags:
+  - incoming-statements
+  - outgoing-statements
+- name: Ошибки
+  tags:
+  - errors

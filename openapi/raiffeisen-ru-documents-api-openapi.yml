@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru Documents API
+  title: Doc Reader [Черновик] Documents API
+  description: Сервис обработки PDF-документов через LLM
   version: 1.0.0
-  description: 'Operations tagged documents across 2 of this provider''s published API definitions: raiffeisen-ru-doc-reader-openapi.yml, raiffeisen-ru-doc-reader-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/doc-recognition
 tags:
@@ -81,8 +81,6 @@ paths:
           description: Неверный Content-Type запроса (ожидается application/pdf).
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/doc-recognition
   /v1/documents/{documentId}:
     get:
       tags:
@@ -156,24 +154,8 @@ paths:
           description: Документ не найден.
         '500':
           $ref: '#/components/responses/InternalError'
-    servers:
-    - url: https://api.raiffeisen.ru/doc-recognition
 components:
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
   parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
     IdTokenHeader:
       name: Id-Token
       in: header
@@ -183,47 +165,21 @@ components:
         type: string
         format: byte
         example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена
   schemas:
-    DocumentId:
-      type: string
-      format: uuid
-      description: Уникальный идентификатор документа.
-      example: 550e8400-e29b-41d4-a716-446655440000
-    DocumentIdResponse:
-      type: object
-      description: Ответ с идентификатором созданной задачи обработки.
-      required:
-      - documentId
-      properties:
-        documentId:
-          $ref: '#/components/schemas/DocumentId'
-      example:
-        documentId: 550e8400-e29b-41d4-a716-446655440000
-    BadRequestError:
-      type: object
-      description: Некорректный запрос.
-      required:
-      - error
-      properties:
-        error:
-          type: object
-          description: Детали ошибки.
-          required:
-          - code
-          - message
-          properties:
-            code:
-              type: string
-              description: Код ошибки.
-              example: INVALID_FILE
-            message:
-              type: string
-              description: Человеко-читаемое описание ошибки.
-              example: Файл не может быть обработан. Загрузите другой файл
-      example:
-        error:
-          code: INVALID_FILE
-          message: Файл не может быть обработан. Загрузите другой файл
     PromptType:
       type: string
       enum:
@@ -254,6 +210,43 @@ components:
           type: object
           description: Результат обработки. Присутствует только если status == SUCCESS. Содержит JSON объект с извлечёнными данными. Может быть null для статусов CREATED, IN_PROGRESS, ERROR.
           additionalProperties: true
-x-refined-from:
-- raiffeisen-ru-doc-reader-openapi.yml
-- raiffeisen-ru-doc-reader-openapi.yml
+    BadRequestError:
+      type: object
+      description: Некорректный запрос.
+      required:
+      - error
+      properties:
+        error:
+          type: object
+          description: Детали ошибки.
+          required:
+          - code
+          - message
+          properties:
+            code:
+              type: string
+              description: Код ошибки.
+              example: INVALID_FILE
+            message:
+              type: string
+              description: Человеко-читаемое описание ошибки.
+              example: Файл не может быть обработан. Загрузите другой файл
+      example:
+        error:
+          code: INVALID_FILE
+          message: Файл не может быть обработан. Загрузите другой файл
+    DocumentId:
+      type: string
+      format: uuid
+      description: Уникальный идентификатор документа.
+      example: 550e8400-e29b-41d4-a716-446655440000
+    DocumentIdResponse:
+      type: object
+      description: Ответ с идентификатором созданной задачи обработки.
+      required:
+      - documentId
+      properties:
+        documentId:
+          $ref: '#/components/schemas/DocumentId'
+      example:
+        documentId: 550e8400-e29b-41d4-a716-446655440000

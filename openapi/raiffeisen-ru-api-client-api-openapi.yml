@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Raiffeisen Ru API - Client API
+  title: УК Raiffeisen API - Client API
+  description: Описания эндпоинтов для страховой компании
   version: 1.0.1
-  description: 'Operations tagged API - Client across 2 of this provider''s published API definitions: raiffeisen-ru-rcam-openapi.yml, raiffeisen-ru-rcam-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.raiffeisen.ru/rcam-insurance
 tags:
@@ -48,8 +48,6 @@ paths:
       summary: Получение информации о клиенте (комплаенс статус)
       tags:
       - API - Client
-    servers:
-    - url: https://api.raiffeisen.ru/rcam-insurance
   /v1/client/{cnum}/fund-account/{fundAccountNumber}:
     get:
       description: Получение информации о состоянии лицевого счета.
@@ -97,33 +95,7 @@ paths:
       summary: Получение информации о лицевом счете
       tags:
       - API - Client
-    servers:
-    - url: https://api.raiffeisen.ru/rcam-insurance
 components:
-  responses:
-    Unauthorized:
-      description: Аутентификация не пройдена
-    InternalError:
-      description: Внутренняя ошибка
-  parameters:
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      description: Токен доступа
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
-    IdTokenHeader:
-      name: Id-Token
-      in: header
-      description: Идентификационный токен пользователя
-      required: true
-      schema:
-        type: string
-        format: byte
-        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
   schemas:
     ClientInfoResponse:
       type: object
@@ -176,6 +148,27 @@ components:
       - isActive
     NotFoundException:
       type: object
-x-refined-from:
-- raiffeisen-ru-rcam-openapi.yml
-- raiffeisen-ru-rcam-openapi.yml
+  parameters:
+    IdTokenHeader:
+      name: Id-Token
+      in: header
+      description: Идентификационный токен пользователя
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: SUQgVE9LRU4gRk9SIFRFU1RJTkc=
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      description: Токен доступа
+      required: true
+      schema:
+        type: string
+        format: byte
+        example: Bearer QXV0aG9yaXphdGlvbiBIZWFkZXIgRm9yIFRlc3Rpbmc=
+  responses:
+    InternalError:
+      description: Внутренняя ошибка
+    Unauthorized:
+      description: Аутентификация не пройдена
