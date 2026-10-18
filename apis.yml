@@ -1570,6 +1570,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - API Client
+  tags_raw:
   - API - Client
   properties:
   - type: OpenAPI
@@ -2288,6 +2290,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Application
+  tags_raw:
   - applications
   properties:
   - type: OpenAPI
@@ -3006,6 +3010,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Bills
+  tags_raw:
   - bills
   properties:
   - type: OpenAPI
@@ -4480,6 +4486,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Callback API
+  tags_raw:
   - callback-api
   properties:
   - type: OpenAPI
@@ -5249,7 +5257,8 @@ apis:
     Возможно использование методов для закрытия кассового периода.
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
-  tags:
+  tags: []
+  tags_raw:
   - cashReconciliation
   properties:
   - type: OpenAPI
@@ -5609,6 +5618,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Clients
+  tags_raw:
   - Client
   properties:
   - type: OpenAPI
@@ -7410,7 +7421,8 @@ apis:
   description: Управление закрывающими документами
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
-  tags:
+  tags: []
+  tags_raw:
   - closingDocuments
   properties:
   - type: OpenAPI
@@ -8847,6 +8859,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Connection
+  tags_raw:
   - connection
   properties:
   - type: OpenAPI
@@ -12816,6 +12830,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Custody
+  tags_raw:
   - custody
   properties:
   - type: OpenAPI
@@ -14610,7 +14626,8 @@ apis:
   description: Аутентификация пользователя и управление токенами OAuth2.
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
-  tags:
+  tags: []
+  tags_raw:
   - Аутентификация
   properties:
   - type: OpenAPI
@@ -14974,6 +14991,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Delivery
+  tags_raw:
   - delivery
   properties:
   - type: OpenAPI
@@ -15333,6 +15352,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Deprecated
+  tags_raw:
   - deprecated
   properties:
   - type: OpenAPI
@@ -16052,6 +16073,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Documents
+  tags_raw:
   - documents
   properties:
   - type: OpenAPI
@@ -16412,6 +16435,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Domestic Payments
+  tags_raw:
   - domestic-payments
   properties:
   - type: OpenAPI
@@ -17855,6 +17880,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - File
+  tags_raw:
   - Files
   properties:
   - type: OpenAPI
@@ -21108,6 +21135,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Invoices
+  tags_raw:
   - invoice
   properties:
   - type: OpenAPI
@@ -25418,6 +25447,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Order
+  tags_raw:
   - orders
   properties:
   - type: OpenAPI
@@ -26136,6 +26167,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - PACS
+  tags_raw:
   - Валидация pacs сообщений
   properties:
   - type: OpenAPI
@@ -27940,6 +27973,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Payout Accounts
+  tags_raw:
   - payout-accounts
   properties:
   - type: OpenAPI
@@ -32287,6 +32322,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - REPORT-V2
+  tags_raw:
   - Report V2
   properties:
   - type: OpenAPI
@@ -32646,6 +32683,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Reports
+  tags_raw:
   - reports
   properties:
   - type: OpenAPI
@@ -34469,6 +34508,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Split
+  tags_raw:
   - splits
   properties:
   - type: OpenAPI
@@ -35988,6 +36029,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Subscription
+  tags_raw:
   - subscriptions
   properties:
   - type: OpenAPI
@@ -38165,6 +38208,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Testing
+  tags_raw:
   - testing
   properties:
   - type: OpenAPI
@@ -38524,6 +38569,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Topic
+  tags_raw:
   - Topics
   properties:
   - type: OpenAPI
@@ -38902,6 +38949,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - Transfers v2
+  tags_raw:
   - transfers-v2
   properties:
   - type: OpenAPI
@@ -39621,6 +39670,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - v1
+  tags_raw:
   - Пермиссии V1
   properties:
   - type: OpenAPI
@@ -39980,6 +40031,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - v2
+  tags_raw:
   - Пермиссии V2
   properties:
   - type: OpenAPI
@@ -40353,6 +40406,8 @@ apis:
   humanURL: https://developer.raiffeisen.ru/docs/api/019d728b-89c8-75f1-b40c-acf0a4c37d0f
   baseURL: https://api.raiffeisen.ru/raif-pay
   tags:
+  - White Label
+  tags_raw:
   - white-label
   properties:
   - type: OpenAPI
