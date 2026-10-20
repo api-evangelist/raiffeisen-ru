@@ -7,11 +7,12 @@ source:
 - https://developer.raif.ru/api/v1/public-apis/3a11056e-cbbb-47c7-9e38-7681d8e787a2/variants/public/spec
 - https://developer.raif.ru/docs/api/3a11056e-cbbb-47c7-9e38-7681d8e787a2
 - https://developer.raiffeisen.ru/llms.txt
-description: 'Official remote MCP server published by Raiffeisenbank (Russia) giving AI assistants access to the public developer
-  portal (developer.raif.ru / developer.raiffeisen.ru): documentation in Russian and English, the business-scenario catalog,
-  the public API catalog, API variants, operation lists and the current OpenAPI specifications. It is a documentation/discovery
-  server; it does not call the banking APIs themselves. Listed in the provider llms.txt and described by a provider-published
-  "raifmcp" 1.1.0 document.'
+description: 'Official remote MCP server published by Raiffeisenbank (Russia) giving AI assistants access
+  to the public developer portal (developer.raif.ru / developer.raiffeisen.ru): documentation in Russian
+  and English, the business-scenario catalog, the public API catalog, API variants, operation lists and
+  the current OpenAPI specifications. It is a documentation/discovery server; it does not call the banking
+  APIs themselves. Listed in the provider llms.txt and described by a provider-published "raifmcp" 1.1.0
+  document.'
 status: live
 url: https://api.raiffeisen.ru/developer-portal/public/mcp
 deployment:
@@ -40,7 +41,8 @@ probe:
   prompts/list: POST 200, 0 prompts
   resources/list: POST 200, 0 resources
   GET: '405'
-  note: A POST with headers lacking spaces (Accept:application/json,text/event-stream) got nginx 400; standard headers succeed.
+  note: A POST with headers lacking spaces (Accept:application/json,text/event-stream) got nginx 400;
+    standard headers succeed.
 provider_spec:
   format: raifmcp 1.1.0
   title: 'MCP: сценарии, документация и спецификации API Райффайзен Банка'
@@ -48,12 +50,13 @@ provider_spec:
   url: https://developer.raif.ru/api/v1/public-apis/3a11056e-cbbb-47c7-9e38-7681d8e787a2/variants/public/spec
   saved: mcp/raiffeisen-ru-mcp-portal-spec.yml
 tools_list_saved: mcp/raiffeisen-ru-mcp-tools-list.json
-annotations_note: Every tool reports readOnlyHint false and destructiveHint true in its live annotations although each tool
-  is described as a read (list/get) of public portal content; recorded verbatim, not corrected.
+annotations_note: Every tool reports readOnlyHint false and destructiveHint true in its live annotations
+  although each tool is described as a read (list/get) of public portal content; recorded verbatim, not
+  corrected.
 tools:
 - name: get_public_documentation
-  description: Returns metadata and complete source content of an official Raiffeisen Bank Developer Portal (https://developer.raif.ru)
-    document by its catalog ID.
+  description: Returns metadata and complete source content of an official Raiffeisen Bank Developer Portal
+    (https://developer.raif.ru) document by its catalog ID.
   inputSchema:
     $schema: https://json-schema.org/draft/2020-12/schema
     type: object
@@ -71,8 +74,8 @@ tools:
     openWorldHint: true
   source: tools/list (live, anonymous)
 - name: list_public_documentation
-  description: Lists official public documentation from Raiffeisen Bank's Developer Portal (https://developer.raif.ru). Optionally
-    filters documents by the ru or en language code.
+  description: Lists official public documentation from Raiffeisen Bank's Developer Portal (https://developer.raif.ru).
+    Optionally filters documents by the ru or en language code.
   inputSchema:
     $schema: https://json-schema.org/draft/2020-12/schema
     type: object
@@ -112,8 +115,8 @@ tools:
     openWorldHint: true
   source: tools/list (live, anonymous)
 - name: list_public_api_operations
-  description: Returns every operation for one public Raiffeisen Bank Developer Portal (https://developer.raif.ru) API, including
-    bundled Code Flow and sandbox, optionally limited to one variant.
+  description: Returns every operation for one public Raiffeisen Bank Developer Portal (https://developer.raif.ru)
+    API, including bundled Code Flow and sandbox, optionally limited to one variant.
   inputSchema:
     $schema: https://json-schema.org/draft/2020-12/schema
     type: object
@@ -134,8 +137,8 @@ tools:
     openWorldHint: true
   source: tools/list (live, anonymous)
 - name: list_public_api_variants
-  description: Returns all variants for one public Raiffeisen Bank Developer Portal (https://developer.raif.ru) API from API
-    Router or bundled Code Flow and sandbox documentation.
+  description: Returns all variants for one public Raiffeisen Bank Developer Portal (https://developer.raif.ru)
+    API from API Router or bundled Code Flow and sandbox documentation.
   inputSchema:
     $schema: https://json-schema.org/draft/2020-12/schema
     type: object
@@ -168,8 +171,8 @@ tools:
     openWorldHint: true
   source: tools/list (live, anonymous)
 - name: list_public_scenarios
-  description: Returns every localized business scenario currently available from Raiffeisen Bank's Developer Portal (https://developer.raif.ru),
-    including full public details.
+  description: Returns every localized business scenario currently available from Raiffeisen Bank's Developer
+    Portal (https://developer.raif.ru), including full public details.
   inputSchema:
     $schema: https://json-schema.org/draft/2020-12/schema
     type: object
@@ -185,3 +188,28 @@ tools:
     idempotentHint: false
     openWorldHint: true
   source: tools/list (live, anonymous)
+tool_quality:
+  tool_count: 7
+  tokens_total: 933
+  tokens_per_tool_median: 128
+  heavy_tools: []
+  heavy_tool_count: 0
+  params_total: 8
+  params_undescribed: 0
+  params_described_pct: 100.0
+  tools_with_undescribed_params: 0
+  tools_annotated: 7
+  annotated_pct: 100.0
+  state_changing_unhinted: []
+  tools_missing_schema: 0
+  short_descriptions: 0
+  duplicate_descriptions: 0
+  duplicate_names: 0
+  nonportable_names: []
+  output_schema_count: 0
+  token_estimate: chars/3.6 of each compact tool definition
+  source: mcp/raiffeisen-ru-mcp-tools-list.json
+  measured: '2026-10-20'
+  scored: false
+  note: Facts from the saved tools/list capture (mcp_tool_quality.py); recorded, not scored. Checks learned
+    from Glimind's agent-readiness audit.
